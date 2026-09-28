@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360">
+<rect width="1200" height="360" fill="#fff"/>
+<g transform="translate(70 65)">
+<circle cx="72" cy="36" r="28" fill="#1769E0"/><circle cx="170" cy="36" r="28" fill="#0B1F3A"/>
+<path d="M40 214V145c0-43 14-67 44-67s40 24 40 67v69z" fill="#1769E0"/>
+<path d="M118 214v-69c0-43 14-67 44-67s40 24 40 67v69z" fill="#0B1F3A"/>
+<path d="M82 90c19 24 29 39 42 55 13-16 25-31 44-55" fill="none" stroke="#5AA2FF" stroke-width="22" stroke-linecap="round"/>
+</g>
+<text x="350" y="205" font-family="Arial,sans-serif" font-size="142" font-weight="800" letter-spacing="8" fill="#0B1F3A">MATE</text>
+<text x="356" y="265" font-family="Arial,sans-serif" font-size="31" font-weight="500" letter-spacing="4" fill="#1769E0">子育ての、頼れる相棒。</text>
+</svg>
