@@ -20,7 +20,6 @@ for row in rows:
         "id": (row.get("ID") or "").strip(),
         "name": (row.get("事業者名") or "").strip(),
         "area": (row.get("エリア") or "").strip(),
-        "kind": (row.get("種別") or "").strip(),
         "facility_no": (row.get("東京都施設番号") or "").strip(),
         "official_url": url,
         "verified": True,
