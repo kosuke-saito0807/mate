@@ -1,4 +1,4 @@
-name: Sync MATE public data from Smartsheet
+name: Sync MATE public data from Google Sheets
 
 on:
   workflow_dispatch:
@@ -14,15 +14,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Sync approved providers from Smartsheet
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Google Sheets dependencies
+        run: pip install gspread google-auth
+      - name: Sync approved providers from Google Sheets
         env:
-          SMARTSHEET_ACCESS_TOKEN: ${{ secrets.SMARTSHEET_ACCESS_TOKEN }}
-          SMARTSHEET_SHEET_ID: "2878110904307588"
-        run: python3 scripts/sync_smartsheet_public.py
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEETS_ID: "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ"
+          GOOGLE_SHEETS_WORKSHEET: "営業管理DB"
+        run: python3 scripts/sync_google_sheets_public.py
       - name: Commit public data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json
-          git diff --cached --quiet || git commit -m "Sync approved MATE providers from Smartsheet"
+          git diff --cached --quiet || git commit -m "Sync approved MATE providers from Google Sheets"
           git push
