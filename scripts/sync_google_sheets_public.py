@@ -20,11 +20,16 @@ rows = worksheet.get_all_records(default_blank="")
 
 public = []
 for row in rows:
+    # Publish only when both the operator's permission and MATE status are approved.
     if str(row.get("掲載許可", "")).strip() != "許可":
         continue
+    if str(row.get("MATE掲載ステータス", "")).strip() != "掲載許可":
+        continue
+
     official = str(row.get("公式サイト", "")).strip()
     if not official:
         continue
+
     public.append({
         "id": str(row.get("ID", "")).strip(),
         "name": str(row.get("事業者名", "")).strip(),
