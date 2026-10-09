@@ -1,9 +1,12 @@
-name: Deploy MATE to GitHub Pages
+name: Deploy MATE SITTER to GitHub Pages
 
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Sync MATE SITTER public data from Google Sheets"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -16,15 +19,23 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: main
       - uses: actions/configure-pages@v5
+      - name: Package public site only
+        run: |
+          mkdir -p _site
+          cp *.html data.json favicon.svg favicon.ico _site/
+          cp -R assets _site/assets
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: "."
+          path: "_site"
       - id: deployment
         uses: actions/deploy-pages@v4

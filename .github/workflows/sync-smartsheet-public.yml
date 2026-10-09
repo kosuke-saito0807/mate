@@ -1,7 +1,9 @@
-name: Sync MATE public data from Google Sheets
+name: Sync MATE SITTER public data from Google Sheets
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write

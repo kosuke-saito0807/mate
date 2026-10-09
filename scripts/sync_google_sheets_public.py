@@ -7,7 +7,9 @@ from google.oauth2.service_account import Credentials
 
 SPREADSHEET_ID = os.environ.get("GOOGLE_SHEETS_ID", "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ")
 WORKSHEET_NAME = os.environ.get("GOOGLE_SHEETS_WORKSHEET", "営業管理DB")
-SERVICE_ACCOUNT_JSON = os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"]
+SERVICE_ACCOUNT_JSON = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
+if not SERVICE_ACCOUNT_JSON:
+    raise SystemExit("Set GOOGLE_SERVICE_ACCOUNT_JSON in repository Actions secrets and share MATE営業管理DB with that service account.")
 
 info = json.loads(SERVICE_ACCOUNT_JSON)
 creds = Credentials.from_service_account_info(
