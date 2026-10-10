@@ -10,3 +10,6 @@ header{background:linear-gradient(180deg,#ffffffed,#ffffff80);border-bottom:1px 
 @media(max-width:760px){header{background:#fff}.brand img,.sitehead img,.brandlogo,.footerBrand img{width:280px;height:54.45px}.mate-introduction section,.mate-introduction section+section{padding:24px 22px;border-left:0}.mate-introduction section+section{border-top:1px solid #dce8f7}}
 
 .footerBrand img{max-height:none}
+
+/* Match SPARK footer palette. */
+.footer{background:#f5f9ff;color:#073661;border-top:1px solid #bdd3ec}.footerBrand img{filter:none}.footerBrand p,.footerLinks a{color:#607b95}.footerLinks a:hover{color:#0878ea}.footerNote{border-top-color:#d9e7f5;color:#607b95}.copyright{color:#8390a0}
