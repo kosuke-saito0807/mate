@@ -8,3 +8,5 @@ header{background:linear-gradient(180deg,#ffffffed,#ffffff80);border-bottom:1px 
 .mate-introduction{border:1px solid #dce8f7;border-radius:16px;background:#f7fbff;overflow:hidden}.mate-introduction section{padding:30px 32px}.mate-introduction section+section{padding:30px 32px;border-left:1px solid #dce8f7}.mate-introduction h2{font-weight:800;letter-spacing:-.04em;color:#073661}.mate-introduction p:not(.section-label){color:#627184}.mate-introduction a{color:#0878ea}
 @media(max-width:1100px){.brand img,.sitehead img,.brandlogo,.footerBrand img{width:280px;height:54.45px}}
 @media(max-width:760px){header{background:#fff}.brand img,.sitehead img,.brandlogo,.footerBrand img{width:280px;height:54.45px}.mate-introduction section,.mate-introduction section+section{padding:24px 22px;border-left:0}.mate-introduction section+section{border-top:1px solid #dce8f7}}
+
+.footerBrand img{max-height:none}
