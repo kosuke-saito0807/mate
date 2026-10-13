@@ -13,3 +13,7 @@ header{background:linear-gradient(180deg,#ffffffed,#ffffff80);border-bottom:1px 
 
 /* Match SPARK footer palette. */
 .footer{background:#f5f9ff;color:#073661;border-top:1px solid #bdd3ec}.footerBrand img{filter:none}.footerBrand p,.footerLinks a{color:#607b95}.footerLinks a:hover{color:#0878ea}.footerNote{border-top-color:#d9e7f5;color:#607b95}.copyright{color:#8390a0}
+
+/* CARE hero: fit the complete photo instead of cropping faces. */
+@media(min-width:901px){.hero{height:clamp(560px,43vw,720px);min-height:0}.heroPhoto{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:right center;opacity:1}.heroIn{position:relative;inset:auto;padding-top:120px}.wash{background:linear-gradient(90deg,#fff 0%,#fff 20%,rgba(255,255,255,.9) 30%,rgba(255,255,255,.45) 40%,transparent 53%)}}
+.card:nth-child(3) .pic{background:#f8f5ef}.card:nth-child(3) .pic img{object-fit:contain;object-position:center}
