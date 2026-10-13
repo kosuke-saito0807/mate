@@ -21,8 +21,8 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 @media(max-width:900px){.nav{display:none}.brand img{width:305px;height:50px}.heroPhoto{width:100%;opacity:.45;object-fit:contain;object-position:center}.wash{background:rgba(255,255,255,.7)}.sg,.wg{grid-template-columns:1fr}.cards,.providers{grid-template-columns:repeat(2,1fr)}.scene h2{white-space:normal}.footerTop,.providerCta .w{flex-direction:column}.desc{max-width:none}}
 @media(max-width:620px){.w{width:calc(100% - 28px)}.brand img{width:262px;height:44px}.hero{height:650px}.heroIn{padding-top:100px}.hero h1{font-size:36px}.search{height:auto;grid-template-columns:1fr}.search input,.search select,.search button{height:48px}.cards,.providers,.steps,.results,.filters{grid-template-columns:1fr}.pic{height:190px}.footerLinks{flex-direction:column;gap:10px}}
 
-/* Bring the family photo toward the centre while keeping the headline readable. */
-@media(min-width:901px){.heroPhoto{right:3%;width:78%;object-position:center}.wash{background:linear-gradient(90deg,#fff 0%,#fff 22%,rgba(255,255,255,.96) 30%,rgba(255,255,255,.65) 39%,rgba(255,255,255,.12) 52%,transparent 65%)}}
+/* Fill the hero edge to edge; preserve faces near the top and fade behind the copy. */
+@media(min-width:901px){.heroPhoto{right:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center top}.wash{background:linear-gradient(90deg,#fff 0%,#fff 22%,rgba(255,255,255,.96) 30%,rgba(255,255,255,.65) 39%,rgba(255,255,255,.12) 52%,transparent 65%)}}
 </style>
 <link rel="stylesheet" href="assets/brand.css?v=20261010-footer"></head>
 <body>
