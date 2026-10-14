@@ -17,3 +17,48 @@ header{background:linear-gradient(180deg,#ffffffed,#ffffff80);border-bottom:1px 
 /* CARE hero: fit the complete photo instead of cropping faces. */
 @media(min-width:901px){.hero{height:clamp(560px,43vw,720px);min-height:0}.heroPhoto{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:right center;opacity:1}.heroIn{position:relative;inset:auto;padding-top:120px}.wash{background:linear-gradient(90deg,#fff 0%,#fff 20%,rgba(255,255,255,.9) 30%,rgba(255,255,255,.45) 40%,transparent 53%)}}
 .card:nth-child(3) .pic{background:#f8f5ef}.card:nth-child(3) .pic img{object-fit:contain;object-position:center}
+
+/* Shared small-screen MATE layout. */
+@media(max-width:760px){
+ header{position:relative;height:auto;background:#fff}
+ .w{width:calc(100% - 40px)}
+ .head{height:auto;padding:16px 0 12px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+ .brand{max-width:100%;min-width:0}
+ .brand img,.brandlogo,.footerBrand img{width:min(280px,100%);height:auto;max-width:100%}
+ .nav{display:grid;width:100%;margin:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:11px}
+ .nav a,.nav a[href="#mission"],.nav a[href="#scene"],.nav a[href="#find"]{display:flex;align-items:center;justify-content:center;min-height:42px;padding:8px 4px;white-space:normal;text-align:center;line-height:1.5;min-width:0}
+ .nav .btn{grid-column:span 2;font-size:12px;padding:9px 12px;border-radius:24px}
+ .hero{height:auto;min-height:0;display:flex;flex-direction:column;padding:0}
+ .heroIn{position:relative;inset:auto;order:0;padding:30px 0 24px}
+ .heroPhoto{position:relative;inset:auto;order:1;width:100%;height:auto;max-height:none;margin:0;opacity:1;object-fit:contain;object-position:center}
+ .wash{display:none}
+ .hero h1{font-size:clamp(30px,8.5vw,40px);line-height:1.35}
+ .sub{font-size:17px;line-height:1.7;overflow-wrap:anywhere}
+ .hero-kicker{font-size:10px;letter-spacing:.08em}
+ .hero-cta{max-width:100%;white-space:normal}
+ .footerTop{flex-direction:column;align-items:stretch;gap:18px}
+ .footerBrand{min-width:0;max-width:100%}
+ .footerLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;width:100%}
+ .footerLinks a{display:flex;align-items:center;min-height:44px;white-space:normal;overflow-wrap:anywhere;line-height:1.7;font-size:12px}
+ .footerNote{overflow-wrap:anywhere}
+ .providerCta .w{align-items:flex-start;gap:20px}
+ .providerCta .btn{max-width:100%;white-space:normal}
+ .pic{height:auto;aspect-ratio:16/10}
+ .cb{min-height:0}
+ .cb b{overflow-wrap:anywhere}
+ .results-heading{flex-wrap:wrap}
+ .result{min-width:0}
+ .search-box{padding:4px 14px;gap:10px}
+ .box{padding:22px 18px}
+ .formgrid{grid-template-columns:minmax(0,1fr)}
+ .formgrid .full{grid-column:auto}
+ .field,.note,.plan-card{min-width:0;overflow-wrap:anywhere}
+ .top{flex-wrap:wrap;gap:12px}
+ .operator-shell{padding:24px 20px 45px}
+ .operator-logo{max-width:100%;height:auto}
+ .operator-footer{gap:8px 16px}
+ .operator-footer a{min-height:40px;display:inline-flex;align-items:center}
+ main p a,.founder-history a{overflow-wrap:anywhere}
+ input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px}
+ .plan-grid{grid-template-columns:minmax(0,1fr)}
+}
