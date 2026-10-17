@@ -68,13 +68,75 @@ def normalized_ages(raw):
     return result
 
 
-def build_public(candidates, contracts):
+
+WEEKDAY_TOKENS = ("月", "火", "水", "木", "金", "土", "日")
+
+
+def public_amount(row, key):
+    raw = row.get(key)
+    if raw is None or raw == "" or isinstance(raw, bool):
+        return None
+    # Amounts must be nonnegative integers with no units or assumed tax adjustments.
+    text = str(raw).strip().replace(",", "")
+    if not re.fullmatch(r"\d{1,8}(?:\.0)?", text):
+        return None
+    amount = int(float(text))
+    return amount if amount <= 10000000 else None
+
+
+def public_age(row, key):
+    raw = row.get(key)
+    if raw is None or raw == "" or isinstance(raw, bool):
+        return None
+    text = str(raw).strip()
+    if not re.fullmatch(r"\d{1,2}(?:\.0)?", text):
+        return None
+    age = int(float(text))
+    return age if 0 <= age <= 18 else None
+
+
+def public_weekdays(raw):
+    days = []
+    for token in re.split(r"[,，、/・;\s]+", raw):
+        token = token.strip()
+        if token in WEEKDAY_TOKENS and token not in days:
+            days.append(token)
+    return days
+
+
+def public_tags(raw):
+    tags = []
+    for token in re.split(r"[,，、;\n]+", raw):
+        token = token.strip()
+        if token and len(token) <= 24 and len(tags) < 6 and token not in tags:
+            tags.append(token)
+    return tags
+
+
+def date_eligible(row, today):
+    """Active agreement can never be prematurely effective or expired."""
+    start = value(row, "開始日")
+    end = value(row, "終了日")
+    try:
+        if start and datetime.date.fromisoformat(start) > today:
+            return False
+        if end and datetime.date.fromisoformat(end) < today:
+            return False
+    except ValueError:
+        return False
+    return True
+
+
+def build_public(candidates, contracts, today=None):
     """Return a sanitized public data set, failing closed on ambiguity."""
+    if today is None:
+        # Japanese operational calendar, even when CI runs on UTC.
+        today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).date()
     active = {}
     for row in contracts:
         if value(row, "サービス") != "SPARK":
             continue
-        if value(row, "状態") not in ALLOWED_CONTRACT:
+        if value(row, "状態") not in ALLOWED_CONTRACT or not date_eligible(row, today):
             continue
         school_id = value(row, "掲載先ID")
         if not all(value(row, x) for x in (
@@ -113,19 +175,37 @@ def build_public(candidates, contracts):
         ages = normalized_ages(value(row, "対象学年（カンマ区切り）"))
         if not all((name, category, region, description, ages)) or not approved_url(url):
             continue
-        public.append({
+        first_age = public_age(row, "対象最少年齢")
+        last_age = public_age(row, "対象最高年齢")
+        if first_age is not None and last_age is not None and first_age > last_age:
+            continue
+        # Keep unknown details explicitly absent; never invent age, price or weekdays.
+        output = {
             "id": school_id[:120],
             "name": name[:160],
             "region": region,
+            "area": value(row, "教室所在地")[:120],
             "station": station[:100],
             "category": category[:60],
             "ages": ages,
             "description": description[:500],
             "url": url,
+            "tags": public_tags(value(row, "特徴タグ（カンマ区切り）")),
+            "weekdays": public_weekdays(value(row, "開講曜日（カンマ区切り）")),
             "approved": True,
             "acceptsTrial": value(row, "体験受付許諾") == "可",
             "verifiedAt": checked_at,
-        })
+        }
+        for output_key, value_key, parser in (
+            ("monthlyPrice", "月謝税込円", public_amount),
+            ("trialPrice", "体験料金税込円", public_amount),
+            ("ageMin", "対象最少年齢", public_age),
+            ("ageMax", "対象最高年齢", public_age),
+        ):
+            parsed = parser(row, value_key)
+            if parsed is not None:
+                output[output_key] = parsed
+        public.append(output)
     return sorted(public, key=lambda s: (s["region"], s["name"], s["id"]))
 
 
