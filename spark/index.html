@@ -37,6 +37,10 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 @media(max-width:950px){.head{min-height:80px}.nav{gap:14px}.hero-inner{min-height:490px}.hero-art{height:380px}.discovery-shell{grid-template-columns:205px minmax(0,1fr);gap:18px}.mainSearch{grid-template-columns:1fr 1fr}.mainSearch label:first-child{grid-column:1/-1}}
 @media(max-width:760px){.head{flex-wrap:wrap;gap:5px;padding:12px 0}.brand img{width:265px}.nav{gap:12px;flex-wrap:wrap;justify-content:space-between;width:100%;font-size:11px}.nav .btn{padding:8px 12px;font-size:11px}.hero-inner{grid-template-columns:1fr;min-height:0;padding:35px 0}.hero h1{font-size:40px}.hero-art{height:240px;border-radius:22px 22px 22px 75px}.hero-art .family{font-size:120px}.hero-art .robot{font-size:35px}.intro{grid-template-columns:1fr;gap:25px}.about-blurb{min-height:170px;position:static}.about-blurb .big{font-size:60px}.section{padding:43px 0}.discovery-shell{grid-template-columns:1fr}.filters{position:static}.cards{grid-template-columns:1fr 1fr}.partnerRow{display:block}.selection .wrap{gap:7px;flex-wrap:wrap}.selection .btn{font-size:12px;padding:10px 13px}}
 @media(max-width:540px){.wrap{width:calc(100% - 30px)}.nav a[href="#mission"]{display:none}.cards{grid-template-columns:1fr}.mainSearch{grid-template-columns:1fr}.mainSearch label:first-child{grid-column:auto}.resultshead{align-items:start;flex-direction:column}.hero h1{font-size:35px}.section h2{font-size:29px}.hero .strap{font-size:16px}dialog{padding:20px}.selection span{font-size:11px}.selection .right{width:100%}.selection .right button{flex:1}}
+
+.headControls{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.favOnly{font-size:12px;border:1px solid #d1deec;padding:8px 12px;border-radius:22px;background:white;color:#285578;font-weight:800}.favOnly.on{background:#fce6ed;color:#a63858;border-color:#e8a2b5}
+.detail-kicker{color:#1684e4;font-size:12px;font-weight:800}.detail-list{display:grid;grid-template-columns:140px minmax(0,1fr);border-top:1px solid var(--line);margin:18px 0}.detail-list dt,.detail-list dd{border-bottom:1px solid var(--line);padding:12px 6px;margin:0;font-size:13px}.detail-list dt{font-weight:800}.detail-list .labels{display:flex;gap:5px;flex-wrap:wrap}.detail-list .labels span{background:#edf6fb;padding:2px 7px;border-radius:7px}
+@media(max-width:540px){.headControls{align-items:flex-start;flex-direction:column;gap:8px}.detail-list{grid-template-columns:105px minmax(0,1fr)}}
 </style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
@@ -55,14 +59,15 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 </aside><div><div class="mainSearch"><label>教室名・駅・市区町村で検索<input type="search" id="keyword" placeholder="例：千石・英語・プログラミング"></label><label>エリア<select id="topRegion"><option value="">1都3県</option><option>東京都</option><option>神奈川県</option><option>埼玉県</option><option>千葉県</option></select></label><label>ジャンル<select id="category"><option value="">すべての習い事</option></select></label></div>
 <div class="categories" id="categoryQuick"><button type="button" data-category="" class="on">すべて</button><button type="button" data-category="プログラミング">プログラミング</button><button type="button" data-category="音楽">音楽</button><button type="button" data-category="スポーツ">スポーツ</button></div>
 <p class="notice" id="demoBanner">掲載情報は教室からの許諾を確認後に公開します。体験申込は準備中です。</p>
-<div class="resultshead"><b id="status">教室データを読み込み中</b><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option></select></div></div>
+<div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option></select></div></div>
 <div class="cards" id="cards" aria-live="polite"></div>
 <p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
 </div></div></div></section>
 <section class="partners"><div class="wrap partnerRow"><div><p class="eyebrow">FOR SCHOOL PARTNERS</p><h2>あなたの教室と、<br>新しい「好き」をつなごう。</h2><p>教室の魅力を届けて、体験のきっかけを増やしませんか。</p></div><a class="btn" href="partners.html">掲載について見る ↗</a></div></section>
 </main>
-<footer><div class="wrap footerGrid"><div><a class="brand" href="#top"><img src="mate-spark-logo.svg" alt="MATE SPARK"></a><p>習い事探しに、頼れる相棒を。<br>東京・神奈川・埼玉・千葉</p></div><nav class="footerNav" aria-label="フッターメニュー"><a href="partners.html">教室を掲載する</a><a href="privacy.html">個人情報の取り扱い</a><a href="operator.html">お問い合わせ・運営者情報</a><a href="compare.html">旧比較ページ</a></nav></div><div class="wrap copyright">© 2026 MATE SPARK / NextEdu</div></footer>
+<footer><div class="wrap footerGrid"><div><a class="brand" href="#top"><img src="mate-spark-logo.svg" alt="MATE SPARK"></a><p>習い事探しに、頼れる相棒を。<br>東京・神奈川・埼玉・千葉</p></div><nav class="footerNav" aria-label="フッターメニュー"><a href="partners.html">教室を掲載する</a><a href="privacy.html">個人情報の取り扱い</a><a href="terms.html">利用について</a><a href="disclaimer.html">免責事項・掲載方針</a><a href="partners.html">掲載条件・料金</a><a href="operator.html">お問い合わせ・運営者情報</a></nav></div><div class="wrap copyright">© 2026 MATE SPARK / NextEdu</div></footer>
 <div class="selection"><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
+<dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
 <dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
 <script>
 const $=id=>document.getElementById(id);
@@ -70,7 +75,7 @@ const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 const yen=n=>typeof n==='number'?'¥'+n.toLocaleString('ja-JP'):'料金は公式サイトで確認';
 const weekdays=['月','火','水','木','金','土','日'];
 const categories=['プログラミング','音楽','スポーツ','学習塾','英語・英会話','ダンス','バレエ','水泳','体操','サッカー','野球','テニス','武道','書道','そろばん','絵画・造形','科学・実験','ロボット','STEAM','ピアノ','ギター','バイオリン','歌・声楽','演劇','料理','囲碁・将棋','作文','国語','算数・数学','受験対策','幼児教室','オンライン','プログラミング・ロボット','その他'];
-let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set();
+let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false;
 try{favorite=new Set(JSON.parse(localStorage.getItem('mateSparkFavIds')||'[]'))}catch(e){}
 function saveFav(){try{localStorage.setItem('mateSparkFavIds',JSON.stringify([...favorite]))}catch(e){}}
 function choose(id){if(selected.has(id))selected.delete(id);else if(selected.size<5)selected.add(id);else{alert('比較できる教室は最大5件までです。');return}draw()}
@@ -82,6 +87,7 @@ function matching(s){
  const region=$('region').value,age=$('age').value,price=$('price').value,cat=$('category').value,key=$('keyword').value.trim().toLowerCase();
  if(region&&s.region!==region)return false;
  if(cat&&s.category!==cat)return false;
+ if(favoritesOnly&&!favorite.has(s.id))return false;
  if(key&&!([s.name,s.area,s.station,s.category,s.description].join(' ').toLowerCase().includes(key)))return false;
  if(age!==''){
   const v=Number(age);
@@ -103,9 +109,8 @@ function draw(){
  $('cards').innerHTML=sorted.map(s=>{
   const fictional=demoMode||s.demo===true;
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
-  const canCompare=true;
 
-  const action=fictional ? '<button class="btn" disabled>体験受付不可</button>' : (s.url ? '<a class="btn" target="_blank" rel="noopener noreferrer" href="'+escapeHtml(s.url)+'">公式サイト ↗</a>' : '<button class="btn" disabled>準備中</button>');
+  const action='<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>';
   const marks=(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
   const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
   return '<article class="card"><div class="cardArt '+cls+'">'+
@@ -118,13 +123,42 @@ function draw(){
     '<div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div>'+
     '<p>'+escapeHtml(s.description||'')+'</p>'+
     '<div class="specs"><span class="price">'+fee+'</span><span class="mini">／月</span></div>'+
-    '<div class="meta">'+(s.weekdays||[]).join('・')+'</div>'+
+    '<div class="meta">'+escapeHtml((s.weekdays||[]).join('・')||'曜日：教室へ確認')+'</div>'+
     '<div class="labels">'+marks+'</div>'+
     '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
     '</div></article>';
  }).join('')||'<div class="empty"><h3>条件に合う教室はありません</h3><p>地域・月謝・曜日などの条件を変更してみてください。</p><a class="btn light" href="#discover" id="emptyReset">条件を変更する</a></div>';
- $('selectedCount').textContent='気になる教室 '+selected.size+'件';$('compare').disabled=selected.size===0;
+ $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
+ $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
+ $('favoriteOnly').setAttribute('aria-pressed',String(favoritesOnly));
+ $('favoriteOnly').classList.toggle('on',favoritesOnly);
  $('categoryQuick').querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('on',b.dataset.category===$('category').value));
+}
+function showDetail(id){
+ const s=schools.find(x=>x.id===id);
+ if(!s)return;
+ const sample=demoMode||s.demo===true;
+ const fullAge=(typeof s.ageMin==='number'&&typeof s.ageMax==='number')
+   ?s.ageMin+'〜'+s.ageMax+'歳'
+   :(s.ages||[]).join('・')||'お問い合わせください';
+ const trialAmount=typeof s.trialPrice==='number'?yen(s.trialPrice):'教室へ確認';
+ const tags=(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
+ const link=(!sample && s.url)
+   ?'<p><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトで詳細を確認 ↗</a></p>'
+   :'<p class="notice">架空の教室のため、実際の申込・お問い合わせはできません。</p>';
+ $('detailHeading').textContent=s.name+(sample?'（架空サンプル）':'');
+ $('detailContent').innerHTML=
+   '<p class="detail-kicker">'+escapeHtml(s.region)+' / '+escapeHtml(s.category)+'</p>'+
+   '<p>'+escapeHtml(s.description||'')+'</p>'+
+   '<dl class="detail-list"><dt>所在地・最寄駅</dt><dd>'+escapeHtml([s.area,s.station,s.walk].filter(Boolean).join(' / ')||'要確認')+'</dd>'+
+   '<dt>対象年齢</dt><dd>'+escapeHtml(fullAge)+'</dd>'+
+   '<dt>月謝</dt><dd>'+yen(s.monthlyPrice)+'</dd>'+
+   '<dt>体験料金</dt><dd>'+trialAmount+'</dd>'+
+   '<dt>開講曜日</dt><dd>'+escapeHtml((s.weekdays||[]).join('・')||'教室へ確認')+'</dd>'+
+   '<dt>特徴</dt><dd class="labels">'+(tags||'教室へ確認')+'</dd></dl>'+
+   (sample?'<p class="muted">表示した料金・条件は架空のサンプルです。</p>':'<p class="muted">内容は掲載確認時点の情報です。最新の条件は教室にご確認ください。</p>')+
+   link;
+ $('detailDialog').showModal();
 }
 function showComparison(){
  const items=schools.filter(s=>selected.has(s.id));
@@ -152,12 +186,19 @@ async function init(){
  }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
 }
 $('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);drawDays();draw()});
-$('cards').addEventListener('click',e=>{const pick=e.target.closest('[data-pick]');const fav=e.target.closest('[data-fav]');if(pick)choose(pick.dataset.pick);if(fav){const id=fav.dataset.fav;favorite.has(id)?favorite.delete(id):favorite.add(id);saveFav();draw()}});
+$('cards').addEventListener('click',e=>{
+ const pick=e.target.closest('[data-pick]'),fav=e.target.closest('[data-fav]'),detail=e.target.closest('[data-detail]');
+ if(pick)choose(pick.dataset.pick);
+ if(detail)showDetail(detail.dataset.detail);
+ if(fav){const id=fav.dataset.fav;favorite.has(id)?favorite.delete(id):favorite.add(id);saveFav();draw()}
+});
 $('categoryQuick').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;$('category').value=b.dataset.category;draw()});
 $('region').addEventListener('change',()=>regionChange($('region').value));
 $('topRegion').addEventListener('change',()=>regionChange($('topRegion').value));
 ['age','price','category','keyword','sort','trialOnly'].forEach(id=>$(id).addEventListener('input',draw));
 $('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();drawDays();draw()});
+$('favoriteOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;draw()});
+$('closeDetail').addEventListener('click',()=>$('detailDialog').close());
 $('compare').addEventListener('click',showComparison);
 $('closeCompare').addEventListener('click',()=>$('compareDialog').close());
 init();
