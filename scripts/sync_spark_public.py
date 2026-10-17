@@ -205,6 +205,13 @@ def build_public(candidates, contracts, today=None):
             parsed = parser(row, value_key)
             if parsed is not None:
                 output[output_key] = parsed
+        next_trial = value(row, "次回体験予定日")
+        try:
+            d = datetime.date.fromisoformat(next_trial) if next_trial else None
+        except ValueError:
+            d = None
+        if d is not None and d >= today and output["acceptsTrial"]:
+            output["nextTrialDate"] = d.isoformat()
         public.append(output)
     return sorted(public, key=lambda s: (s["region"], s["name"], s["id"]))
 
