@@ -84,3 +84,17 @@ MATE営業管理DB（Spreadsheet ID \`1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIE
 GitHub Pagesの \`/mate/spark/\` で表示する比較機能です。ChatGPT Sites上の既存SPARKトップページ自体は変更できていません。2サイトの統合・公開ドメイン切替は正本の編集権限がある環境で実施してください。
 
 SPARKの掲載相談: \`spark/partners.html\` 、プライバシー: \`spark/privacy.html\` 。
+
+
+## 元のChatGPT Sites版に合わせたトップページの調整（2026-10-17）
+Firebase Hosting版の \`spark/index.html\` を、既存の \`https://naraico.kosuke-saito0807.chatgpt.site/\` のテキスト抽出版で確認できる構成に寄せました。
+- メインコピー「好きが見つかる。世界が、広がる。」、ABOUT、OUR MISSION、FIND YOUR MATE、FOR SCHOOL PARTNERS
+- 1都3県、年齢、月謝、曜日、カテゴリ、キーワードで絞り込み・教室比較（最大5件）
+- 既存MATE共通ロゴのSPARK版（\`mate-spark-logo.svg\`）
+- 既存SPARKの架空サンプル12件を \`demo-schools.json\` に収録。**正式な掲載教室が0件の間は架空12教室を明示的なデモとして表示する**。実データが1件以上ある場合は実データに切り替わり、明示的に \`?demo=1\` を付けた場合のみサンプルを表示する
+- オリジナルサイトの画像ファイル、管理画面、データベースは取得できていないため、完全なピクセル一致・管理機能移行ではありません。ヒーロー画像には画像の代わりに親子とロボットのイラスト表現を使用
+- 従来の独立型比較UIも \`compare.html\` に保存
+
+**Firebase Hostingへの反映手順**: サイト公開に使用したCloud Shellで \`cd ~/mate && git pull --ff-only && firebase deploy --only hosting --project mate-spark\` を実行する。GitHub上の更新だけではFirebaseに反映されない。
+
+**安全上の制約**: いずれのサンプル教室も架空で、体験受付できません。実在教室は掲載許諾・契約情報が確認されたもののみ \`schools.json\` に出力し、実申込機能は \`config.json\` で停止したままです。

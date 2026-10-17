@@ -1,111 +1,164 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>学習塾・習い事の無料比較｜MATE SPARK</title><meta name="description" content="習い事探しの頼れる相棒 MATE SPARK。地域・学年・ジャンルで教室を探して比較できます。">
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MATE SPARK｜習い事探しに、頼れる相棒を。</title>
+<meta name="description" content="習い事探しに、頼れる相棒を。MATE SPARKはエリア・年齢・曜日・予算から学習塾や習い事を探して比較するサービスです。">
+<meta name="theme-color" content="#f7fbff">
+<link rel="icon" type="image/svg+xml" href="mate-spark-logo.svg">
 <style>
-:root{--navy:#193e62;--blue:#367acb;--mint:#eff9f5;--border:#dbe6ee}*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--navy);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;line-height:1.65}a{color:inherit}.wrap{max-width:1120px;padding:0 22px;margin:auto}header{border-bottom:1px solid var(--border);padding:16px 0;background:#fff}header .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{font-size:24px;font-weight:900;text-decoration:none}.brand em{color:#3aa28c;font-style:normal}.toplink{font-size:13px}.hero{background:linear-gradient(125deg,#ebf8f4,#eff5ff);padding:56px 0 48px}.kicker{color:#368d81;font-weight:800;font-size:12px;letter-spacing:.14em}h1{font-size:clamp(28px,4vw,44px);line-height:1.4;margin:12px 0}.hero p{max-width:650px}h2{font-size:25px}.search{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:26px 0}label{font-weight:700;font-size:13px;display:block}select,input,textarea{width:100%;border:1px solid #bdd1df;border-radius:10px;padding:12px;font:inherit;background:white;margin-top:7px}button{cursor:pointer;font:inherit}.controls{background:#fff;border-bottom:1px solid var(--border)}.button{border:0;border-radius:10px;background:var(--blue);color:#fff;padding:11px 17px;font-weight:800}.ghost{background:#edf3fb;color:var(--navy)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:24px 0 70px}.card{padding:22px;border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 22px #153b5b0b}.card h3{margin:7px 0}.tag{font-size:12px;color:#197961;background:#e8f8f2;border-radius:5px;padding:4px 8px}.muted{font-size:13px;color:#647a8e}.actions{display:flex;gap:8px;margin-top:15px}.actions>*{flex:1}.note{background:#fff4da;padding:14px;border-radius:12px;font-size:13px}.selection{position:sticky;bottom:0;z-index:4;background:#fff;box-shadow:0 -3px 18px #102a4830;padding:13px 0}.selection .wrap{display:flex;align-items:center;gap:15px;justify-content:space-between}.selection button:disabled{background:#9aafbe;cursor:not-allowed}dialog{border:0;border-radius:18px;padding:28px;max-width:580px;width:calc(100% - 24px);max-height:90vh;overflow:auto;box-shadow:0 14px 70px #06254255}dialog::backdrop{background:#10294199}dialog .button{margin-top:14px}dialog h2{margin-top:15px}.application{display:grid;grid-template-columns:1fr 1fr;gap:13px}.application .full{grid-column:1/-1}.application textarea{min-height:94px}.check{display:flex;gap:10px;font-size:12px;font-weight:500}.check input{width:auto;align-self:start;margin:5px 0 0}.form-feedback{font-size:13px;font-weight:bold}.form-feedback[aria-live]{min-height:24px}@media(max-width:550px){.application{grid-template-columns:1fr}}.toplinks{display:flex;align-items:center;gap:22px}.toplinks a{text-decoration:none;color:var(--navy);font-weight:750}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.introSteps{padding:40px 0 26px}.introTitle h2{font-size:23px;margin:6px 0 19px}.stepGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.stepGrid>div{border:1px solid var(--border);padding:17px;border-radius:14px;background:white;min-width:0}.stepGrid span{color:#188c73;font-weight:900;font-size:13px;margin-right:10px}.stepGrid strong{font-size:15px}.stepGrid p{color:#62798c;font-size:13px;margin:6px 0 0}.emptyState{grid-column:1/-1;text-align:center;border:1px dashed #afc6d7;border-radius:18px;background:#f6fbff;padding:44px 23px}.emptyState h3{font-size:21px;margin:0 0 6px}.emptyState p{color:#60778c;max-width:470px;margin:10px auto}.emptyState .links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}.emptyState a{display:inline-block;text-decoration:none;border-radius:9px;padding:10px 15px;font-size:13px;font-weight:800;background:#e3f0fc;color:var(--navy)}
-@media(max-width:760px){.stepGrid{grid-template-columns:1fr}.toplinks{gap:10px;flex-wrap:wrap}.toplinks a{font-size:12px}.introSteps{padding-top:28px}}
-footer{padding:35px 0 95px;background:#153654;color:white;font-size:13px}footer a{color:#e1f4ff}.hidden{display:none!important}@media(max-width:760px){.search{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.selection .wrap{flex-wrap:wrap}header .brand{font-size:21px}}@media(max-width:420px){.search{grid-template-columns:1fr}}
-</style></head><body>
-<header><div class="wrap"><a class="brand" href="./">MATE <em>SPARK</em></a><nav class="toplinks" aria-label="メインナビゲーション"><a class="toplink" href="https://naraico.kosuke-saito0807.chatgpt.site">習い事ポータル ↗</a><a class="toplink" href="partners.html">教室の掲載相談</a></nav></div></header>
-<section class="hero"><div class="wrap"><span class="kicker">DISCOVER YOUR NEXT SPARK.</span><h1>ぴったりの学びが、<br>好き！のきっかけに。</h1><p>学習塾・英会話・プログラミングなど、気になる教室を探して比較。お子さまに合う学びを見つけましょう。</p><p class="note">掲載事業者を募集中です。教室から掲載許諾と最新情報を確認できたものだけを公開しています。体験相談機能は準備が整い次第開始します。</p><div class="hero-cta"><a href="#discover" class="button">教室を探す ↓</a><a href="partners.html" class="button ghost">教室掲載について ↗</a></div></div></section>
-<section class="introSteps"><div class="wrap"><div class="introTitle"><span class="kicker">HOW IT WORKS</span><h2>探して、比べて、自分に合う学びを。</h2></div><div class="stepGrid"><div><span>01</span><strong>探す</strong><p>エリア・学年・ジャンルから候補を探す。</p></div><div><span>02</span><strong>比べる</strong><p>気になる教室を最大5件まで比較。</p></div><div><span>03</span><strong>相談する</strong><p>公式サイトで内容を確かめる。体験相談の受付は準備中。</p></div></div></div></section><section id="discover" class="controls"><div class="wrap search"><label>都道府県<select id="region"><option value="">すべて</option></select></label><label>学年・年齢<select id="age"><option value="">すべて</option><option>幼児</option><option>小学生</option><option>中学生</option><option>高校生</option></select></label><label>ジャンル<select id="category"><option value="">すべて</option></select></label><label>キーワード<input id="keyword" type="search" placeholder="教室名・駅名など"></label></div></section>
-<main class="wrap"><h2>教室を探す・比較する</h2><p class="muted" id="status" role="status">公開データを読み込んでいます。</p><div id="cards" class="grid"></div></main>
-<div class="selection"><div class="wrap"><span id="selectedCount">比較候補 0件</span><button id="compare" class="button ghost" disabled>比較する</button><button id="apply" class="button" disabled>まとめて体験相談（準備中）</button></div></div>
-<dialog id="dialog"><button id="close" class="button ghost" type="button">閉じる</button><h2>教室の比較</h2><div id="comparison"></div><p class="muted">内容は各事業者の最新情報をご確認ください。体験受付は教室の確認が済み次第開始します。</p></dialog>
-<dialog id="applyDialog"><button id="applyClose" class="button ghost" type="button">閉じる</button><h2>無料体験の相談をまとめて送る</h2><p class="muted" id="applySchools"></p><p class="muted">選択した教室に体験相談のため必要な連絡先を共有します。日程確定は各教室からの案内をご確認ください。</p>
-<form id="experienceForm" class="application">
-<label>保護者のお名前（必須）<input name="guardianName" maxlength="80" autocomplete="name" required></label>
-<label>メールアドレス（必須）<input name="email" type="email" maxlength="254" autocomplete="email" required></label>
-<label>電話番号（任意）<input name="phone" type="tel" maxlength="30" autocomplete="tel"></label>
-<label>お子さまの学年（必須）<select name="grade" required><option value="">選択してください</option><option>幼児</option><option>小学1年生</option><option>小学2年生</option><option>小学3年生</option><option>小学4年生</option><option>小学5年生</option><option>小学6年生</option><option>中学1年生</option><option>中学2年生</option><option>中学3年生</option><option>高校生</option></select></label>
-<label class="full">相談内容（任意）<textarea name="message" maxlength="500" placeholder="体験したい曜日など。健康情報や学校名は記入しないでください。"></textarea></label>
-<input name="website" class="hidden" type="text" tabindex="-1" autocomplete="off">
-<div class="full" id="turnstileBox"></div>
-<label class="full check"><input name="agreed" type="checkbox" required><span>プライバシーポリシーを確認し、選択した教室およびMATE運営者に上記の申込情報が提供されることに同意します。<a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー ↗</a></span></label>
-<p class="form-feedback full" id="applyFeedback" aria-live="polite"></p>
-<button id="sendRequest" type="submit" class="button full">上記の教室へ体験相談を送る</button></form>
-</dialog>
-<footer><div class="wrap"><strong>MATE SPARK</strong><p>習い事探しの頼れる相棒 ｜ 運営：NextEdu</p><p>掲載や受付については<a href="partners.html">教室の掲載相談</a>ください。</p><p>掲載内容は事業者との提携・推奨を示すものではありません。</p><a href="privacy.html">プライバシーポリシー</a> · <a href="operator.html">運営者情報</a></div></footer>
+:root{--blue:#0878ea;--navy:#073661;--ink:#193e62;--muted:#677d90;--line:#dbe7f3;--mint:#eaf8f5;--pale:#f5faff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fff;color:var(--navy);font:15px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+button,input,select{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer}.wrap{width:min(1220px,calc(100% - 44px));margin:auto}
+header{position:sticky;top:0;z-index:15;background:#fffffff5;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}.head{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:84px}
+.brand{display:block;flex:none;line-height:0}.brand img{display:block;width:min(310px,36vw);height:auto}.nav{display:flex;align-items:center;gap:25px;font-size:13px;font-weight:800;white-space:nowrap}.nav a:hover{color:var(--blue)}
+.btn,.btn:visited{display:inline-flex;align-items:center;justify-content:center;gap:12px;color:#fff;background:var(--blue);border:0;border-radius:999px;padding:13px 22px;font-weight:800;font-size:14px;line-height:1.5;transition:transform .2s,background .2s;text-decoration:none}
+.btn:hover{background:#0869cc;transform:translateY(-1px)}.btn.outline{background:#fff;color:var(--blue);border:1px solid var(--blue)}.btn.light{background:#edf6fc;color:var(--navy)}.btn:disabled{background:#b5c3d0;cursor:not-allowed;transform:none}
+.tagline{font-size:12px;font-weight:800;color:#2385e9;letter-spacing:.12em}.hero{background:linear-gradient(114deg,#fff 0%,#fff 35%,#e4f4ff 88%);position:relative;overflow:hidden}.hero-inner{min-height:570px;display:grid;grid-template-columns:1.03fr .97fr;align-items:center;gap:32px;padding:66px 0}
+.hero h1{font-size:clamp(38px,4.5vw,65px);letter-spacing:-.08em;line-height:1.35;margin:24px 0 15px}.hero h1 strong{color:var(--blue)}.hero .strap{font-size:20px;font-weight:800;margin:0 0 12px}.hero p{color:#5c7288;font-size:14px;max-width:490px}.hero .cta{margin-top:24px}.location{font-size:12px;color:#4f7898;margin-top:24px;letter-spacing:.11em;font-weight:800}
+.hero-art{height:455px;border-radius:34px 6px 34px 140px;background:linear-gradient(135deg,#d4eef7,#e2f8f1 45%,#ffecca);position:relative;overflow:hidden;box-shadow:0 25px 65px #123a6117;display:grid;place-items:center}
+.hero-art .circle{position:absolute;width:320px;height:320px;border-radius:50%;background:#ffffff80;top:42px;left:24px}.hero-art .family{position:relative;font-size:clamp(110px,14vw,180px);line-height:1;filter:drop-shadow(0 15px 12px #37618129)}.hero-art .robot{position:absolute;font-size:74px;bottom:16px;right:15px;background:white;border-radius:25px;padding:12px;box-shadow:0 10px 34px #14325022}
+.hero-art .caption{position:absolute;left:18px;top:18px;background:#fff;padding:9px 14px;border-radius:99px;font-size:12px;font-weight:800}
+.section{padding:75px 0}.intro{display:grid;grid-template-columns:.8fr 1.2fr;gap:70px;align-items:start}.eyebrow{color:#1684e4;font-size:12px;font-weight:900;letter-spacing:.15em;margin:0 0 15px}.section h2{font-size:clamp(26px,3.5vw,38px);line-height:1.52;margin:0 0 18px;letter-spacing:-.035em}.section p{color:#5c7287;line-height:2}.intro article{padding:16px 0 18px;border-bottom:1px solid var(--line)}.intro article+article{padding-top:34px}.intro .btn{margin-top:10px}.about-blurb{border-radius:22px;background:linear-gradient(160deg,#eaf7ff,#e6f6ec);padding:40px 26px;min-height:310px;display:grid;place-items:center;position:sticky;top:120px}.about-blurb .big{font-size:88px}.about-blurb strong{font-size:18px;text-align:center;display:block}
+.discover{background:#f6fbff}.center{text-align:center}.center p{margin:0 0 30px}.discovery-shell{display:grid;grid-template-columns:235px minmax(0,1fr);gap:28px;margin-top:28px}
+.panel,.filters{background:white;border:1px solid var(--line);border-radius:17px;padding:22px;align-self:start}.filters{position:sticky;top:110px}.filters h3{font-size:16px;margin:0 0 18px}.filters label{display:block;font-size:13px;font-weight:800;margin-top:17px}.filters select,.filters input[type=search],.filters input[type=number],.mainSearch input,.mainSearch select,.sort select{padding:11px;width:100%;background:#fff;border:1px solid #c8d7e6;border-radius:10px;color:var(--navy);min-width:0}.filterButtons{display:flex;gap:7px;flex-wrap:wrap}.filterButtons button{background:#fff;border:1px solid #c6d8e8;border-radius:30px;padding:6px 11px;font-size:13px}.filterButtons button.on{background:#ddf0ff;border-color:#0878ea;color:#075eaa;font-weight:800}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.days button{padding:6px 0;font-size:11px}.filterCheck{display:flex;align-items:center;gap:7px;font-size:12px;line-height:1.6;margin-top:18px}.filterCheck input{flex:none}.filterFoot{font-size:12px;color:var(--muted);margin-top:20px}
+.mainSearch{display:grid;grid-template-columns:minmax(0,1fr) 135px 165px;gap:10px;margin:10px 0 16px}.mainSearch label{font-size:12px;font-weight:800}.mainSearch input,.mainSearch select{margin-top:5px}
+.categories{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 24px}.categories button{border:1px solid #c7dff1;background:white;border-radius:24px;padding:8px 15px;color:var(--navy);font-size:13px}.categories button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.resultshead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0}.resultshead b{font-size:17px}.sort{display:flex;align-items:center;gap:10px}.sort label{white-space:nowrap;font-size:12px;color:var(--muted)}.sort select{font-size:12px;width:auto;max-width:220px}
+.notice{background:#fff7e1;border:1px solid #f3e2b8;color:#886321;padding:13px 17px;border-radius:12px;font-size:12px;margin:12px 0}.notice a{text-decoration:underline}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;display:flex;flex-direction:column;min-width:0}.card:hover{box-shadow:0 10px 25px #16456d13}.cardArt{height:130px;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(135deg,#d9f3f1,#eef4fa)}.cardArt .emoji{font-size:65px}.cardArt .flag{position:absolute;top:12px;left:12px;background:white;padding:4px 10px;border-radius:40px;font-size:11px;font-weight:800}.cardArt.music{background:linear-gradient(135deg,#fff1db,#e5f4ec)}.cardArt.sports{background:linear-gradient(135deg,#e5edff,#e9f5ec)}.card .content{padding:17px;display:flex;flex-direction:column;flex:1}.card .city{font-size:11px;color:#6186a2;margin-bottom:5px}.card h3{font-size:17px;line-height:1.5;margin:0 0 6px}.card p{font-size:12px;line-height:1.8;margin:7px 0}.card .meta{font-size:12px;color:#62798c}.specs{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;margin:10px 0}.price{font-size:17px;font-weight:900;color:#1376c6}.mini{font-size:10px;color:#647d92}.labels{display:flex;flex-wrap:wrap;gap:6px}.labels span{font-size:10px;background:#eef6fb;border-radius:6px;padding:2px 7px}
+.cardActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:13px}.cardActions button,.cardActions a{font-size:12px;padding:11px 8px;text-align:center;border-radius:9px}.cardActions .btn{border-radius:9px}.favorite{position:absolute;right:11px;top:10px;border:0;border-radius:50%;height:34px;width:34px;background:#fff;color:#d24e69;font-size:18px}
+.empty{grid-column:1/-1;border:1px dashed #b5cbda;border-radius:15px;text-align:center;padding:42px 25px;background:white}.empty h3{font-size:20px;margin:10px 0}.empty p{font-size:13px}
+.partners{background:#eff7ff;padding:70px 0}.partnerRow{display:flex;align-items:center;justify-content:space-between;gap:25px}.partnerRow h2{margin:0;font-size:clamp(25px,3vw,35px)}.partnerRow p{margin:12px 0}
+footer{background:#f5faff;color:var(--navy);border-top:1px solid var(--line);padding:40px 0 85px}footer .footerGrid{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}footer p,footer a{font-size:12px;color:#647b90}.footerNav{display:flex;gap:11px 24px;flex-wrap:wrap;align-items:start}.footerNav a:hover{text-decoration:underline}.copyright{font-size:11px;border-top:1px solid var(--line);margin-top:28px;padding-top:17px;color:#768b9e}
+.selection{position:fixed;left:0;right:0;bottom:0;background:#fff;box-shadow:0 -5px 25px #0d35502b;z-index:10;padding:11px 0}.selection .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}.selection span{font-size:13px;font-weight:800}.selection .right{display:flex;gap:8px}
+dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);border:0;border-radius:20px;padding:28px;box-shadow:0 20px 75px #12334c45}dialog::backdrop{background:#0f2f4aa0}.detail{padding:16px 0;border-bottom:1px solid var(--line)}dialog h2{font-size:24px}dialog h3{font-size:18px;margin:0 0 5px}dialog p{font-size:13px;color:#617587}.dialogBtns{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px}
+@media(max-width:950px){.head{min-height:80px}.nav{gap:14px}.hero-inner{min-height:490px}.hero-art{height:380px}.discovery-shell{grid-template-columns:205px minmax(0,1fr);gap:18px}.mainSearch{grid-template-columns:1fr 1fr}.mainSearch label:first-child{grid-column:1/-1}}
+@media(max-width:760px){.head{flex-wrap:wrap;gap:5px;padding:12px 0}.brand img{width:265px}.nav{gap:12px;flex-wrap:wrap;justify-content:space-between;width:100%;font-size:11px}.nav .btn{padding:8px 12px;font-size:11px}.hero-inner{grid-template-columns:1fr;min-height:0;padding:35px 0}.hero h1{font-size:40px}.hero-art{height:240px;border-radius:22px 22px 22px 75px}.hero-art .family{font-size:120px}.hero-art .robot{font-size:35px}.intro{grid-template-columns:1fr;gap:25px}.about-blurb{min-height:170px;position:static}.about-blurb .big{font-size:60px}.section{padding:43px 0}.discovery-shell{grid-template-columns:1fr}.filters{position:static}.cards{grid-template-columns:1fr 1fr}.partnerRow{display:block}.selection .wrap{gap:7px;flex-wrap:wrap}.selection .btn{font-size:12px;padding:10px 13px}}
+@media(max-width:540px){.wrap{width:calc(100% - 30px)}.nav a[href="#mission"]{display:none}.cards{grid-template-columns:1fr}.mainSearch{grid-template-columns:1fr}.mainSearch label:first-child{grid-column:auto}.resultshead{align-items:start;flex-direction:column}.hero h1{font-size:35px}.section h2{font-size:29px}.hero .strap{font-size:16px}dialog{padding:20px}.selection span{font-size:11px}.selection .right{width:100%}.selection .right button{flex:1}}
+</style>
+</head><body>
+<header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
+<nav class="nav" aria-label="メインメニュー"><a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#discover">教室を探す</a><a class="btn" href="partners.html">教室を掲載する ↗</a></nav></div></header>
+<main>
+<section class="hero"><div class="wrap hero-inner"><div><div class="tagline">MEET YOUR NEXT POSSIBILITY.</div><h1>好きが見つかる。<br>世界が、<strong>広がる。</strong></h1><p class="strap">習い事探しに、頼れる相棒を。</p><p>はじめての一歩も、次のチャレンジも。<br>わが子の「やってみたい」に出会う場所。</p><a class="btn cta" href="#discover">ぴったりの教室を探す ↗</a><div class="location">TOKYO / KANAGAWA / SAITAMA / CHIBA</div></div><div class="hero-art" role="img" aria-label="子どもの好奇心とロボットづくりをイメージしたイラスト"><div class="circle"></div><span class="caption">こどもの好奇心を、家族の笑顔へ。</span><div class="family" aria-hidden="true">👨‍👩‍👧‍👦</div><div class="robot" aria-hidden="true">🤖</div></div></div></section>
+<section id="about" class="section"><div class="wrap intro"><div class="about-blurb"><div><div class="big" aria-hidden="true">✨</div><strong>探す時間も、<br>ワクワクする時間へ。</strong></div></div><div><article><p class="eyebrow">01 / ABOUT MATE SPARK</p><h2>探す時間を、<br>ワクワクする時間へ。</h2><p>MATE SPARKは、こどもの習い事と体験を探せるサービス。エリア・年齢・曜日・予算を比べながら、家族に合う教室を見つけられます。</p><a class="btn light" href="#discover">まずは教室を見てみる ↗</a></article><article id="mission"><p class="eyebrow">02 / OUR MISSION</p><h2>「やってみたい」に、<br>出会える毎日を。</h2><p>どんな才能も、最初は小さな好奇心から。こどもと家族、そして教室の間に立つ相棒として、新しい一歩を後押しします。</p><a class="btn light" href="partners.html">教室の皆さまへ ↗</a></article></div></div></section>
+<section id="discover" class="section discover"><div class="wrap"><div class="center"><p class="eyebrow">FIND YOUR MATE</p><h2>次の「好き」を、見つけよう。</h2><p>プログラミングも、音楽も、スポーツも。<br>気になる教室を比べて、自分たちに合う学びを。</p></div>
+<div class="discovery-shell"><aside class="filters" aria-label="検索の絞り込み"><h3>条件を絞る</h3><label for="region">エリア</label><select id="region"><option value="">1都3県すべて</option><option>東京都</option><option>神奈川県</option><option>埼玉県</option><option>千葉県</option></select>
+<label for="age">お子さまの年齢</label><select id="age"><option value="">指定しない</option><option value="0">0歳</option><option value="1">1歳</option><option value="2">2歳</option><option value="3">3歳</option><option value="4">4歳</option><option value="5">5歳</option><option value="6">6歳</option><option value="7">7歳</option><option value="8">8歳</option><option value="9">9歳</option><option value="10">10歳</option><option value="11">11歳</option><option value="12">12歳</option></select>
+<label for="price">月謝の上限</label><select id="price"><option value="">指定しない</option><option value="5000">5,000円まで</option><option value="8000">8,000円まで</option><option value="10000">10,000円まで</option><option value="15000">15,000円まで</option><option value="20000">20,000円まで</option></select>
+<label>通える曜日</label><div class="filterButtons days" id="weekdays" role="group" aria-label="通える曜日"></div>
+<label class="filterCheck"><input id="trialOnly" type="checkbox"> 体験枠のある教室のみ</label>
+<div class="filterFoot">まずは体験してみよう。雰囲気や先生との相性は、実際のレッスンで。<p>「気になる教室」はこの端末に保存されます。</p></div>
+<button type="button" id="reset" class="btn light" style="margin-top:12px;width:100%">条件をリセット</button>
+</aside><div><div class="mainSearch"><label>教室名・駅・市区町村で検索<input type="search" id="keyword" placeholder="例：千石・英語・プログラミング"></label><label>エリア<select id="topRegion"><option value="">1都3県</option><option>東京都</option><option>神奈川県</option><option>埼玉県</option><option>千葉県</option></select></label><label>ジャンル<select id="category"><option value="">すべての習い事</option></select></label></div>
+<div class="categories" id="categoryQuick"><button type="button" data-category="" class="on">すべて</button><button type="button" data-category="プログラミング">プログラミング</button><button type="button" data-category="音楽">音楽</button><button type="button" data-category="スポーツ">スポーツ</button></div>
+<p class="notice" id="demoBanner">掲載情報は教室からの許諾を確認後に公開します。体験申込は準備中です。</p>
+<div class="resultshead"><b id="status">教室データを読み込み中</b><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option></select></div></div>
+<div class="cards" id="cards" aria-live="polite"></div>
+<p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
+</div></div></div></section>
+<section class="partners"><div class="wrap partnerRow"><div><p class="eyebrow">FOR SCHOOL PARTNERS</p><h2>あなたの教室と、<br>新しい「好き」をつなごう。</h2><p>教室の魅力を届けて、体験のきっかけを増やしませんか。</p></div><a class="btn" href="partners.html">掲載について見る ↗</a></div></section>
+</main>
+<footer><div class="wrap footerGrid"><div><a class="brand" href="#top"><img src="mate-spark-logo.svg" alt="MATE SPARK"></a><p>習い事探しに、頼れる相棒を。<br>東京・神奈川・埼玉・千葉</p></div><nav class="footerNav" aria-label="フッターメニュー"><a href="partners.html">教室を掲載する</a><a href="privacy.html">個人情報の取り扱い</a><a href="operator.html">お問い合わせ・運営者情報</a><a href="compare.html">旧比較ページ</a></nav></div><div class="wrap copyright">© 2026 MATE SPARK / NextEdu</div></footer>
+<div class="selection"><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
+<dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
 <script>
 const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let schools=[], chosen=new Set();
-let appConfig={applyEnabled:false,apiUrl:'',turnstileSiteKey:''};
-let challengeWidget=null;
-function availableSchools(){return schools.filter(s=>chosen.has(s.id) && s.acceptsTrial===true && s.approved===true)}
-function setApplyState(){
-  const eligible=chosen.size>0 && chosen.size<=5 && availableSchools().length===chosen.size;
-  $('apply').disabled=!(appConfig.applyEnabled&&eligible);
-  $('apply').textContent=appConfig.applyEnabled ? (eligible?'まとめて無料体験を相談する':'体験受付可能な教室を選んでください') : 'まとめて体験相談（準備中）';
-}
-async function initCaptcha(){
-  if(window.turnstile&&appConfig.turnstileSiteKey){
-    challengeWidget=window.turnstile.render('#turnstileBox',{sitekey:appConfig.turnstileSiteKey});
-    return;
-  }
-  await new Promise((resolve,reject)=>{
-    const script=document.createElement('script');
-    script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.async=true;script.onload=resolve;script.onerror=reject;document.head.appendChild(script);
-  });
-  challengeWidget=window.turnstile.render('#turnstileBox',{sitekey:appConfig.turnstileSiteKey});
+const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const yen=n=>typeof n==='number'?'¥'+n.toLocaleString('ja-JP'):'料金は公式サイトで確認';
+const weekdays=['月','火','水','木','金','土','日'];
+const categories=['プログラミング','音楽','スポーツ','学習塾','英語・英会話','ダンス','バレエ','水泳','体操','サッカー','野球','テニス','武道','書道','そろばん','絵画・造形','科学・実験','ロボット','STEAM','ピアノ','ギター','バイオリン','歌・声楽','演劇','料理','囲碁・将棋','作文','国語','算数・数学','受験対策','幼児教室','オンライン','プログラミング・ロボット','その他'];
+let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set();
+try{favorite=new Set(JSON.parse(localStorage.getItem('mateSparkFavIds')||'[]'))}catch(e){}
+function saveFav(){try{localStorage.setItem('mateSparkFavIds',JSON.stringify([...favorite]))}catch(e){}}
+function choose(id){if(selected.has(id))selected.delete(id);else if(selected.size<5)selected.add(id);else{alert('比較できる教室は最大5件までです。');return}draw()}
+function regionChange(source){$('region').value=source;$('topRegion').value=source;draw()}
+function drawDays(){$('weekdays').innerHTML=weekdays.map(d=>'<button type="button" data-day="'+d+'" class="'+(selectedDays.has(d)?'on':'')+'">'+d+'</button>').join('')}
+function imageEmoji(s){return s.category.includes('プログラミング')?'🤖':s.category.includes('音楽')?'🎹':s.category.includes('スポーツ')?'⚽':s.category.includes('英語')?'🌐':'📚'}
+function optionCategory(){for(const value of categories){const el=document.createElement('option');el.value=value;el.textContent=value;$('category').append(el)}}
+function matching(s){
+ const region=$('region').value,age=$('age').value,price=$('price').value,cat=$('category').value,key=$('keyword').value.trim().toLowerCase();
+ if(region&&s.region!==region)return false;
+ if(cat&&s.category!==cat)return false;
+ if(key&&!([s.name,s.area,s.station,s.category,s.description].join(' ').toLowerCase().includes(key)))return false;
+ if(age!==''){
+  const v=Number(age);
+  if(typeof s.ageMin==='number'&&typeof s.ageMax==='number'){if(v<s.ageMin||v>s.ageMax)return false}
+  else if(v<=5&&!(s.ages||[]).includes('幼児'))return false;
+  else if(v>=6&&!(s.ages||[]).includes('小学生'))return false;
+ }
+ if(price&&typeof s.monthlyPrice==='number'&&s.monthlyPrice>Number(price))return false;
+ if(price&&typeof s.monthlyPrice!=='number')return false;
+ if(selectedDays.size&&(!Array.isArray(s.weekdays)||![...selectedDays].some(d=>s.weekdays.includes(d))))return false;
+ if($('trialOnly').checked&&s.acceptsTrial!==true)return false;
+ return true;
 }
 function draw(){
-const region=$('region').value,age=$('age').value,category=$('category').value,q=$('keyword').value.toLowerCase().trim();
-const matched=schools.filter(s=>(!region||s.region===region)&&(!age||(s.ages||[]).includes(age))&&(!category||s.category===category)&&(!q||[s.name,s.station,s.description].join(' ').toLowerCase().includes(q)));
-$('status').textContent=matched.length+'件の掲載教室'+(!schools.length?' — 掲載許可のある教室を準備中':'');
-$('cards').innerHTML=matched.map(s=>'<article class="card"><span class="tag">'+esc(s.category)+'</span><h3>'+esc(s.name)+'</h3><p class="muted">📍 '+esc(s.region)+' '+esc(s.station)+'</p><p class="muted">対象：'+esc((s.ages||[]).join('・'))+'</p><p>'+esc(s.description)+'</p><div class="actions"><button type="button" class="button '+(chosen.has(s.id)?'ghost':'')+'" data-id="'+esc(s.id)+'">'+(chosen.has(s.id)?'✓ 選択中':'＋ 比較に追加')+'</button></div></article>').join('')|| (!schools.length
-? '<section class="emptyState"><h3>掲載教室を準備しています</h3><p>現在、掲載許諾・情報確認が完了した教室の公開準備を進めています。まずはデモで検索や比較をお試しください。</p><div class="links"><a href="?demo=1">デモを見る ↗</a><a href="partners.html">教室の方：無料掲載はこちら ↗</a><a href="https://naraico.kosuke-saito0807.chatgpt.site">既存の習い事ポータル ↗</a></div></section>'
-: '<section class="emptyState"><h3>該当する教室がありません</h3><p>検索条件を変更してお試しください。</p><div class="links"><a href="#discover" id="resetHint">条件を選び直す ↑</a></div></section>');
-$('selectedCount').textContent='比較候補 '+chosen.size+'件';$('compare').disabled=!chosen.size;setApplyState();
+ const sorted=schools.filter(matching);
+ if($('sort').value==='monthly')sorted.sort((a,b)=>(a.monthlyPrice??1e12)-(b.monthlyPrice??1e12));
+ if($('sort').value==='trial')sorted.sort((a,b)=>(a.trialPrice??1e12)-(b.trialPrice??1e12));
+ const suffix=demoMode?'件のサンプル教室':'件の掲載教室';$('status').textContent=sorted.length+' '+suffix;
+ $('cards').innerHTML=sorted.map(s=>{
+  const fictional=demoMode||s.demo===true;
+  const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
+  const canCompare=true;
+
+  const action=fictional ? '<button class="btn" disabled>体験受付不可</button>' : (s.url ? '<a class="btn" target="_blank" rel="noopener noreferrer" href="'+escapeHtml(s.url)+'">公式サイト ↗</a>' : '<button class="btn" disabled>準備中</button>');
+  const marks=(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
+  const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
+  return '<article class="card"><div class="cardArt '+cls+'">'+
+    '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
+    '<span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span>'+
+    '<button class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-label="お気に入り">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
+    '</div><div class="content">'+
+    '<div class="city">'+escapeHtml(s.region)+' ・ '+escapeHtml(s.area||'')+'</div>'+
+    '<h3>'+escapeHtml(s.name)+'</h3>'+
+    '<div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div>'+
+    '<p>'+escapeHtml(s.description||'')+'</p>'+
+    '<div class="specs"><span class="price">'+fee+'</span><span class="mini">／月</span></div>'+
+    '<div class="meta">'+(s.weekdays||[]).join('・')+'</div>'+
+    '<div class="labels">'+marks+'</div>'+
+    '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
+    '</div></article>';
+ }).join('')||'<div class="empty"><h3>条件に合う教室はありません</h3><p>地域・月謝・曜日などの条件を変更してみてください。</p><a class="btn light" href="#discover" id="emptyReset">条件を変更する</a></div>';
+ $('selectedCount').textContent='気になる教室 '+selected.size+'件';$('compare').disabled=selected.size===0;
+ $('categoryQuick').querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('on',b.dataset.category===$('category').value));
 }
-function filterOptions(id,values){for(const value of [...new Set(values)].filter(Boolean).sort()){const o=document.createElement('option');o.textContent=value;$(id).append(o)}}
-$('cards').addEventListener('click',e=>{const btn=e.target.closest('[data-id]');if(!btn)return;const id=btn.dataset.id;if(chosen.has(id)){chosen.delete(id)}else if(chosen.size<5){chosen.add(id)}else{$('status').textContent='比較できる教室は最大5件までです。';return}draw()});
-$('compare').onclick=()=>{const list=schools.filter(s=>chosen.has(s.id));$('comparison').innerHTML=list.map(s=>'<section><h3>'+esc(s.name)+'</h3><p>場所：'+esc(s.region)+' '+esc(s.station)+'</p><p>ジャンル：'+esc(s.category)+'</p><p>対象：'+esc((s.ages||[]).join('・'))+'</p><p>'+esc(s.description)+'</p>'+(s.url?'<p><a rel="noopener noreferrer" target="_blank" href="'+esc(s.url)+'">公式サイトで確認 ↗</a></p>':'')+'</section><hr>').join('');$('dialog').showModal()};
-$('close').onclick=()=>$('dialog').close();
-$('apply').onclick=async()=>{
-  if($('apply').disabled)return;
-  $('applyFeedback').textContent='';
-  $('applySchools').textContent='相談先：'+availableSchools().map(s=>s.name).join('／');
-  $('applyDialog').showModal();
-  if(challengeWidget===null){try{await initCaptcha()}catch{$('applyFeedback').textContent='認証画面を読み込めません。再度お試しください。'}}
-};
-$('applyClose').onclick=()=>$('applyDialog').close();
-$('experienceForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  if(!appConfig.applyEnabled||availableSchools().length!==chosen.size||!chosen.size){$('applyFeedback').textContent='現在受付できません。';return}
-  const form=e.currentTarget;const data=new FormData(form);
-  const token=window.turnstile&&challengeWidget!==null?window.turnstile.getResponse(challengeWidget):'';
-  if(!token){$('applyFeedback').textContent='セキュリティ認証を完了してください。';return}
-  const payload={
-    guardianName:data.get('guardianName'),email:data.get('email'),phone:data.get('phone'),
-    grade:data.get('grade'),message:data.get('message'),website:data.get('website'),
-    agreed:data.get('agreed')==='on',schoolIds:[...chosen],turnstileToken:token
-  };
-  $('sendRequest').disabled=true;$('applyFeedback').textContent='送信しています…';
-  try{
-    const response=await fetch(appConfig.apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const result=await response.json();
-    if(!response.ok||!result.accepted)throw Error(result.error||'送信に失敗しました。');
-    form.reset();chosen.clear();draw();
-    $('applyFeedback').textContent='受付しました。受付番号：'+result.reference+'。日程確定ではありません。運営事務局または教室からの連絡をご確認ください。';
-  }catch(error){$('applyFeedback').textContent=error.message||'送信できませんでした。'}finally{
-    $('sendRequest').disabled=false;
-    if(window.turnstile&&challengeWidget!==null)window.turnstile.reset(challengeWidget);
-  }
-});
-['region','age','category','keyword'].forEach(id=>$(id).addEventListener('input',draw));
-(async()=>{try{
- const configResponse=await fetch('./config.json',{cache:'no-store'});
- if(configResponse.ok){
-  const candidate=await configResponse.json();
-  if(candidate.applyEnabled===true && /^https:\/\//.test(candidate.apiUrl||'') && candidate.turnstileSiteKey){
-    appConfig={applyEnabled:true,apiUrl:candidate.apiUrl,turnstileSiteKey:candidate.turnstileSiteKey};
-  }
- }
- const isDemo=new URLSearchParams(location.search).get('demo')==='1';
- const dataPath=isDemo?'./demo-schools.json':'./schools.json';
- if(isDemo){appConfig.applyEnabled=false;document.querySelector('.note').textContent='デモ表示：以下は架空の教室データです。実際の掲載や体験申込はできません。';}
- const r=await fetch(dataPath,{cache:'no-store'});if(!r.ok)throw Error('公開データの読込エラー');const data=await r.json();schools=(Array.isArray(data)?data:[]).filter(s=>s&&s.approved===true&&s.id&&s.name&&s.category&&s.region).map(s=>({...s,id:String(s.id),ages:Array.isArray(s.ages)?s.ages:[],url:/^https:\/\//i.test(s.url||'')?s.url:''}));filterOptions('region',schools.map(s=>s.region));filterOptions('category',schools.map(s=>s.category));draw()}catch(e){$('status').textContent='教室データを読み込めませんでした。';console.error(e)}})();
+function showComparison(){
+ const items=schools.filter(s=>selected.has(s.id));
+ $('comparisons').innerHTML=items.map(s=>'<section class="detail"><h3>'+escapeHtml(s.name)+(demoMode?'（架空サンプル）':'')+'</h3><p>エリア：'+escapeHtml(s.region)+' '+escapeHtml(s.area||'')+' ／ '+escapeHtml(s.station||'')+'</p><p>ジャンル：'+escapeHtml(s.category)+' ／ 対象：'+escapeHtml((s.ages||[]).join('・'))+'</p><p>月謝：'+yen(s.monthlyPrice)+' ／ 通える曜日：'+escapeHtml((s.weekdays||[]).join('・')||'要確認')+'</p><p>'+escapeHtml(s.description||'')+'</p>'+(s.url?'<p><a href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトで確認 ↗</a></p>':'')+'</section>').join('');
+ $('compareDialog').showModal();
+}
+async function init(){
+ optionCategory();drawDays();
+ try{
+  const forceDemo=new URLSearchParams(location.search).get('demo')==='1';
+  const liveResponse=await fetch('./schools.json',{cache:'no-store'});
+  if(!liveResponse.ok)throw Error('教室情報の取得に失敗しました');
+  const data=await liveResponse.json();
+  const real=(Array.isArray(data)?data:[]).filter(s=>s&&s.approved===true&&s.id&&s.name&&s.region&&s.category).map(s=>({...s,id:String(s.id),ages:Array.isArray(s.ages)?s.ages:[],url:/^https:\/\/[^<>"']+$/i.test(s.url||'')?s.url:''}));
+  demoMode=forceDemo||real.length===0;
+  if(demoMode){
+   const demoResponse=await fetch('./demo-schools.json',{cache:'no-store'});
+   if(!demoResponse.ok)throw Error('デモデータの取得に失敗しました');
+   const demo=await demoResponse.json();
+   schools=(Array.isArray(demo)?demo:[]).filter(s=>s&&s.demo===true&&s.id&&s.name);
+   $('demoBanner').textContent='以下の'+schools.length+'教室は画面確認用の架空サンプルです。料金・対象年齢・曜日・写真は説明用であり、実在教室への申込みはできません。';
+   $('footnote').textContent='架空のサンプルを表示しています。実在の掲載教室は、掲載許諾・内容確認の完了後に自動反映されます。';
+  }else{schools=real;$('demoBanner').textContent='掲載許諾と最新情報を確認済みの教室を表示しています。体験受付機能は現在準備中です。';}
+  draw();
+ }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
+}
+$('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);drawDays();draw()});
+$('cards').addEventListener('click',e=>{const pick=e.target.closest('[data-pick]');const fav=e.target.closest('[data-fav]');if(pick)choose(pick.dataset.pick);if(fav){const id=fav.dataset.fav;favorite.has(id)?favorite.delete(id):favorite.add(id);saveFav();draw()}});
+$('categoryQuick').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;$('category').value=b.dataset.category;draw()});
+$('region').addEventListener('change',()=>regionChange($('region').value));
+$('topRegion').addEventListener('change',()=>regionChange($('topRegion').value));
+['age','price','category','keyword','sort','trialOnly'].forEach(id=>$(id).addEventListener('input',draw));
+$('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();drawDays();draw()});
+$('compare').addEventListener('click',showComparison);
+$('closeCompare').addEventListener('click',()=>$('compareDialog').close());
+init();
 </script></body></html>

@@ -1,58 +1,366 @@
 [
   {
-    "id": "demo-01",
-    "name": "さくら学習教室（架空）",
+    "id": "demo-1",
+    "name": "つくるラボ 千石",
     "region": "東京都",
-    "station": "駒込駅",
-    "category": "学習塾",
-    "ages": [
-      "小学生",
-      "中学生"
-    ],
-    "description": "個別指導と家庭学習サポートを組み合わせた架空の教室です。",
-    "approved": true,
-    "acceptsTrial": false
-  },
-  {
-    "id": "demo-02",
-    "name": "みらいイングリッシュ（架空）",
-    "region": "東京都",
-    "station": "田端駅",
-    "category": "英会話",
-    "ages": [
-      "幼児",
-      "小学生"
-    ],
-    "description": "会話を中心に学ぶ架空の英会話教室です。",
-    "approved": true,
-    "acceptsTrial": false
-  },
-  {
-    "id": "demo-03",
-    "name": "ひらめきコードラボ（架空）",
-    "region": "東京都",
-    "station": "巣鴨駅",
+    "area": "文京区",
+    "station": "千石駅",
+    "walk": "徒歩5分",
     "category": "プログラミング",
     "ages": [
-      "小学生",
-      "中学生"
+      "幼児",
+      "小学生"
     ],
-    "description": "ゲーム制作を通じてプログラミングを学ぶ架空の教室です。",
+    "ageMin": 6,
+    "ageMax": 12,
+    "monthlyPrice": 8800,
+    "trialPrice": 0,
+    "weekdays": [
+      "水",
+      "土"
+    ],
+    "tags": [
+      "少人数",
+      "初心者歓迎"
+    ],
+    "description": "ロボットやプログラミングに親しむ架空のものづくり教室。",
     "approved": true,
-    "acceptsTrial": false
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
   },
   {
-    "id": "demo-04",
-    "name": "アトリエおひさま（架空）",
-    "region": "神奈川県",
-    "station": "横浜駅",
-    "category": "アート",
+    "id": "demo-2",
+    "name": "おといろ音楽教室 千石",
+    "region": "東京都",
+    "area": "文京区",
+    "station": "千石駅",
+    "walk": "徒歩5分",
+    "category": "音楽",
     "ages": [
       "幼児",
       "小学生"
     ],
-    "description": "絵と造形に親しむ架空の教室です。",
+    "ageMin": 4,
+    "ageMax": 12,
+    "monthlyPrice": 7700,
+    "trialPrice": 1000,
+    "weekdays": [
+      "火",
+      "土",
+      "日"
+    ],
+    "tags": [
+      "個別指導",
+      "振替あり"
+    ],
+    "description": "楽器やリズムを楽しく学ぶ架空の音楽教室。",
     "approved": true,
-    "acceptsTrial": false
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-3",
+    "name": "ステップ運動クラブ 千石",
+    "region": "東京都",
+    "area": "文京区",
+    "station": "千石駅",
+    "walk": "徒歩5分",
+    "category": "スポーツ",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 3,
+    "ageMax": 10,
+    "monthlyPrice": 6600,
+    "trialPrice": 0,
+    "weekdays": [
+      "木",
+      "日"
+    ],
+    "tags": [
+      "初心者歓迎",
+      "室内"
+    ],
+    "description": "体を動かす楽しさを見つける架空の運動教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-4",
+    "name": "つくるラボ 日吉",
+    "region": "神奈川県",
+    "area": "横浜市港北区",
+    "station": "日吉駅",
+    "walk": "徒歩6分",
+    "category": "プログラミング",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 6,
+    "ageMax": 12,
+    "monthlyPrice": 8800,
+    "trialPrice": 0,
+    "weekdays": [
+      "水",
+      "土"
+    ],
+    "tags": [
+      "少人数",
+      "初心者歓迎"
+    ],
+    "description": "ロボットやプログラミングに親しむ架空のものづくり教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-5",
+    "name": "おといろ音楽教室 日吉",
+    "region": "神奈川県",
+    "area": "横浜市港北区",
+    "station": "日吉駅",
+    "walk": "徒歩6分",
+    "category": "音楽",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 4,
+    "ageMax": 12,
+    "monthlyPrice": 7700,
+    "trialPrice": 1000,
+    "weekdays": [
+      "火",
+      "土",
+      "日"
+    ],
+    "tags": [
+      "個別指導",
+      "振替あり"
+    ],
+    "description": "楽器やリズムを楽しく学ぶ架空の音楽教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-6",
+    "name": "ステップ運動クラブ 日吉",
+    "region": "神奈川県",
+    "area": "横浜市港北区",
+    "station": "日吉駅",
+    "walk": "徒歩6分",
+    "category": "スポーツ",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 3,
+    "ageMax": 10,
+    "monthlyPrice": 6600,
+    "trialPrice": 0,
+    "weekdays": [
+      "木",
+      "日"
+    ],
+    "tags": [
+      "初心者歓迎",
+      "室内"
+    ],
+    "description": "体を動かす楽しさを見つける架空の運動教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-7",
+    "name": "つくるラボ 浦和",
+    "region": "埼玉県",
+    "area": "さいたま市浦和区",
+    "station": "浦和駅",
+    "walk": "徒歩8分",
+    "category": "プログラミング",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 6,
+    "ageMax": 12,
+    "monthlyPrice": 8800,
+    "trialPrice": 0,
+    "weekdays": [
+      "水",
+      "土"
+    ],
+    "tags": [
+      "少人数",
+      "初心者歓迎"
+    ],
+    "description": "ロボットやプログラミングに親しむ架空のものづくり教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-8",
+    "name": "おといろ音楽教室 浦和",
+    "region": "埼玉県",
+    "area": "さいたま市浦和区",
+    "station": "浦和駅",
+    "walk": "徒歩8分",
+    "category": "音楽",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 4,
+    "ageMax": 12,
+    "monthlyPrice": 7700,
+    "trialPrice": 1000,
+    "weekdays": [
+      "火",
+      "土",
+      "日"
+    ],
+    "tags": [
+      "個別指導",
+      "振替あり"
+    ],
+    "description": "楽器やリズムを楽しく学ぶ架空の音楽教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-9",
+    "name": "ステップ運動クラブ 浦和",
+    "region": "埼玉県",
+    "area": "さいたま市浦和区",
+    "station": "浦和駅",
+    "walk": "徒歩8分",
+    "category": "スポーツ",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 3,
+    "ageMax": 10,
+    "monthlyPrice": 6600,
+    "trialPrice": 0,
+    "weekdays": [
+      "木",
+      "日"
+    ],
+    "tags": [
+      "初心者歓迎",
+      "室内"
+    ],
+    "description": "体を動かす楽しさを見つける架空の運動教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-10",
+    "name": "つくるラボ 本八幡",
+    "region": "千葉県",
+    "area": "市川市",
+    "station": "本八幡駅",
+    "walk": "徒歩4分",
+    "category": "プログラミング",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 6,
+    "ageMax": 12,
+    "monthlyPrice": 8800,
+    "trialPrice": 0,
+    "weekdays": [
+      "水",
+      "土"
+    ],
+    "tags": [
+      "少人数",
+      "初心者歓迎"
+    ],
+    "description": "ロボットやプログラミングに親しむ架空のものづくり教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-11",
+    "name": "おといろ音楽教室 本八幡",
+    "region": "千葉県",
+    "area": "市川市",
+    "station": "本八幡駅",
+    "walk": "徒歩4分",
+    "category": "音楽",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 4,
+    "ageMax": 12,
+    "monthlyPrice": 7700,
+    "trialPrice": 1000,
+    "weekdays": [
+      "火",
+      "土",
+      "日"
+    ],
+    "tags": [
+      "個別指導",
+      "振替あり"
+    ],
+    "description": "楽器やリズムを楽しく学ぶ架空の音楽教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
+  },
+  {
+    "id": "demo-12",
+    "name": "ステップ運動クラブ 本八幡",
+    "region": "千葉県",
+    "area": "市川市",
+    "station": "本八幡駅",
+    "walk": "徒歩4分",
+    "category": "スポーツ",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "ageMin": 3,
+    "ageMax": 10,
+    "monthlyPrice": 6600,
+    "trialPrice": 0,
+    "weekdays": [
+      "木",
+      "日"
+    ],
+    "tags": [
+      "初心者歓迎",
+      "室内"
+    ],
+    "description": "体を動かす楽しさを見つける架空の運動教室。",
+    "approved": true,
+    "acceptsTrial": false,
+    "demo": true,
+    "url": ""
   }
 ]
