@@ -22,11 +22,11 @@ footer{padding:35px 0 95px;background:#153654;color:white;font-size:13px}footer 
 <label class="full">相談内容（任意）<textarea name="message" maxlength="500" placeholder="体験したい曜日など。健康情報や学校名は記入しないでください。"></textarea></label>
 <input name="website" class="hidden" type="text" tabindex="-1" autocomplete="off">
 <div class="full" id="turnstileBox"></div>
-<label class="full check"><input name="agreed" type="checkbox" required><span>プライバシーポリシーを確認し、選択した教室およびMATE運営者に上記の申込情報が提供されることに同意します。<a href="../privacy.html" target="_blank" rel="noopener">プライバシーポリシー ↗</a></span></label>
+<label class="full check"><input name="agreed" type="checkbox" required><span>プライバシーポリシーを確認し、選択した教室およびMATE運営者に上記の申込情報が提供されることに同意します。<a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー ↗</a></span></label>
 <p class="form-feedback full" id="applyFeedback" aria-live="polite"></p>
 <button id="sendRequest" type="submit" class="button full">上記の教室へ体験相談を送る</button></form>
 </dialog>
-<footer><div class="wrap"><strong>MATE SPARK</strong><p>習い事探しの頼れる相棒 ｜ 運営：NextEdu</p><p>掲載や受付については<a href="partners.html">教室の掲載相談</a>ください。</p><p>掲載内容は事業者との提携・推奨を示すものではありません。</p><a href="privacy.html">プライバシーポリシー</a> · <a href="../operator.html">運営者情報</a></div></footer>
+<footer><div class="wrap"><strong>MATE SPARK</strong><p>習い事探しの頼れる相棒 ｜ 運営：NextEdu</p><p>掲載や受付については<a href="partners.html">教室の掲載相談</a>ください。</p><p>掲載内容は事業者との提携・推奨を示すものではありません。</p><a href="privacy.html">プライバシーポリシー</a> · <a href="operator.html">運営者情報</a></div></footer>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
