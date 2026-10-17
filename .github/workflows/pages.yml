@@ -40,6 +40,7 @@ jobs:
           cp *.html data.json favicon.svg favicon.ico _site/
           cp -R assets _site/assets
           cp -R spark _site/spark
+          find _site/spark -type f -name '*.md' -delete
       - uses: actions/upload-pages-artifact@v4
         with:
           path: "_site"
