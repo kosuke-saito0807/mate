@@ -10,7 +10,7 @@
 <div class="steps"><section class="step"><div class="num">01</div><strong>掲載相談</strong><p class="muted">教室名、所在地、担当者、公式サイトなどをご連絡ください。</p></section><section class="step"><div class="num">02</div><strong>内容・許諾確認</strong><p class="muted">掲載原稿、担当者権限、掲載許諾および体験相談の受託可否を確認します。</p></section><section class="step"><div class="num">03</div><strong>掲載開始</strong><p class="muted">合意内容に基づき公開。利用者は教室を比較し、公式サイトを確認できます。</p></section></div>
 <h2 id="apply">無料掲載の相談フォーム</h2>
 <p>申込内容はMATE SPARK運営事務局が確認します。<strong>送信だけで自動掲載・契約開始にはなりません。</strong></p>
-<form action="https://formsubmit.co/kosodatemate@gmail.com" method="POST" id="partnerForm">
+<div class="box" id="hostingNotice">現在のページは開発用プレビューです。メールでの掲載相談は<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20%E6%8E%B2%E8%BC%89%E7%9B%B8%E8%AB%87">こちら</a>からお願いします。正式公開後、このフォームを利用できます。</div><form action="" method="POST" id="partnerForm" hidden>
 <input type="hidden" name="_subject" value="MATE SPARK｜教室の無料掲載相談"><input type="hidden" name="_template" value="table">
 <input type="hidden" name="_next" value="">
 <input type="hidden" name="_url" value="">
@@ -31,6 +31,13 @@
 <p class="muted">運営：NextEdu ｜ お問い合わせ：<a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a>。掲載対象や公開時期は個別確認により決定し、掲載・成果は保証しません。</p>
 </div></main><footer><div class="wrap">© MATE SPARK / NextEdu　 <a href="./">教室検索</a>　 <a href="privacy.html">プライバシーポリシー</a>　 <a href="../operator.html">運営者情報</a></div></footer><script>
 const form=document.getElementById('partnerForm');
+const host=location.hostname.toLowerCase();
+const commercialFreeHost=host.endsWith('.web.app')||host.endsWith('.firebaseapp.com')||host.endsWith('.netlify.app');
+if(commercialFreeHost){
+  form.action='https://formsubmit.co/kosodatemate@gmail.com';
+  form.hidden=false;
+  document.getElementById('hostingNotice').hidden=true;
+}
 form.elements.namedItem('_next').value=new URL('thanks.html',document.baseURI).href;
 form.elements.namedItem('_url').value=location.href.split('#')[0];
 </script></body></html>
