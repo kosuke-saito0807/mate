@@ -39,8 +39,8 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 @media(max-width:540px){.wrap{width:calc(100% - 30px)}.nav a[href="#mission"]{display:none}.cards{grid-template-columns:1fr}.mainSearch{grid-template-columns:1fr}.mainSearch label:first-child{grid-column:auto}.resultshead{align-items:start;flex-direction:column}.hero h1{font-size:35px}.section h2{font-size:29px}.hero .strap{font-size:16px}dialog{padding:20px}.selection span{font-size:11px}.selection .right{width:100%}.selection .right button{flex:1}}
 
 .headControls{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.favOnly{font-size:12px;border:1px solid #d1deec;padding:8px 12px;border-radius:22px;background:white;color:#285578;font-weight:800}.favOnly.on{background:#fce6ed;color:#a63858;border-color:#e8a2b5}
-.detail-kicker{color:#1684e4;font-size:12px;font-weight:800}.detail-list{display:grid;grid-template-columns:140px minmax(0,1fr);border-top:1px solid var(--line);margin:18px 0}.detail-list dt,.detail-list dd{border-bottom:1px solid var(--line);padding:12px 6px;margin:0;font-size:13px}.detail-list dt{font-weight:800}.detail-list .labels{display:flex;gap:5px;flex-wrap:wrap}.detail-list .labels span{background:#edf6fb;padding:2px 7px;border-radius:7px}
-@media(max-width:540px){.headControls{align-items:flex-start;flex-direction:column;gap:8px}.detail-list{grid-template-columns:105px minmax(0,1fr)}}
+.trialFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.trialFields label{font-size:13px;font-weight:800;display:block}.trialFields label.full{grid-column:1/-1}.trialFields input,.trialFields select,.trialFields textarea{width:100%;border:1px solid #cad8e6;border-radius:10px;padding:10px;margin-top:5px}.trialFields textarea{min-height:90px}.trialFields .consent{display:flex;gap:12px;font-weight:500;align-items:start}.trialFields .consent input{width:20px;flex:none;margin:7px 0 0}.honey{position:absolute!important;left:-10000px!important}.muted{color:#62798c}.detail-kicker{color:#1684e4;font-size:12px;font-weight:800}.detail-list{display:grid;grid-template-columns:140px minmax(0,1fr);border-top:1px solid var(--line);margin:18px 0}.detail-list dt,.detail-list dd{border-bottom:1px solid var(--line);padding:12px 6px;margin:0;font-size:13px}.detail-list dt{font-weight:800}.detail-list .labels{display:flex;gap:5px;flex-wrap:wrap}.detail-list .labels span{background:#edf6fb;padding:2px 7px;border-radius:7px}
+@media(max-width:540px){.trialFields{grid-template-columns:1fr}.headControls{align-items:flex-start;flex-direction:column;gap:8px}.detail-list{grid-template-columns:105px minmax(0,1fr)}}
 </style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
@@ -69,6 +69,29 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <div class="selection"><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
 <dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
 <dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
+<dialog id="trialDialog" aria-labelledby="trialHeading"><h2 id="trialHeading">体験相談をまとめて送る</h2>
+<p class="notice" id="trialSchools">教室を選択してください。</p>
+<p class="muted">このフォームは日程確定や教室への直接申込ではありません。事務局が掲載許諾と送信先を確認してから、ご希望の教室へ取次ぎます。</p>
+<form id="trialForm" method="POST" action="" hidden>
+<input type="hidden" name="_subject" value="MATE SPARK 体験相談の受付">
+<input type="hidden" name="_template" value="table">
+<input type="hidden" name="_next" value="">
+<input type="hidden" name="_url" value="">
+<input type="text" name="_honey" tabindex="-1" autocomplete="off" class="honey" aria-hidden="true">
+<input type="hidden" name="希望教室ID" id="trialIds" value="">
+<input type="hidden" name="希望教室名" id="trialNames" value="">
+<div class="trialFields">
+<label>保護者のお名前（必須）<input name="guardianName" maxlength="80" autocomplete="name" required></label>
+<label>メールアドレス（必須）<input name="email" type="email" maxlength="254" autocomplete="email" required></label>
+<label>電話番号（任意）<input name="phone" type="tel" maxlength="30" autocomplete="tel"></label>
+<label>お子さまの学年（必須）<select name="grade" required><option value="">選択してください</option><option>未就学児</option><option>小学1年生</option><option>小学2年生</option><option>小学3年生</option><option>小学4年生</option><option>小学5年生</option><option>小学6年生</option><option>中学1年生</option><option>中学2年生</option><option>中学3年生</option><option>高校生</option></select></label>
+<label class="full">相談内容（任意）<textarea name="message" maxlength="500" placeholder="希望する曜日など。お子さまの氏名、学校名、健康情報は書かないでください。"></textarea></label>
+<label class="full consent"><input type="checkbox" name="agreed" value="yes" required><span><a href="privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取扱い</a>を確認しました。FormSubmitを使用した運営事務局への情報送信と、選択した掲載許諾済み教室への必要情報の提供に同意します。</span></label>
+</div>
+<p class="muted">スパム対策の認証画面が表示されることがあります。送信結果は運営事務局がメールで確認します。</p>
+<div class="dialogBtns"><button type="button" class="btn light" id="cancelTrial">キャンセル</button><button class="btn" type="submit">事務局へ体験相談を送る ↗</button></div></form>
+<div class="dialogBtns" id="unavailableTrial"><button type="button" class="btn light" id="closeTrial">閉じる</button></div>
+</dialog>
 <script>
 const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -129,6 +152,12 @@ function draw(){
     '</div></article>';
  }).join('')||'<div class="empty"><h3>条件に合う教室はありません</h3><p>地域・月謝・曜日などの条件を変更してみてください。</p><a class="btn light" href="#discover" id="emptyReset">条件を変更する</a></div>';
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
+ // No actual submissions before explicit school permission, and never on fictional demo data.
+ const eligible=selected.size>0&&selected.size<=5&&!demoMode&&
+   [...selected].every(id=>schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true));
+ const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com'].includes(location.hostname.toLowerCase());
+ $('trial').disabled=!(eligible&&safeHost);
+ $('trial').textContent=(eligible&&safeHost)?'まとめて体験相談する':'まとめて体験相談（準備中）';
  $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
  $('favoriteOnly').setAttribute('aria-pressed',String(favoritesOnly));
  $('favoriteOnly').classList.toggle('on',favoritesOnly);
@@ -159,6 +188,21 @@ function showDetail(id){
    (sample?'<p class="muted">表示した料金・条件は架空のサンプルです。</p>':'<p class="muted">内容は掲載確認時点の情報です。最新の条件は教室にご確認ください。</p>')+
    link;
  $('detailDialog').showModal();
+}
+function showTrial(){
+ const list=schools.filter(s=>selected.has(s.id)&&s.approved===true&&s.acceptsTrial===true);
+ const eligible=!demoMode&&list.length===selected.size&&list.length>0&&list.length<=5;
+ const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com'].includes(location.hostname.toLowerCase());
+ if(!eligible||!safeHost)return;
+ const form=$('trialForm');
+ $('trialIds').value=list.map(s=>s.id).join(',');
+ $('trialNames').value=list.map(s=>s.name).join('／');
+ $('trialSchools').textContent='ご希望の教室：'+list.map(s=>s.name).join('／');
+ form.action='https://formsubmit.co/kosodatemate@gmail.com';
+ form.elements.namedItem('_next').value=new URL('thanks-trial.html',document.baseURI).href;
+ form.elements.namedItem('_url').value=location.href.split('#')[0];
+ form.hidden=false;$('unavailableTrial').hidden=true;
+ $('trialDialog').showModal();
 }
 function showComparison(){
  const items=schools.filter(s=>selected.has(s.id));
@@ -199,6 +243,15 @@ $('topRegion').addEventListener('change',()=>regionChange($('topRegion').value))
 $('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();drawDays();draw()});
 $('favoriteOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;draw()});
 $('closeDetail').addEventListener('click',()=>$('detailDialog').close());
+$('trial').addEventListener('click',showTrial);
+$('cancelTrial').addEventListener('click',()=>$('trialDialog').close());
+$('closeTrial').addEventListener('click',()=>$('trialDialog').close());
+$('trialForm').addEventListener('submit',e=>{
+ const ids=$('trialIds').value.split(',').filter(Boolean);
+ if(demoMode||!ids.length||ids.length>5||ids.some(id=>!schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true))){
+   e.preventDefault();alert('体験相談を受け付けられない教室が含まれています。');return;
+ }
+});
 $('compare').addEventListener('click',showComparison);
 $('closeCompare').addEventListener('click',()=>$('compareDialog').close());
 init();
