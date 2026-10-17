@@ -1,0 +1,73 @@
+# MATE SPARK 0円構成・公開運営手順
+
+## 正式公開と更新
+
+- 公開先: https://mate-spark.web.app/ （Firebase Hosting / Spark）
+- 正本コード: https://github.com/kosuke-saito0807/mate/tree/main/spark
+- 元ChatGPT Sitesサイト: https://naraico.kosuke-saito0807.chatgpt.site/ （別プロジェクト。Firebaseには自動同期されない）
+- 非公開営業・許諾DB: https://docs.google.com/spreadsheets/d/1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ/edit
+- GitHub PagesのSPARK版は開発プレビュー。商用配信はFirebaseを利用する
+
+これまで使っていたCloud Shellで、次を実行する（~/mate にclone済みの場合）:
+
+    cd ~/mate
+    git status --short
+    git pull --ff-only origin main
+    firebase deploy --only hosting --project mate-spark
+
+git statusでローカル変更が表示された場合、削除・上書きの前に内容を確認すること。
+
+## 将来の更新をFirebaseへ自動反映（現在は準備済み、既定OFF）
+
+公式手順: https://firebase.google.com/docs/hosting/github-integration
+
+1. Cloud Shellで cd ~/mate を実行
+2. firebase init hosting:github を実行。GitHubリポジトリ kosuke-saito0807/mate と Firebaseプロジェクト mate-spark を選ぶ
+3. Firebase CLIが専用サービスアカウントを作り、GitHubのActions Secretへ暗号化して登録したことを確認する
+4. GitHub Settings → Secrets and variables → Actions → Secrets に FIREBASE_SERVICE_ACCOUNT_MATE_SPARK があることを確認（**秘密鍵の値をチャットやリポジトリに貼らない**）
+5. GitHub Settings → Secrets and variables → Actions → Variables に MATE_FIREBASE_AUTO_DEPLOY_ENABLED を true として追加
+6. GitHub Actionsに用意した Deploy MATE SPARK to Firebase Hosting (free) を手動実行し、成功を確認する
+
+上記のFirebase CLIが別名の追加ワークフローをローカルに作っても、二重デプロイ防止のためGitHubには追加コミットしない。すでに専用の .github/workflows/firebase-spark-live.yml がある。変数がtrueでない限りFirebase自動デプロイは無効。
+
+自動デプロイ有効後、mainへのSPARK変更または教室公開JSON更新がFirebaseにも反映される。認証情報が不足した場合はビルドが失敗し、公開処理は完了しない。
+
+## 教室掲載と許諾
+
+Google Sheetsの「SPARK営業候補」タブで管理する主な列:
+
+- A ID、B 教室名、C 都県、D ジャンル、E 公式HTTPS URL、K 掲載許諾
+- M 対象学年、N 最寄駅、O 承認済み紹介文、P 体験受付許諾、Q 掲載内容確認日
+- R 月謝税込円、S 体験料金税込円、T/U 対象最少年齢/最高年齢、V 曜日、W 所在地、X 特徴タグ、Y 次回体験予定日
+
+未確認の料金・曜日・年齢・体験日時を推測で入力しない。無料の体験料は数字0とする。
+
+掲載開始には、K掲載許諾が「許可/承諾済/許諾済」であること、および「掲載契約」タブに有効なSPARK契約ID、同意者、日時、合意証跡、開始・終了条件の記録が必要。掲載の許諾と体験申込の取次許諾は別物。Pが「可」の教室のみ体験相談の対象となる。
+
+非公開の担当者連絡先、合意証跡、契約金額、申込者の個人情報は公開JSONに絶対含めない。掲載停止依頼があった場合は同意を撤回し、同期・Firebase更新を確認する。
+
+Google Sheets→GitHubの公開データ同期は原則30分ごと（既存の読み取りサービスアカウントが正常に動く場合）。GitHub→Firebaseは上記の自動公開設定が有効な場合だけ自動。
+
+## 0円の体験相談受付
+
+1. 許諾済みの実在教室が0件の間は送信機能は無効。12件の架空サンプル教室も申込不可
+2. 実在の掲載許諾済み・体験受付許諾済みの教室を1～5件選び、保護者が必要最小限の情報と同意を入力すると、FormSubmitを経由して事務局メール kosodatemate@gmail.com に相談内容を送信する
+3. FormSubmitの初回受信確認メールなどの承認作業が必要な場合がある。事務局メールで実際の着信テストを実施するまで「受信確認済み」と告知しない
+4. 事務局で本人の希望先と掲載契約・体験受付許諾を確認してから、**選択された教室にだけ個別に取次ぐ**。教室への自動送信はまだしない
+5. 予約や体験日時は自動確定しない。削除や取次停止の要望に対応する
+6. 迷惑申込が増える場合は受付機能を止め、追加対策を導入する
+
+以前のVercel APIはこの無料運用経路では使用しない。spark/config.json の applyEnabled=false は維持する。
+
+## 元サイトとの一致状況と残作業
+
+元サイトの文章・ABOUT・OUR MISSION・検索条件・比較・お気に入り・掲載相談等に近づけた独立サイトである。元サイトの実際の写真・画像原本、会員/運営管理画面、元のCMS実装を取得できていないため、ピクセル完全一致ではない。元の画像・ソースを権利を確認して移行すればさらに一致度を高められる。
+
+### 公開後チェック
+- PCとスマホのトップ、ロゴ、すべてのリンク
+- 12件の架空サンプルの詳細・比較、料金・曜日・ジャンル・年齢検索
+- お気に入りの端末保存、最大5件比較
+- デモ時は体験相談ボタンを必ず無効にする
+- 掲載許諾と体験受付許諾の分離
+- 事務局メール受信と手動の契約照合作業
+- FirebaseデプロイとGitHub Actionsの成功ログ
