@@ -104,7 +104,24 @@ function draw(){
   const fictional=demoMode||s.demo===true;
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
   const canCompare=true;
-  return '<article class="card"><div class="cardArt '+cls+'"><span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span><span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span><button type="button" class="favorite" aria-label="お気に入りを切り替え" data-fav="'+escapeHtml(s.id)+'">'+(favorite.has(s.id)?'♥':'♡')+'</button></div><div class="content"><div class="city">'+escapeHtml(s.region)+' ・ '+escapeHtml(s.area||'')+'</div><h3>'+escapeHtml(s.name)+'</h3><div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div><p>'+escapeHtml(s.description||'')+'</p><div class="specs"><span><b class="price">'+yen(s.monthlyPrice)+'</b> <span class="mini">／月'+(fictional?'（架空）':'')+'</span></span></div><div class="meta">'+(Array.isArray(s.weekdays)&&s.weekdays.length?'曜日：'+escapeHtml(s.weekdays.join('・')):'対象：'+escapeHtml((s.ages||[]).join('・'))+'</div><div class="labels">'+(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('')+'</div><div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+(fictional?'<button class="btn" type="button" disabled>体験受付不可</button>':(s.url?'<a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイト ↗</a>':'<button class="btn" type="button" disabled>準備中</button>'))+'</div></div></article>';
+
+  const action=fictional ? '<button class="btn" disabled>体験受付不可</button>' : (s.url ? '<a class="btn" target="_blank" rel="noopener noreferrer" href="'+escapeHtml(s.url)+'">公式サイト ↗</a>' : '<button class="btn" disabled>準備中</button>');
+  const marks=(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
+  const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
+  return '<article class="card"><div class="cardArt '+cls+'">'+
+    '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
+    '<span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span>'+
+    '<button class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-label="お気に入り">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
+    '</div><div class="content">'+
+    '<div class="city">'+escapeHtml(s.region)+' ・ '+escapeHtml(s.area||'')+'</div>'+
+    '<h3>'+escapeHtml(s.name)+'</h3>'+
+    '<div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div>'+
+    '<p>'+escapeHtml(s.description||'')+'</p>'+
+    '<div class="specs"><span class="price">'+fee+'</span><span class="mini">／月</span></div>'+
+    '<div class="meta">'+(s.weekdays||[]).join('・')+'</div>'+
+    '<div class="labels">'+marks+'</div>'+
+    '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
+    '</div></article>';
  }).join('')||'<div class="empty"><h3>条件に合う教室はありません</h3><p>地域・月謝・曜日などの条件を変更してみてください。</p><a class="btn light" href="#discover" id="emptyReset">条件を変更する</a></div>';
  $('selectedCount').textContent='気になる教室 '+selected.size+'件';$('compare').disabled=selected.size===0;
  $('categoryQuick').querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('on',b.dataset.category===$('category').value));
