@@ -13,7 +13,7 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
         h = (SITE / "index.html").read_text(encoding="utf-8")
         for text in ("MEET YOUR NEXT POSSIBILITY.", "好きが見つかる。", "世界が、",
                      "ABOUT MATE SPARK", "OUR MISSION", "月謝の上限",
-                     "通える曜日", "体験枠のある教室のみ", "FOR SCHOOL PARTNERS"):
+                     "通える曜日", "体験相談が可能な教室のみ", "FOR SCHOOL PARTNERS"):
             with self.subTest(text=text):
                 self.assertIn(text, h)
         for text in ('id="region"', 'id="age"', 'id="price"', 'id="category"',
