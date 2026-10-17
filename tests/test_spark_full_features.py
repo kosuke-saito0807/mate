@@ -109,6 +109,12 @@ class SparkFullFeatureTests(unittest.TestCase):
         self.assertFalse(config["applyEnabled"])
         self.assertEqual(json.loads((ROOT / "spark/schools.json").read_text(encoding="utf-8")), [])
 
+    def test_internal_operations_not_deployed_publicly(self):
+        config = json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))
+        self.assertIn("**/*.md", config["hosting"]["ignore"])
+        workflow = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        self.assertIn("find _site/spark -type f -name '*.md' -delete", workflow)
+
     def test_legal_pages(self):
         for name in ("terms.html", "disclaimer.html", "privacy.html", "partners.html", "thanks-trial.html"):
             self.assertTrue((ROOT / "spark" / name).is_file(), name)
