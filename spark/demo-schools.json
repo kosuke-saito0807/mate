@@ -1,0 +1,58 @@
+[
+  {
+    "id": "demo-01",
+    "name": "さくら学習教室（架空）",
+    "region": "東京都",
+    "station": "駒込駅",
+    "category": "学習塾",
+    "ages": [
+      "小学生",
+      "中学生"
+    ],
+    "description": "個別指導と家庭学習サポートを組み合わせた架空の教室です。",
+    "approved": true,
+    "acceptsTrial": false
+  },
+  {
+    "id": "demo-02",
+    "name": "みらいイングリッシュ（架空）",
+    "region": "東京都",
+    "station": "田端駅",
+    "category": "英会話",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "description": "会話を中心に学ぶ架空の英会話教室です。",
+    "approved": true,
+    "acceptsTrial": false
+  },
+  {
+    "id": "demo-03",
+    "name": "ひらめきコードラボ（架空）",
+    "region": "東京都",
+    "station": "巣鴨駅",
+    "category": "プログラミング",
+    "ages": [
+      "小学生",
+      "中学生"
+    ],
+    "description": "ゲーム制作を通じてプログラミングを学ぶ架空の教室です。",
+    "approved": true,
+    "acceptsTrial": false
+  },
+  {
+    "id": "demo-04",
+    "name": "アトリエおひさま（架空）",
+    "region": "神奈川県",
+    "station": "横浜駅",
+    "category": "アート",
+    "ages": [
+      "幼児",
+      "小学生"
+    ],
+    "description": "絵と造形に親しむ架空の教室です。",
+    "approved": true,
+    "acceptsTrial": false
+  }
+]
