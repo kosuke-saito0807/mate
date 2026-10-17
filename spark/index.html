@@ -53,13 +53,13 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <label for="age">お子さまの年齢</label><select id="age"><option value="">指定しない</option><option value="0">0歳</option><option value="1">1歳</option><option value="2">2歳</option><option value="3">3歳</option><option value="4">4歳</option><option value="5">5歳</option><option value="6">6歳</option><option value="7">7歳</option><option value="8">8歳</option><option value="9">9歳</option><option value="10">10歳</option><option value="11">11歳</option><option value="12">12歳</option></select>
 <label for="price">月謝の上限</label><select id="price"><option value="">指定しない</option><option value="5000">5,000円まで</option><option value="8000">8,000円まで</option><option value="10000">10,000円まで</option><option value="15000">15,000円まで</option><option value="20000">20,000円まで</option></select>
 <label>通える曜日</label><div class="filterButtons days" id="weekdays" role="group" aria-label="通える曜日"></div>
-<label class="filterCheck"><input id="trialOnly" type="checkbox"> 体験枠のある教室のみ</label>
+<label class="filterCheck"><input id="trialOnly" type="checkbox"> 体験相談が可能な教室のみ</label>
 <div class="filterFoot">まずは体験してみよう。雰囲気や先生との相性は、実際のレッスンで。<p>「気になる教室」はこの端末に保存されます。</p></div>
 <button type="button" id="reset" class="btn light" style="margin-top:12px;width:100%">条件をリセット</button>
 </aside><div><div class="mainSearch"><label>教室名・駅・市区町村で検索<input type="search" id="keyword" placeholder="例：千石・英語・プログラミング"></label><label>エリア<select id="topRegion"><option value="">1都3県</option><option>東京都</option><option>神奈川県</option><option>埼玉県</option><option>千葉県</option></select></label><label>ジャンル<select id="category"><option value="">すべての習い事</option></select></label></div>
 <div class="categories" id="categoryQuick"><button type="button" data-category="" class="on">すべて</button><button type="button" data-category="プログラミング">プログラミング</button><button type="button" data-category="音楽">音楽</button><button type="button" data-category="スポーツ">スポーツ</button></div>
 <p class="notice" id="demoBanner">掲載情報は教室からの許諾を確認後に公開します。体験申込は準備中です。</p>
-<div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option></select></div></div>
+<div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option><option value="soon">体験日が近い順</option></select></div></div>
 <div class="cards" id="cards" aria-live="polite"></div>
 <p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
 </div></div></div></section>
@@ -128,6 +128,7 @@ function draw(){
  const sorted=schools.filter(matching);
  if($('sort').value==='monthly')sorted.sort((a,b)=>(a.monthlyPrice??1e12)-(b.monthlyPrice??1e12));
  if($('sort').value==='trial')sorted.sort((a,b)=>(a.trialPrice??1e12)-(b.trialPrice??1e12));
+ if($('sort').value==='soon')sorted.sort((a,b)=>String(a.nextTrialDate||'9999-12-31').localeCompare(String(b.nextTrialDate||'9999-12-31')));
  const suffix=demoMode?'件のサンプル教室':'件の掲載教室';$('status').textContent=sorted.length+' '+suffix;
  $('cards').innerHTML=sorted.map(s=>{
   const fictional=demoMode||s.demo===true;
@@ -136,6 +137,7 @@ function draw(){
   const action='<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>';
   const marks=(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
   const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
+  const nextTrial=(!fictional&&s.nextTrialDate)?'<div class="meta">次回体験予定：'+escapeHtml(s.nextTrialDate.replaceAll('-','/'))+'</div>':'';
   return '<article class="card"><div class="cardArt '+cls+'">'+
     '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
     '<span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span>'+
@@ -146,7 +148,7 @@ function draw(){
     '<div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div>'+
     '<p>'+escapeHtml(s.description||'')+'</p>'+
     '<div class="specs"><span class="price">'+fee+'</span><span class="mini">／月</span></div>'+
-    '<div class="meta">'+escapeHtml((s.weekdays||[]).join('・')||'曜日：教室へ確認')+'</div>'+
+    '<div class="meta">'+escapeHtml((s.weekdays||[]).join('・')||'曜日：教室へ確認')+'</div>'+nextTrial+
     '<div class="labels">'+marks+'</div>'+
     '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
     '</div></article>';
@@ -183,7 +185,7 @@ function showDetail(id){
    '<dt>対象年齢</dt><dd>'+escapeHtml(fullAge)+'</dd>'+
    '<dt>月謝</dt><dd>'+yen(s.monthlyPrice)+'</dd>'+
    '<dt>体験料金</dt><dd>'+trialAmount+'</dd>'+
-   '<dt>開講曜日</dt><dd>'+escapeHtml((s.weekdays||[]).join('・')||'教室へ確認')+'</dd>'+
+   '<dt>開講曜日</dt><dd>'+escapeHtml((s.weekdays||[]).join('・')||'教室へ確認')+'</dd>'+ '<dt>次回体験予定</dt><dd>'+escapeHtml(s.nextTrialDate?String(s.nextTrialDate).replaceAll('-','/'):'教室へ確認')+'</dd>'+
    '<dt>特徴</dt><dd class="labels">'+(tags||'教室へ確認')+'</dd></dl>'+
    (sample?'<p class="muted">表示した料金・条件は架空のサンプルです。</p>':'<p class="muted">内容は掲載確認時点の情報です。最新の条件は教室にご確認ください。</p>')+
    link;
