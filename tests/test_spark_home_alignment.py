@@ -22,6 +22,14 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
             with self.subTest(id=text):
                 self.assertIn(text, h)
 
+    def test_original_scene_and_shared_footer(self):
+        h = (SITE / "index.html").read_text(encoding="utf-8")
+        for token in ('id="scene"', 'data-scene-category=', 'class="spark-footer"',
+                      'MATE CARE ↗', 'MATE PLAY ↗', 'href="terms.html"',
+                      'href="disclaimer.html"', 'id="sceneHeading"'):
+            with self.subTest(token=token):
+                self.assertIn(token, h)
+
     def test_inline_javascript_syntax(self):
         h = (SITE / "index.html").read_text(encoding="utf-8")
         matches = re.findall(r"<script>(.*?)</script>", h, flags=re.S)
