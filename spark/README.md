@@ -1,100 +1,35 @@
-# MATE SPARK | 学習塾・習い事の比較・一括体験相談
+# MATE SPARK｜習い事探しに、頼れる相棒を。
 
-## 現在の状況（2026-10-17）
-- \`spark/index.html\`: 画面 / 検索 / 最大5教室の比較 / 体験相談フォームを実装。
-- \`spark/schools.json\`: 公開許諾済みの教室だけを掲載する正式データ。現在は **[]**（空）。
-- \`spark/demo-schools.json\`: 架空データ。 \`/spark/?demo=1\` で表示し、実際の申込はできない。
-- \`spark/config.json\`: 申込受付の有効・無効とAPI URL/Turnstile公開キーを設定。初期値は無効。
-- \`api/experience-request.js\`: Vercel（Node.js 18+）用申込受付API。未デプロイ・未設定。
-- このリポジトリの本体は **MATE CARE**。MATE SPARK（ChatGPT Sites上の \`naraico.kosuke-saito0807.chatgpt.site\`）とは別。CAREトップページは変更しない。
+正式公開: https://mate-spark.web.app/ （Firebase Hosting）
+ソース: `/spark/` / Google Sheetsで教室掲載の許諾・公開データを管理
 
-## 公開教室データの書式
-\`\`\`json
-[
-  {
-    "id": "school-001",
-    "name": "掲載許諾済みの教室名",
-    "region": "東京都",
-    "station": "駒込駅",
-    "category": "学習塾",
-    "ages": ["小学生", "中学生"],
-    "description": "事前承認された紹介文",
-    "url": "https://school.example/",
-    "approved": true,
-    "acceptsTrial": true
-  }
-]
-\`\`\`
-- 公開済みの企業情報から営業候補を無断転記しない。掲載許諾、最新情報の校正、体験相談の受託可否を事前に確認する。
-- \`approved: true\` で表示対象。申込対象はさらに \`acceptsTrial: true\` の教室のみ。
-- 公開JSONに担当者メールアドレス、契約情報、申込者の個人情報を置かない。
+## 2026年10月20日時点の公開状態
 
-## APIの準備
-GitHub Pagesは静的配信のため \`api/\` を実行できない。**Vercelのようなサーバー環境**にAPIをデプロイする。
+- GitHubのmain更新時、`spark/**` の変更をGitHub Actionsが自動検証・Firebaseへ公開する。連携テスト https://github.com/kosuke-saito0807/mate/actions/runs/39351112807 は成功。
+- `spark/index.html`: ABOUT・OUR MISSION・SCENE・検索・お気に入り・比較・詳細・条件付き体験相談受付。
+- `spark/hero-family-robot.svg`: 2人の子どもと2人の大人が工作する専用イラスト。**元ChatGPT Sitesの実際の写真原本とは別素材**。完全一致を宣言しないこと。
+- `spark/schools.json`: **掲載許諾＋有効な掲載契約がある教室のみ**。現在は空配列（実在教室の掲載なし）。
+- `spark/demo-schools.json`: 12件の架空サンプル。学校名、月謝、日時は説明用。体験申込不可。
+- `spark/partners.html`: 本部・教室の掲載相談（利用者用申込フォームとは区別）。
+- `spark/privacy.html`, `terms.html`, `disclaimer.html`, `operator.html`: 運営・法務表示。
+- `spark/config.json`: 将来の別API向けフラグは無効。現在のFormSubmit運営事務局受付とは別系統。
 
-環境変数（ブラウザーやGitHubへコミットしないこと）:
-- \`ALLOWED_ORIGINS\`: \`https://<site-domain>,https://<approved-preview-domain>\` のように許可する正確なOriginをカンマ区切り
-- \`TURNSTILE_SECRET_KEY\`: Cloudflare Turnstileの非公開シークレット
-- \`RESEND_API_KEY\`: Resendの非公開APIキー
-- \`REQUEST_FROM_EMAIL\`: Resendで検証済みの送信者アドレス
-- \`REQUEST_TO_EMAIL\`: NextEdu運営受付メール
-- \`PROVIDER_NOTIFICATIONS_ENABLED\`: 初期値 \`false\`。提携教室側の承諾とルーティング確認が済んだ後のみ \`true\`
-- \`SCHOOL_NOTIFICATION_ROUTING\`: \`{"school-001":"partner@example.com"}\` のような非公開ID→通知先マッピング。全対象教室の配送先がある場合だけ一斉通知処理を実施する
+## 実在教室の掲載を始める条件
 
-API動作:
-1. 呼び出しOrigin確認とTurnstile認証を行う。
-2. 氏名、連絡先、対象学年、同意、教室数の妥当性を検証。
-3. 受付可能な教室IDを **サーバー側** で検証し、運営者宛に申込通知を送る。
-4. オプトイン設定された場合に限り、教室ごとに必要情報だけを個別通知。通知失敗時は運営側メールをもとに手動フォローする。
+1. 非公開のGoogle Sheets「SPARK営業候補」に連絡先、公式情報、紹介文、対象学年などを記録する。
+2. **掲載許諾を取得**し、公開前に教室側と紹介文・情報の内容を確認する。
+3. 非公開の「掲載契約」タブに掲載先IDが一致する有効契約・同意者・同意日時・合意証跡・必要な契約条件を記録する。
+4. 体験相談取次ぎは掲載契約と**別の明示的な許諾**が必要。「体験受付許諾」が「可」でない限り申込不可。
+5. GitHub Actionsの`sync-smartsheet-public.yml`が許諾済みデータだけをJSONに公開する。公開JSONに担当者メールや契約証跡を載せない。
+6. 保護者からの相談はFormSubmit経由で一度MATE事務局メールへ。**教室には手動で合意と宛先を確認した上で個別取次ぎ**を行う。予約は確定しない。
 
-\`spark/config.json\` の \`applyEnabled\` を \`true\`、\`apiUrl\` をデプロイしたHTTPSエンドポイント、\`turnstileSiteKey\` を公開キーに設定すると申込UIが有効になる。ただし、掲載データに \`acceptsTrial: true\` がなければ申込不可。
+未許諾の学校を「実在掲載教室」として公開しない。フォーム初回メール認証・受信検証が済むまでは送客できたとみなさない。
 
-**公開前チェック（必須）**
-- [ ] MATE SPARKの利用規約・プライバシーポリシーに、本人同意に基づく選択教室への個人情報提供、保存期間、問い合わせ先を明記
-- [ ] 教室が掲載・申込の取次および通知先を承諾
-- [ ] HTTPS配信・送信ドメイン認証・SPF/DKIM・Turnstile・Origin設定を完了
-- [ ] 1教室/複数教室/入力エラー/認証失敗/通知失敗の実機テスト
-- [ ] 申込データの保管・削除と事務局での対応フローを定義
-- [ ] トラフィックが増えた場合は永続的な受付ログ・重複排除・レート制限を追加（現行はメール受付のみ）
+## 品質・運用
 
-## 既存のMATE SPARK本体へ統合する場合
-現行SPARKの正本はChatGPT Sites。ここで作成したGitHub実装は、その管理画面と同期していない。Sites編集権限のある環境に以下を移植する。
-- 公開許諾済み教室DB → 検索条件 → 比較候補 → 体験申込フォーム
-- フォーム → HTTPS API → MATE運営通知 → 契約済み教室への個別通知
-- 現行SPARKデザイン、既存の習い事カテゴリ、運営者/法務ページに接続
-- 同意ログ・永続保存・重複排除が必要なら、Sitesが提供する認証付きDBまたは別のサーバー側DBを使用
-
-**注意：** GitHubのコードをマージするだけではChatGPT Sitesの公開SPARKサイトは変化しない。
-
-
-## 掲載許可済み教室の自動同期（2026-10-17追加）
-MATE営業管理DB（Spreadsheet ID \`1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ\`）から、GitHub Actionsが原則30分間隔で \`spark/schools.json\` を更新する仕組みを追加しました。
-- 入力ソース：\`SPARK営業候補\` および \`掲載契約\` タブ
-- \`SPARK営業候補\` には追加で、**対象学年（カンマ区切り）・最寄駅・掲載紹介文・体験受付許諾・掲載内容確認日** の5列を新設済み
-- \`掲載契約\` の \`サービス=SPARK\`、\`状態=有効/掲載中\`、\`掲載先ID\` が候補IDと一致し、契約ID・同意者・同意日時・合意証拠がすべて記録済み
-- さらに候補の \`掲載許諾=許可/承諾済/許諾済\` が必要
-- 実際に公開するには公式URL（HTTPS）、対象学年、ジャンル、教室名、都県、承認済み紹介文、掲載内容確認日が必要
-- \`体験受付許諾=可\` のときだけ \`acceptsTrial: true\` となる（ただしAPI本番設定が整うまではフォームは無効）
-- メールアドレス、電話番号、同意者、合意の根拠、契約価格は絶対に公開JSONに出力しない
-- 書き出しエラー・データ構造の不整合は更新せずに失敗する。同期ログはGitHub Actionsで確認する
-
-機能確認用： \`https://kosuke-saito0807.github.io/mate/spark/?demo=1\` 。架空データを表示し、体験申込ボタンは無効です。
-
-## 現在の独立公開の位置づけ
-GitHub Pagesの \`/mate/spark/\` で表示する比較機能です。ChatGPT Sites上の既存SPARKトップページ自体は変更できていません。2サイトの統合・公開ドメイン切替は正本の編集権限がある環境で実施してください。
-
-SPARKの掲載相談: \`spark/partners.html\` 、プライバシー: \`spark/privacy.html\` 。
-
-
-## 元のChatGPT Sites版に合わせたトップページの調整（2026-10-17）
-Firebase Hosting版の \`spark/index.html\` を、既存の \`https://naraico.kosuke-saito0807.chatgpt.site/\` のテキスト抽出版で確認できる構成に寄せました。
-- メインコピー「好きが見つかる。世界が、広がる。」、ABOUT、OUR MISSION、FIND YOUR MATE、FOR SCHOOL PARTNERS
-- 1都3県、年齢、月謝、曜日、カテゴリ、キーワードで絞り込み・教室比較（最大5件）
-- 既存MATE共通ロゴのSPARK版（\`mate-spark-logo.svg\`）
-- 既存SPARKの架空サンプル12件を \`demo-schools.json\` に収録。**正式な掲載教室が0件の間は架空12教室を明示的なデモとして表示する**。実データが1件以上ある場合は実データに切り替わり、明示的に \`?demo=1\` を付けた場合のみサンプルを表示する
-- オリジナルサイトの画像ファイル、管理画面、データベースは取得できていないため、完全なピクセル一致・管理機能移行ではありません。ヒーロー画像には画像の代わりに親子とロボットのイラスト表現を使用
-- 従来の独立型比較UIも \`compare.html\` に保存
-
-**Firebase Hostingへの反映手順**: サイト公開に使用したCloud Shellで \`cd ~/mate && git pull --ff-only && firebase deploy --only hosting --project mate-spark\` を実行する。GitHub上の更新だけではFirebaseに反映されない。
-
-**安全上の制約**: いずれのサンプル教室も架空で、体験受付できません。実在教室は掲載許諾・契約情報が確認されたもののみ \`schools.json\` に出力し、実申込機能は \`config.json\` で停止したままです。
+- `python3 -m unittest discover -s tests -p 'test_spark*.py' -v` で画面・権限・プライバシー・サンプルの扱いを検証。
+- 公開テスト: https://mate-spark.web.app/ に表示される最新の修正、スマホレイアウト、検索、法務ページを確認する。
+- 自動公開の履歴: https://github.com/kosuke-saito0807/mate/actions/workflows/firebase-spark-live.yml
+- GitHubで自動公開に失敗した場合は原因を調べてから再実行し、成功まで公開済みと宣言しない。
+- GitHub Actionsの認証用Service Accountは必要権限だけ付与し、Secretは表示・コミットしない。定期的に鍵のローテーションと不要権限の見直しを行う。
+- 元ChatGPT Sites https://naraico.kosuke-saito0807.chatgpt.site/ は**別実装で同期されない**。写真・データ・管理機能まで完全に一致させるには原本やアプリDBのエクスポートが必要。
