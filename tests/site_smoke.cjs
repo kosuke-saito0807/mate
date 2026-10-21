@@ -52,6 +52,7 @@ async function main() {
     await spark.waitForFunction(() => document.querySelectorAll('#cards article.card').length===12);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('架空'));
     assert.equal(await spark.locator('#trial').isDisabled(),true);
+    assert.equal(await spark.locator('#selectionBar').isHidden(),true);
     await spark.locator('#region').selectOption('東京都');
     assert.equal(await spark.locator('#cards article.card').count(),3);
     await spark.locator('#reset').click();
@@ -64,6 +65,7 @@ async function main() {
     assert.equal(await spark.locator('#cards article.card').count(),1);
     await spark.locator('#favoriteOnly').click();
     await spark.locator('#cards [data-pick]').first().click();
+    assert.equal(await spark.locator('#selectionBar').isVisible(),true);
     assert.equal(await spark.locator('#compare').isEnabled(),true);
     await spark.locator('#compare').click();
     assert.equal(await spark.locator('#compareDialog').evaluate(x=>x.open),true);
@@ -152,6 +154,8 @@ async function main() {
       if(pathname==='/spark/'){
         await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===12);
         assert.equal(await page.locator('#trial').isDisabled(),true);
+        assert.equal(await page.locator('#selectionBar').isHidden(),true);
+        assert.equal(await page.locator('.nav a[href="#mission"]').isVisible(),true);
       }
       await page.close();
     }
