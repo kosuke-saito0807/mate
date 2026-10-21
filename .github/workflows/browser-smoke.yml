@@ -1,0 +1,57 @@
+name: CARE and SPARK browser QA (no email)
+
+on:
+  pull_request:
+    paths:
+      - "*.html"
+      - "assets/**"
+      - "spark/**"
+      - "tests/site_smoke.cjs"
+      - "tests/test_site_integrity.py"
+      - ".github/workflows/sync-smartsheet-public.yml"
+      - ".github/workflows/browser-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "*.html"
+      - "assets/**"
+      - "spark/**"
+      - "tests/site_smoke.cjs"
+      - "tests/test_site_integrity.py"
+      - ".github/workflows/sync-smartsheet-public.yml"
+      - ".github/workflows/browser-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-browser-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Validate cross-site local pages and links
+        run: python3 -m unittest discover -s tests -p 'test_site_integrity.py' -v
+      - name: Install isolated headless browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test actual desktop and mobile browser flows (without sending forms)
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/mate-webserver.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          sleep 2
+          node tests/site_smoke.cjs
+      - name: Save visual comparison screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-care-spark-qa-screenshots
+          path: artifacts/site-smoke/*.png
+          if-no-files-found: ignore
+          retention-days: 7
