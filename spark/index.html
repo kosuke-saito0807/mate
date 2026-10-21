@@ -132,7 +132,7 @@ const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 const yen=n=>typeof n==='number'?'¥'+n.toLocaleString('ja-JP'):'料金は公式サイトで確認';
 const weekdays=['月','火','水','木','金','土','日'];
 const categories=['プログラミング','音楽','スポーツ','学習塾','英語・英会話','ダンス','バレエ','水泳','体操','サッカー','野球','テニス','武道','書道','そろばん','絵画・造形','科学・実験','ロボット','STEAM','ピアノ','ギター','バイオリン','歌・声楽','演劇','料理','囲碁・将棋','作文','国語','算数・数学','受験対策','幼児教室','オンライン','プログラミング・ロボット','その他'];
-let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false;
+let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false,trialIntakeEnabled=false;
 try{favorite=new Set(JSON.parse(localStorage.getItem('mateSparkFavIds')||'[]'))}catch(e){}
 function saveFav(){try{localStorage.setItem('mateSparkFavIds',JSON.stringify([...favorite]))}catch(e){}}
 function choose(id){if(selected.has(id))selected.delete(id);else if(selected.size<5)selected.add(id);else{alert('比較できる教室は最大5件までです。');return}draw()}
@@ -194,8 +194,8 @@ function draw(){
  const eligible=selected.size>0&&selected.size<=5&&!demoMode&&
    [...selected].every(id=>schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true));
  const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com'].includes(location.hostname.toLowerCase());
- $('trial').disabled=!(eligible&&safeHost);
- $('trial').textContent=(eligible&&safeHost)?'まとめて体験相談する':'まとめて体験相談（準備中）';
+ $('trial').disabled=!(eligible&&safeHost&&trialIntakeEnabled);
+ $('trial').textContent=(eligible&&safeHost&&trialIntakeEnabled)?'まとめて体験相談する':'まとめて体験相談（準備中）';
  $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
  $('favoriteOnly').setAttribute('aria-pressed',String(favoritesOnly));
  $('favoriteOnly').classList.toggle('on',favoritesOnly);
@@ -231,7 +231,7 @@ function showTrial(){
  const list=schools.filter(s=>selected.has(s.id)&&s.approved===true&&s.acceptsTrial===true);
  const eligible=!demoMode&&list.length===selected.size&&list.length>0&&list.length<=5;
  const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com'].includes(location.hostname.toLowerCase());
- if(!eligible||!safeHost)return;
+ if(!eligible||!safeHost||!trialIntakeEnabled)return;
  const form=$('trialForm');
  $('trialIds').value=list.map(s=>s.id).join(',');
  $('trialNames').value=list.map(s=>s.name).join('／');
@@ -250,6 +250,13 @@ function showComparison(){
 async function init(){
  optionCategory();drawDays();
  try{
+  // Explicit operator acceptance after verifying actual FormSubmit mailbox delivery.
+  // Merely adding an approved school must never activate live personal-data intake.
+  const configResponse=await fetch('./config.json',{cache:'no-store'});
+  if(!configResponse.ok)throw Error('受付設定を取得できません');
+  const config=await configResponse.json();
+  trialIntakeEnabled=config.trialIntakeEnabled===true;
+
   const forceDemo=new URLSearchParams(location.search).get('demo')==='1';
   const liveResponse=await fetch('./schools.json',{cache:'no-store'});
   if(!liveResponse.ok)throw Error('教室情報の取得に失敗しました');
@@ -286,7 +293,7 @@ $('cancelTrial').addEventListener('click',()=>$('trialDialog').close());
 $('closeTrial').addEventListener('click',()=>$('trialDialog').close());
 $('trialForm').addEventListener('submit',e=>{
  const ids=$('trialIds').value.split(',').filter(Boolean);
- if(demoMode||!ids.length||ids.length>5||ids.some(id=>!schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true))){
+ if(!trialIntakeEnabled||demoMode||!ids.length||ids.length>5||ids.some(id=>!schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true))){
    e.preventDefault();alert('体験相談を受け付けられない教室が含まれています。');return;
  }
 });
