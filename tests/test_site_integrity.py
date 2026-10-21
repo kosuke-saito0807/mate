@@ -79,6 +79,40 @@ class SiteIntegrity(unittest.TestCase):
         self.assertIn('id="listing-contact"', (ROOT / "contact.html").read_text(encoding="utf-8"))
         self.assertIn('id="partnerForm" hidden', (SITE / "partners.html").read_text(encoding="utf-8"))
 
+    def test_care_export_requires_positive_consent_and_recent_verification(self):
+        import sys
+        import datetime
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from sync_google_sheets_public import build_public
+        row = {
+            "ID": "care-test-1", "事業者名": "テスト事業者",
+            "掲載許可": "許可", "MATE掲載ステータス": "掲載許可",
+            "公式サイト": "https://example.org/", "掲載情報確認日": "2026-10-20",
+            "担当者": "非公開担当者", "メール": "private@example.org",
+        }
+        today = datetime.date(2026,10,21)
+        published = build_public([row],today=today)
+        self.assertEqual(len(published),1)
+        self.assertEqual(published[0]["verified_at"],"2026-10-20")
+        self.assertNotIn("メール",published[0])
+        self.assertNotIn("data_as_of",published[0])
+        for override in (
+            {"掲載許可": "未確認"}, {"MATE掲載ステータス": "未確認"},
+            {"公式サイト": "javascript:alert(1)"}, {"掲載情報確認日": ""},
+            {"掲載情報確認日": "2026-10-24"}, {"事業者名": ""},
+        ):
+            self.assertEqual(build_public([{**row, **override}],today=today),[])
+        with self.assertRaises(ValueError):
+            build_public([row, row],today=today)
+
+    def test_unverified_trial_intake_stays_off_even_after_approved_school(self):
+        config = json.loads((SITE / "config.json").read_text(encoding="utf-8"))
+        self.assertFalse(config["trialIntakeEnabled"])
+        page = (SITE / "index.html").read_text(encoding="utf-8")
+        self.assertIn("trialIntakeEnabled=config.trialIntakeEnabled===true",page)
+        self.assertIn("eligible&&safeHost&&trialIntakeEnabled",page)
+        self.assertIn("!eligible||!safeHost||!trialIntakeEnabled",page)
+
     def test_sync_propagates_consent_changes_to_firebase(self):
         flow = (ROOT / ".github/workflows/sync-smartsheet-public.yml").read_text(encoding="utf-8")
         self.assertIn("steps.commit.outputs.changed == 'true'", flow)
