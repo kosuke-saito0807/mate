@@ -136,6 +136,12 @@ async function main() {
         assert.ok((await p.locator('#trialForm').getAttribute('action')).includes('formsubmit.co'));
         await p.locator('#cancelTrial').click();
       }
+      // The school-owner listing intake should appear on approved Firebase hosts.
+      await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
+      assert.equal(await p.locator('#partnerForm').isHidden(),false);
+      assert.ok((await p.locator('#partnerForm').getAttribute('action')).includes('formsubmit.co'));
+      assert.equal(await p.locator('#partnerForm').evaluate(x=>x.checkValidity()),false);
+      // Never submit any form. The mailbox has not been verified.
       await p.close();
     }
     await simulatedProduction(false);
