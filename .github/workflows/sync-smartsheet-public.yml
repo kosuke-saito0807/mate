@@ -32,9 +32,29 @@ jobs:
           GOOGLE_SHEETS_ID: "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ"
         run: python3 scripts/sync_spark_public.py
       - name: Commit public data
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json spark/schools.json
-          git diff --cached --quiet || git commit -m "Sync approved MATE providers from Google Sheets"
-          git push
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Sync approved MATE providers from Google Sheets"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      # A GITHUB_TOKEN push does NOT trigger normal push workflows.
+      # Deploy approved changes directly after the scheduled sync instead.
+      - name: Test synchronized SPARK data and frontend
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        run: |
+          python3 -m unittest discover -s tests -p 'test_spark*.py' -v
+          python3 -m json.tool spark/schools.json >/dev/null
+      - name: Update Firebase Hosting after approved school sync
+        if: ${{ steps.commit.outputs.changed == 'true' && vars.MATE_FIREBASE_AUTO_DEPLOY_ENABLED == 'true' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MATE_SPARK }}
+          projectId: mate-spark
+          channelId: live
