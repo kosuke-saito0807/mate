@@ -1,0 +1,51 @@
+name: One-time copy of original owner's public SPARK assets
+
+on:
+  push:
+    branches: ["fix/mate-three-site-qa-20261021"]
+    paths: [".github/workflows/_oneoff_capture_spark_assets.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/mate-three-site-qa-20261021
+      - name: Download original public owner's assets and verify PNG signatures
+        run: |
+          mkdir -p spark/assets
+          python3 - <<'PY'
+          import struct
+          import urllib.request
+          from pathlib import Path
+          source = "https://naraico.kosuke-saito0807.chatgpt.site/"
+          files = {
+            "family-learning.png": "spark/assets/family-learning.png",
+            "spark-first-piano-lesson.png": "spark/assets/spark-first-piano-lesson.png",
+            "activities.png": "spark/assets/activities.png",
+          }
+          for name,target in files.items():
+            request = urllib.request.Request(source+name,headers={"User-Agent":"Mozilla/5.0 (MATE owner migration)"})
+            with urllib.request.urlopen(request,timeout=30) as response:
+              content=response.read(8*1024*1024+1)
+            if len(content)>8*1024*1024 or not content.startswith(bytes.fromhex("89504e470d0a1a0a")):
+              raise ValueError(name+" did not return a PNG")
+            width,height=struct.unpack(">II",content[16:24])
+            if width<400 or height<200: raise ValueError(name+" is too small")
+            Path(target).write_bytes(content)
+            print(name,width,height,len(content))
+          PY
+      - name: Commit approved original-site image files to the QA branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add spark/assets/*.png
+          git diff --cached --quiet || {
+            git commit -m "Import owner-provided original SPARK public photos for accurate parity"
+            git push origin HEAD:fix/mate-three-site-qa-20261021
+          }
