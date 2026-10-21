@@ -159,6 +159,31 @@ async function main() {
       }
       await page.close();
     }
+    // Public-site read-only probes. Sources outside this repo may block automation.
+    // Navigation and screenshots only; never submit forms or send emails.
+    const liveSites=[
+      ['care-live','https://kosuke-saito0807.github.io/mate/'],
+      ['spark-live','https://mate-spark.web.app/'],
+      ['spark-original','https://naraico.kosuke-saito0807.chatgpt.site/'],
+      ['play-original','https://mate-play.kosuke-saito0807.chatgpt.site/']
+    ];
+    for (const [name,url] of liveSites) {
+      const p=await browser.newPage({viewport:{width:1366,height:820}});
+      await p.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/,route=>route.abort());
+      try{
+        const resp=await p.goto(url,{waitUntil:'domcontentloaded',timeout:22000});
+        await p.waitForTimeout(2100);
+        const details={
+          label:name,status:resp?.status()??0,actual:p.url(),
+          title:(await p.title()).slice(0,100),
+          text:(await p.locator('body').innerText()).slice(0,300).replace(/\n/g,' ')
+        };
+        await p.screenshot({path:SAVE+'/live-'+name+'.png',fullPage:true,timeout:12000});
+        console.log('LIVE_AUDIT '+JSON.stringify(details));
+      }catch(e){
+        console.log('LIVE_AUDIT_FAILED '+name+' '+String(e.message).slice(0,250));
+      }finally{await p.close();}
+    }
     process.stdout.write('PASS: CARE/SPARK navigation, assets, filtering, favorites, comparison, mobile layouts, static intake safety.\n');
   } finally {
     await browser.close();
