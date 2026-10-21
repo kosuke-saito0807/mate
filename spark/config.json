@@ -1,5 +1,6 @@
 {
   "applyEnabled": false,
   "apiUrl": "",
-  "turnstileSiteKey": ""
+  "turnstileSiteKey": "",
+  "trialIntakeEnabled": false
 }
