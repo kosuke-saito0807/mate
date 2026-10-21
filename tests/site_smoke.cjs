@@ -86,6 +86,61 @@ async function main() {
     await old.waitForURL(/\/spark\/$/, {timeout:10000});
     await old.close();
 
+    // Simulate the production origin and approved data WITHOUT contacting Firebase
+    // or delivering a form. Tests both closed and operator-enabled trial states.
+    async function simulatedProduction(trialEnabled) {
+      const p=await browser.newPage({viewport:{width:1366,height:768}});
+      await p.route('https://formsubmit.co/**', route => route.abort());
+      const fakeSchool={
+        id:'fake-approved-test-only', name:'QA掲載許諾済みダミー教室', region:'東京都',
+        area:'文京区', station:'千石駅', category:'プログラミング',
+        ages:['小学生'], ageMin:6, ageMax:12, monthlyPrice:8000,
+        weekdays:['火','土'], description:'QA用の架空データ（本番公開しない）',
+        url:'https://example.org/', approved:true, acceptsTrial:true,
+        demo:false
+      };
+      await p.route('https://mate-spark.web.app/**', async route=>{
+        const req=route.request();
+        if(req.method()!=='GET') return route.abort();
+        const u=new URL(req.url());
+        if(u.pathname==='/schools.json')return route.fulfill({
+          contentType:'application/json',body:JSON.stringify([fakeSchool])
+        });
+        if(u.pathname==='/config.json')return route.fulfill({
+          contentType:'application/json',body:JSON.stringify({
+            applyEnabled:false,trialIntakeEnabled:trialEnabled
+          })
+        });
+        const path=require('node:path');
+        let name=decodeURIComponent(u.pathname);
+        if(name==='/')name='/index.html';
+        const file=path.resolve('spark', '.'+name);
+        if(!file.startsWith(path.resolve('spark')+path.sep)||!fs.existsSync(file)){
+          return route.fulfill({status:404,body:'Not found'});
+        }
+        return route.fulfill({
+          contentType:name.endsWith('.svg')?'image/svg+xml':'text/html',
+          body:fs.readFileSync(file)
+        });
+      });
+      const pageResponse=await p.goto('https://mate-spark.web.app/',{waitUntil:'networkidle'});
+      assert.equal(pageResponse.status(),200);
+      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===1);
+      await p.locator('[data-pick]').first().click();
+      assert.equal(await p.locator('#trial').isEnabled(),trialEnabled,
+        'Trial gate must require explicit owner acceptance');
+      if(trialEnabled){
+        await p.locator('#trial').click();
+        assert.equal(await p.locator('#trialDialog').evaluate(x=>x.open),true);
+        assert.equal(await p.locator('#trialForm').isHidden(),false);
+        assert.ok((await p.locator('#trialForm').getAttribute('action')).includes('formsubmit.co'));
+        await p.locator('#cancelTrial').click();
+      }
+      await p.close();
+    }
+    await simulatedProduction(false);
+    await simulatedProduction(true);
+
     for (const pathname of ['/','/contact.html','/spark/','/spark/partners.html']) {
       const page=await checkPage(browser,pathname,true);
       if(pathname==='/spark/'){
