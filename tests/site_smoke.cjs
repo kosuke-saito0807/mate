@@ -180,6 +180,24 @@ async function main() {
         };
         await p.screenshot({path:SAVE+'/live-'+name+'.png',fullPage:true,timeout:12000});
         console.log('LIVE_AUDIT '+JSON.stringify(details));
+        if(name==='spark-original'||name==='play-original'){
+          const media=await p.evaluate(()=>{
+            const safeSrc=(s)=>{try{const u=new URL(s,location.href);return u.origin+u.pathname}catch{return String(s).slice(0,150)}};
+            const imgs=[...document.images].map(x=>({
+              alt:(x.alt||'').slice(0,90),width:x.naturalWidth,height:x.naturalHeight,
+              url:safeSrc(x.currentSrc||x.src)
+            })).filter(x=>x.width>70&&x.height>50).slice(0,25);
+            const backs=[...document.querySelectorAll('section,header,div')].map(x=>{
+              const bg=getComputedStyle(x).backgroundImage;
+              if(!bg||bg==='none'||x.clientWidth<290||x.clientHeight<110)return null;
+              return {className:String(x.className).slice(0,65),id:x.id,
+                width:x.clientWidth,height:x.clientHeight,
+                background:bg.replace(/url\(["']?(.*?)["']?\)/g,(all,url)=>'url('+safeSrc(url)+')').slice(0,350)};
+            }).filter(Boolean).slice(0,18);
+            return {images:imgs,backgrounds:backs};
+          });
+          console.log('MEDIA_AUDIT '+name+' '+JSON.stringify(media).slice(0,8000));
+        }
       }catch(e){
         console.log('LIVE_AUDIT_FAILED '+name+' '+String(e.message).slice(0,250));
       }finally{await p.close();}
