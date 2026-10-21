@@ -148,9 +148,13 @@ function matching(s){
  if(key&&!([s.name,s.area,s.station,s.category,s.description,...(s.tags||[])].join(' ').toLowerCase().includes(key)))return false;
  if(age!==''){
   const v=Number(age);
-  if(typeof s.ageMin==='number'&&typeof s.ageMax==='number'){if(v<s.ageMin||v>s.ageMax)return false}
-  else if(v<=5&&!(s.ages||[]).includes('幼児'))return false;
-  else if(v>=6&&!(s.ages||[]).includes('小学生'))return false;
+  const hasMin=typeof s.ageMin==='number',hasMax=typeof s.ageMax==='number';
+  if(hasMin&&v<s.ageMin)return false;
+  if(hasMax&&v>s.ageMax)return false;
+  if(!hasMin&&!hasMax){
+    if(v<=5&&!(s.ages||[]).includes('幼児'))return false;
+    if(v>=6&&!(s.ages||[]).includes('小学生'))return false;
+  }
  }
  if(price&&typeof s.monthlyPrice==='number'&&s.monthlyPrice>Number(price))return false;
  if(price&&typeof s.monthlyPrice!=='number')return false;
