@@ -12,12 +12,12 @@ SITE = ROOT / "spark"
 class SparkVisualOctoberTests(unittest.TestCase):
     def test_hero_is_accessible_local_asset(self):
         page = (SITE / "index.html").read_text(encoding="utf-8")
-        self.assertIn('src="hero-family-robot.svg"', page)
+        self.assertIn('src="assets/family-learning.png"', page)
         self.assertIn('class="hero-visual"', page)
-        self.assertIn("子どもが大人二人と一緒にロボットづくり", page)
-        svg = ET.parse(SITE / "hero-family-robot.svg").getroot()
-        self.assertTrue(svg.tag.endswith("svg"))
-        self.assertIn("viewBox", svg.attrib)
+        self.assertIn("ロボットづくりを楽しむイメージ", page)
+        for path in ("assets/family-learning.png", "assets/spark-first-piano-lesson.png", "assets/activities.png"):
+            self.assertTrue((SITE / path).is_file())
+            self.assertIn('src="' + path + '"', page)
 
     def test_search_and_comparison_details(self):
         page = (SITE / "index.html").read_text(encoding="utf-8")
