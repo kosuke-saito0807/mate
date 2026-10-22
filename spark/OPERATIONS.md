@@ -71,3 +71,14 @@ Google Sheets→GitHubの公開データ同期は原則30分ごと（既存の�
 - 掲載許諾と体験受付許諾の分離
 - 事務局メール受信と手動の契約照合作業
 - FirebaseデプロイとGitHub Actionsの成功ログ
+
+
+## 2026-10-21 品質監査・公開安全性（補足）
+
+- 正式サイトのCARE→SPARK導線は https://mate-spark.web.app/ に統一。旧 `/spark/compare.html` は新トップへ案内して旧申込フォームを使用不可とした。
+- `spark/config.json` の `trialIntakeEnabled` は初期値 `false`。掲載許諾＋体験受付許諾を取得した**だけでは**フォームは開かない。事務局がFormSubmitの宛先メール認証、実受信、利用規約/個人情報同意、掲載契約と取次体制を検証してから別途有効化する。
+- CAREの承認済み掲載データは、公開許諾／MATE掲載ステータスの両方・有効なHTTPS公式URL・掲載情報確認日（未来日不可）が必要。未知の情報や日付を補完しない。
+- Google Sheets同期は `GITHUB_TOKEN` でmainにcommitしても別のpushワークフローを起動しないため、`sync-smartsheet-public.yml` 内で同期結果に差分があれば、Firebaseデプロイを**直接実行**するよう修正済み（変数ONかつSecret登録済の場合）。
+- CARE/SPARKのPC/スマホ実ブラウザ操作は `.github/workflows/browser-smoke.yml` で自動検証する。スクリーンショットはActionsの成果物に7日間保存。フォーム送信は遮断し、ダミーデータのみで挙動を検証する。
+- ChatGPT SitesでホストされるPLAYと元SPARKは、現状そのサイトの編集用ソースと認証付き操作画面を取得できない。元サイトとの写真・ピクセル完全一致、PLAYのライブ実機操作、FormSubmitの実受信、Vercel APIの接続先はこのCIでは検証していない。**未検証を合格と記録しない**。
+- 営業V3 Apps Scriptは別のGoogle環境で稼働する。キューの実送信承認と送信ONが必要だが、スクリプトプロパティ・トリガーの実設定はGitHub CIから取得不可。ユーザーからの送信許可がないため変更も送信も実施しない。

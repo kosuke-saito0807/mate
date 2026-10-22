@@ -41,11 +41,11 @@ header{position:sticky;top:0;z-index:15;background:#fffffff5;backdrop-filter:blu
 .empty{grid-column:1/-1;border:1px dashed #b5cbda;border-radius:15px;text-align:center;padding:42px 25px;background:white}.empty h3{font-size:20px;margin:10px 0}.empty p{font-size:13px}
 .partners{background:#eff7ff;padding:70px 0}.partnerRow{display:flex;align-items:center;justify-content:space-between;gap:25px}.partnerRow h2{margin:0;font-size:clamp(25px,3vw,35px)}.partnerRow p{margin:12px 0}
 footer{background:#f5faff;color:var(--navy);border-top:1px solid var(--line);padding:40px 0 85px}footer .footerGrid{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}footer p,footer a{font-size:12px;color:#647b90}.footerNav{display:flex;gap:11px 24px;flex-wrap:wrap;align-items:start}.footerNav a:hover{text-decoration:underline}.copyright{font-size:11px;border-top:1px solid var(--line);margin-top:28px;padding-top:17px;color:#768b9e}
-.selection{position:fixed;left:0;right:0;bottom:0;background:#fff;box-shadow:0 -5px 25px #0d35502b;z-index:10;padding:11px 0}.selection .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}.selection span{font-size:13px;font-weight:800}.selection .right{display:flex;gap:8px}
+.selection[hidden]{display:none!important}.selection{position:fixed;left:0;right:0;bottom:0;background:#fff;box-shadow:0 -5px 25px #0d35502b;z-index:10;padding:11px 0}.selection .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}.selection span{font-size:13px;font-weight:800}.selection .right{display:flex;gap:8px}
 dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);border:0;border-radius:20px;padding:28px;box-shadow:0 20px 75px #12334c45}dialog::backdrop{background:#0f2f4aa0}.detail{padding:16px 0;border-bottom:1px solid var(--line)}dialog h2{font-size:24px}dialog h3{font-size:18px;margin:0 0 5px}dialog p{font-size:13px;color:#617587}.dialogBtns{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px}
 @media(max-width:950px){.head{min-height:80px}.nav{gap:14px}.hero-inner{min-height:490px}.hero-art{height:380px}.discovery-shell{grid-template-columns:205px minmax(0,1fr);gap:18px}.mainSearch{grid-template-columns:1fr 1fr}.mainSearch label:first-child{grid-column:1/-1}}
 @media(max-width:760px){.head{flex-wrap:wrap;gap:5px;padding:12px 0}.brand img{width:265px}.nav{gap:12px;flex-wrap:wrap;justify-content:space-between;width:100%;font-size:11px}.nav .btn{padding:8px 12px;font-size:11px}.hero-inner{grid-template-columns:1fr;min-height:0;padding:35px 0}.hero h1{font-size:40px}.hero-art{height:240px;border-radius:22px 22px 22px 75px}.hero-art .family{font-size:120px}.hero-art .robot{font-size:35px}.intro{grid-template-columns:1fr;gap:25px}.about-blurb{min-height:170px;position:static}.about-blurb .big{font-size:60px}.section{padding:43px 0}.discovery-shell{grid-template-columns:1fr}.filters{position:static}.cards{grid-template-columns:1fr 1fr}.partnerRow{display:block}.selection .wrap{gap:7px;flex-wrap:wrap}.selection .btn{font-size:12px;padding:10px 13px}}
-@media(max-width:540px){.wrap{width:calc(100% - 30px)}.nav a[href="#mission"]{display:none}.cards{grid-template-columns:1fr}.mainSearch{grid-template-columns:1fr}.mainSearch label:first-child{grid-column:auto}.resultshead{align-items:start;flex-direction:column}.hero h1{font-size:35px}.section h2{font-size:29px}.hero .strap{font-size:16px}dialog{padding:20px}.selection span{font-size:11px}.selection .right{width:100%}.selection .right button{flex:1}}
+@media(max-width:540px){.wrap{width:calc(100% - 30px)}.nav a[href="#scene"]{display:none}.cards{grid-template-columns:1fr}.mainSearch{grid-template-columns:1fr}.mainSearch label:first-child{grid-column:auto}.resultshead{align-items:start;flex-direction:column}.hero h1{font-size:35px}.section h2{font-size:29px}.hero .strap{font-size:16px}dialog{padding:20px}.selection span{font-size:11px}.selection .right{width:100%}.selection .right button{flex:1}}
 
 .headControls{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.favOnly{font-size:12px;border:1px solid #d1deec;padding:8px 12px;border-radius:22px;background:white;color:#285578;font-weight:800}.favOnly.on{background:#fce6ed;color:#a63858;border-color:#e8a2b5}
 .trialFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.trialFields label{font-size:13px;font-weight:800;display:block}.trialFields label.full{grid-column:1/-1}.trialFields input,.trialFields select,.trialFields textarea{width:100%;border:1px solid #cad8e6;border-radius:10px;padding:10px;margin-top:5px}.trialFields textarea{min-height:90px}.trialFields .consent{display:flex;gap:12px;font-weight:500;align-items:start}.trialFields .consent input{width:20px;flex:none;margin:7px 0 0}.honey{position:absolute!important;left:-10000px!important}.muted{color:#62798c}.detail-kicker{color:#1684e4;font-size:12px;font-weight:800}.detail-list{display:grid;grid-template-columns:140px minmax(0,1fr);border-top:1px solid var(--line);margin:18px 0}.detail-list dt,.detail-list dd{border-bottom:1px solid var(--line);padding:12px 6px;margin:0;font-size:13px}.detail-list dt{font-weight:800}.detail-list .labels{display:flex;gap:5px;flex-wrap:wrap}.detail-list .labels span{background:#edf6fb;padding:2px 7px;border-radius:7px}
@@ -100,7 +100,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <a href="https://kosuke-saito0807.github.io/mate/">MATE CARE ↗</a><a href="https://mate-play.kosuke-saito0807.chatgpt.site/">MATE PLAY ↗</a>
 <a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a><a href="operator.html">運営者情報</a><a href="operator.html#inquiry">お問い合わせ</a>
 </nav></div><div class="wrap footerNote">掲載は事業者の許諾と情報確認後に行います。架空サンプルは表示例で、実在の教室への体験申込はできません。最新の料金・体験条件は各教室にご確認ください。</div><div class="wrap copyright">© 2026 MATE SPARK / NextEdu</div></footer>
-<div class="selection"><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
+<div class="selection" id="selectionBar" hidden><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
 <dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
 <dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
 <dialog id="trialDialog" aria-labelledby="trialHeading"><h2 id="trialHeading">体験相談をまとめて送る</h2>
@@ -132,7 +132,7 @@ const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 const yen=n=>typeof n==='number'?'¥'+n.toLocaleString('ja-JP'):'料金は公式サイトで確認';
 const weekdays=['月','火','水','木','金','土','日'];
 const categories=['プログラミング','音楽','スポーツ','学習塾','英語・英会話','ダンス','バレエ','水泳','体操','サッカー','野球','テニス','武道','書道','そろばん','絵画・造形','科学・実験','ロボット','STEAM','ピアノ','ギター','バイオリン','歌・声楽','演劇','料理','囲碁・将棋','作文','国語','算数・数学','受験対策','幼児教室','オンライン','プログラミング・ロボット','その他'];
-let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false;
+let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false,trialIntakeEnabled=false;
 try{favorite=new Set(JSON.parse(localStorage.getItem('mateSparkFavIds')||'[]'))}catch(e){}
 function saveFav(){try{localStorage.setItem('mateSparkFavIds',JSON.stringify([...favorite]))}catch(e){}}
 function choose(id){if(selected.has(id))selected.delete(id);else if(selected.size<5)selected.add(id);else{alert('比較できる教室は最大5件までです。');return}draw()}
@@ -148,9 +148,13 @@ function matching(s){
  if(key&&!([s.name,s.area,s.station,s.category,s.description,...(s.tags||[])].join(' ').toLowerCase().includes(key)))return false;
  if(age!==''){
   const v=Number(age);
-  if(typeof s.ageMin==='number'&&typeof s.ageMax==='number'){if(v<s.ageMin||v>s.ageMax)return false}
-  else if(v<=5&&!(s.ages||[]).includes('幼児'))return false;
-  else if(v>=6&&!(s.ages||[]).includes('小学生'))return false;
+  const hasMin=typeof s.ageMin==='number',hasMax=typeof s.ageMax==='number';
+  if(hasMin&&v<s.ageMin)return false;
+  if(hasMax&&v>s.ageMax)return false;
+  if(!hasMin&&!hasMax){
+    if(v<=5&&!(s.ages||[]).includes('幼児'))return false;
+    if(v>=6&&!(s.ages||[]).includes('小学生'))return false;
+  }
  }
  if(price&&typeof s.monthlyPrice==='number'&&s.monthlyPrice>Number(price))return false;
  if(price&&typeof s.monthlyPrice!=='number')return false;
@@ -190,12 +194,13 @@ function draw(){
     '</div></article>';
  }).join('')||'<div class="empty"><h3>条件に合う教室はありません</h3><p>地域・月謝・曜日などの条件を変更してみてください。</p><a class="btn light" href="#discover" id="emptyReset">条件を変更する</a></div>';
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
+ $('selectionBar').hidden=selected.size===0;
  // No actual submissions before explicit school permission, and never on fictional demo data.
  const eligible=selected.size>0&&selected.size<=5&&!demoMode&&
    [...selected].every(id=>schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true));
  const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com'].includes(location.hostname.toLowerCase());
- $('trial').disabled=!(eligible&&safeHost);
- $('trial').textContent=(eligible&&safeHost)?'まとめて体験相談する':'まとめて体験相談（準備中）';
+ $('trial').disabled=!(eligible&&safeHost&&trialIntakeEnabled);
+ $('trial').textContent=(eligible&&safeHost&&trialIntakeEnabled)?'まとめて体験相談する':'まとめて体験相談（準備中）';
  $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
  $('favoriteOnly').setAttribute('aria-pressed',String(favoritesOnly));
  $('favoriteOnly').classList.toggle('on',favoritesOnly);
@@ -231,7 +236,7 @@ function showTrial(){
  const list=schools.filter(s=>selected.has(s.id)&&s.approved===true&&s.acceptsTrial===true);
  const eligible=!demoMode&&list.length===selected.size&&list.length>0&&list.length<=5;
  const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com'].includes(location.hostname.toLowerCase());
- if(!eligible||!safeHost)return;
+ if(!eligible||!safeHost||!trialIntakeEnabled)return;
  const form=$('trialForm');
  $('trialIds').value=list.map(s=>s.id).join(',');
  $('trialNames').value=list.map(s=>s.name).join('／');
@@ -250,6 +255,13 @@ function showComparison(){
 async function init(){
  optionCategory();drawDays();
  try{
+  // Explicit operator acceptance after verifying actual FormSubmit mailbox delivery.
+  // Merely adding an approved school must never activate live personal-data intake.
+  const configResponse=await fetch('./config.json',{cache:'no-store'});
+  if(!configResponse.ok)throw Error('受付設定を取得できません');
+  const config=await configResponse.json();
+  trialIntakeEnabled=config.trialIntakeEnabled===true;
+
   const forceDemo=new URLSearchParams(location.search).get('demo')==='1';
   const liveResponse=await fetch('./schools.json',{cache:'no-store'});
   if(!liveResponse.ok)throw Error('教室情報の取得に失敗しました');
@@ -286,7 +298,7 @@ $('cancelTrial').addEventListener('click',()=>$('trialDialog').close());
 $('closeTrial').addEventListener('click',()=>$('trialDialog').close());
 $('trialForm').addEventListener('submit',e=>{
  const ids=$('trialIds').value.split(',').filter(Boolean);
- if(demoMode||!ids.length||ids.length>5||ids.some(id=>!schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true))){
+ if(!trialIntakeEnabled||demoMode||!ids.length||ids.length>5||ids.some(id=>!schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true))){
    e.preventDefault();alert('体験相談を受け付けられない教室が含まれています。');return;
  }
 });
