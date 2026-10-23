@@ -131,7 +131,9 @@ function publishReviewedMateApplications(){
           "MATE掲載ステータス":"掲載許可","公式サイト":a[4],
           "営業ステータス":"先方申請済","掲載許可":"許可",
           "掲載情報確認日":d,"料金プラン":"無料",
-          "メモ":"申請者作成原稿。Gmail証跡="+a[23]+" / "+a[7]+" / "+a[9]
+          "掲載紹介文":a[9],"サービス区分":a[7],"料金メモ":a[18],
+          "対応時間":a[19],"特徴タグ":a[16],
+          "メモ":"申請者作成原稿。Gmail証跡="+a[23]
         };
         mateSelfAppendByHeaders_(care,values);careIds.add(unique);
       }
@@ -150,8 +152,23 @@ function publishReviewedMateApplications(){
         "次回体験予定日":a[17]
       };
       mateSelfAppendByHeaders_(spark,values);sparkIds.add(unique);
-      // SPARK fail closed: needs independent signed/verified 掲載契約=有効
-      // before the public exporter will show this school.
+      // Create an INACTIVE contract draft with evidence id (not applicant name).
+      // A human must verify signer and fill signed terms before marking 有効.
+      const contract=book.getSheetByName("掲載契約");
+      if(!contract)throw Error("掲載契約 tab missing");
+      const contracts=contract.getDataRange().getDisplayValues();
+      if(!contracts.slice(1).some(r=>r[2]===unique)){
+        mateSelfAppendByHeaders_(contract,{
+          "契約ID":"DRAFT-"+unique,"サービス":"SPARK","掲載先ID":unique,
+          "企業・教室名":a[3],"プラン":"無料",
+          "成果単価税込円":"0","月額税込円":"0",
+          "条件版":"2026-10-23",
+          "合意証拠URL・メールID":a[23],
+          "状態":"未契約"
+        });
+      }
+      // SPARK fail closed: 未契約 draft, no signer/date; no real listing or trial
+      // until signer identity, contract and partner consent are verified.
     }
     sheet.getRange(i+2,28).setValue(unique);
     sheet.getRange(i+2,25).setValue(svc==="CARE"?"公開待ち":"契約確認待ち");
