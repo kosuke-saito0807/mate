@@ -123,7 +123,7 @@ async function audit(browser,service,mobile){
   const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   try{for(const service of Object.keys(ORIGINS)){
     for(const mobile of [false,true])await audit(browser,service,mobile);
-  }}finally{await browser.close();}
+  }
   // Check public family inquiry UX in both CARE and PLAY modes.
   // This does not submit a message or transmit any contact details.
   for(const service of ['CARE','PLAY']){
@@ -142,6 +142,7 @@ async function audit(browser,service,mobile){
     }catch(e){console.log('MATE_FAMILY_QA_FAILED '+service+' '+String(e.message).slice(0,220));process.exitCode=1}
     finally{await p.close();}
   }
+  }finally{await browser.close();}
   fs.writeFileSync(path.join(TARGET,'read-only-report.json'),JSON.stringify({auditedAt:new Date().toISOString(),results},null,2));
   const failures=results.filter(x=>!x.ok);
   console.log('MATE_AUDIT_SUMMARY '+JSON.stringify({checked:results.length,pass:results.length-failures.length,fail:failures.length,warnings:results.reduce((n,x)=>n+x.warnings.length,0)}));
