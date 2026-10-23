@@ -5,6 +5,9 @@ on:
     paths:
       - "tests/live_three_sites.cjs"
       - ".github/workflows/live-three-sites.yml"
+      - "*.html"
+      - "spark/**"
+      - "assets/**"
   push:
     branches: [main]
     paths:
