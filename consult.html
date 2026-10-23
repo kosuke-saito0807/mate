@@ -45,13 +45,13 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <label class="field full">ご相談内容（任意）<textarea name="message" maxlength="600" placeholder="ご希望の条件、掲載情報への質問など。お子さまの氏名・学校名・病歴・住所の詳細は書かないでください。"></textarea></label>
 </div>
 <div class="notice">検索や比較では個人情報は不要です。このフォームで入力した情報は運営事務局への返信に使います。<strong>掲載事業者には自動転送しません。</strong>紹介先が決まり取次ぎが必要になった場合は、共有先・内容を説明して改めて同意を確認します。</div>
-<label class="checkbox"><input name="privacy_agree" type="checkbox" value="同意する" required><span><a id="privacy" href="privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取り扱い</a>を確認し、FormSubmitを利用した運営事務局への情報送信に同意します。（必須）</span></label>
+<label class="checkbox"><input name="privacy_agree" type="checkbox" value="同意する" required><span><a id="privacy" href="consult-privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取り扱い</a>を確認し、FormSubmitを利用した運営事務局への情報送信に同意します。（必須）</span></label>
 <label class="checkbox"><input name="referral_interest" type="checkbox" value="案内を希望する（情報共有は別途同意）"><span>条件に合う掲載事業者のご案内を希望する（任意）。このチェックだけで連絡先を事業者に渡しません。</span></label>
 <p class="help">迷惑メール対策のため送信時に認証画面が出ることがあります。返信がない場合は <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> へお問い合わせください。</p>
 <p id="formStatus" role="status" aria-live="polite" hidden></p>
 <button type="submit" class="submit" id="submitBtn">事務局に相談を送る ↗</button>
 </form></div></main>
-<footer class="footer"><div class="wrap">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> ｜ <a id="footerPrivacy" href="privacy.html">プライバシーポリシー</a></div></footer>
+<footer class="footer"><div class="wrap">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> ｜ <a id="footerPrivacy" href="consult-privacy.html">プライバシーポリシー</a></div></footer>
 <script>
 (()=>{
 const play=new URLSearchParams(location.search).get('service')==='PLAY';
@@ -65,7 +65,7 @@ if(play){
  document.getElementById('browse').textContent='体験を探す';
  document.getElementById('heading').textContent='親子のお出かけ・体験のご相談';
  document.getElementById('lead').textContent='気になる親子体験や掲載情報について、MATE PLAYの事務局に相談できます。公式サイトのご案内を優先し、予約を確約するものではありません。';
- for(const x of ['privacy','footerPrivacy'])document.getElementById(x).href='play-privacy.html';
+ // Both services use the same family-specific privacy disclosure.
 }
 const form=document.getElementById('consultForm'),status=document.getElementById('formStatus'),btn=document.getElementById('submitBtn');
 form.elements.namedItem('service').value=svc;
