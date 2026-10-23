@@ -48,7 +48,13 @@ async function main() {
     assert.equal(await care.locator('#listing-contact [name=company]').count(),1);
     await care.close();
 
-    const spark = await checkPage(browser,'/spark/');
+    let spark = await checkPage(browser,'/spark/');
+    await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
+    assert.equal(await spark.locator('#cards article.card').count(),0);
+    assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
+    assert.ok(await spark.locator('a[href="?demo=1#discover"]').count()>0);
+    await spark.close();
+    spark = await checkPage(browser,'/spark/?demo=1');
     await spark.waitForFunction(() => document.querySelectorAll('#cards article.card').length===12);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('架空'));
     assert.equal(await spark.locator('#trial').isDisabled(),true);
