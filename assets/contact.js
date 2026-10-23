@@ -22,6 +22,7 @@
       if (!response.ok || !(result.success === true || result.success === 'true')) {
         throw new Error('submission_failed');
       }
+      if(window.gtag)gtag('event','generate_lead',{service:'CARE',lead_type:'listing_inquiry'});
       location.assign(new URL('thanks.html', location.href).href);
     } catch (_) {
       status.setAttribute('role', 'alert');

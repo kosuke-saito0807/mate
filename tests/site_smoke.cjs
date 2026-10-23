@@ -27,7 +27,7 @@ async function checkPage(browser, pathname, mobile=false) {
   }));
   assert.ok(maxWidth.scroll <= maxWidth.width + 4,
     pathname + (mobile ? ' mobile' : ' desktop') + ' horizontal overflow: ' + JSON.stringify(maxWidth));
-  await page.screenshot({path: SAVE + '/' + pathname.replaceAll('/','_').replace(/_$/,'home') + (mobile?'-mobile':'-desktop') + '.png',fullPage:true});
+  await page.screenshot({path: SAVE + '/' + pathname.replaceAll('/','_').replace(/_$/,'home').replace(/[^a-zA-Z0-9_\-]/g,'_') + (mobile?'-mobile':'-desktop') + '.png',fullPage:true});
   assert.deepEqual(errors,[],pathname+' runtime page errors');
   return page;
 }
@@ -48,7 +48,13 @@ async function main() {
     assert.equal(await care.locator('#listing-contact [name=company]').count(),1);
     await care.close();
 
-    const spark = await checkPage(browser,'/spark/');
+    let spark = await checkPage(browser,'/spark/');
+    await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
+    assert.equal(await spark.locator('#cards article.card').count(),0);
+    assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
+    assert.ok(await spark.locator('a[href="?demo=1#discover"]').count()>0);
+    await spark.close();
+    spark = await checkPage(browser,'/spark/?demo=1');
     await spark.waitForFunction(() => document.querySelectorAll('#cards article.card').length===12);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('架空'));
     assert.equal(await spark.locator('#trial').isDisabled(),true);
@@ -152,7 +158,8 @@ async function main() {
     for (const pathname of ['/','/contact.html','/spark/','/spark/partners.html']) {
       const page=await checkPage(browser,pathname,true);
       if(pathname==='/spark/'){
-        await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===12);
+        await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
+        assert.equal(await page.locator('#cards article.card').count(),0);
         assert.equal(await page.locator('#trial').isDisabled(),true);
         assert.equal(await page.locator('#selectionBar').isHidden(),true);
         assert.equal(await page.locator('.nav a[href="#mission"]').isVisible(),true);
