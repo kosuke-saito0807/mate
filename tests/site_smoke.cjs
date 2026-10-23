@@ -46,6 +46,26 @@ async function main() {
     care = await checkPage(browser,'/contact.html');
     assert.ok((await care.locator('#listing-contact').count())===1);
     assert.equal(await care.locator('#listing-contact [name=company]').count(),1);
+    // Business self-registration; never submit email from the browser test.
+    await care.locator('#listing-contact [name=company]').fill('QA用の事業者');
+    await care.locator('#listing-contact [name=website]').fill('https://example.org/');
+    await care.locator('#listing-contact [name=region]').selectOption('北海道');
+    await care.locator('#listing-contact [name=city]').fill('札幌市中央区');
+    await care.locator('#listing-contact [name=category]').selectOption('ベビーシッター');
+    await care.locator('#listing-contact [name=description]').fill('QA専用に作成した架空の事業者紹介文です。実際の掲載や送信は行いません。');
+    await care.locator('#listing-contact [name=listing_content_checked_at]').fill('2026-10-23');
+    await care.locator('#listing-contact [name=listing_permission]').check();
+    const carePayload=await care.evaluate(()=>{
+      const f=document.querySelector('#listing-contact');
+      const ok=window.MATESelfService.populate(f);
+      return {ok,payload:f.querySelector('[name=listing_payload_b64]').value};
+    });
+    assert.equal(carePayload.ok,true);
+    const careData=JSON.parse(Buffer.from(carePayload.payload.split('__')[1],'base64').toString('utf8'));
+    assert.equal(careData.service,'CARE');
+    assert.equal(careData.region,'北海道');
+    assert.equal(careData.description.includes('QA専用'),true);
+    assert.equal(Object.hasOwn(careData,'email'),false);
     await care.close();
 
     let spark = await checkPage(browser,'/spark/');
@@ -149,6 +169,22 @@ async function main() {
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
       assert.ok((await p.locator('#partnerForm').getAttribute('action')).includes('formsubmit.co'));
       assert.equal(await p.locator('#partnerForm').evaluate(x=>x.checkValidity()),false);
+      // Test independent SPARK self-service data generation on the simulated Firebase host.
+      await p.locator('#partnerForm [name=company]').fill('QA架空教室');
+      await p.locator('#partnerForm [name=website]').fill('https://example.org/');
+      await p.locator('#partnerForm [name=region]').selectOption('大阪府');
+      await p.locator('#partnerForm [name=city]').fill('大阪市北区');
+      await p.locator('#partnerForm [name=category]').selectOption('音楽');
+      await p.locator('#partnerForm [name=ages]').selectOption('小学生');
+      await p.locator('#partnerForm [name=description]').fill('子どもの興味を深めることを目指す、QA専用の架空の教室紹介文です。');
+      await p.locator('#partnerForm [name=listing_content_checked_at]').fill('2026-10-23');
+      await p.locator('#partnerForm [name=listing_permission]').check();
+      const pPayload=await p.evaluate(()=>{
+        const f=document.querySelector('#partnerForm');
+        return {ok:window.MATESelfService.populate(f),payload:f.querySelector('[name=listing_payload_b64]').value};
+      });
+      assert.equal(pPayload.ok,true);
+      assert.equal(JSON.parse(Buffer.from(pPayload.payload.split('__')[1],'base64').toString('utf8')).region,'大阪府');
       // Never submit any form. The mailbox has not been verified.
       await p.close();
     }
