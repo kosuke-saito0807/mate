@@ -103,7 +103,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 .scene-sprite-code{background-position:left center}
 .scene-sprite-music{background-position:center center}
 .scene-sprite-sports{background-position:right center}
-</style>
+.privacyComfort{font-size:12px!important;font-weight:700;color:#24698c;background:#f0f9ff;border:1px solid #d5e7f5;border-radius:12px;padding:10px 14px;margin:14px auto 3px;max-width:650px}</style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
 <nav class="nav" aria-label="メインメニュー"><a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#scene">SCENE</a><a href="#discover">教室を探す</a><a class="btn" href="partners.html">教室を掲載する ↗</a></nav></div></header>
@@ -119,7 +119,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <a href="#discover" class="scene-card" data-scene-category="音楽"><div class="scene-art scene-music" aria-hidden="true"><div class="scene-sprite scene-sprite-music"></div></div><div class="scene-copy"><strong>好きなことをもっと深めたい</strong><p>音楽や表現を通じて、自信と楽しさを育みたい。</p><span>教室を探す ↗</span></div></a>
 <a href="#discover" class="scene-card" data-scene-category="スポーツ"><div class="scene-art scene-active" aria-hidden="true"><div class="scene-sprite scene-sprite-sports"></div></div><div class="scene-copy"><strong>体を動かす習い事を探したい</strong><p>近くで通える運動・スポーツの教室を見つけたい。</p><span>教室を探す ↗</span></div></a>
 </div></div></section>
-<section id="discover" class="section discover"><div class="wrap"><div class="center"><p class="eyebrow">FIND YOUR MATE</p><h2>次の「好き」を、見つけよう。</h2><p>プログラミングも、音楽も、スポーツも。<br>気になる教室を比べて、自分たちに合う学びを。</p></div>
+<section id="discover" class="section discover"><div class="wrap"><div class="center"><p class="eyebrow">FIND YOUR MATE</p><h2>次の「好き」を、見つけよう。</h2><p>プログラミングも、音楽も、スポーツも。<br>気になる教室を比べて、自分たちに合う学びを。</p><p class="privacyComfort">🔒 会員登録不要・氏名・メールの入力なしで検索できます。お気に入りはこの端末内に保存します。</p></div>
 <div class="discovery-shell"><aside class="filters" aria-label="検索の絞り込み"><h3>条件を絞る</h3><label for="region">エリア</label><select id="region"><option value="">全国すべて</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
 <label for="age">お子さまの年齢</label><select id="age"><option value="">指定しない</option><option value="0">0歳</option><option value="1">1歳</option><option value="2">2歳</option><option value="3">3歳</option><option value="4">4歳</option><option value="5">5歳</option><option value="6">6歳</option><option value="7">7歳</option><option value="8">8歳</option><option value="9">9歳</option><option value="10">10歳</option><option value="11">11歳</option><option value="12">12歳</option></select>
 <label for="price">月謝の上限</label><select id="price"><option value="">指定しない</option><option value="5000">5,000円まで</option><option value="8000">8,000円まで</option><option value="10000">10,000円まで</option><option value="15000">15,000円まで</option><option value="20000">20,000円まで</option></select>
@@ -158,14 +158,14 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <input type="hidden" name="希望教室ID" id="trialIds" value="">
 <input type="hidden" name="希望教室名" id="trialNames" value="">
 <div class="trialFields">
-<label>保護者のお名前（必須）<input name="guardianName" maxlength="80" autocomplete="name" required></label>
+<label>ご連絡用のお名前（任意）<input name="guardianName" maxlength="80" autocomplete="name" placeholder="省略できます"></label>
 <label>メールアドレス（必須）<input name="email" type="email" maxlength="254" autocomplete="email" required></label>
 <label>電話番号（任意）<input name="phone" type="tel" maxlength="30" autocomplete="tel"></label>
-<label>お子さまの学年（必須）<select name="grade" required><option value="">選択してください</option><option>未就学児</option><option>小学1年生</option><option>小学2年生</option><option>小学3年生</option><option>小学4年生</option><option>小学5年生</option><option>小学6年生</option><option>中学1年生</option><option>中学2年生</option><option>中学3年生</option><option>高校生</option></select></label>
+<label>お子さまの学年（任意）<select name="grade"><option value="">回答しない</option><option>未就学児</option><option>小学1年生</option><option>小学2年生</option><option>小学3年生</option><option>小学4年生</option><option>小学5年生</option><option>小学6年生</option><option>中学1年生</option><option>中学2年生</option><option>中学3年生</option><option>高校生</option></select></label>
 <label class="full">相談内容（任意）<textarea name="message" maxlength="500" placeholder="希望する曜日など。お子さまの氏名、学校名、健康情報は書かないでください。"></textarea></label>
 <label class="full consent"><input type="checkbox" name="agreed" value="yes" required><span><a href="privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取扱い</a>を確認しました。FormSubmitを使用した運営事務局への情報送信と、選択した掲載許諾済み教室への必要情報の提供に同意します。</span></label>
 </div>
-<p class="muted">スパム対策の認証画面が表示されることがあります。送信結果は運営事務局がメールで確認します。</p>
+<p class="muted">メールアドレスだけで相談できます。電話番号・氏名・学年は任意です。お子さまのお名前・学校・病歴等は書かないでください。スパム対策の認証画面が表示されることがあります。送信結果は運営事務局がメールで確認します。</p>
 <div class="dialogBtns"><button type="button" class="btn light" id="cancelTrial">キャンセル</button><button class="btn" type="submit">事務局へ体験相談を送る ↗</button></div></form>
 <div class="dialogBtns" id="unavailableTrial"><button type="button" class="btn light" id="closeTrial">閉じる</button></div>
 </dialog>

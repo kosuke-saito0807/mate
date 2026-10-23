@@ -9,6 +9,7 @@ on:
       - "tests/test_spark*.py"
       - "tests/test_mate_nationwide.py"
       - "tests/test_mate_launch_preparation.py"
+      - "tests/test_mate_owner_self_service.py"
       - "scripts/sync_spark_public.py"
   workflow_dispatch:
 
@@ -31,6 +32,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_spark*.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_launch_preparation.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_owner_self_service.py' -v
           python3 -m json.tool spark/schools.json >/dev/null
           python3 -m json.tool spark/demo-schools.json >/dev/null
           python3 -m json.tool firebase.json >/dev/null

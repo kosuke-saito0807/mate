@@ -7,6 +7,7 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (busy || !form.reportValidity()) return;
+    if(!window.MATESelfService?.populate(form)){status.hidden=false;status.textContent='掲載情報を確認してください。';return;}
     busy = true;
     button.disabled = true;
     button.textContent = '送信しています…';
