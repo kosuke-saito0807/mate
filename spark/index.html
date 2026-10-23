@@ -308,6 +308,7 @@ $('trialForm').addEventListener('submit',e=>{
  if(!trialIntakeEnabled||demoMode||!ids.length||ids.length>5||ids.some(id=>!schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true))){
    e.preventDefault();alert('体験相談を受け付けられない教室が含まれています。');return;
  }
+ if(window.gtag)gtag('event','trial_inquiry_submit_attempt',{service:'SPARK',school_count:ids.length});
 });
 $('compare').addEventListener('click',showComparison);
 $('closeCompare').addEventListener('click',()=>$('compareDialog').close());
