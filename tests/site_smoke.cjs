@@ -109,6 +109,27 @@ async function main() {
       await page.close();
     }
 
+    // PLAY's public CMS remains separate, but owners can self-register through MATE.
+    const play=await checkPage(browser,'/play-listing.html');
+    assert.equal(await play.locator('#listing-contact [name=service]').inputValue(),'PLAY');
+    await play.locator('#listing-contact [name=company]').fill('QA親子体験');
+    await play.locator('#listing-contact [name=website]').fill('https://example.org/');
+    await play.locator('#listing-contact [name=region]').selectOption('福岡県');
+    await play.locator('#listing-contact [name=city]').fill('福岡市博多区');
+    await play.locator('#listing-contact [name=category]').selectOption('科学・学び');
+    await play.locator('#listing-contact [name=ages]').selectOption('小学生');
+    await play.locator('#listing-contact [name=description]').fill('QA専用の家族向け体験プログラムです。実際の送信・公開は行われないテストです。');
+    await play.locator('#listing-contact [name=listing_content_checked_at]').fill('2026-10-23');
+    await play.locator('#listing-contact [name=listing_permission]').check();
+    const playPayload=await play.evaluate(()=>{
+      const f=document.querySelector('#listing-contact');
+      return {ok:window.MATESelfService.populate(f),payload:f.querySelector('[name=listing_payload_b64]').value};
+    });
+    assert.equal(playPayload.ok,true);
+    assert.equal(JSON.parse(Buffer.from(playPayload.payload.split('__')[1],'base64').toString('utf8')).service,'PLAY');
+    assert.equal(await play.locator('#listing-contact').getAttribute('data-thanks'),'play-thanks.html');
+    await play.close();
+
     const old = await browser.newPage();
     await old.goto(BASE + '/spark/compare.html');
     await old.waitForURL(/\/spark\/$/, {timeout:10000});
