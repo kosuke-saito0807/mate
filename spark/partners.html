@@ -42,7 +42,7 @@
 <p class="muted">利用者は会員登録・氏名入力なしで検索できます。担当者の連絡先は審査用で、公開されません。</p><button class="cta send" type="submit">この内容で無料掲載を申請する ↗</button></form>
 <div class="box"><strong>体験相談の受付について</strong><p>体験申込の紹介・通知は、別途お申し込み・同意いただいた教室のみ対象です。体験受付の開始や成果報酬など、有料サービスに関する条件は個別に協議・合意します。無料掲載からの自動課金はありません。</p></div>
 <p class="muted">運営：NextEdu ｜ お問い合わせ：<a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a>。掲載対象や公開時期は個別確認により決定し、掲載・成果は保証しません。</p>
-</div></main><footer><div class="wrap">© MATE SPARK / NextEdu　 <a href="./">教室検索</a>　 <a href="privacy.html">プライバシーポリシー</a>　 <a href="terms.html">利用について</a>　 <a href="disclaimer.html">掲載方針</a>　 <a href="operator.html">運営者情報</a></div></footer><script>
+</div></main><footer><div class="wrap">© MATE SPARK / NextEdu　 <a href="./">教室検索</a>　 <a href="privacy.html">プライバシーポリシー</a>　 <a href="terms.html">利用について</a>　 <a href="disclaimer.html">掲載方針</a>　 <a href="operator.html">運営者情報</a></div></footer><script src="assets/mate-self-service.js?v=20261023"></script><script>
 const form=document.getElementById('partnerForm');
 const host=location.hostname.toLowerCase();
 const commercialFreeHost=host.endsWith('.web.app')||host.endsWith('.firebaseapp.com')||host.endsWith('.netlify.app');
@@ -53,5 +53,8 @@ if(commercialFreeHost){
 }
 form.elements.namedItem('_next').value=new URL('thanks.html',document.baseURI).href;
 form.elements.namedItem('_url').value=location.href.split('#')[0];
-form.addEventListener('submit',()=>{if(window.gtag)gtag('event','listing_inquiry_submit_attempt',{service:'SPARK',lead_type:'partner'});});
+form.addEventListener('submit',e=>{
+ if(!window.MATESelfService?.populate(form)){e.preventDefault();alert('公開用の教室情報を確認してください。');return;}
+ if(window.gtag)gtag('event','listing_inquiry_submit_attempt',{service:'SPARK',lead_type:'partner'});
+});
 </script></body></html>
