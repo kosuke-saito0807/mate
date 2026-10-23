@@ -7,6 +7,7 @@ on:
       - "spark/**"
       - "firebase.json"
       - "tests/test_spark*.py"
+      - "tests/test_mate_nationwide.py"
       - "scripts/sync_spark_public.py"
   workflow_dispatch:
 
@@ -27,6 +28,7 @@ jobs:
       - name: Test Firebase publication rules
         run: |
           python3 -m unittest discover -s tests -p 'test_spark*.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
           python3 -m json.tool spark/schools.json >/dev/null
           python3 -m json.tool spark/demo-schools.json >/dev/null
           python3 -m json.tool firebase.json >/dev/null
