@@ -28,6 +28,7 @@ function writeSafe(folder,key,data){
  let p=decodeURIComponent(u.pathname.replace(/^\/+/,''))||'index.html';
  p=p.replace(/\\/g,'/').split('/').filter(x=>x&&x!=='.'&&x!=='..').map(x=>x.replace(/[<>:"|?*]/g,'_')).join('/');
  if(!path.extname(p))p+='/index.html';
+ if(folder===ASSET)p=u.hostname+'/'+p;
  if(u.search)p=p.replace(/(\.[^.\/]+)$/,'--'+crypto.createHash('sha1').update(u.search).digest('hex').slice(0,10)+'$1');
  const target=path.join(folder,p);
  fs.mkdirSync(path.dirname(target),{recursive:true});
