@@ -29,6 +29,8 @@ function recordMATEInquiries() {
     for (const msg of thread.getMessages()) {
       const id = String(msg.getId());
       if (existing.has(id)) continue;
+      // The matching conversation can include our outgoing replies. Do not register those.
+      if (!String(msg.getTo() || '').toLowerCase().includes(MATE_INTAKE.inbox)) continue;
       const subject = String(msg.getSubject() || '');
       const match = subject.match(/\bMATE[\s　]*(CARE|SPARK|PLAY)\b/i);
       if (!match) continue;
