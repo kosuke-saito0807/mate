@@ -9,6 +9,10 @@ on:
       - "tests/test_mate_nationwide.py"
       - "tests/test_mate_launch_preparation.py"
       - "tests/test_mate_owner_self_service.py"
+      - "tests/test_family_consultation.py"
+      - "tests/test_mate_selfservice_e2e.cjs"
+      - "consult.html"
+      - "consult-privacy.html"
       - "scripts/sync_google_sheets_public.py"
       - "index.html"
       - "contact.html"
@@ -58,3 +62,4 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_launch_preparation.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_owner_self_service.py' -v
+          python3 -m unittest discover -s tests -p 'test_family_consultation.py' -v
