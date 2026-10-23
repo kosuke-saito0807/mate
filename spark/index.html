@@ -96,6 +96,13 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
  #about .intro article:first-child{border-radius:14px 14px 0 0}
  #about .intro article:last-child{border-left:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px}
 }
+
+/* The source activity asset is a 3-panel montage: robot / piano / football.
+   Use distinct panels for programming, music and sports, not one identical crop. */
+.scene-sprite{width:100%;height:100%;background-image:url("assets/activities.png");background-size:300% 100%;background-repeat:no-repeat}
+.scene-sprite-code{background-position:left center}
+.scene-sprite-music{background-position:center center}
+.scene-sprite-sports{background-position:right center}
 </style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
@@ -108,9 +115,9 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <div class="scene-intro"><p class="eyebrow">SCENE</p><h2 id="sceneHeading">こんなとき、MATE SPARKを。</h2><p>はじめての習い事も、新しいチャレンジも。<br>わが子の「やってみたい」にぴったりの学びを。</p></div>
 <div class="scene-grid">
 <a href="#discover" class="scene-card" data-scene-age="5"><div class="scene-art scene-first" aria-hidden="true"><img src="assets/spark-first-piano-lesson.png" loading="lazy" decoding="async" alt=""></div><div class="scene-copy"><strong>はじめての習い事に</strong><p>楽しい出会いから、最初の「好き！」を見つけたい。</p><span>教室を探す ↗</span></div></a>
-<a href="#discover" class="scene-card" data-scene-category="プログラミング"><div class="scene-art scene-create" aria-hidden="true"><img src="assets/activities.png" loading="lazy" decoding="async" alt=""></div><div class="scene-copy"><strong>創造力や好奇心を伸ばしたい</strong><p>ものづくりやプログラミングに挑戦してみたい。</p><span>教室を探す ↗</span></div></a>
-<a href="#discover" class="scene-card" data-scene-category="音楽"><div class="scene-art scene-music" aria-hidden="true"><img src="assets/activities.png" loading="lazy" decoding="async" alt=""></div><div class="scene-copy"><strong>好きなことをもっと深めたい</strong><p>音楽や表現を通じて、自信と楽しさを育みたい。</p><span>教室を探す ↗</span></div></a>
-<a href="#discover" class="scene-card" data-scene-category="スポーツ"><div class="scene-art scene-active" aria-hidden="true"><img src="assets/activities.png" loading="lazy" decoding="async" alt=""></div><div class="scene-copy"><strong>体を動かす習い事を探したい</strong><p>近くで通える運動・スポーツの教室を見つけたい。</p><span>教室を探す ↗</span></div></a>
+<a href="#discover" class="scene-card" data-scene-category="プログラミング"><div class="scene-art scene-create" aria-hidden="true"><div class="scene-sprite scene-sprite-code"></div></div><div class="scene-copy"><strong>創造力や好奇心を伸ばしたい</strong><p>ものづくりやプログラミングに挑戦してみたい。</p><span>教室を探す ↗</span></div></a>
+<a href="#discover" class="scene-card" data-scene-category="音楽"><div class="scene-art scene-music" aria-hidden="true"><div class="scene-sprite scene-sprite-music"></div></div><div class="scene-copy"><strong>好きなことをもっと深めたい</strong><p>音楽や表現を通じて、自信と楽しさを育みたい。</p><span>教室を探す ↗</span></div></a>
+<a href="#discover" class="scene-card" data-scene-category="スポーツ"><div class="scene-art scene-active" aria-hidden="true"><div class="scene-sprite scene-sprite-sports"></div></div><div class="scene-copy"><strong>体を動かす習い事を探したい</strong><p>近くで通える運動・スポーツの教室を見つけたい。</p><span>教室を探す ↗</span></div></a>
 </div></div></section>
 <section id="discover" class="section discover"><div class="wrap"><div class="center"><p class="eyebrow">FIND YOUR MATE</p><h2>次の「好き」を、見つけよう。</h2><p>プログラミングも、音楽も、スポーツも。<br>気になる教室を比べて、自分たちに合う学びを。</p></div>
 <div class="discovery-shell"><aside class="filters" aria-label="検索の絞り込み"><h3>条件を絞る</h3><label for="region">エリア</label><select id="region"><option value="">全国すべて</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
