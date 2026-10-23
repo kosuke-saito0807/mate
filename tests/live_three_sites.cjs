@@ -128,7 +128,7 @@ async function audit(browser,service,mobile){
   // This does not submit a message or transmit any contact details.
   for(const service of ['CARE','PLAY']){
     const p=await browser.newPage({viewport:{width:390,height:844},isMobile:true});
-    await p.route(/https?:\\/\\/(?:www\\.)?formsubmit\\.co\\/.*/,route=>route.abort());
+    await p.route('https://formsubmit.co/**',route=>route.abort());
     try{
       const url=ORIGINS.CARE+'consult.html?service='+service;
       const resp=await p.goto(url,{waitUntil:'domcontentloaded',timeout:25000});
