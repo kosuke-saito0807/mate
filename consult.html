@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家族向けご相談｜MATE CARE・MATE PLAY</title><meta name="description" content="MATEの子育てサポート・親子体験についてメールアドレスだけで相談。無料・会員登録不要。">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NG57XX4Y5D"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-NG57XX4Y5D",{send_page_view:true});</script>
+<style>
+:root{--ink:#0d2847;--blue:#1769e0;--soft:#f1f7ff;--line:#dae6f3;--secondary:#526981}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8fbff;color:var(--ink);font:15px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+body.play{--blue:#bd682c;--soft:#fff7ed;--line:#f0dfca;background:#fffaf5}
+a{color:var(--blue)}button,input,textarea,select{font:inherit}button{cursor:pointer}
+.header{background:#fff;border-bottom:1px solid var(--line)}
+.wrap{width:min(760px,calc(100% - 32px));margin:auto}.header .wrap{display:flex;justify-content:space-between;align-items:center;padding:14px 0;gap:15px}
+.brand{font-size:20px;font-weight:900;text-decoration:none;color:var(--ink)}.brand span{color:var(--blue)}
+.header nav{display:flex;gap:16px;flex-wrap:wrap;font-size:13px}
+.hero{padding:48px 0 27px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.15em;color:var(--blue)}
+h1{font-size:clamp(29px,5vw,41px);line-height:1.4;letter-spacing:-.02em;margin:8px 0 12px}
+.lead{font-size:15px;color:var(--secondary)}.pill{display:inline-block;background:var(--soft);color:var(--blue);padding:5px 13px;border-radius:24px;font-weight:800;font-size:12px}
+.paper{background:#fff;border:1px solid var(--line);border-radius:22px;padding:clamp(20px,5vw,40px);box-shadow:0 14px 46px #1536570d;margin:0 0 60px}
+h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);margin:0 0 15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:800}.full{grid-column:1/-1}
+.field input,.field select,.field textarea{width:100%;min-width:0;padding:13px 12px;background:#fff;border:1px solid #cbd8e8;border-radius:10px;color:var(--ink);font-weight:400}
+.field textarea{min-height:100px;resize:vertical}.field :is(input,textarea,select):focus-visible{outline:3px solid #b7d8ff;outline-offset:1px}
+.checkbox{display:flex;align-items:start;gap:11px;font-size:13px;line-height:1.8;margin:15px 0}.checkbox input{margin:5px 0 0;flex:none;width:19px;height:19px}
+.notice{border-radius:12px;padding:13px 17px;background:var(--soft);font-size:13px;color:var(--secondary);margin:23px 0}
+.submit{width:100%;border:0;border-radius:12px;background:var(--blue);padding:15px 22px;color:#fff;font-weight:900}.submit:disabled{opacity:.65;cursor:wait}
+#formStatus{font-size:13px;margin:12px 0;color:#a94431}#formStatus.success{color:#177049}.visuallyHidden{position:absolute!important;left:-9999px!important}
+.footer{border-top:1px solid var(--line);padding:24px 0 35px;color:var(--secondary);font-size:12px}
+@media(max-width:580px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.header .wrap{align-items:start;flex-direction:column;gap:4px}.hero{padding:30px 0 22px}.paper{border-radius:17px}}
+</style></head>
+<body>
+<header class="header"><div class="wrap"><a class="brand" id="brand" href="index.html">MATE <span>CARE</span></a><nav><a id="browse" href="index.html#find">掲載先を探す</a><a href="operator.html">運営者情報</a></nav></div></header>
+<main class="wrap"><div class="hero"><div class="eyebrow">ASK MATE</div><h1 id="heading">シッター・子育てサポートのご相談</h1>
+<p class="lead" id="lead">まずは掲載事業者の公式サイトをご確認ください。利用先の選び方や掲載情報への質問を、事務局へメールで相談できます。</p><span class="pill">会員登録なし・無料・メールアドレスのみ必須</span></div>
+<div class="paper"><h2>ご相談内容</h2><p class="help">このフォームは予約を確約するものではなく、運営事務局へのお問い合わせです。確認後、メールでご案内します。</p>
+<form id="consultForm" method="POST" action="https://formsubmit.co/kosodatemate@gmail.com">
+<input type="hidden" name="service" id="service" value="CARE">
+<input type="hidden" name="_subject" id="subject" value="MATE CARE 利用相談">
+<input type="hidden" name="_template" value="table">
+<input type="text" name="_honey" class="visuallyHidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="grid">
+<label class="field full">返信用メールアドレス（必須）<input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"></label>
+<label class="field">相談の種類<select name="inquiryType" required><option value="掲載先を探している">掲載先を探している</option><option value="掲載内容について">掲載内容について</option><option value="体験・利用相談">体験・利用相談</option><option value="その他">その他</option></select></label>
+<label class="field">希望エリア（任意）<input name="area" maxlength="100" placeholder="例：東京都北区、オンライン"></label>
+<label class="field">お名前（任意）<input name="guardianName" autocomplete="name" maxlength="80" placeholder="省略できます"></label>
+<label class="field">電話番号（任意）<input name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="メールだけでもご相談できます"></label>
+<label class="field full">ご相談内容（任意）<textarea name="message" maxlength="600" placeholder="ご希望の条件、掲載情報への質問など。お子さまの氏名・学校名・病歴・住所の詳細は書かないでください。"></textarea></label>
+</div>
+<div class="notice">検索や比較では個人情報は不要です。このフォームで入力した情報は運営事務局への返信に使います。<strong>掲載事業者には自動転送しません。</strong>紹介先が決まり取次ぎが必要になった場合は、共有先・内容を説明して改めて同意を確認します。</div>
+<label class="checkbox"><input name="privacy_agree" type="checkbox" value="同意する" required><span><a id="privacy" href="privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取り扱い</a>を確認し、FormSubmitを利用した運営事務局への情報送信に同意します。（必須）</span></label>
+<label class="checkbox"><input name="referral_interest" type="checkbox" value="案内を希望する（情報共有は別途同意）"><span>条件に合う掲載事業者のご案内を希望する（任意）。このチェックだけで連絡先を事業者に渡しません。</span></label>
+<p class="help">迷惑メール対策のため送信時に認証画面が出ることがあります。返信がない場合は <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> へお問い合わせください。</p>
+<p id="formStatus" role="status" aria-live="polite" hidden></p>
+<button type="submit" class="submit" id="submitBtn">事務局に相談を送る ↗</button>
+</form></div></main>
+<footer class="footer"><div class="wrap">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> ｜ <a id="footerPrivacy" href="privacy.html">プライバシーポリシー</a></div></footer>
+<script>
+(()=>{
+const play=new URLSearchParams(location.search).get('service')==='PLAY';
+const svc=play?'PLAY':'CARE';
+if(play){
+ document.body.classList.add('play');
+ document.title='親子のお出かけ・体験のご相談｜MATE PLAY';
+ document.getElementById('brand').innerHTML='MATE <span>PLAY</span>';
+ document.getElementById('brand').href='https://mate-play.kosuke-saito0807.chatgpt.site/';
+ document.getElementById('browse').href='https://mate-play.kosuke-saito0807.chatgpt.site/';
+ document.getElementById('browse').textContent='体験を探す';
+ document.getElementById('heading').textContent='親子のお出かけ・体験のご相談';
+ document.getElementById('lead').textContent='気になる親子体験や掲載情報について、MATE PLAYの事務局に相談できます。公式サイトのご案内を優先し、予約を確約するものではありません。';
+ for(const x of ['privacy','footerPrivacy'])document.getElementById(x).href='play-privacy.html';
+}
+const form=document.getElementById('consultForm'),status=document.getElementById('formStatus'),btn=document.getElementById('submitBtn');
+form.elements.namedItem('service').value=svc;
+form.elements.namedItem('_subject').value='MATE '+svc+' 利用相談';
+form.addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!form.reportValidity()||btn.disabled)return;
+ btn.disabled=true;btn.textContent='送信しています…';status.hidden=false;status.classList.remove('success');status.textContent='送信結果を確認しています。';
+ try{
+   const body=Object.fromEntries(new FormData(form));
+   const res=await fetch('https://formsubmit.co/ajax/kosodatemate@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)});
+   const json=await res.json();
+   if(!res.ok||!(json.success===true||json.success==='true'))throw Error('unconfirmed');
+   if(window.gtag)gtag('event','generate_lead',{service:svc,lead_type:'family_inquiry'});
+   form.reset();status.classList.add('success');status.textContent='ご相談を受け付けました。運営事務局からメールでご案内します。';btn.textContent='送信しました';
+ }catch(_){
+   status.textContent='送信結果を確認できませんでした。入力内容は残っています。二重送信せず、メールでお問い合わせください。';
+   btn.disabled=false;btn.textContent='事務局に相談を送る ↗';
+ }
+});
+})();
+</script></body></html>
