@@ -15,7 +15,7 @@ window.MATESelfService = {
     if(bytes.length>7000)return false;
     let binary="";
     for(const b of bytes)binary+=String.fromCharCode(b);
-    target.value=btoa(binary);
+    target.value="MATE_LISTING_V1__"+btoa(binary);
     return true;
   }
 };
