@@ -1,0 +1,13 @@
+{
+  "name": "mate-spark-phase3-local-only",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "emulator:start": "node scripts/guard-cli.mjs start",
+    "emulator:smoke": "node scripts/guard-cli.mjs smoke"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.30.0"
+  }
+}
