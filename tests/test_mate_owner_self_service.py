@@ -31,6 +31,15 @@ class OwnerSelfServiceTest(unittest.TestCase):
             r=subprocess.run(["node","--check"],input=text,text=True,capture_output=True)
             self.assertEqual(r.returncode,0,r.stderr)
 
+    def test_invalid_age_and_dates_rejected_before_submitting(self):
+        for filename in ("assets/mate-self-service.js","spark/assets/mate-self-service.js"):
+            content=(ROOT/filename).read_text(encoding="utf-8")
+            self.assertIn('Number(data.ageMin)>Number(data.ageMax)',content)
+            self.assertIn('data.nextTrialDate<data.listing_content_checked_at',content)
+            self.assertIn('data.listing_content_checked_at>new Date()',content)
+            check=subprocess.run(["node","--check"],input=content,text=True,capture_output=True)
+            self.assertEqual(check.returncode,0,check.stderr)
+
     def test_registrations_require_human_approval(self):
         gs=(ROOT/"scripts/mate_self_service.gs").read_text(encoding="utf-8")
         for token in ("syncMateSelfServiceApplications","publishReviewedMateApplications",
