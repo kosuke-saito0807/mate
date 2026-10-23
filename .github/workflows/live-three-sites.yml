@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "tests/live_three_sites.cjs"
+      - "scripts/capture_play_public.cjs"
       - ".github/workflows/live-three-sites.yml"
       - "*.html"
       - "spark/**"
@@ -42,6 +43,17 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Review 3 live websites, desktop and mobile; never submit forms
         run: node tests/live_three_sites.cjs
+      - name: Capture MATE PLAY public client resources (PR only; no write requests)
+        if: github.event_name == 'pull_request'
+        run: node scripts/capture_play_public.cjs
+      - name: Archive MATE PLAY HTML CSS JS images data and connection inventory
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-play-public-source-snapshot
+          path: artifacts/play-public-export/
+          if-no-files-found: warn
+          retention-days: 7
       - name: Save read-only screenshots and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
