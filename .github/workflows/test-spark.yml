@@ -6,6 +6,9 @@ on:
       - "spark/**"
       - "scripts/sync_spark_public.py"
       - "tests/test_spark*.py"
+      - "tests/test_mate_nationwide.py"
+      - "index.html"
+      - "assets/provider-search.js"
       - "firebase.json"
   push:
     branches: [main]
@@ -13,6 +16,9 @@ on:
       - "spark/**"
       - "scripts/sync_spark_public.py"
       - "tests/test_spark*.py"
+      - "tests/test_mate_nationwide.py"
+      - "index.html"
+      - "assets/provider-search.js"
       - "firebase.json"
   workflow_dispatch:
 
@@ -32,3 +38,4 @@ jobs:
           python3 -m json.tool firebase.json >/dev/null
       - name: Run consent, privacy and original-site parity checks
         run: python3 -m unittest discover -s tests -p 'test_spark*.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
