@@ -68,6 +68,33 @@ async function main() {
     assert.equal(Object.hasOwn(careData,'email'),false);
     await care.close();
 
+    // Privacy-first CARE/PLAY family consultation: validate real browser input,
+    // intercept POST inside the test process, never send to external FormSubmit.
+    for (const service of ['CARE','PLAY']) {
+      const uri=service==='PLAY'?'/consult.html?service=PLAY':'/consult.html?service=CARE';
+      const family=await checkPage(browser,uri,true);
+      const input=family.locator('#consultForm');
+      assert.equal(await input.evaluate(f=>f.checkValidity()),false,'missing required email/consent');
+      assert.equal(await family.locator('[name=guardianName]').getAttribute('required'),null);
+      assert.equal(await family.locator('[name=phone]').getAttribute('required'),null);
+      let captured=null;
+      await family.route('https://formsubmit.co/ajax/kosodatemate@gmail.com', async route=>{
+        captured=route.request().postDataJSON();
+        await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({success:'true'})});
+      });
+      await family.locator('[name=email]').fill('qa@example.invalid');
+      await family.locator('[name=privacy_agree]').check();
+      assert.equal(await input.evaluate(f=>f.checkValidity()),true);
+      await family.locator('#submitBtn').click();
+      await family.locator('#formStatus.success').waitFor();
+      assert.equal(captured.service,service);
+      assert.equal(captured.email,'qa@example.invalid');
+      assert.ok(!captured.guardianName && !captured.phone,'optional personal fields remain empty');
+      assert.equal(captured.referral_interest,undefined,'no automatic referral permission');
+      assert.ok((await family.locator('#formStatus').innerText()).includes('受け付けました'));
+      await family.close();
+    }
+
     let spark = await checkPage(browser,'/spark/');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
