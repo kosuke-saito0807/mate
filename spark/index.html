@@ -142,7 +142,7 @@ function imageEmoji(s){return s.category.includes('プログラミング')?'🤖
 function optionCategory(){for(const value of categories){const el=document.createElement('option');el.value=value;el.textContent=value;$('category').append(el)}}
 function matching(s){
  const region=$('region').value,age=$('age').value,price=$('price').value,cat=$('category').value,key=$('keyword').value.trim().toLowerCase();
- if(region&&s.region!==region)return false;
+ if(region&&s.region!==region&&s.region!=='全国')return false;
  if(cat&&s.category!==cat)return false;
  if(favoritesOnly&&!favorite.has(s.id))return false;
  if(key&&!([s.name,s.area,s.station,s.category,s.description,...(s.tags||[])].join(' ').toLowerCase().includes(key)))return false;
