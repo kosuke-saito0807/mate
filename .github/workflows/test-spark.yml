@@ -37,5 +37,6 @@ jobs:
           python3 -m json.tool spark/config.json >/dev/null
           python3 -m json.tool firebase.json >/dev/null
       - name: Run consent, privacy and original-site parity checks
-        run: python3 -m unittest discover -s tests -p 'test_spark*.py' -v
+        run: |
+          python3 -m unittest discover -s tests -p 'test_spark*.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
