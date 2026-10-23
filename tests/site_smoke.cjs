@@ -147,7 +147,7 @@ async function main() {
           return route.fulfill({status:404,body:'Not found'});
         }
         return route.fulfill({
-          contentType:name.endsWith('.svg')?'image/svg+xml':'text/html',
+          contentType:name.endsWith('.svg')?'image/svg+xml':name.endsWith('.js')?'text/javascript':name.endsWith('.png')?'image/png':'text/html',
           body:fs.readFileSync(file)
         });
       });
