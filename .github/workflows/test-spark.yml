@@ -8,9 +8,13 @@ on:
       - "tests/test_spark*.py"
       - "tests/test_mate_nationwide.py"
       - "tests/test_mate_launch_preparation.py"
+      - "tests/test_mate_owner_self_service.py"
+      - "scripts/sync_google_sheets_public.py"
       - "index.html"
       - "contact.html"
       - "assets/contact.js"
+      - "tests/test_mate_owner_self_service.py"
+      - "scripts/sync_google_sheets_public.py"
       - "privacy.html"
       - "assets/provider-search.js"
       - "firebase.json"
@@ -22,9 +26,13 @@ on:
       - "tests/test_spark*.py"
       - "tests/test_mate_nationwide.py"
       - "tests/test_mate_launch_preparation.py"
+      - "tests/test_mate_owner_self_service.py"
+      - "scripts/sync_google_sheets_public.py"
       - "index.html"
       - "contact.html"
       - "assets/contact.js"
+      - "tests/test_mate_owner_self_service.py"
+      - "scripts/sync_google_sheets_public.py"
       - "privacy.html"
       - "assets/provider-search.js"
       - "firebase.json"
@@ -49,3 +57,4 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_spark*.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_launch_preparation.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_owner_self_service.py' -v
