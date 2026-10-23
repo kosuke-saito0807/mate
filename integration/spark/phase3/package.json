@@ -8,6 +8,7 @@
     "emulator:smoke": "node scripts/guard-cli.mjs smoke"
   },
   "devDependencies": {
+    "firebase-admin": "^14.5.0",
     "firebase-tools": "^15.30.0"
   }
 }
