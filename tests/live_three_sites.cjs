@@ -62,6 +62,36 @@ async function audit(browser,service,mobile){
     if(data.prefOptions!==47)result.warnings.push('静的select要素に都道府県'+data.prefOptions+'件（カスタム選択UIなら手動要確認）');
     if(!data.nextEdu||!data.contact)result.warnings.push('運営NextEdu・共通問合せの一部がトップ画面に見つからない');
     if(!data.legalLinks.length)result.warnings.push('プライバシー等への文字リンクなし');
+
+    // Check listing CTA destination via GET only. This does not submit anything.
+    const partner=await page.evaluate(()=>{
+      const link=[...document.querySelectorAll('a[href]')].find(a=>
+        /(?:教室|体験|施設|事業者)を掲載|掲載相談フォーム/.test((a.innerText||'').trim()));
+      return link?{text:(link.innerText||'').trim().slice(0,60),url:link.href}:null;
+    });
+    if(partner){
+      result.partnerLink=partner.text;
+      try{
+        const target=new URL(partner.url);
+        if(target.origin===new URL(ORIGINS[service]).origin){
+          const formPage=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1366,height:820},isMobile:mobile});
+          await formPage.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/,route=>route.abort());
+          await formPage.route(/https?:\/\/(?:www\.)?googletagmanager\.com\/.*/,route=>route.abort());
+          try{
+            const r=await formPage.goto(partner.url,{waitUntil:'domcontentloaded',timeout:20000});
+            await formPage.waitForTimeout(1100);
+            result.partnerPage={http:r?.status()||0,forms:await formPage.locator('form').count(),
+              fields:await formPage.evaluate(()=>[...document.querySelectorAll('input[name],textarea[name],select[name]')]
+                .map(e=>e.name).filter(n=>n && !n.startsWith('_')).slice(0,28)),
+              analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-NG57XX4Y5D'))};
+            await formPage.screenshot({path:path.join(TARGET,service.toLowerCase()+'-partner-'+view+'.png'),fullPage:true,timeout:14000});
+            if((r?.status()||0)>=400)result.failures.push('掲載フォームページ HTTP '+r.status());
+            if(result.partnerPage.forms===0)result.warnings.push('掲載先画面にフォーム未検出（専用CMS/認証の可能性）');
+          }finally{await formPage.close();}
+        }else{result.warnings.push('掲載CTAが外部ドメインを参照');}
+      }catch(e){result.warnings.push('掲載CTA検証失敗: '+String(e.message).split('\n')[0].slice(0,110));}
+    }else result.warnings.push('掲載申込CTAがトップのa要素から未検出');
+
     // Safe reads only; never click CTAs that can send or mutate.
     for(const href of data.sameOriginLinks.slice(0,5)){
       const u=new URL(href);
@@ -79,7 +109,7 @@ async function audit(browser,service,mobile){
     const headline={service:result.service,view:result.view,ok:result.ok,http:result.http,
       width:result.width,scrollWidth:result.scrollWidth,brokenImages:result.brokenImages,
       prefOptions:result.prefOptions,hasNationwideText:result.hasNationwideText,
-      forms:result.forms,issues:result.failures,warnings:result.warnings,title:result.title};
+      forms:result.forms,partnerPage:result.partnerPage,issues:result.failures,warnings:result.warnings,title:result.title};
     console.log('MATE_LIVE_QA '+JSON.stringify(headline));
     results.push(headline);
   }
