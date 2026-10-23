@@ -70,6 +70,13 @@ def build_public(rows, today=None):
             "verified_at": checked_date.isoformat(),
             "status": "掲載許可",
         }
+        # Only business-facing fields provided and verified by the approved business.
+        for source,target,maxlen in (("掲載紹介文","description",500),("サービス区分","category",70),
+                                     ("料金メモ","pricingNotes",140),("対応時間","openingHours",140),
+                                     ("特徴タグ","tags",160)):
+            entry=as_text(row.get(source))
+            if entry:
+                provider[target]=entry[:maxlen]
         source_date = as_text(row.get("公開一覧掲載基準日"))
         try:
             if source_date:
