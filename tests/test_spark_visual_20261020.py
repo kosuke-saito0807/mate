@@ -17,7 +17,12 @@ class SparkVisualOctoberTests(unittest.TestCase):
         self.assertIn("ロボットづくりを楽しむイメージ", page)
         for path in ("assets/family-learning.png", "assets/spark-first-piano-lesson.png", "assets/activities.png"):
             self.assertTrue((SITE / path).is_file())
-            self.assertIn('src="' + path + '"', page)
+            if path == "assets/activities.png":
+                self.assertIn('background-image:url("assets/activities.png")', page)
+                for role in ("code", "music", "sports"):
+                    self.assertIn('scene-sprite-' + role, page)
+            else:
+                self.assertIn('src="' + path + '"', page)
 
     def test_search_and_comparison_details(self):
         page = (SITE / "index.html").read_text(encoding="utf-8")
