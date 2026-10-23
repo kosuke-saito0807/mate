@@ -13,6 +13,9 @@ on:
     paths:
       - "tests/live_three_sites.cjs"
       - ".github/workflows/live-three-sites.yml"
+      - "*.html"
+      - "spark/**"
+      - "assets/**"
   schedule:
     - cron: "0 0 * * 1"  # Monday 09:00 JST
   workflow_dispatch:
