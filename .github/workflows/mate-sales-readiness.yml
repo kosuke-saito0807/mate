@@ -1,0 +1,45 @@
+name: MATE sales readiness audit (private aggregate only)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_mate_sales.py"
+      - ".github/workflows/mate-sales-readiness.yml"
+  pull_request:
+    paths:
+      - "scripts/audit_mate_sales.py"
+      - ".github/workflows/mate-sales-readiness.yml"
+  schedule:
+    - cron: "0 23 * * *"   # Every day at 08:00 Japan time
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mate-sales-readiness
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install read-only Sheets client
+        run: pip install gspread google-auth
+      - name: Generate non-identifying daily sales readiness summary
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEETS_ID: "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ"
+        run: python3 scripts/audit_mate_sales.py
+      - name: Retain anonymous counters only
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-sales-readiness-aggregate
+          path: artifacts/sales-readiness/aggregate-only.json
+          retention-days: 7
+          if-no-files-found: ignore
