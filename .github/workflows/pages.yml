@@ -32,6 +32,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p "test_spark*.py" -v
           python3 -m unittest discover -s tests -p "test_mate_nationwide.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_launch_preparation.py" -v
           python3 -m json.tool spark/schools.json >/dev/null
           python3 -m json.tool spark/config.json >/dev/null
       - uses: actions/configure-pages@v5
