@@ -12,6 +12,7 @@
 <meta property="og:description" content="好きが見つかる。世界が、広がる。全国47都道府県の習い事を探して比較するサービス。掲載されている架空サンプルからは体験申込できません。">
 <meta property="og:url" content="https://mate-spark.web.app/">
 <meta name="twitter:card" content="summary">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NG57XX4Y5D"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-NG57XX4Y5D");</script>
 
 <link rel="icon" type="image/svg+xml" href="mate-spark-logo.svg">
 <style>
@@ -88,6 +89,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 </aside><div><div class="mainSearch"><label>教室名・駅・市区町村で検索<input type="search" id="keyword" placeholder="例：千石・英語・プログラミング"></label><label>エリア<select id="topRegion"><option value="">全国</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select></label><label>ジャンル<select id="category"><option value="">すべての習い事</option></select></label></div>
 <div class="categories" id="categoryQuick"><button type="button" data-category="" class="on">すべて</button><button type="button" data-category="プログラミング">プログラミング</button><button type="button" data-category="音楽">音楽</button><button type="button" data-category="スポーツ">スポーツ</button></div>
 <p class="notice" id="demoBanner">掲載情報は教室からの許諾を確認後に公開します。体験申込は準備中です。</p>
+<p id="demoLink" class="filterFoot" hidden><a href="?demo=1#discover" style="text-decoration:underline">架空の12教室で検索・比較を試す（デモ専用） ↗</a></p>
 <div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option><option value="soon">体験日が近い順</option></select></div></div>
 <div class="cards" id="cards" aria-live="polite"></div>
 <p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
@@ -167,7 +169,7 @@ function draw(){
  if($('sort').value==='monthly')sorted.sort((a,b)=>(a.monthlyPrice??1e12)-(b.monthlyPrice??1e12));
  if($('sort').value==='trial')sorted.sort((a,b)=>(a.trialPrice??1e12)-(b.trialPrice??1e12));
  if($('sort').value==='soon')sorted.sort((a,b)=>String(a.nextTrialDate||'9999-12-31').localeCompare(String(b.nextTrialDate||'9999-12-31')));
- const suffix=demoMode?'件のサンプル教室':'件の掲載教室';$('status').textContent=sorted.length+' '+suffix;
+ const suffix=demoMode?'件のサンプル教室':'件の掲載教室';$('status').textContent=(!demoMode&&schools.length===0)?'実在教室の掲載準備中':sorted.length+' '+suffix;
  $('cards').innerHTML=sorted.map(s=>{
   const fictional=demoMode||s.demo===true;
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
@@ -177,7 +179,7 @@ function draw(){
   const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
   const nextTrial=(!fictional&&s.nextTrialDate)?'<div class="meta">次回体験予定：'+escapeHtml(s.nextTrialDate.replaceAll('-','/'))+'</div>':'';
    const trialCost=typeof s.trialPrice==='number'?(s.trialPrice===0?'無料体験':'体験 '+yen(s.trialPrice)):'体験料金：要確認';
-  return '<article class="card"><div class="cardArt '+cls+'">'+
+  return '<article class="card" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt '+cls+'">'+
     '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
     '<span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span>'+
     '<button type="button" class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-pressed="'+(favorite.has(s.id)?'true':'false')+'" aria-label="'+escapeHtml(s.name)+'をお気に入り'+(favorite.has(s.id)?'から解除':'に追加')+'">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
@@ -192,7 +194,7 @@ function draw(){
     '<div class="labels">'+marks+'</div>'+
     '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
     '</div></article>';
- }).join('')||'<div class="empty"><h3>条件に合う教室はありません</h3><p>地域・月謝・曜日などの条件を変更してみてください。</p><a class="btn light" href="#discover" id="emptyReset">条件を変更する</a></div>';
+ }).join('')||(!demoMode&&schools.length===0?'<div class="empty"><h3>実在教室は掲載準備中です</h3><p>掲載を許諾いただいた教室を順次公開します。地域によっては掲載がまだありません。架空の教室で操作を試す場合は下のリンクをご利用ください。</p><p><a class="btn light" href="?demo=1#discover">12教室のデモを試す ↗</a></p></div>':'<div class="empty"><h3>条件に合う教室はありません</h3><p>条件を変更してみてください。掲載のない地域もあります。</p></div>');
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
  $('selectionBar').hidden=selected.size===0;
  // No actual submissions before explicit school permission, and never on fictional demo data.
@@ -207,6 +209,7 @@ function draw(){
  $('categoryQuick').querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('on',b.dataset.category===$('category').value));
 }
 function showDetail(id){
+ if(window.gtag&&!demoMode)gtag('event','school_detail_view',{service:'SPARK',school_id:id});
  const s=schools.find(x=>x.id===id);
  if(!s)return;
  const sample=demoMode||s.demo===true;
@@ -248,6 +251,7 @@ function showTrial(){
  $('trialDialog').showModal();
 }
 function showComparison(){
+ if(window.gtag&&!demoMode)gtag('event','school_compare',{service:'SPARK',school_count:selected.size});
  const items=schools.filter(s=>selected.has(s.id));
  $('comparisons').innerHTML=items.map(s=>'<section class="detail"><h3>'+escapeHtml(s.name)+(demoMode?'（架空サンプル）':'')+'</h3><p>エリア：'+escapeHtml(s.region)+' '+escapeHtml(s.area||'')+' ／ '+escapeHtml(s.station||'')+'</p><p>ジャンル：'+escapeHtml(s.category)+' ／ 対象：'+escapeHtml((s.ages||[]).join('・'))+'</p><p>月謝：'+yen(s.monthlyPrice)+' ／ 通える曜日：'+escapeHtml((s.weekdays||[]).join('・')||'要確認')+'</p><p>'+escapeHtml(s.description||'')+'</p>'+(s.url?'<p><a href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトで確認 ↗</a></p>':'')+'</section>').join('');
  $('compareDialog').showModal();
@@ -267,7 +271,8 @@ async function init(){
   if(!liveResponse.ok)throw Error('教室情報の取得に失敗しました');
   const data=await liveResponse.json();
   const real=(Array.isArray(data)?data:[]).filter(s=>s&&s.approved===true&&s.id&&s.name&&s.region&&s.category).map(s=>({...s,id:String(s.id),ages:Array.isArray(s.ages)?s.ages:[],url:/^https:\/\/[^<>"']+$/i.test(s.url||'')?s.url:''}));
-  demoMode=forceDemo||real.length===0;
+  demoMode=forceDemo;
+  $('demoLink').hidden=demoMode||real.length>0;
   if(demoMode){
    const demoResponse=await fetch('./demo-schools.json',{cache:'no-store'});
    if(!demoResponse.ok)throw Error('デモデータの取得に失敗しました');
@@ -275,12 +280,13 @@ async function init(){
    schools=(Array.isArray(demo)?demo:[]).filter(s=>s&&s.demo===true&&s.id&&s.name);
    $('demoBanner').textContent='以下の'+schools.length+'教室は画面確認用の架空サンプルです。料金・対象年齢・曜日・写真は説明用であり、実在教室への申込みはできません。';
    $('footnote').textContent='架空のサンプルを表示しています。実在の掲載教室は、掲載許諾・内容確認の完了後に自動反映されます。';
-  }else{schools=real;$('demoBanner').textContent='掲載許諾と最新情報を確認済みの教室を表示しています。体験受付機能は現在準備中です。';}
+  }else{schools=real;$('demoBanner').textContent=real.length?'掲載許諾を確認済みの教室を表示しています。掲載のない地域もあります。体験相談は許諾と受付設定を確認してからご案内します。':'実在教室は現在掲載準備中です。全国47都道府県から掲載相談を受け付けていますが、掲載許諾のない教室は表示しません。';}
   draw();
  }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
 }
 $('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);drawDays();draw()});
 $('cards').addEventListener('click',e=>{
+ const outbound=e.target.closest('a[href^="https://"]');if(outbound&&window.gtag&&!demoMode){const card=outbound.closest('[data-school-id]');gtag('event','school_outbound_click',{service:'SPARK',school_id:card?.dataset.schoolId||'unknown'})}
  const pick=e.target.closest('[data-pick]'),fav=e.target.closest('[data-fav]'),detail=e.target.closest('[data-detail]');
  if(pick)choose(pick.dataset.pick);
  if(detail)showDetail(detail.dataset.detail);
