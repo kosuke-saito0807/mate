@@ -78,7 +78,12 @@ async function audit(browser,service,mobile){
           await formPage.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/,route=>route.abort());
           await formPage.route(/https?:\/\/(?:www\.)?googletagmanager\.com\/.*/,route=>route.abort());
           try{
-            const r=await formPage.goto(partner.url,{waitUntil:'domcontentloaded',timeout:20000});
+            let r;
+            for(let attempt=0;attempt<3;attempt++){
+              r=await formPage.goto(partner.url,{waitUntil:'domcontentloaded',timeout:20000});
+              if((r?.status()||0)<500)break;
+              if(attempt<2)await formPage.waitForTimeout(1000*(attempt+1));
+            }
             await formPage.waitForTimeout(1100);
             result.partnerPage={http:r?.status()||0,forms:await formPage.locator('form').count(),
               fields:await formPage.evaluate(()=>[...document.querySelectorAll('input[name],textarea[name],select[name]')]
@@ -119,6 +124,24 @@ async function audit(browser,service,mobile){
   try{for(const service of Object.keys(ORIGINS)){
     for(const mobile of [false,true])await audit(browser,service,mobile);
   }}finally{await browser.close();}
+  // Check public family inquiry UX in both CARE and PLAY modes.
+  // This does not submit a message or transmit any contact details.
+  for(const service of ['CARE','PLAY']){
+    const p=await browser.newPage({viewport:{width:390,height:844},isMobile:true});
+    await p.route(/https?:\\/\\/(?:www\\.)?formsubmit\\.co\\/.*/,route=>route.abort());
+    try{
+      const url=ORIGINS.CARE+'consult.html?service='+service;
+      const resp=await p.goto(url,{waitUntil:'domcontentloaded',timeout:25000});
+      const form=p.locator('#consultForm');
+      const required=await p.locator('#consultForm [required]').evaluateAll(els=>els.map(e=>e.name).sort());
+      const verdict={service,view:'family-consult-mobile',http:resp?.status()||0,
+        required,ok:resp?.status()===200&&JSON.stringify(required)===JSON.stringify(['email','privacy_agree'])};
+      console.log('MATE_FAMILY_QA '+JSON.stringify(verdict));
+      if(!verdict.ok)process.exitCode=1;
+      await p.screenshot({path:path.join(TARGET,'consult-'+service.toLowerCase()+'-mobile.png'),fullPage:true});
+    }catch(e){console.log('MATE_FAMILY_QA_FAILED '+service+' '+String(e.message).slice(0,220));process.exitCode=1}
+    finally{await p.close();}
+  }
   fs.writeFileSync(path.join(TARGET,'read-only-report.json'),JSON.stringify({auditedAt:new Date().toISOString(),results},null,2));
   const failures=results.filter(x=>!x.ok);
   console.log('MATE_AUDIT_SUMMARY '+JSON.stringify({checked:results.length,pass:results.length-failures.length,fail:failures.length,warnings:results.reduce((n,x)=>n+x.warnings.length,0)}));
