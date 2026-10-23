@@ -16,7 +16,9 @@ from urllib.parse import urlparse
 
 SPARK_SHEET = "SPARK営業候補"
 CONTRACT_SHEET = "掲載契約"
-PREFECTURES = ("東京都", "神奈川県", "埼玉県", "千葉県")
+PREFECTURES = (
+    "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県", "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県", "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
+)
 AGES = ("幼児", "小学生", "中学生", "高校生")
 REQUIRED_SPARK = {
     "ID", "企業・教室名", "都県・対象", "ジャンル",
@@ -172,6 +174,8 @@ def build_public(candidates, contracts, today=None):
             continue
         areas = value(row, "都県・対象")
         region = next((p for p in PREFECTURES if areas.startswith(p)), "")
+        if not region and areas.startswith("全国"):
+            region = "全国"
         ages = normalized_ages(value(row, "対象学年（カンマ区切り）"))
         if not all((name, category, region, description, ages)) or not approved_url(url):
             continue
