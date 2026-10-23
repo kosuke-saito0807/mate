@@ -62,6 +62,40 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 .spark-footer .footerGrid{align-items:start;gap:35px}.spark-footer .footerBrand{flex:0 0 270px}.spark-footer .footerBrand img{max-width:100%;height:auto}.spark-footer .footerNav{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:14px;row-gap:12px}.spark-footer .footerNav a{font-size:12px;overflow-wrap:anywhere}.spark-footer .footerNote{font-size:11px;color:#687d90;line-height:1.85;margin-top:25px}
 @media(max-width:980px){.scene-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.spark-footer .footerNav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.scene-section{padding:45px 0 55px}.scene-grid{gap:11px}.scene-art{height:115px;font-size:53px}.scene-copy{padding:13px 12px}.scene-copy strong{font-size:13px}.scene-copy p,.scene-copy span{font-size:11px}.spark-footer .footerGrid{display:block}.spark-footer .footerBrand{margin-bottom:24px}.spark-footer .footerNav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 16px}.spark-footer .footerNav a{font-size:12px}}
+
+/* Original SPARK visual alignment: edge-to-edge hero, shared CARE/PLAY ABOUT cards.
+   Only presentation changes; real/dummy listing and data consent rules remain intact. */
+@media(min-width:761px){
+ .hero{background:#fff}
+ .hero-inner{display:flex;align-items:center;height:535px;min-height:0;padding:0;gap:0}
+ .hero-inner>div:first-child{position:relative;z-index:2;width:55%;max-width:590px;padding:20px 0}
+ .hero-art{position:absolute;inset:0 auto 0 50%;transform:translateX(-50%);width:100vw;height:100%;border:0;border-radius:0;box-shadow:none;background:#fff;z-index:0}
+ .hero-art .hero-visual{object-fit:cover;object-position:center 46%}
+ .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#fff 0%,#fff 23%,rgba(255,255,255,.97) 31%,rgba(255,255,255,.8) 43%,rgba(255,255,255,.2) 61%,transparent 73%);pointer-events:none}
+ .hero-art .caption{display:none}
+}
+#about.section{background:#f6faff;padding:34px 0 42px}
+#about .intro{display:block}
+#about .about-blurb{display:none}
+#about .intro>div:last-child{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+#about .intro article,#about .intro article+article{padding:25px 27px 28px;background:#f5f9ff;border:1px solid var(--line);min-height:265px}
+#about .intro article:first-child{border-radius:15px 0 0 15px}
+#about .intro article:last-child{border-left:0;border-radius:0 15px 15px 0}
+#about .intro article h2{font-size:clamp(21px,2.4vw,29px);line-height:1.45}
+#about .intro article p:not(.eyebrow){font-size:13px;line-height:1.85}
+#about .intro article .btn{margin-top:10px;padding:8px 14px;font-size:12px}
+@media(max-width:760px){
+ .hero-inner{display:flex;flex-direction:column;align-items:stretch;gap:0;min-height:0;padding:34px 0 0}
+ .hero-inner>div:first-child{width:100%;padding:0 0 18px}
+ .hero-art{position:relative;width:100vw;left:50%;transform:translateX(-50%);margin:0;height:auto;aspect-ratio:1.7;border-radius:0;box-shadow:none;background:white}
+ .hero-art .hero-visual{object-fit:cover;object-position:center 43%}
+ .hero-art .caption{display:none}
+ #about.section{padding:27px 0 45px}
+ #about .intro>div:last-child{grid-template-columns:1fr}
+ #about .intro article,#about .intro article+article{min-height:0;padding:21px 19px}
+ #about .intro article:first-child{border-radius:14px 14px 0 0}
+ #about .intro article:last-child{border-left:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px}
+}
 </style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
@@ -101,7 +135,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#scene">SCENE</a><a href="#discover">教室を探す</a><a href="partners.html">掲載条件・料金</a>
 <a href="https://kosuke-saito0807.github.io/mate/">MATE CARE ↗</a><a href="https://mate-play.kosuke-saito0807.chatgpt.site/">MATE PLAY ↗</a>
 <a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a><a href="operator.html">運営者情報</a><a href="operator.html#inquiry">お問い合わせ</a>
-</nav></div><div class="wrap footerNote">掲載は事業者の許諾と情報確認後に行います。架空サンプルは表示例で、実在の教室への体験申込はできません。最新の料金・体験条件は各教室にご確認ください。</div><div class="wrap copyright">© 2026 MATE SPARK / NextEdu</div></footer>
+</nav></div><div class="wrap footerNote">掲載は事業者の許諾と情報確認後に行います。架空サンプルは表示例で、実在の教室への体験申込はできません。最新の料金・体験条件は各教室にご確認ください。</div><div class="wrap copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © 2026 MATE SPARK</div></footer>
 <div class="selection" id="selectionBar" hidden><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
 <dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
 <dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
