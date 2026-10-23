@@ -174,6 +174,8 @@ def build_public(candidates, contracts, today=None):
             continue
         areas = value(row, "都県・対象")
         region = next((p for p in PREFECTURES if areas.startswith(p)), "")
+        if not region and areas.startswith("全国"):
+            region = "全国"
         ages = normalized_ages(value(row, "対象学年（カンマ区切り）"))
         if not all((name, category, region, description, ages)) or not approved_url(url):
             continue
