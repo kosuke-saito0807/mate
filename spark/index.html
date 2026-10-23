@@ -298,6 +298,7 @@ $('topRegion').addEventListener('change',()=>regionChange($('topRegion').value))
 ['age','price','category','keyword','sort','trialOnly'].forEach(id=>$(id).addEventListener('input',draw));
 $('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();drawDays();draw()});
 $('favoriteOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;draw()});
+$('detailDialog').addEventListener('click',e=>{const a=e.target.closest('a[href^="https://"]');if(a&&window.gtag&&!demoMode)gtag('event','school_outbound_click',{service:'SPARK',school_id:schools.find(s=>s.name===$('detailHeading').textContent)?.id||'unknown'});});
 $('closeDetail').addEventListener('click',()=>$('detailDialog').close());
 $('trial').addEventListener('click',showTrial);
 $('cancelTrial').addEventListener('click',()=>$('trialDialog').close());
