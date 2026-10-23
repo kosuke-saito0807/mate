@@ -23,8 +23,8 @@
       if (!response.ok || !(result.success === true || result.success === 'true')) {
         throw new Error('submission_failed');
       }
-      if(window.gtag)gtag('event','generate_lead',{service:'CARE',lead_type:'listing_inquiry'});
-      location.assign(new URL('thanks.html', location.href).href);
+      if(window.gtag)gtag('event','generate_lead',{service:form.querySelector('[name=service]')?.value||'CARE',lead_type:'listing_inquiry'});
+      location.assign(new URL(form.dataset.thanks==='play-thanks.html'?'play-thanks.html':'thanks.html',location.href).href);
     } catch (_) {
       status.setAttribute('role', 'alert');
       status.textContent = '送信結果を確認できませんでした。入力内容は残っています。送信済みの場合もあるため、繰り返し送信せず、kosodatemate@gmail.com へお問い合わせください。';

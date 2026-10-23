@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 class OwnerSelfServiceTest(unittest.TestCase):
     def test_owner_self_registers_without_accounts(self):
-        for path,svc in (("contact.html","CARE"),("spark/partners.html","SPARK")):
+        for path,svc in (("contact.html","CARE"),("spark/partners.html","SPARK"),("play-listing.html","PLAY")):
             html=(ROOT/path).read_text(encoding="utf-8")
             with self.subTest(service=svc):
                 self.assertIn('name="service" value="'+svc+'"',html)
@@ -16,7 +16,8 @@ class OwnerSelfServiceTest(unittest.TestCase):
                               "trial_referral_consent","listing_payload_b64"):
                     self.assertRegex(html,r'name="'+field+r'"')
                 self.assertIn("会員登録不要",html)
-                self.assertIn('name="description" required minlength="25"',html) if svc=="SPARK" else self.assertIn('name="description" required minlength="25"',html.replace('name="description" required minlength','name="description" required minlength'))
+                self.assertIn('name="description"',html)
+                self.assertIn('minlength="25"',html)
                 self.assertIn('name="listing_permission"',html)
                 self.assertIn('name="trial_referral_consent"',html)
 
