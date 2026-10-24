@@ -41,6 +41,8 @@ function mateDirectHeaders_(sheet,headers) {
 }
 function setupMateDirectIntake(){
   mateDirectOwner_();
+  if(!PropertiesService.getScriptProperties().getProperty("MATE_TURNSTILE_SECRET"))
+    throw Error("MATE_TURNSTILE_SECRET をスクリプト プロパティに設定してください");
   var book=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
   var apps=book.getSheetByName(MATE_DIRECT.applications);
   if(!apps)throw Error("掲載セルフ申請が見つかりません");
@@ -52,8 +54,6 @@ function setupMateDirectIntake(){
     contacts.setFrozenRows(1);
   }
   mateDirectHeaders_(contacts,MATE_DIRECT.contactHeaders);
-  if(!PropertiesService.getScriptProperties().getProperty("MATE_TURNSTILE_SECRET"))
-    throw Error("MATE_TURNSTILE_SECRET をスクリプト プロパティに設定してください");
   return "受付台帳の構造・Turnstile設定を確認しました。未審査で保存されます。";
 }
 function mateDirectForm_(p){
@@ -136,7 +136,7 @@ function mateDirectReceive_(d){
     var stamp=Utilities.formatDate(new Date(),"Asia/Tokyo","yyyy-MM-dd HH:mm:ss");
     if(!mateDirectExists_(contacts,1,aid)){
       contacts.getRange(contacts.getLastRow()+1,1,1,MATE_DIRECT.contactHeaders.length).setValues([
-        [aid,stamp,d.service,d.name,d.email,d.phone,d.message]
+        [aid,stamp,d.service,mateDirectText_(d.name,80),mateDirectText_(d.email,254),d.phone,d.message]
       ]);
     }
     // If appending the approval record fails, retrying the SAME receipt ID can repair it.
