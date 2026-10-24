@@ -34,7 +34,7 @@ footer{border-top:1px solid var(--border);padding:29px 0;font-size:12px;color:#5
 <body><header><div class="wrap"><a href="https://mate-play.kosuke-saito0807.chatgpt.site/" class="logo">MATE <span>PLAY</span></a><nav aria-label="サイトメニュー"><a href="https://mate-play.kosuke-saito0807.chatgpt.site/">体験を探す</a><a href="consult.html?service=PLAY">家族向け相談</a><a href="play-privacy.html">個人情報の取り扱い</a><a href="operator.html">運営者情報</a></nav></div></header>
 <main class="wrap"><div class="hero"><p class="kicker">FOR EXPERIENCE PARTNERS</p><h1>親子の楽しい体験を、<br><em>自分で無料登録。</em></h1><p>掲載原稿を事務局が代わりに作る必要はありません。運営施設・体験事業者さまが情報を登録し、内容と掲載権限を確認してから公開します。登録だけで課金・即掲載されることはありません。</p></div>
 <div class="paper"><div class="steps"><div class="step"><b><span class="num">01.</span> 施設・体験情報を入力</b>公式URLと公開したい内容を記入</div><div class="step"><b><span class="num">02.</span> 事務局が確認</b>権限・情報・掲載許諾を確認</div><div class="step"><b><span class="num">03.</span> 掲載開始</b>審査を通過した体験のみ公開</div></div>
-<form id="listing-contact" method="POST" action="https://formsubmit.co/kosodatemate@gmail.com" data-thanks="play-thanks.html">
+<form id="listing-contact" data-mate-direct-listing="true" method="POST" action="">
 <input type="hidden" name="_subject" value="MATE PLAY 無料掲載セルフ登録"><input type="hidden" name="_template" value="table"><input type="hidden" name="service" value="PLAY"><input type="hidden" name="listing_payload_b64"><input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px">
 <h2>1. 担当者の連絡先</h2><p class="hint">以下の連絡先は審査・問い合わせ返信のためにのみ使用します。サイトに公開しません。</p>
 <div class="fields"><label class="field">会社・施設名 *<input name="company" required maxlength="160" autocomplete="organization"></label>
@@ -59,11 +59,11 @@ footer{border-top:1px solid var(--border);padding:29px 0;font-size:12px;color:#5
 </div></details>
 <div class="consents"><label class="consent"><input type="checkbox" name="listing_permission" value="公開用の掲載情報を確認・許諾（審査後）" required><span>私はこの施設・体験の掲載申請権限を持ち、<strong>入力した公開用の情報の掲載に同意</strong>します。事務局の確認・承認後にのみ公開されることを理解しました。（必須）</span></label>
 <label class="consent"><input type="checkbox" name="trial_referral_consent" value="体験相談の取次ぎ希望（別途許諾）"><span>家族からの体験相談の取次ぎも検討したい（任意）。このチェックだけで保護者情報の提供や送客は開始しません。</span></label>
-<label class="consent"><input type="checkbox" name="privacy_agree" value="同意する" required><span><a href="play-privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a>を確認し、FormSubmitを用いた事務局への情報送信に同意します。（必須）</span></label></div>
-<p class="notice">ご家族が体験・お出かけについて相談する場合は、<a href="consult.html?service=PLAY">個人情報の少ない家族向け相談フォーム</a>をご利用ください。</p><p class="notice">会員登録不要・掲載料無料。フォーム送信後、登録内容を運営が確認します。サイトの通常検索は閲覧するだけなら個人情報不要です。FormSubmitの認証画面が表示される場合があります。</p>
+<label class="consent"><input type="checkbox" name="privacy_agree" value="同意する" required><span><a href="play-privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a>を確認し、Google Apps Scriptを用いた運営の非公開Google Sheetsへの申請情報の登録に同意します。（必須）</span></label></div>
+<p class="notice">ご家族が体験・お出かけについて相談する場合は、<a href="consult.html?service=PLAY">個人情報の少ない家族向け相談フォーム</a>をご利用ください。</p><p class="notice">会員登録不要・掲載料無料。フォーム送信後、登録内容を運営が確認します。サイトの通常検索は閲覧するだけなら個人情報不要です。セキュリティ認証の完了後に送信できます。</p>
 <p id="form-status" role="status" aria-live="polite" hidden></p><button type="submit" class="submit">この内容で無料掲載を申請する ↗</button></form>
 </div></main><footer><div class="wrap">運営：NextEdu ／ お問い合わせ：<a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a>　・　<a href="play-privacy.html">プライバシーポリシー</a>　・　<a href="https://mate-play.kosuke-saito0807.chatgpt.site/">MATE PLAYを開く</a></div></footer>
-<script src="assets/mate-self-service.js?v=20261023"></script><script src="assets/contact.js?v=20261023" defer></script>
+<script src="assets/mate-self-service.js?v=20261023"></script><script src="assets/mate-direct-intake-config.js" defer></script><script src="assets/mate-direct-intake.js" defer></script>
 <script>
 (function(){
  const val="北海道 青森県 岩手県 宮城県 秋田県 山形県 福島県 茨城県 栃木県 群馬県 埼玉県 千葉県 東京都 神奈川県 新潟県 富山県 石川県 福井県 山梨県 長野県 岐阜県 静岡県 愛知県 三重県 滋賀県 京都府 大阪府 兵庫県 奈良県 和歌山県 鳥取県 島根県 岡山県 広島県 山口県 徳島県 香川県 愛媛県 高知県 福岡県 佐賀県 長崎県 熊本県 大分県 宮崎県 鹿児島県 沖縄県".split(" ");
