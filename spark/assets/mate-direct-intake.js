@@ -38,6 +38,7 @@
       }
       submission.value=crypto.randomUUID();
       form.appendChild(submission);
+      if(!form.querySelector('[name="privacy_agree"]')){
       var consentLabel=document.createElement("label");
       consentLabel.style.cssText="display:flex;align-items:flex-start;gap:9px;margin:17px 0;font-size:13px";
       var consent=document.createElement("input");
@@ -49,6 +50,7 @@
       var insertBefore=form.querySelector('button[type="submit"]');
       if(insertBefore&&insertBefore.parentNode)insertBefore.parentNode.insertBefore(consentLabel,insertBefore);
       else form.appendChild(consentLabel);
+      }
       var wrap=document.createElement("div");
       wrap.className="mate-direct-captcha";
       wrap.style.cssText="margin:18px 0;min-height:65px";
