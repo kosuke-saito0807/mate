@@ -154,7 +154,9 @@ async function main() {
     });
     assert.equal(playPayload.ok,true);
     assert.equal(JSON.parse(Buffer.from(playPayload.payload.split('__')[1],'base64').toString('utf8')).service,'PLAY');
-    assert.equal(await play.locator('#listing-contact').getAttribute('data-thanks'),'play-thanks.html');
+    assert.equal(await play.locator('#listing-contact').getAttribute('data-mate-direct-listing'),'true');
+    assert.equal(await play.locator('#listing-contact button[type="submit"]').isDisabled(),true,
+      'GAS URL and Turnstile must be set before the staged form can submit');
     await play.close();
 
     const old = await browser.newPage();
@@ -215,7 +217,9 @@ async function main() {
       // The school-owner listing intake should appear on approved Firebase hosts.
       await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
-      assert.ok((await p.locator('#partnerForm').getAttribute('action')).includes('formsubmit.co'));
+      assert.equal(await p.locator('#partnerForm button[type="submit"]').isDisabled(),true,
+        'Even Firebase-hosted preview must fail closed until GAS credentials are set');
+      assert.equal(await p.locator('#partnerForm').getAttribute('data-mate-direct-listing'),'true');
       assert.equal(await p.locator('#partnerForm').evaluate(x=>x.checkValidity()),false);
       // Test independent SPARK self-service data generation on the simulated Firebase host.
       await p.locator('#partnerForm [name=company]').fill('QA架空教室');
