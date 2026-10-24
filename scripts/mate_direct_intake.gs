@@ -33,7 +33,7 @@ function mateDirectDate_(v) {
   if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
   var d=new Date(v+"T00:00:00+09:00");
   var today=new Date();
-  return Number.isFinite(d.getTime()) && d.toISOString().slice(0,10)===v && d.getTime()<=today.getTime()+86400000 && d.getTime()>=today.getTime()-95*86400000;
+  return Number.isFinite(d.getTime()) && Utilities.formatDate(d,"Asia/Tokyo","yyyy-MM-dd")===v && d.getTime()<=today.getTime()+86400000 && d.getTime()>=today.getTime()-95*86400000;
 }
 function mateDirectHeaders_(sheet,headers) {
   var current=sheet.getRange(1,1,1,headers.length).getDisplayValues()[0];
