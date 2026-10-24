@@ -17,7 +17,7 @@ on:
       - "spark/**"
       - "assets/**"
   schedule:
-    - cron: "0 0 * * 1"  # Monday 09:00 JST
+    - cron: "0 0 * * *"  # Daily 09:00 JST, read-only
   workflow_dispatch:
 
 permissions:
