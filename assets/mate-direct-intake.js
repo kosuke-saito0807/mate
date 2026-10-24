@@ -38,10 +38,17 @@
       }
       submission.value=crypto.randomUUID();
       form.appendChild(submission);
+      var consentLabel=document.createElement("label");
+      consentLabel.style.cssText="display:flex;align-items:flex-start;gap:9px;margin:17px 0;font-size:13px";
       var consent=document.createElement("input");
-      consent.type="hidden";consent.name="privacy_agree";consent.value="同意する";
-      // The visible, required listing/privacy consent must still be checked first.
-      form.appendChild(consent);
+      consent.type="checkbox";consent.name="privacy_agree";consent.value="同意する";
+      consent.required=true;consent.style.cssText="width:19px;height:19px;flex:none;margin-top:4px";
+      var consentText=document.createElement("span");
+      consentText.textContent="申請内容と担当者の連絡先を、Google Apps Scriptを経由して運営の非公開Google Sheetsに保存することに同意します。（必須）";
+      consentLabel.appendChild(consent);consentLabel.appendChild(consentText);
+      var insertBefore=form.querySelector('button[type="submit"]');
+      if(insertBefore&&insertBefore.parentNode)insertBefore.parentNode.insertBefore(consentLabel,insertBefore);
+      else form.appendChild(consentLabel);
       var wrap=document.createElement("div");
       wrap.className="mate-direct-captcha";
       wrap.style.cssText="margin:18px 0;min-height:65px";
