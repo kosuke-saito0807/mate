@@ -1,0 +1,49 @@
+name: Direct GAS intake — local mocks and static checks
+
+on:
+  push:
+    branches: [feat/mate-direct-gas-intake-20261024]
+    paths:
+      - 'scripts/mate_direct_intake.gs'
+      - 'assets/mate-direct-intake*.js'
+      - 'spark/assets/mate-direct-intake*.js'
+      - 'contact.html'
+      - 'play-listing.html'
+      - 'spark/partners.html'
+      - 'tests/test_mate_direct_intake.cjs'
+      - '.github/workflows/direct-gas-intake-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Direct Apps Script mock tests
+        run: node tests/test_mate_direct_intake.cjs
+      - name: Static source quality and integration guards
+        run: |
+          node --check assets/mate-direct-intake.js
+          node --check spark/assets/mate-direct-intake.js
+          node --check assets/mate-direct-intake-config.js
+          node --check spark/assets/mate-direct-intake-config.js
+          python3 - <<'PY'
+          from pathlib import Path
+          for p in ['contact.html', 'play-listing.html', 'spark/partners.html']:
+              src=Path(p).read_text(encoding='utf-8')
+              assert 'data-mate-direct-listing="true"' in src, p
+              assert 'action="https://formsubmit.co/' not in src, p
+              assert 'mate-direct-intake.js' in src, p
+          for p in ['assets/mate-direct-intake-config.js', 'spark/assets/mate-direct-intake-config.js']:
+              src=Path(p).read_text()
+              assert 'enabled: false' in src, 'Should stay disabled until owner setup'
+              assert 'MATE_TURNSTILE_SECRET' not in src, 'Secret must never be in browser JS'
+          print('No FormSubmit posting in staged listing forms; guarded config disabled.')
+          PY
