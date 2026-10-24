@@ -77,7 +77,12 @@ class SiteIntegrity(unittest.TestCase):
         self.assertIn("s.approved===true&&s.acceptsTrial===true", index)
         self.assertFalse(json.loads((SITE / "config.json").read_text(encoding="utf-8"))["applyEnabled"])
         self.assertIn('id="listing-contact"', (ROOT / "contact.html").read_text(encoding="utf-8"))
-        self.assertIn('id="partnerForm" hidden', (SITE / "partners.html").read_text(encoding="utf-8"))
+        partner = (SITE / "partners.html").read_text(encoding="utf-8")
+        self.assertIn('id="partnerForm"', partner)
+        self.assertIn('data-mate-direct-listing="true" hidden', partner)
+        # Form isn't silently enabled before owner config and Turnstile verification.
+        cfg = (SITE / "assets/mate-direct-intake-config.js").read_text(encoding="utf-8")
+        self.assertIn("enabled: false", cfg)
 
     def test_care_export_requires_positive_consent_and_recent_verification(self):
         import sys
