@@ -1,0 +1,40 @@
+name: PLAY approved-only preview (no live publication)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/sync_play_public_preview.py
+      - tests/test_play_public_preview.py
+      - .github/workflows/play-public-preview.yml
+  schedule:
+    - cron: "45 0 * * *"  # Daily 09:45 JST, preview only
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safe-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify PLAY approved-only publication guard
+        run: python3 -m unittest discover -s tests -p 'test_play_public_preview.py' -v
+      - name: Preview approved PLAY count from private Google Sheets
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEETS_ID: '1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ'
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::warning::Read-only Sheets credential is missing; preview skipped, no publication"
+            exit 0
+          fi
+          python -m pip install --disable-pip-version-check gspread google-auth
+          python3 scripts/sync_play_public_preview.py --preview artifacts/play-public-preview.json
+          rm -f artifacts/play-public-preview.json
+          echo "PLAY preview checked; NO production publication occurred."
