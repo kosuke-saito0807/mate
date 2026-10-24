@@ -30,3 +30,11 @@ Keep existing CARE GitHub Pages, SPARK Firebase static hosting and PLAY ChatGPT 
 
 ## Next deliverable, when production readiness verified
 Separate final release for each service, preserving its branding, provider data and consents. GitHub/Firebase migration for PLAY and React SPARK is a **separate migration project**; do not describe the current public sites as the migrated implementations.
+
+## Automation update (2026-10-24 11:11 JST)
+- **Main read-only 3-site browser audit** schedule changed from Monday-only to daily at **09:00 JST**. GitHub Actions run 40052971969 passed all 6 desktop/mobile cases; PLAY continues to warn about external listing CTA/shared contact text. This does not submit any forms.
+- **PLAY consented publication preview** implemented in `scripts/sync_play_public_preview.py` and `tests/test_play_public_preview.py`, with main workflow `.github/workflows/play-public-preview.yml` at **09:45 JST daily**. GitHub Actions run 40053164673 passed; current *approved and valid contracted* PLAY preview count is **0**, live CMS not modified. Private personal fields are omitted.
+- **CARE/SPARK** existing Google Sheets sync continues via `.github/workflows/sync-smartsheet-public.yml` every 30 minutes when credentials available. AppScript/Gmail intake under `kosodatemate@gmail.com` was not accessed; this session's Gmail plugin account is different.
+- **NOT unified:** PLAY's original Vinext/Workers/D1 React source is still not committed to a private GitHub repository, and its Sites CMS has not migrated to GitHub-managed deployment. SPARK Phase-10 React sandbox is also not in production.
+- **Blocking manual ownership actions:** create/authorize a GitHub private repository for unreleased PLAY/SPARK React sources; owner of dedicated inbox must authorize FormSubmit recipient and install/run `mate_self_service.gs` Apps Script triggers. Do not silently auto-approve real providers or send leads.
+- Public information includes identity-bearing historical GitHub assets, names in legacy legal pages and personal-name account/domain URLs; those require deliberate privacy/legal review.
