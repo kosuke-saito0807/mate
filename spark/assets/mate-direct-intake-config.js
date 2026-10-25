@@ -5,5 +5,5 @@
 window.MATE_DIRECT_INTAKE = Object.freeze({
   enabled: false,
   endpoint: "https://script.google.com/macros/s/AKfycbw_OULXnnK3MPI7qSdDytN0Ttb0rUzsUbr2dz-hlwKE57oa01Oq090_Wxb2_UBX9m42/exec",
-  siteKey: ""
+  siteKey: "0x4AAAAAAFj7hqLVxtwrjKAM"
 });
