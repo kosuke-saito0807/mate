@@ -225,6 +225,11 @@ async function main() {
     async function simulatedProduction(trialEnabled) {
       const p=await browser.newPage({viewport:{width:1366,height:768}});
       await p.route('https://formsubmit.co/**', route => route.abort());
+      // Prevent a real challenge from rendering inside the simulated Firebase
+      // origin. The server-side CAPTCHA is validated by GAS separately.
+      await p.route('https://challenges.cloudflare.com/turnstile/v0/api.js',
+        route=>route.fulfill({status:200,contentType:'text/javascript',body:'/* SPARK browser mock: no external Turnstile challenge */'}));
+      await p.route('https://script.google.com/macros/s/**',route=>route.abort());
       const fakeSchool={
         id:'fake-approved-test-only', name:'QA掲載許諾済みダミー教室', region:'東京都',
         area:'文京区', station:'千石駅', category:'プログラミング',
@@ -273,7 +278,11 @@ async function main() {
       // The school-owner listing intake should appear on approved Firebase hosts.
       await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
-      assert.ok((await p.locator('#partnerForm').getAttribute('action')).includes('formsubmit.co'));
+      assert.match(await p.locator('#partnerForm').getAttribute('action'),/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
+      assert.equal(await p.locator('#partnerForm').getAttribute('data-mate-direct-listing'),'true');
+      assert.equal(await p.locator('#partnerForm button[type=submit]').isEnabled(),true);
+      assert.equal(await p.locator('#partnerForm .cf-turnstile').count(),1);
+      assert.equal(await p.locator('#partnerForm [name=privacy_agree]').count(),1);
       assert.equal(await p.locator('#partnerForm').evaluate(x=>x.checkValidity()),false);
       // Test independent SPARK self-service data generation on the simulated Firebase host.
       await p.locator('#partnerForm [name=company]').fill('QA架空教室');
