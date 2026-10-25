@@ -87,7 +87,7 @@ async function main() {
       await p.locator('[name=service]').selectOption(service);
       await p.locator('[name=listing_permission]').check();
       await p.locator('[name=privacy_agree]').check();
-      await p.locator('[name="cf-turnstile-response"]').waitFor();
+      await p.locator('[name="cf-turnstile-response"]').waitFor({state:'attached'});
       assert.equal(await p.locator('#mateDirectQaForm').evaluate(el=>el.checkValidity()),true);
       await p.locator('button[type=submit]').click();
       await p.getByText('Mock GAS accepted: local-only').waitFor();
