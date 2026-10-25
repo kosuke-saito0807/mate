@@ -38,7 +38,7 @@ class LaunchPreparationTests(unittest.TestCase):
             self.assertIn('name="trial_referral_consent"',html)
         self.assertIn('id="listing-contact"',care)
         self.assertIn('id="partnerForm" data-mate-direct-listing="true" hidden',spark)
-        self.assertIn('name="掲載相談_個人情報取扱いへの同意"',spark)
+        self.assertIn('name="privacy_agree"',spark)
 
     def test_analytics_has_distinct_non_personal_events(self):
         care=(ROOT/"index.html").read_text(encoding="utf-8")
