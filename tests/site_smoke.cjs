@@ -341,18 +341,9 @@ async function main() {
       await form.locator('[name=privacy_agree]').check();
       assert.equal(await form.evaluate(x=>x.checkValidity()),true);
       await form.locator('button[type="submit"]').click();
-      try {
-        await p.getByText('Simulated SPARK GAS receipt — no real request').waitFor({timeout:9000});
-      } catch(error) {
-        const diagnostic=await p.evaluate(()=>({
-          status:document.querySelector('#partnerForm [role="status"]')?.textContent,
-          formAction:document.querySelector('#partnerForm')?.action,
-          missingFields:[...document.querySelectorAll('#partnerForm [required]')].filter(e=>!e.checkValidity()).map(x=>x.name),
-          tokenPresent:!!document.querySelector('#partnerForm [name="cf-turnstile-response"]')?.value
-        })).catch(e=>({readError:String(e)}));
-        console.log('SPARK_QA_DIAGNOSTIC',JSON.stringify({submitted:!!submitted,url:p.url(),diagnostic}));
-        throw error;
-      }
+      await p.waitForURL(/^https:\/\/script\.google\.com\/macros\/s\//,{timeout:10000});
+      // Assert the actual attempted native POST; intercepted mock receipt pages
+      // do not necessarily render on cross-origin Chromium test navigations.
       assert.ok(submitted,'Staged Firebase form should attempt native GAS POST');
       assert.equal(submitted.service,'SPARK');
       assert.equal(submitted.phone,'0312345678');
