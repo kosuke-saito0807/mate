@@ -16,6 +16,11 @@ async function checkPage(browser, pathname, mobile=false) {
   // Never deliver real mail or transmit test data outside localhost.
   await page.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/, route => route.abort());
   await page.route(/https?:\/\/www\.googletagmanager\.com\/.*/, route => route.abort());
+  // Real Turnstile rejects localhost (110200). Stub external JavaScript for
+  // local rendering QA only; the live hostname enforces actual CAPTCHA.
+  await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js',
+    route=>route.fulfill({status:200,contentType:'text/javascript',body:'/* local QA; no real Turnstile token */'}));
+  await page.route('https://script.google.com/macros/s/**',route=>route.abort());
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
   const response = await page.goto(BASE + pathname, {waitUntil: 'networkidle'});
@@ -45,6 +50,11 @@ async function main() {
 
     care = await checkPage(browser,'/contact.html');
     assert.ok((await care.locator('#listing-contact').count())===1);
+    assert.equal(await care.locator('#listing-contact').getAttribute('data-mate-direct-listing'),'true');
+    assert.equal(await care.locator('#listing-contact button[type=submit]').isEnabled(),true);
+    assert.match(await care.locator('#listing-contact').getAttribute('action'),/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
+    assert.equal(await care.locator('#listing-contact [name=privacy_agree]').count(),1);
+    assert.equal(await care.locator('#listing-contact .cf-turnstile').count(),1);
     assert.equal(await care.locator('#listing-contact [name=company]').count(),1);
     // Business self-registration; never submit email from the browser test.
     await care.locator('#listing-contact [name=company]').fill('QA用の事業者');
@@ -182,6 +192,11 @@ async function main() {
     // PLAY's public CMS remains separate, but owners can self-register through MATE.
     const play=await checkPage(browser,'/play-listing.html');
     assert.equal(await play.locator('#listing-contact [name=service]').inputValue(),'PLAY');
+    assert.equal(await play.locator('#listing-contact').getAttribute('data-mate-direct-listing'),'true');
+    assert.equal(await play.locator('#listing-contact button[type=submit]').isEnabled(),true);
+    assert.match(await play.locator('#listing-contact').getAttribute('action'),/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
+    assert.equal(await play.locator('#listing-contact [name=privacy_agree]').count(),1);
+    assert.equal(await play.locator('#listing-contact .cf-turnstile').count(),1);
     await play.locator('#listing-contact [name=company]').fill('QA親子体験');
     await play.locator('#listing-contact [name=website]').fill('https://example.org/');
     await play.locator('#listing-contact [name=region]').selectOption('福岡県');
@@ -197,7 +212,7 @@ async function main() {
     });
     assert.equal(playPayload.ok,true);
     assert.equal(JSON.parse(Buffer.from(playPayload.payload.split('__')[1],'base64').toString('utf8')).service,'PLAY');
-    assert.equal(await play.locator('#listing-contact').getAttribute('data-thanks'),'play-thanks.html');
+    assert.equal(await play.locator('#listing-contact').getAttribute('data-thanks'),null, 'GAS shows its own receipt instead of FormSubmit redirect');
     await play.close();
 
     const old = await browser.newPage();
