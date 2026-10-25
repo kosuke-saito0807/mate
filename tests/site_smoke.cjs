@@ -243,6 +243,81 @@ async function main() {
     await simulatedProduction(false);
     await simulatedProduction(true);
 
+    // SPARK direct-intake rehearsal at its future Firebase hostname.
+    // Serve a temporary enabled configuration ONLY inside Playwright, fake the
+    // captcha, intercept GAS POST. No live Firebase, mail, or Sheets mutation.
+    {
+      const p=await browser.newPage({viewport:{width:390,height:844}});
+      let submitted=null;
+      await p.route('https://www.googletagmanager.com/**',r=>r.abort());
+      await p.route('https://challenges.cloudflare.com/turnstile/v0/api.js',r=>
+        r.fulfill({status:200,contentType:'text/javascript',
+          body:'document.querySelector("#partnerForm").insertAdjacentHTML("beforeend", \'<input type="hidden" name="cf-turnstile-response" value="mock-spark-token-123456789012345678901">\');'}));
+      await p.route('https://script.google.com/macros/s/**',r=>{
+        assert.equal(r.request().method(),'POST');
+        submitted=Object.fromEntries(new URLSearchParams(r.request().postData()));
+        return r.fulfill({status:200,contentType:'text/html',body:'<h1>Simulated SPARK GAS receipt — no real request</h1>'});
+      });
+      await p.route('https://mate-spark.web.app/**',async route=>{
+        const u=new URL(route.request().url());
+        if(route.request().method()!=='GET')return route.abort();
+        const path=require('node:path');
+        const name=u.pathname==='/'?'/index.html':decodeURIComponent(u.pathname);
+        const full=path.resolve('spark','.'+name);
+        if(!full.startsWith(path.resolve('spark')+path.sep)||!fs.existsSync(full))
+          return route.fulfill({status:404,body:'Not found'});
+        let file=fs.readFileSync(full);
+        if(name==='/assets/mate-direct-intake-config.js'){
+          const config=file.toString('utf8');
+          assert.ok(config.includes('enabled: false'), 'Production remains gated in PR');
+          file=Buffer.from(config.replace('enabled: false','enabled: true'));
+        }
+        return route.fulfill({status:200,
+          contentType:name.endsWith('.js')?'text/javascript':'text/html',body:file});
+      });
+      const response=await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
+      assert.equal(response.status(),200);
+      const form=p.locator('#partnerForm');
+      assert.equal(await form.isVisible(),true);
+      assert.equal(await form.locator('button[type="submit"]').isEnabled(),true);
+      assert.ok((await form.getAttribute('action')).startsWith('https://script.google.com/macros/s/'));
+      await form.locator('[name=company]').fill('SPARK 模擬送信のみ');
+      await form.locator('[name=name]').fill('非公開QA担当者');
+      await form.locator('[name=email]').fill('qa-spark@example.invalid');
+      await form.locator('[name=phone]').fill('0312345678');
+      await form.locator('[name=message]').fill('内部ブラウザテストのみ');
+      await form.locator('[name=website]').fill('https://example.org/');
+      await form.locator('[name=region]').selectOption('東京都');
+      await form.locator('[name=city]').fill('東京都北区');
+      await form.locator('[name=category]').selectOption('プログラミング');
+      await form.locator('[name=ages]').selectOption('小学生');
+      await form.locator('[name=description]').fill('この文章はSPARK申請フォームのブラウザ動作を模擬確認するためだけの、外部送信されない架空の紹介内容です。');
+      await form.locator('[name=listing_content_checked_at]').fill(new Date().toISOString().slice(0,10));
+      await form.locator('[name=listing_permission]').check();
+      await form.locator('[name="掲載相談_個人情報取扱いへの同意"]').check();
+      await form.locator('[name=privacy_agree]').check();
+      assert.equal(await form.evaluate(x=>x.checkValidity()),true);
+      await form.locator('button[type="submit"]').click();
+      await p.getByText('Simulated SPARK GAS receipt — no real request').waitFor();
+      assert.ok(submitted,'Staged Firebase form should attempt native GAS POST');
+      assert.equal(submitted.service,'SPARK');
+      assert.equal(submitted.phone,'0312345678');
+      assert.equal(submitted.message,'内部ブラウザテストのみ');
+      assert.equal(submitted.privacy_agree,'同意する');
+      assert.equal(submitted['cf-turnstile-response'],'mock-spark-token-123456789012345678901');
+      assert.equal(submitted.listing_permission,'掲載の意向（別途合意）');
+      assert.ok(submitted.submission_id.match(/^[a-f0-9-]{36}$/));
+      assert.ok(submitted.listing_payload_b64.startsWith('MATE_LISTING_V1__'));
+      const publicPayload=JSON.parse(Buffer.from(
+        submitted.listing_payload_b64.split('__')[1],'base64').toString('utf8'));
+      assert.equal(publicPayload.service,'SPARK');
+      assert.ok(!Object.hasOwn(publicPayload,'email'));
+      assert.ok(!Object.hasOwn(publicPayload,'phone'));
+      assert.ok(!Object.hasOwn(publicPayload,'message'));
+      console.log('SPARK_DIRECT_INTAKE_MOCK PASS: contact private, GAS POST intercepted');
+      await p.close();
+    }
+
     for (const pathname of ['/','/contact.html','/spark/','/spark/partners.html']) {
       const page=await checkPage(browser,pathname,true);
       if(pathname==='/spark/'){
