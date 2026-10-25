@@ -1,4 +1,4 @@
-/* Headless smoke QA. Local static hosting only. Absolutely no form submissions. */
+/* Headless smoke QA. External form POSTs intercepted and simulated locally; never send to external services. */
 const { chromium } = require('playwright');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
@@ -67,6 +67,41 @@ async function main() {
     assert.equal(careData.description.includes('QA専用'),true);
     assert.equal(Object.hasOwn(careData,'email'),false);
     await care.close();
+
+    // Only the unlinked internal QA page uses direct GAS while public forms
+    // remain unchanged. Intercept BOTH CAPTCHA script and POST within Playwright:
+    // no application, mail, external Sheet data or real challenge is sent.
+    for(const service of ['CARE','PLAY']){
+      const p=await browser.newPage({viewport:{width:390,height:844}});
+      let captured=null;
+      await p.route('https://challenges.cloudflare.com/turnstile/v0/api.js',route=>
+        route.fulfill({status:200,contentType:'text/javascript',
+          body:'document.querySelector("#mateDirectQaForm").insertAdjacentHTML("beforeend",\'<input type="hidden" name="cf-turnstile-response" value="qa-mocked-token-value-0000000000000">\');'}));
+      await p.route('https://script.google.com/macros/s/**',async route=>{
+        assert.equal(route.request().method(),'POST');
+        captured=Object.fromEntries(new URLSearchParams(route.request().postData()));
+        await route.fulfill({status:200,contentType:'text/html',body:'<h1>Mock GAS accepted: local-only</h1>'});
+      });
+      const response=await p.goto(BASE+'/direct-intake-test-20261025.html',{waitUntil:'networkidle'});
+      assert.equal(response.status(),200);
+      await p.locator('[name=service]').selectOption(service);
+      await p.locator('[name=listing_permission]').check();
+      await p.locator('[name=privacy_agree]').check();
+      await p.locator('[name="cf-turnstile-response"]').waitFor();
+      assert.equal(await p.locator('#mateDirectQaForm').evaluate(el=>el.checkValidity()),true);
+      await p.locator('button[type=submit]').click();
+      await p.getByText('Mock GAS accepted: local-only').waitFor();
+      assert.ok(captured,'POST should have been intercepted');
+      assert.equal(captured.service,service);
+      assert.equal(captured.privacy_agree,'同意する');
+      assert.ok(captured.submission_id.match(/^[a-f0-9-]{36}$/));
+      assert.equal(captured['cf-turnstile-response'],'qa-mocked-token-value-0000000000000');
+      assert.equal(captured.listing_permission,'内部テスト（一般公開・掲載承認は禁止）');
+      assert.equal(captured.trial_referral_consent,undefined);
+      assert.ok(captured.listing_payload_b64.startsWith('MATE_LISTING_V1__'));
+      assert.ok(captured.description.includes('接続確認専用'));
+      await p.close();
+    }
 
     // Privacy-first CARE/PLAY family consultation: validate real browser input,
     // intercept POST inside the test process, never send to external FormSubmit.
