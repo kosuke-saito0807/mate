@@ -37,8 +37,8 @@ class LaunchPreparationTests(unittest.TestCase):
             self.assertIn("kosodatemate@gmail.com",html)
             self.assertIn('name="trial_referral_consent"',html)
         self.assertIn('id="listing-contact"',care)
-        self.assertIn('id="partnerForm" hidden',spark)
-        self.assertIn('name="掲載相談_個人情報取扱いへの同意"',spark)
+        self.assertIn('id="partnerForm" data-mate-direct-listing="true" hidden',spark)
+        self.assertIn('name="privacy_agree"',spark)
 
     def test_analytics_has_distinct_non_personal_events(self):
         care=(ROOT/"index.html").read_text(encoding="utf-8")
@@ -50,7 +50,7 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertIn("school_outbound_click",spark)
         self.assertIn("school_compare",spark)
         self.assertIn("trial_inquiry_submit_attempt",spark)
-        self.assertIn("listing_inquiry_submit_attempt",(SPARK/"partners.html").read_text(encoding="utf-8"))
+        self.assertIn("listing_inquiry_submit_attempt",(SPARK/"assets/mate-direct-intake.js").read_text(encoding="utf-8"))
         self.assertIn("generate_lead",(ROOT/"assets/contact.js").read_text(encoding="utf-8"))
         self.assertIn("provider_outbound",(ROOT/"assets/provider-search.js").read_text(encoding="utf-8"))
 

@@ -10,7 +10,7 @@
 <div class="steps"><section class="step"><div class="num">01</div><strong>掲載相談</strong><p class="muted">教室名、所在地、担当者、公式サイトなどをご連絡ください。</p></section><section class="step"><div class="num">02</div><strong>内容・許諾確認</strong><p class="muted">掲載原稿、担当者権限、掲載許諾および体験相談の受託可否を確認します。</p></section><section class="step"><div class="num">03</div><strong>掲載開始</strong><p class="muted">合意内容に基づき公開。利用者は教室を比較し、公式サイトを確認できます。</p></section></div>
 <h2 id="apply">教室情報を自分で登録する（無料）</h2>
 <p>教室の情報は担当者ご自身で登録できます。原稿作成を運営に依頼する必要はありません。<strong>会員登録不要・無料。送信直後には公開されず、権限・内容の審査が必要です。</strong></p>
-<div class="box" id="hostingNotice">現在のページは開発用プレビューです。メールでの掲載相談は<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20%E6%8E%B2%E8%BC%89%E7%9B%B8%E8%AB%87">こちら</a>からお願いします。正式公開後、このフォームを利用できます。</div><form action="" method="POST" id="partnerForm" hidden><input type="hidden" name="service" value="SPARK"><input type="hidden" name="listing_payload_b64" id="listingPayloadSpark">
+<div class="box" id="hostingNotice">現在のページは開発用プレビューです。メールでの掲載相談は<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20%E6%8E%B2%E8%BC%89%E7%9B%B8%E8%AB%87">こちら</a>からお願いします。正式公開後、このフォームを利用できます。</div><form action="" method="POST" id="partnerForm" data-mate-direct-listing="true" hidden><input type="hidden" name="service" value="SPARK"><input type="hidden" name="listing_payload_b64" id="listingPayloadSpark">
 <input type="hidden" name="_subject" value="MATE SPARK｜教室の無料掲載相談"><input type="hidden" name="_template" value="table">
 <input type="hidden" name="_next" value="">
 <input type="hidden" name="_url" value="">
@@ -19,7 +19,7 @@
 <label>教室・事業者名 <span aria-hidden="true">*</span><input name="company" maxlength="160" required autocomplete="organization"></label>
 <label>ご担当者名 <span aria-hidden="true">*</span><input name="name" maxlength="80" required autocomplete="name"></label>
 <label>メールアドレス <span aria-hidden="true">*</span><input name="email" maxlength="254" type="email" required autocomplete="email"></label>
-<label>電話番号（任意）<input name="電話番号" maxlength="30" type="tel" autocomplete="tel"></label>
+<label>電話番号（任意）<input name="phone" maxlength="30" type="tel" autocomplete="tel"></label>
 <label class="full">公式WebサイトURL <span aria-hidden="true">*</span><input name="website" maxlength="500" type="url" placeholder="https://..." required></label>
 <label>都道府県 <span aria-hidden="true">*</span><select name="region" required><option value="">選択してください</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option><option>全国</option></select></label>
 <label>市区町村・オンラインなど <span aria-hidden="true">*</span><input name="city" maxlength="130" required placeholder="例：札幌市中央区／全国オンライン"></label>
@@ -35,26 +35,16 @@
 <label>最寄駅<input name="station" maxlength="100"></label>
 <label>特徴タグ（カンマ区切り）<input name="tags" maxlength="150" placeholder="例：初心者歓迎,少人数"></label>
 <label>次回体験予定日（受付同意がある場合）<input type="date" name="nextTrialDate"></label>
-</div></details></div><label class="full">ご相談内容（任意）<textarea name="メッセージ" maxlength="1000" rows="4" placeholder="教室の特徴や、希望する掲載内容をご記載ください。"></textarea></label>
-<label class="full consent"><input type="checkbox" name="listing_permission" value="掲載の意向（別途合意）" required><span>担当者として掲載の検討・内容確認に同意します。掲載の正式な開始前には、条件と公開内容について運営事務局が改めて確認します。</span></label><label class="full consent"><input type="checkbox" name="trial_referral_consent" value="体験取次ぎの相談希望（別途許諾）"><span>体験相談の取次ぎも検討したい（任意）。保護者の情報提供や送客の開始には別途、明示的な許諾と条件確認が必要です。</span></label><label class="full consent"><input type="checkbox" name="掲載相談_個人情報取扱いへの同意" value="同意する" required><span><a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a>を確認し、掲載相談のための情報送信（外部フォーム送信サービスFormSubmitの利用を含む）に同意します。ご自身に掲載申請の権限があることを確認します。</span></label>
+</div></details></div><label class="full">ご相談内容（任意）<textarea name="message" maxlength="1000" rows="4" placeholder="教室の特徴や、希望する掲載内容をご記載ください。"></textarea></label>
+<label class="full consent"><input type="checkbox" name="listing_permission" value="掲載の意向（別途合意）" required><span>担当者として掲載の検討・内容確認に同意します。掲載の正式な開始前には、条件と公開内容について運営事務局が改めて確認します。</span></label><label class="full consent"><input type="checkbox" name="trial_referral_consent" value="体験取次ぎの相談希望（別途許諾）"><span>体験相談の取次ぎも検討したい（任意）。保護者の情報提供や送客の開始には別途、明示的な許諾と条件確認が必要です。</span></label><label class="full consent"><input type="checkbox" name="privacy_agree" value="同意する" required><span><a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a>を確認し、掲載相談のための情報送信（Google Apps Script経由でGoogle Sheetsに保存することを含む）に同意します。ご自身に掲載申請の権限があることを確認します。</span></label>
 </div>
-<div class="box"><strong>送信時のご案内</strong><p>自動スパム対策の画面が表示される場合があります。FormSubmitによるメール配信のため、初回は運営メール側で確認操作が必要な場合があります。送信できない場合は<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20%E6%8E%B2%E8%BC%89%E7%9B%B8%E8%AB%87">メールでも相談</a>できます。</p></div>
+<div class="box"><strong>送信時のご案内</strong><p>自動スパム対策の画面が表示される場合があります。メール配送サービスは使用せず、審査用の非公開Google Sheetsに受付内容を保存します。送信できない場合は<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20%E6%8E%B2%E8%BC%89%E7%9B%B8%E8%AB%87">メールでも相談</a>できます。</p></div>
 <p class="muted">利用者は会員登録・氏名入力なしで検索できます。担当者の連絡先は審査用で、公開されません。</p><button class="cta send" type="submit">この内容で無料掲載を申請する ↗</button></form>
 <div class="box"><strong>体験相談の受付について</strong><p>体験申込の紹介・通知は、別途お申し込み・同意いただいた教室のみ対象です。体験受付の開始や成果報酬など、有料サービスに関する条件は個別に協議・合意します。無料掲載からの自動課金はありません。</p></div>
 <p class="muted">運営：NextEdu ｜ お問い合わせ：<a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a>。掲載対象や公開時期は個別確認により決定し、掲載・成果は保証しません。</p>
 </div></main><footer><div class="wrap">© MATE SPARK / NextEdu　 <a href="./">教室検索</a>　 <a href="privacy.html">プライバシーポリシー</a>　 <a href="terms.html">利用について</a>　 <a href="disclaimer.html">掲載方針</a>　 <a href="operator.html">運営者情報</a></div></footer><script src="assets/mate-self-service.js?v=20261023"></script><script>
 const form=document.getElementById('partnerForm');
 const host=location.hostname.toLowerCase();
-const commercialFreeHost=host.endsWith('.web.app')||host.endsWith('.firebaseapp.com')||host.endsWith('.netlify.app');
-if(commercialFreeHost){
-  form.action='https://formsubmit.co/kosodatemate@gmail.com';
-  form.hidden=false;
-  document.getElementById('hostingNotice').hidden=true;
-}
-form.elements.namedItem('_next').value=new URL('thanks.html',document.baseURI).href;
-form.elements.namedItem('_url').value=location.href.split('#')[0];
-form.addEventListener('submit',e=>{
- if(!window.MATESelfService?.populate(form)){e.preventDefault();alert('公開用の教室情報を確認してください。');return;}
- if(window.gtag)gtag('event','listing_inquiry_submit_attempt',{service:'SPARK',lead_type:'partner'});
-});
-</script></body></html>
+const previewEnabled=host.endsWith('.web.app')||host.endsWith('.firebaseapp.com')||host.endsWith('.netlify.app');
+if(previewEnabled){form.hidden=false;document.getElementById('hostingNotice').hidden=true}
+</script><script src="assets/mate-direct-intake-config.js" defer></script><script src="assets/mate-direct-intake.js" defer></script></body></html>
