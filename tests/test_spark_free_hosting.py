@@ -14,9 +14,11 @@ class FreeHostingTests(unittest.TestCase):
 
     def test_listing_intake_checks(self):
         html = (SPARK / "partners.html").read_text(encoding="utf-8")
-        self.assertIn('id="partnerForm" hidden', html)
-        self.assertIn('form.action=\'https://formsubmit.co/kosodatemate@gmail.com\'', html)
-        self.assertIn("commercialFreeHost", html)
+        self.assertIn('id="partnerForm" data-mate-direct-listing="true" hidden', html)
+        self.assertIn("previewEnabled", html)
+        self.assertIn("assets/mate-direct-intake-config.js", html)
+        self.assertIn("assets/mate-direct-intake.js", html)
+        self.assertNotIn("form.action='https://formsubmit.co/", html)
         self.assertIn("firebaseapp.com", html)
         self.assertIn("netlify.app", html)
         self.assertIn('name="_honey"', html)
