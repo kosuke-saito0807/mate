@@ -1,6 +1,6 @@
 # MATE｜FormSubmitを使わない掲載申請受付（導入手順）
 
-**実装日：2026-10-24／最新確認：2026-10-25／状態：CARE経路の実申請・非公開保存を実証。SPARK/PLAYの実経路は未確認。本番切替待ち。**
+**実装日：2026-10-24／最新確認：2026-10-25／状態：CARE・PLAY各運営テストフォームの実申請・非公開保存を実証。SPARKの実送信、本番切替待ち。**
 対象：CARE 掲載申請 `contact.html`、SPARK 教室掲載 `spark/partners.html`、PLAY 体験掲載 `play-listing.html`。
 保護者向けの `consult.html` と SPARK 体験相談は **まだ従来受付**。本リリースの対象外。
 
@@ -11,14 +11,15 @@
 - GAS Webアプリの `doGet` が応答。URLを直接開くと「このURLは申請フォームではありません」は**仕様どおり**。
 - NextEdu管理者によるCARE相当の内部QAフォームからの**実POST**成功。発行ID `MATE-WEB-43c607dd-f185-404a-8a57-b134eb29c756`。
 - `MATE営業管理DB` の `掲載セルフ申請` A2と `掲載申請連絡先` A2に同じIDがそれぞれ1件登録された（2026-10-25 15:53:59 JST、サービスCARE）。
-- テスト申請 `掲載セルフ申請!Y2` を `差戻し`、`AC2`に「公開・掲載承認・体験取次・送客禁止」理由を記録済み。公開IDは空白のまま。
-- 運営用の一時的なQAページ `direct-intake-test-20261025.html` は内部テスト後に `enabled:false` へ戻し、追加送信を停止済み。
+- PLAY専用運営QAフォームから実POST成功。受付ID `MATE-WEB-677b4626-8de0-49c3-8334-4dfb46502866`。`掲載セルフ申請` A3と `掲載申請連絡先` A3に同一IDがそれぞれ1件、サービスPLAYで登録（2026-10-25 16:27:10 JST）。
+- テスト申請 `掲載セルフ申請!Y2` と `Y3` をともに `差戻し`、`AC2` と `AC3` に公開・承認・取次・送客禁止の理由を記録。両方とも公開IDは空欄。
+- CARE/PLAY共通の一時的なQAページ `direct-intake-test-20261025.html` と PLAY単独の `play-direct-intake-test-20261025.html` はテスト後に `enabled:false` へ戻し、追加送信を停止済み。
 - GitHubブランチ `feat/mate-direct-gas-intake-20261024` の公開設定ファイルは新 `/exec` と公開Turnstile Site keyを保持し、**本番反映防止のため `enabled:false`** のまま。
-- CARE/PLAYの内部QAページを用いた送信経路のブラウザ検証はHTTPリクエストを**捕捉して模擬応答**する方式。実書き込みが確認されたのはCAREの1件のみ。SPARKもCloudflareとGASをモックしたFirebaseドメイン模擬ブラウザ検証を追加（実送信ではない）。
+- CARE/PLAYの内部QAページを用いた送信経路のブラウザ検証はHTTPリクエストを**捕捉して模擬応答**する方式。実書き込みが確認されたのはCARE・PLAYの各1件のみ。SPARKもCloudflareとGASをモックしたFirebaseドメイン模擬ブラウザ検証を追加（実送信ではない）。
 - SPARKフォームの電話番号・申請メモはGASが認識する英語フィールド名 `phone`、`message` に修正済み。
 
 ### 切り替え前に必須
-1. **PLAYの実申請**：GitHub Pagesホストで1件送信し、Sheets両タブの同一ID・サービスPLAY・未審査を確認。非公開の差戻しにし、QA受付を閉じる。
+1. **PLAYの専用QA申請は完了**：GitHub Pagesホストで実POST・Sheets両タブ保存・差戻し・QA停止済み。ただし一般向け `play-listing.html` の本番送信テストは切替時に別途必要。
 2. **SPARKの実申請**：`mate-spark.web.app` **実ホスト**から送信する必要あり。Cloudflareのホスト制限とGAS側の `service:SPARK` の検証があるため、GitHub Pagesや任意のpreview別ドメインからの模擬申請は本番接続の証拠にはならない。
 3. **本番フォームとの差分再確認**：一般向けCARE/PLAY/SPARKの実ページの必須項目、同意、Turnstile、有効/無効の見え方、携帯ブラウザを確認する。自動テスト通過と本人の実POST成功は別の証拠。
 4. **PR #22の現行mainとの統合チェック**：古い差分が混在しているため、PRをそのままマージしない。フォームの本番変更のみを精査して小さなリリースに分ける。保護者相談・SPARK体験相談は対象外（FormSubmitからはまだ移行しない）。
@@ -96,7 +97,7 @@ window.MATE_DIRECT_INTAKE = Object.freeze({
 6. 実サイトで初めて通信を確認してから `main` へのマージとSPARK Firebaseデプロイを行う。影響範囲を確認し、戻せるよう現行 `main` のSHAを記録する
 7. テスト行は「差戻し」などの非公開ステータスにして、外部公開しない
 
-**注意：CAREの実POSTと保存は確認済み。PLAY・SPARKの実POSTと3サービスの一般向けフォーム切り替えは未実施。**
+**注意：CARE・PLAYの運営QAフォームで実POSTと保存は確認済み。SPARKの実POSTと3サービスの一般向けフォーム切り替えは未実施。**
 
 ## 管理情報と安全上の制約
 
@@ -106,4 +107,4 @@ window.MATE_DIRECT_INTAKE = Object.freeze({
 - 旧 `mate_self_service.gs` のGmail取込はそのまま残るが、**直接投稿のWEB受付はGmail本文を生成しない**。レガシー列「GmailメッセージID」に `WEB-...` という受付証跡IDを置き、旧ロジックの照合に利用する。いずれカラムを正式名称へ移行する際は旧トリガーと列名検証を同時に直す
 - 既存の「承認」処理は人の審査が必要。SPARKの正式契約・体験取次許諾、PLAY CMSの掲載公開には別の処理が残る
 - 受付日時・審査状態は現行Sheetsで管理。名前と返信先は運営だけが使い、外部送信・公開データ変換へ混入させない
-- 本コードの検証は Node mock による確認。**CAREの内部QAフォームで実送受信テストは成功。SPARK/PLAY実ページでの送受信は未実施**。GitHub Actionsで `node tests/test_mate_direct_intake.cjs` を実行できる
+- 本コードの検証は Node mock による確認。**CARE・PLAY内部QAフォームで実送受信テストは成功。SPARK実ページとCARE・PLAY一般向けフォームでの送受信は未実施**。GitHub Actionsで `node tests/test_mate_direct_intake.cjs` を実行できる
