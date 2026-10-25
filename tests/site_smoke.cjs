@@ -341,7 +341,18 @@ async function main() {
       await form.locator('[name=privacy_agree]').check();
       assert.equal(await form.evaluate(x=>x.checkValidity()),true);
       await form.locator('button[type="submit"]').click();
-      await p.getByText('Simulated SPARK GAS receipt — no real request').waitFor();
+      try {
+        await p.getByText('Simulated SPARK GAS receipt — no real request').waitFor({timeout:9000});
+      } catch(error) {
+        const diagnostic=await p.evaluate(()=>({
+          status:document.querySelector('#partnerForm [role="status"]')?.textContent,
+          formAction:document.querySelector('#partnerForm')?.action,
+          missingFields:[...document.querySelectorAll('#partnerForm [required]')].filter(e=>!e.checkValidity()).map(x=>x.name),
+          tokenPresent:!!document.querySelector('#partnerForm [name="cf-turnstile-response"]')?.value
+        })).catch(e=>({readError:String(e)}));
+        console.log('SPARK_QA_DIAGNOSTIC',JSON.stringify({submitted:!!submitted,url:p.url(),diagnostic}));
+        throw error;
+      }
       assert.ok(submitted,'Staged Firebase form should attempt native GAS POST');
       assert.equal(submitted.service,'SPARK');
       assert.equal(submitted.phone,'0312345678');
