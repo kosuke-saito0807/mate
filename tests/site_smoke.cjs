@@ -74,6 +74,14 @@ async function main() {
     for(const service of ['CARE','PLAY']){
       const p=await browser.newPage({viewport:{width:390,height:844}});
       let captured=null;
+      // Production QA page remains disabled; only a mocked, locally fulfilled
+      // HTML copy is enabled inside this browser test. Never touch live GAS.
+      await p.route(BASE+'/direct-intake-test-20261025.html', route=>{
+        const html=fs.readFileSync('direct-intake-test-20261025.html','utf8');
+        assert.ok(html.includes('Object.freeze({enabled:false,'),'Public QA must remain closed');
+        return route.fulfill({status:200,contentType:'text/html',
+          body:html.replace('Object.freeze({enabled:false,','Object.freeze({enabled:true,')});
+      });
       await p.route('https://challenges.cloudflare.com/turnstile/v0/api.js',route=>
         route.fulfill({status:200,contentType:'text/javascript',
           body:'document.querySelector("#mateDirectQaForm").insertAdjacentHTML("beforeend",\'<input type="hidden" name="cf-turnstile-response" value="qa-mocked-token-value-0000000000000">\');'}));
