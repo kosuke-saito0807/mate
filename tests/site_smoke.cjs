@@ -212,7 +212,7 @@ async function main() {
     });
     assert.equal(playPayload.ok,true);
     assert.equal(JSON.parse(Buffer.from(playPayload.payload.split('__')[1],'base64').toString('utf8')).service,'PLAY');
-    assert.equal(await play.locator('#listing-contact').getAttribute('data-thanks'),'play-thanks.html');
+    assert.equal(await play.locator('#listing-contact').getAttribute('data-thanks'),null, 'GAS shows its own receipt instead of FormSubmit redirect');
     await play.close();
 
     const old = await browser.newPage();
