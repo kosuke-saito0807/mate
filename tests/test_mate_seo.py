@@ -19,7 +19,7 @@ class SeoLaunchTests(unittest.TestCase):
                 self.assertIn('<link rel="canonical" href="' + url + '">', html)
                 self.assertIn('<meta property="og:url" content="' + url + '">', html)
                 self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">', html)
-                matches = re.findall(r'<script type="application/ld\\+json">(.*?)</script>', html, re.S)
+                matches = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
                 self.assertEqual(len(matches), 1)
                 obj = json.loads(matches[0])
                 self.assertEqual(obj["@type"], "WebSite")
