@@ -115,7 +115,12 @@ async function main() {
       await p.locator('[name="cf-turnstile-response"]').waitFor({state:'attached'});
       assert.equal(await p.locator('#mateDirectQaForm').evaluate(el=>el.checkValidity()),true);
       await p.locator('button[type=submit]').click();
-      await p.getByText('Mock GAS accepted: local-only').waitFor();
+      try{
+        await p.getByText('Mock GAS accepted: local-only').waitFor({timeout:12000});
+      }catch(err){
+        const diag=await p.evaluate(()=>({url:location.href,status:[...document.querySelectorAll('[role=status]')].map(e=>e.textContent),buttons:[...document.querySelectorAll('button[type=submit]')].map(e=>({disabled:e.disabled,text:e.textContent})),action:document.querySelector('#mateDirectQaForm')?.action}));
+        throw Error('Internal QA form mock did not navigate: '+JSON.stringify({service,postIntercepted:!!captured,diag})+'; original='+String(err));
+      }
       assert.ok(captured,'POST should have been intercepted');
       assert.equal(captured.service,service);
       assert.equal(captured.privacy_agree,'同意する');
