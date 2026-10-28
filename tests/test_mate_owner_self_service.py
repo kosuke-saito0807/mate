@@ -36,7 +36,8 @@ class OwnerSelfServiceTest(unittest.TestCase):
             content=(ROOT/filename).read_text(encoding="utf-8")
             self.assertIn('Number(data.ageMin)>Number(data.ageMax)',content)
             self.assertIn('data.nextTrialDate<data.listing_content_checked_at',content)
-            self.assertIn('data.listing_content_checked_at>new Date()',content)
+            self.assertIn('data.listing_content_checked_at>todayJst',content)
+            self.assertIn('Date.now()+9*60*60*1000',content)
             check=subprocess.run(["node","--check"],input=content,text=True,capture_output=True)
             self.assertEqual(check.returncode,0,check.stderr)
 
