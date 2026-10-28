@@ -279,15 +279,12 @@ async function main() {
       assert.equal(pageResponse.status(),200);
       await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===1);
       await p.locator('[data-pick]').first().click();
-      assert.equal(await p.locator('#trial').isEnabled(),trialEnabled,
-        'Trial gate must require explicit owner acceptance');
-      if(trialEnabled){
-        await p.locator('#trial').click();
-        assert.equal(await p.locator('#trialDialog').evaluate(x=>x.open),true);
-        assert.equal(await p.locator('#trialForm').isHidden(),false);
-        assert.ok((await p.locator('#trialForm').getAttribute('action')).includes('formsubmit.co'));
-        await p.locator('#cancelTrial').click();
-      }
+      // Even if a legacy config flag were switched on, the old FormSubmit
+      // transport is retired and the trial referral remains disabled until
+      // a reviewed GAS backend, school permission, and parental consent exist.
+      assert.equal(await p.locator('#trial').isEnabled(),false,
+        'Trial intake must remain disabled without consent-safe backend');
+      assert.equal(await p.locator('#trialForm').isHidden(),true);
       // The school-owner listing intake should appear on approved Firebase hosts.
       await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
