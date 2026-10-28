@@ -7,9 +7,9 @@ const BASE = 'http://127.0.0.1:8765';
 const SAVE = 'artifacts/site-smoke';
 fs.mkdirSync(SAVE, {recursive: true});
 
-async function checkPage(browser, pathname, mobile=false) {
+async function checkPage(browser, pathname, mobile=false, deviceWidth=390) {
   const page = await browser.newPage({
-    viewport: mobile ? {width: 390, height: 844} : {width: 1366, height: 820},
+    viewport: mobile ? {width: deviceWidth, height: 844} : {width: 1366, height: 820},
     deviceScaleFactor: 1,
     isMobile: mobile
   });
@@ -374,6 +374,20 @@ async function main() {
         assert.equal(mobileHero.headingAlign,'left');
       }
       await page.close();
+    }
+    // Narrow mobile audit at 320px and 375px for all first-party MATE pages.
+    // This never submits a form; it only checks rendering, layout and loaded assets.
+    for (const width of [320,375]) {
+      for (const route of ['/','/spark/','/consult.html?service=CARE','/consult.html?service=PLAY','/play-listing.html','/spark/privacy.html']) {
+        const p=await checkPage(browser,route,true,width);
+        const size=await p.evaluate(()=>({
+          contentWidth:document.documentElement.scrollWidth,
+          viewportWidth:innerWidth,
+          tinyBody:document.body.getBoundingClientRect().width
+        }));
+        assert.ok(size.contentWidth<=width+4,route+' overflow at '+width+'px: '+JSON.stringify(size));
+        await p.close();
+      }
     }
     // Public-site read-only probes. Sources outside this repo may block automation.
     // Navigation and screenshots only; never submit forms or send emails.
