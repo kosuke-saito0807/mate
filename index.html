@@ -24,7 +24,10 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 
 /* Fill the hero edge to edge; preserve faces near the top and fade behind the copy. */
 @media(min-width:901px){.hero{height:auto;min-height:560px}.heroPhoto{position:relative;right:auto;left:auto;top:auto;width:100%;height:auto;object-fit:contain;object-position:center;opacity:1}.heroIn{position:absolute;inset:0;padding-top:120px}.wash{background:linear-gradient(90deg,#fff 0%,#fff 22%,rgba(255,255,255,.96) 30%,rgba(255,255,255,.65) 39%,rgba(255,255,255,.12) 52%,transparent 65%)}}
-.privacyComfort{margin:14px auto;color:#1a6893;background:#f0f8ff;border:1px solid #d7e8fa;border-radius:12px;padding:10px 15px;font-size:13px;max-width:660px}.result-description{font-size:13px;line-height:1.7;color:#42637b;margin:10px 0}.result-meta{font-size:12px;color:#556d82;margin:5px 0}</style>
+.privacyComfort{margin:14px auto;color:#1a6893;background:#f0f8ff;border:1px solid #d7e8fa;border-radius:12px;padding:10px 15px;font-size:13px;max-width:calc(100% - 20px);width:max-content;text-align:center}
+.privacyDesktop{white-space:nowrap}.privacyMobile{display:none}
+@media(max-width:800px){.privacyDesktop{display:none}.privacyMobile{display:inline}.privacyComfort{white-space:normal;padding:10px 12px;font-size:12px;max-width:100%}}
+@media(min-width:801px){.privacyComfort{white-space:nowrap}}.result-description{font-size:13px;line-height:1.7;color:#42637b;margin:10px 0}.result-meta{font-size:12px;color:#556d82;margin:5px 0}</style>
 <link rel="stylesheet" href="assets/brand.css?v=20261014-mobile"></head>
 <body>
 <header><div class="w head"><a class="brand" href="index.html"><img src="assets/MATE_header_lockup.svg?v=20261010-logo" alt="MATE CARE｜子育てに頼れる相棒を。"></a><nav class="nav"><a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#scene">SCENE</a><a href="#find">シッターを探す</a><a class="btn" href="contact.html">✉ お問い合わせ</a></nav></div></header>
