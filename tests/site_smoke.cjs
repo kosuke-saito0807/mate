@@ -173,7 +173,7 @@ async function main() {
       icon:document.querySelector('link[rel="icon"]')?.getAttribute('href'),
       heroLoaded:document.querySelector('.hero-visual')?.naturalWidth>0
     }));
-    assert.equal(sparkImages.scene,'300% auto','SPARK scene montage must retain aspect ratio');
+    assert.ok(['300%','300% auto'].includes(sparkImages.scene),'SPARK scene montage must retain aspect ratio');
     assert.equal(sparkImages.heroFit,'contain','SPARK hero should not crop smiling faces');
     assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
     assert.equal(sparkImages.heroLoaded,true);
