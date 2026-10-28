@@ -62,3 +62,12 @@ header{background:linear-gradient(180deg,#ffffffed,#ffffff80);border-bottom:1px 
  input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px}
  .plan-grid{grid-template-columns:minmax(0,1fr)}
 }
+
+/* 2026-10-28: common responsive type and balanced spacing; no one-character orphans. */
+:where(h1,h2,h3,.cb b,.result h3,.operator-card h2){text-wrap:balance;overflow-wrap:normal}
+:where(.scene,.searchsec,.providerCta,.footer,.operator-shell) :where(p,small){overflow-wrap:break-word}
+:where(.w,.sg,.cards,.providers,.results,.footerTop,.footerLinks){min-width:0}
+.privacyComfort{max-width:max-content;margin-inline:auto;text-align:center;white-space:nowrap;font-size:clamp(11px,1.15vw,13px)}
+.privacyMobile{display:none}
+@media(max-width:800px){.privacyDesktop{display:none}.privacyMobile{display:inline}.privacyComfort{max-width:100%;white-space:normal;text-wrap:balance;padding-inline:10px}.intro h2,.scene h2,.discovery-header h2{white-space:normal;text-wrap:balance}.footerLinks{row-gap:8px}}
+@media(max-width:380px){.privacyComfort{font-size:12px}.hero-cta{gap:12px;justify-content:center}}
