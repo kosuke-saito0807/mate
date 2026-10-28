@@ -24,7 +24,7 @@ class FamilyFormTests(unittest.TestCase):
   self.assertIn("intake_type",s)
   self.assertIn("family_consult",s)
   self.assertIn("mate_consult",s)
-  self.assertIn("script.google.com",s)
+  self.assertIn("mate-direct-intake-config.js",s)
   self.assertNotIn("fetch('https://formsubmit",s)
   self.assertIn("受付が完了した場合のみ",s)
   self.assertIn("セキュリティ認証の完了後に送信",s)
