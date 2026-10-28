@@ -17,7 +17,7 @@ class GA4ReleaseTests(unittest.TestCase):
             with self.subTest(path=path):
                 src=(ROOT/path).read_text(encoding="utf-8")
                 self.assertIn("https://www.googletagmanager.com/gtag/js?id="+MEASUREMENT_ID,src)
-                self.assertEqual(len(re.findall(r"gtag\\((?:['\"])(?:config)(?:['\"])",src)),1)
+                self.assertEqual(len(re.findall(r"gtag\((?:['\"])(?:config)(?:['\"])",src)),1)
                 self.assertIn("page_location:location.origin+location.pathname",src)
                 self.assertIn("allow_google_signals:false",src)
                 self.assertIn("allow_ad_personalization_signals:false",src)
