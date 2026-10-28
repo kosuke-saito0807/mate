@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NG57XX4Y5D"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-NG57XX4Y5D");</script>
 
-<link rel="icon" type="image/svg+xml" href="mate-spark-logo.svg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028-unified">
 <style>
 :root{--blue:#0878ea;--navy:#073661;--ink:#193e62;--muted:#677d90;--line:#dbe7f3;--mint:#eaf8f5;--pale:#f5faff}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fff;color:var(--navy);font:15px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
@@ -70,7 +70,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
  .hero-inner{display:flex;align-items:center;height:535px;min-height:0;padding:0;gap:0}
  .hero-inner>div:first-child{position:relative;z-index:2;width:55%;max-width:590px;padding:20px 0}
  .hero-art{position:absolute;inset:0 auto 0 50%;transform:translateX(-50%);width:100vw;height:100%;border:0;border-radius:0;box-shadow:none;background:#fff;z-index:0}
- .hero-art .hero-visual{object-fit:cover;object-position:center 46%}
+ .hero-art .hero-visual{object-fit:contain;object-position:right center;background:linear-gradient(105deg,#fff 0%,#f2f9ff 100%)}
  .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#fff 0%,#fff 23%,rgba(255,255,255,.97) 31%,rgba(255,255,255,.8) 43%,rgba(255,255,255,.2) 61%,transparent 73%);pointer-events:none}
  .hero-art .caption{display:none}
 }
@@ -87,8 +87,8 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 @media(max-width:760px){
  .hero-inner{display:flex;flex-direction:column;align-items:stretch;gap:0;min-height:0;padding:34px 0 0}
  .hero-inner>div:first-child{width:100%;padding:0 0 18px}
- .hero-art{position:relative;width:100vw;left:50%;transform:translateX(-50%);margin:0;height:auto;aspect-ratio:1.7;border-radius:0;box-shadow:none;background:white}
- .hero-art .hero-visual{object-fit:cover;object-position:center 43%}
+ .hero-art{position:relative;width:100vw;left:50%;transform:translateX(-50%);margin:0;height:auto;aspect-ratio:3/2;border-radius:0;box-shadow:none;background:white}
+ .hero-art .hero-visual{object-fit:contain;object-position:center center}
  .hero-art .caption{display:none}
  #about.section{padding:27px 0 45px}
  #about .intro>div:last-child{grid-template-columns:1fr}
@@ -99,11 +99,23 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 
 /* The source activity asset is a 3-panel montage: robot / piano / football.
    Use distinct panels for programming, music and sports, not one identical crop. */
-.scene-sprite{width:100%;height:100%;background-image:url("assets/activities.png");background-size:300% 100%;background-repeat:no-repeat}
+.scene-sprite{width:100%;height:100%;background-image:url("assets/activities.png");background-size:300% auto;background-repeat:no-repeat}
 .scene-sprite-code{background-position:left center}
 .scene-sprite-music{background-position:center center}
 .scene-sprite-sports{background-position:right center}
-.privacyComfort{font-size:12px!important;font-weight:700;color:#24698c;background:#f0f9ff;border:1px solid #d5e7f5;border-radius:12px;padding:10px 14px;margin:14px auto 3px;max-width:650px}</style>
+.privacyComfort{font-size:12px!important;font-weight:700;color:#24698c;background:#f0f9ff;border:1px solid #d5e7f5;border-radius:12px;padding:10px 14px;margin:14px auto 3px;max-width:max-content;text-align:center}
+@media(min-width:900px){.privacyComfort{white-space:nowrap;max-width:calc(100vw - 40px)}}
+@media(max-width:899px){.privacyComfort{max-width:100%;text-wrap:balance}}
+.scene-art{aspect-ratio:3/2;height:auto}
+.scene-art img{max-width:100%;height:100%;object-fit:cover}
+.scene-sprite{background-position-y:center}
+.scene-intro h2,.section h2,.scene-copy strong{text-wrap:balance}
+.hero h1{max-width:13em;text-wrap:balance}
+.scene-grid{align-items:stretch}
+.scene-card{min-width:0}
+@media(min-width:761px){.hero-art .hero-visual{object-fit:contain;object-position:right center}}
+@media(max-width:760px){.scene-art{aspect-ratio:3/2;height:auto}.hero-art .hero-visual{object-fit:contain;object-position:center}}
+@media(max-width:380px){.privacyComfort{font-size:11px!important;padding:9px 10px}.scene-copy{padding:12px 10px}}</style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
 <nav class="nav" aria-label="メインメニュー"><a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#scene">SCENE</a><a href="#discover">教室を探す</a><a class="btn" href="partners.html">教室を掲載する ↗</a></nav></div></header>
