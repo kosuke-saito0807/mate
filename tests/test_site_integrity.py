@@ -109,9 +109,23 @@ class SiteIntegrity(unittest.TestCase):
         config = json.loads((SITE / "config.json").read_text(encoding="utf-8"))
         self.assertFalse(config["trialIntakeEnabled"])
         page = (SITE / "index.html").read_text(encoding="utf-8")
-        self.assertIn("trialIntakeEnabled=config.trialIntakeEnabled===true",page)
+        self.assertIn("trialIntakeEnabled=false;",page)
+        self.assertNotIn("formsubmit.co",page)
+        self.assertIn("e.preventDefault();",page)
         self.assertIn("eligible&&safeHost&&trialIntakeEnabled",page)
         self.assertIn("!eligible||!safeHost||!trialIntakeEnabled",page)
+
+    def test_no_public_operator_name_or_portrait(self):
+        html=list(ROOT.glob("*.html"))+list((ROOT / "spark").glob("*.html"))
+        for page in html:
+            body=page.read_text(encoding="utf-8")
+            self.assertNotIn("斎藤幸輔",body,str(page))
+        self.assertFalse((ROOT / "assets/nextedu-saito-portrait.png").exists())
+        spark=(ROOT / "spark/index.html").read_text(encoding="utf-8")
+        self.assertNotIn("formsubmit.co",spark)
+        self.assertIn("trialIntakeEnabled=false;",spark)
+        play_policy=(ROOT / "play-privacy.html").read_text(encoding="utf-8")
+        self.assertIn("Google Apps Script",play_policy)
 
     def test_sync_propagates_consent_changes_to_firebase(self):
         flow = (ROOT / ".github/workflows/sync-smartsheet-public.yml").read_text(encoding="utf-8")
