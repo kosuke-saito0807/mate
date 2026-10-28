@@ -229,7 +229,7 @@ function mateConsultReceive_(form) {
       if(cache.get("mate.consult."+hash))throw Error("短時間に複数の相談は送れません");
       var date=Utilities.formatDate(new Date(),"Asia/Tokyo","yyyy-MM-dd HH:mm:ss");
       var row=[form.id,date,form.service,form.kind,"","","WEB-"+form.id,"",
-        "メール通知待ち","未確認","未確認","同意済み","","","","","","連絡先と相談全文はGmailのみで管理。事業者への取次は別途同意"];
+        "メール通知待ち","未確認","未確認","未確認","","","","","","プライバシーポリシー送信同意あり。取次・情報提供は未承諾。連絡先と本文はGmailのみ"];
       target=last+1;
       tab.getRange(target,1,1,MATE_DIRECT.inquiryHeaders.length).setValues([row]);
     }
