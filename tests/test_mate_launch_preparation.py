@@ -67,7 +67,7 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertIn("問い合わせ管理",(ROOT/"MATE_LAUNCH_OPERATIONS_20261023.md").read_text(encoding="utf-8"))
 
     def test_scripts_syntax(self):
-        for p in (ROOT/"assets/provider-search.js",ROOT/"assets/contact.js"):
+        for p in (ROOT/"assets/provider-search.js",ROOT/"assets/mate-direct-intake.js"):
             r=subprocess.run(["node","--check"],input=p.read_text(encoding="utf-8"),text=True,capture_output=True)
             self.assertEqual(r.returncode,0,r.stderr)
 
