@@ -49,7 +49,8 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertIn("school_detail_view",spark)
         self.assertIn("school_outbound_click",spark)
         self.assertIn("school_compare",spark)
-        self.assertIn("trial_inquiry_submit_attempt",spark)
+        self.assertNotIn("trial_inquiry_submit_attempt",spark)  # trial intake disabled; no fake lead event
+        self.assertIn("trialIntakeEnabled=false;",spark)
         self.assertIn("listing_inquiry_submit_attempt",(SPARK/"assets/mate-direct-intake.js").read_text(encoding="utf-8"))
         self.assertIn("generate_lead",(ROOT/"assets/contact.js").read_text(encoding="utf-8"))
         self.assertIn("provider_outbound",(ROOT/"assets/provider-search.js").read_text(encoding="utf-8"))
