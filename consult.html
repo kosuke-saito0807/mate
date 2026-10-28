@@ -100,7 +100,8 @@ form.addEventListener('submit',e=>{
  btn.disabled=true;
  btn.textContent='受付先を確認しています…';
  status.textContent='受付が完了した場合のみ、次の画面に受付番号が表示されます。';
- if(window.gtag)window.gtag('event','generate_lead',{service:svc,lead_type:'family_inquiry_attempt'});
+ // Track only an attempt here; the authoritative success signal is the private GAS/Sheets receipt.
+ if(window.gtag)window.gtag('event','family_inquiry_submit_attempt',{service:svc});
  // Native POST navigation. Never use fetch()/CORS or show success before GAS writes and email sends.
 });
 const script=document.createElement('script');
