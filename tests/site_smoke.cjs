@@ -211,7 +211,10 @@ async function main() {
     await play.locator('#listing-contact [name=website]').fill('https://example.org/');
     await play.locator('#listing-contact [name=region]').selectOption('福岡県');
     await play.locator('#listing-contact [name=city]').fill('福岡市博多区');
-    await play.locator('#listing-contact [name=category]').selectOption('科学・学び');
+    await play.locator('#listing-contact [name=category]').selectOption('科学・実験');
+    await play.locator('#listing-contact [name=ageMin]').fill('6');
+    await play.locator('#listing-contact [name=ageMax]').fill('12');
+    await play.locator('#listing-contact [name=trialPrice]').fill('2000');
     await play.locator('#listing-contact [name=ages]').selectOption('小学生');
     await play.locator('#listing-contact [name=description]').fill('QA専用の家族向け体験プログラムです。実際の送信・公開は行われないテストです。');
     await play.locator('#listing-contact [name=listing_content_checked_at]').fill('2026-10-23');
