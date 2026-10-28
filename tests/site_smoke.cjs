@@ -177,6 +177,20 @@ async function main() {
     assert.equal(sparkImages.heroFit,'contain','SPARK hero should not crop smiling faces');
     assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
     assert.equal(sparkImages.heroLoaded,true);
+    const sparkIdentity=await spark.evaluate(()=>({
+      heading:document.querySelector('#discover .discovery-header h2')?.textContent?.trim(),
+      headingAlign:getComputedStyle(document.querySelector('#discover .discovery-header')).textAlign,
+      headingSize:parseFloat(getComputedStyle(document.querySelector('#discover h2')).fontSize),
+      sectionLabel:document.querySelector('#discover .section-label')?.textContent?.trim(),
+      photoBackground:getComputedStyle(document.querySelector('.hero-art')).backgroundImage,
+      wash:getComputedStyle(document.querySelector('.hero-art'),'::after').backgroundImage
+    }));
+    assert.equal(sparkIdentity.heading,'次の「好き」を、見つけよう。');
+    assert.equal(sparkIdentity.sectionLabel,'FIND YOUR MATE');
+    assert.equal(sparkIdentity.headingAlign,'left','SPARK FIND YOUR MATE should align with CARE heading');
+    assert.equal(sparkIdentity.headingSize,28,'Shared desktop FIND title scale');
+    assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
+    assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
@@ -350,6 +364,14 @@ async function main() {
         assert.equal(await page.locator('#trial').isDisabled(),true);
         assert.equal(await page.locator('#selectionBar').isHidden(),true);
         assert.equal(await page.locator('.nav a[href="#mission"]').isVisible(),true);
+        const mobileHero=await page.evaluate(()=>({
+          gradient:getComputedStyle(document.querySelector('.hero')).backgroundImage,
+          wash:getComputedStyle(document.querySelector('.hero-art'),'::after').backgroundImage,
+          headingAlign:getComputedStyle(document.querySelector('#discover .discovery-header')).textAlign
+        }));
+        assert.ok(mobileHero.gradient.includes('linear-gradient'));
+        assert.ok(mobileHero.wash.includes('linear-gradient'));
+        assert.equal(mobileHero.headingAlign,'left');
       }
       await page.close();
     }
