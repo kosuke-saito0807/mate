@@ -127,6 +127,33 @@ class SiteIntegrity(unittest.TestCase):
         play_policy=(ROOT / "play-privacy.html").read_text(encoding="utf-8")
         self.assertIn("Google Apps Script",play_policy)
 
+
+    def test_mate_favicon_and_responsive_visual_rules(self):
+        shared=(ROOT / "assets/favicon.svg").read_text(encoding="utf-8")
+        self.assertEqual(shared,(ROOT / "favicon.svg").read_text(encoding="utf-8"))
+        self.assertEqual(shared,(SITE / "favicon.svg").read_text(encoding="utf-8"))
+        # All user-facing main routes share the exact same M artwork, not the SPARK wordmark.
+        pages=["index.html","consult.html","contact.html","play-listing.html",
+               "play-privacy.html","play-operator.html","spark/index.html",
+               "spark/partners.html","spark/privacy.html","spark/operator.html"]
+        for name in pages:
+            page=(ROOT / name).read_text(encoding="utf-8")
+            self.assertIn('rel="icon"',page,name)
+            self.assertIn('favicon.svg',page,name)
+        care=(ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertIn("privacyDesktop",care)
+        self.assertIn("privacyMobile",care)
+        self.assertIn("会員登録・氏名・メールアドレスの入力なしで検索できます。個人情報は検索に必要ありません。",care)
+        spark=(SITE / "index.html").read_text(encoding="utf-8")
+        self.assertIn("background-size:300% auto",spark)
+        self.assertNotIn("background-size:300% 100%",spark)
+        self.assertIn("object-fit:contain;object-position:right center",spark)
+        self.assertIn("aspect-ratio:3/2",spark)
+        operator=(ROOT / "play-operator.html").read_text(encoding="utf-8")
+        self.assertIn("NextEdu",operator)
+        self.assertNotIn("斎藤幸輔",operator)
+        self.assertIn('href="play-operator.html"',(ROOT / "play-listing.html").read_text(encoding="utf-8"))
+
     def test_sync_propagates_consent_changes_to_firebase(self):
         flow = (ROOT / ".github/workflows/sync-smartsheet-public.yml").read_text(encoding="utf-8")
         self.assertIn("steps.commit.outputs.changed == 'true'", flow)
