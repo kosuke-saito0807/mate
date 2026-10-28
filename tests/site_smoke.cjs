@@ -40,6 +40,13 @@ async function main() {
   const browser = await chromium.launch({headless:true, args:['--no-sandbox']});
   try {
     let care = await checkPage(browser,'/');
+    // The full desktop privacy text is one visual line without clipping.
+    const carePrivacyDesktop=await care.locator('.privacyComfort .privacyDesktop').evaluate(el=>({
+      rects:el.getClientRects().length,display:getComputedStyle(el).display,
+      width:el.getBoundingClientRect().width,viewport:innerWidth
+    }));
+    assert.equal(carePrivacyDesktop.rects,1,'CARE PC privacy information should fit on one line');
+    assert.ok(carePrivacyDesktop.width<carePrivacyDesktop.viewport,'CARE privacy text must fit desktop');
     await care.locator('#results-count').waitFor();
     assert.equal(await care.locator('#results article.result').count(),0);
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
@@ -159,6 +166,17 @@ async function main() {
     }
 
     let spark = await checkPage(browser,'/spark/');
+    // Avoid stretching the original three-panel activity montage (robot/music/sports).
+    const sparkImages=await spark.evaluate(()=>({
+      scene: getComputedStyle(document.querySelector('.scene-sprite-code')).backgroundSize,
+      heroFit:getComputedStyle(document.querySelector('.hero-visual')).objectFit,
+      icon:document.querySelector('link[rel="icon"]')?.getAttribute('href'),
+      heroLoaded:document.querySelector('.hero-visual')?.naturalWidth>0
+    }));
+    assert.equal(sparkImages.scene,'300% auto','SPARK scene montage must retain aspect ratio');
+    assert.equal(sparkImages.heroFit,'contain','SPARK hero should not crop smiling faces');
+    assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
+    assert.equal(sparkImages.heroLoaded,true);
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
@@ -316,8 +334,16 @@ async function main() {
     await simulatedProduction(false);
     await simulatedProduction(true);
 
+    const playOperator=await checkPage(browser,'/play-operator.html',true);
+    assert.equal(await playOperator.locator('h1').innerText(),'運営事務局');
+    await playOperator.close();
     for (const pathname of ['/','/contact.html','/spark/','/spark/partners.html']) {
       const page=await checkPage(browser,pathname,true);
+      if(pathname==='/'){
+        const mobilePrivacy=page.locator('.privacyComfort .privacyMobile');
+        assert.equal(await mobilePrivacy.isVisible(),true);
+        assert.equal(await page.locator('.privacyComfort .privacyDesktop').isVisible(),false);
+      }
       if(pathname==='/spark/'){
         await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
         assert.equal(await page.locator('#cards article.card').count(),0);
