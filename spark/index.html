@@ -115,7 +115,35 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 .scene-card{min-width:0}
 @media(min-width:761px){.hero-art .hero-visual{object-fit:contain;object-position:right center}}
 @media(max-width:760px){.scene-art{aspect-ratio:3/2;height:auto}.hero-art .hero-visual{object-fit:contain;object-position:center}}
-@media(max-width:380px){.privacyComfort{font-size:11px!important;padding:9px 10px}.scene-copy{padding:12px 10px}}</style>
+@media(max-width:380px){.privacyComfort{font-size:11px!important;padding:9px 10px}.scene-copy{padding:12px 10px}}
+/* 2026-10-28 / CARE・PLAY共通の「FIND YOUR MATE」見出しと階層感 */
+.discover.section{padding:50px 0 64px}
+.discover .discovery-header{margin:0 0 24px;text-align:left;max-width:none;min-width:0}
+.discover .discovery-header .section-label{font-size:11px;font-weight:900;letter-spacing:.15em;color:#0878ea;margin:0 0 5px;line-height:1.7}
+.discover .discovery-header h2{color:#073661;font-size:28px;line-height:1.5;letter-spacing:-.035em;font-weight:800;margin:7px 0 8px;text-wrap:balance}
+.discover .discovery-header>p:not(.section-label):not(.privacyComfort){color:#627184;font-size:14px;line-height:1.85;margin:0;max-width:850px;text-wrap:pretty}
+.discover .discovery-header .privacyComfort{margin:14px 0 0;text-align:center;width:max-content;max-width:100%;text-wrap:balance}
+.discover .discovery-shell{margin-top:24px}
+@media(max-width:760px){
+ .discover.section{padding:43px 0 54px}
+ .discover .discovery-header h2{font-size:clamp(25px,6.8vw,29px);line-height:1.5}
+ .discover .discovery-header>p:not(.section-label):not(.privacyComfort){font-size:13px;line-height:1.8}
+ .discover .discovery-header .privacyComfort{white-space:normal;font-size:11px!important;padding:9px 12px}
+}
+/* CAREに合わせる横方向のホワイト→写真グラデーション。人物の顔は切り取らない。 */
+@media(min-width:761px){
+ .hero{background:linear-gradient(100deg,#fff 0%,#f9fcff 51%,#eaf6ff 100%)}
+ .hero-art{background:linear-gradient(115deg,#fff 0%,#edf7ff 62%,#d9eef9 100%)}
+ .hero-art .hero-visual{object-fit:contain;object-position:right center;background:transparent}
+ .hero-art::after{background:linear-gradient(90deg,#fff 0%,#fff 22%,rgba(255,255,255,.96) 32%,rgba(255,255,255,.78) 43%,rgba(244,250,255,.36) 57%,rgba(244,250,255,.08) 73%,transparent 86%)}
+}
+@media(max-width:760px){
+ .hero{background:linear-gradient(180deg,#fff 0%,#f7fbff 62%,#e9f6ff 100%)}
+ .hero-art{background:linear-gradient(135deg,#f7fbff,#e4f4ff)}
+ .hero-art .hero-visual{background:transparent;object-fit:contain}
+ .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,transparent 65%,rgba(255,255,255,.55) 100%);pointer-events:none}
+}
+</style>
 </head><body>
 <header id="top"><div class="wrap head"><a class="brand" href="#top" aria-label="MATE SPARK ホーム"><img src="mate-spark-logo.svg" alt="MATE SPARK｜習い事探しに、頼れる相棒を。"></a>
 <nav class="nav" aria-label="メインメニュー"><a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#scene">SCENE</a><a href="#discover">教室を探す</a><a class="btn" href="partners.html">教室を掲載する ↗</a></nav></div></header>
@@ -131,7 +159,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <a href="#discover" class="scene-card" data-scene-category="音楽"><div class="scene-art scene-music" aria-hidden="true"><div class="scene-sprite scene-sprite-music"></div></div><div class="scene-copy"><strong>好きなことをもっと深めたい</strong><p>音楽や表現を通じて、自信と楽しさを育みたい。</p><span>教室を探す ↗</span></div></a>
 <a href="#discover" class="scene-card" data-scene-category="スポーツ"><div class="scene-art scene-active" aria-hidden="true"><div class="scene-sprite scene-sprite-sports"></div></div><div class="scene-copy"><strong>体を動かす習い事を探したい</strong><p>近くで通える運動・スポーツの教室を見つけたい。</p><span>教室を探す ↗</span></div></a>
 </div></div></section>
-<section id="discover" class="section discover"><div class="wrap"><div class="center"><p class="eyebrow">FIND YOUR MATE</p><h2>次の「好き」を、見つけよう。</h2><p>プログラミングも、音楽も、スポーツも。<br>気になる教室を比べて、自分たちに合う学びを。</p><p class="privacyComfort">🔒 会員登録不要・氏名・メールの入力なしで検索できます。お気に入りはこの端末内に保存します。</p></div>
+<section id="discover" class="section discover"><div class="wrap"><div class="center discovery-header"><p class="eyebrow section-label">FIND YOUR MATE</p><h2>次の「好き」を、見つけよう。</h2><p>プログラミングも、音楽も、スポーツも。<br>気になる教室を比べて、自分たちに合う学びを。</p><p class="privacyComfort">🔒 会員登録不要・氏名・メールの入力なしで検索できます。お気に入りはこの端末内に保存します。</p></div>
 <div class="discovery-shell"><aside class="filters" aria-label="検索の絞り込み"><h3>条件を絞る</h3><label for="region">エリア</label><select id="region"><option value="">全国すべて</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
 <label for="age">お子さまの年齢</label><select id="age"><option value="">指定しない</option><option value="0">0歳</option><option value="1">1歳</option><option value="2">2歳</option><option value="3">3歳</option><option value="4">4歳</option><option value="5">5歳</option><option value="6">6歳</option><option value="7">7歳</option><option value="8">8歳</option><option value="9">9歳</option><option value="10">10歳</option><option value="11">11歳</option><option value="12">12歳</option></select>
 <label for="price">月謝の上限</label><select id="price"><option value="">指定しない</option><option value="5000">5,000円まで</option><option value="8000">8,000円まで</option><option value="10000">10,000円まで</option><option value="15000">15,000円まで</option><option value="20000">20,000円まで</option></select>
