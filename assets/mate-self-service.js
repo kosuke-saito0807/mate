@@ -18,7 +18,9 @@ window.MATESelfService = {
     if(data.nextTrialDate && data.listing_content_checked_at && data.nextTrialDate<data.listing_content_checked_at){
       window.alert("体験予定日は掲載内容の確認日より前に設定できません。");return false;
     }
-    if(data.listing_content_checked_at && data.listing_content_checked_at>new Date().toISOString().slice(0,10)){
+    // MATE serves Japan: UTC date can still be yesterday during Japan morning hours.
+    const todayJst=new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
+    if(data.listing_content_checked_at && data.listing_content_checked_at>todayJst){
       window.alert("掲載内容の確認日に未来の日付は指定できません。");return false;
     }
     const bytes=new TextEncoder().encode(JSON.stringify(data));
