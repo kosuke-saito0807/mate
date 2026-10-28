@@ -41,7 +41,7 @@ jobs:
       - name: Package public site only
         run: |
           mkdir -p _site
-          cp *.html data.json favicon.svg favicon.ico _site/
+          cp *.html data.json sitemap.xml favicon.svg favicon.ico _site/
           cp -R assets _site/assets
           cp -R spark _site/spark
           find _site/spark -type f -name '*.md' -delete
