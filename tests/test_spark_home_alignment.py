@@ -30,6 +30,16 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, h)
 
+
+    def test_discovery_heading_and_gradient_match_mate_brand(self):
+        h = (SITE / "index.html").read_text(encoding="utf-8")
+        self.assertIn('<div class="discovery-header"><p class="section-label">FIND YOUR MATE</p>',h)
+        self.assertNotIn('class="center discovery-header"',h)
+        self.assertIn('次の「好き」を、見つけよう。',h)
+        self.assertIn('object-fit:contain;object-position:right center',h)
+        self.assertIn('rgba(255,255,255,.96) 29%',h)
+        self.assertIn('linear-gradient(180deg,rgba(255,255,255,.92)',h)
+
     def test_inline_javascript_syntax(self):
         h = (SITE / "index.html").read_text(encoding="utf-8")
         matches = re.findall(r"<script>(.*?)</script>", h, flags=re.S)

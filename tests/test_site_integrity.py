@@ -154,6 +154,13 @@ class SiteIntegrity(unittest.TestCase):
         self.assertNotIn("斎藤幸輔",operator)
         self.assertIn('href="play-operator.html"',(ROOT / "play-listing.html").read_text(encoding="utf-8"))
 
+    def test_japan_today_is_not_rejected_by_utc_during_morning(self):
+        # The public listing form initializes its date in JST, even while UTC
+        # is still the previous day. Both sides must use the same calendar.
+        handler=(ROOT / "assets/mate-self-service.js").read_text(encoding="utf-8")
+        self.assertIn("const todayJst=new Date(Date.now()+9*60*60*1000)",handler)
+        self.assertNotIn("data.listing_content_checked_at>new Date().toISOString()",handler)
+
     def test_sync_propagates_consent_changes_to_firebase(self):
         flow = (ROOT / ".github/workflows/sync-smartsheet-public.yml").read_text(encoding="utf-8")
         self.assertIn("steps.commit.outputs.changed == 'true'", flow)
