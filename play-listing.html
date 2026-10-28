@@ -46,8 +46,12 @@ footer{border-top:1px solid var(--border);padding:29px 0;font-size:12px;color:#5
 <div class="fields">
 <label class="field">開催する都道府県 *<select name="region" required><option value="">選択してください</option></select></label>
 <label class="field">開催地・市区町村 *<input name="city" required maxlength="140" placeholder="例：大阪市中央区／全国オンライン"></label>
-<label class="field">体験ジャンル *<select name="category" required><option value="">選択してください</option><option>工作・ものづくり</option><option>科学・学び</option><option>アート・音楽</option><option>自然・アウトドア</option><option>スポーツ・運動</option><option>食・料理</option><option>施設見学・博物館</option><option>季節イベント</option><option>オンライン</option><option>その他</option></select></label>
+<label class="field">体験ジャンル *<select name="category" required><option value="">選択してください</option><option>工作・ものづくり</option><option>料理・食育</option><option>科学・実験</option><option>アート</option><option>プログラミング</option><option>職業体験</option><option>自然体験</option><option>農業・収穫体験</option><option>動物とのふれあい</option><option>キャンプ</option><option>水遊び</option><option>公園・遊び場</option><option>屋内施設</option><option>博物館・科学館</option><option>水族館・動物園</option><option>親子イベント</option><option>季節のイベント</option><option>音楽・舞台</option></select></label>
 <label class="field">主な対象 *<select name="ages" required><option value="">選択してください</option><option>幼児</option><option>小学生</option><option>中学生</option><option>幼児,小学生</option><option>小学生,中学生</option><option>幼児,小学生,中学生</option><option>全年齢</option></select></label>
+<label class="field">対象の最少年齢（0〜18歳） *<input type="number" name="ageMin" min="0" max="18" step="1" required placeholder="例：3"></label>
+<label class="field">対象の最高年齢（0〜18歳） *<input type="number" name="ageMax" min="0" max="18" step="1" required placeholder="例：10"></label>
+<label class="field">体験料金（税込・子ども1名あたり） *<input type="number" name="trialPrice" min="0" max="10000000" step="1" required placeholder="無料なら0円"></label>
+<p class="hint full">無料は0円と入力してください。親子1組料金・追加材料費などは下の「参加費の目安」にも記載してください。掲載権限・契約は運営が確認します。</p>
 <label class="field full">体験内容の紹介文 *（25〜500字）<textarea name="description" minlength="25" maxlength="500" required placeholder="何を体験できるか・どんな家族におすすめか。参加者の個人情報は書かないでください。"></textarea></label>
 <label class="field">掲載内容の最終確認日 *<input type="date" name="listing_content_checked_at" required></label>
 <label class="field">次回の開催日（任意）<input type="date" name="nextTrialDate"></label>

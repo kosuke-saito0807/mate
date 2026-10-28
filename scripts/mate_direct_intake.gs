@@ -13,6 +13,8 @@ var MATE_DIRECT = Object.freeze({
   owner:"kosodatemate@gmail.com",
   applications:"掲載セルフ申請",
   contacts:"掲載申請連絡先",
+  inquiries:"問い合わせ管理",
+  inquiryHeaders:["受付ID","受付日時","サービス","問い合わせ種別","事業者・教室ID","対象教室・事業者名","GmailメッセージID/証跡","希望教室ID（複数はカンマ区切り）","進捗","掲載許諾確認","体験取次許諾確認","保護者の情報提供同意","次回対応日","教室への取次日時","結果確認日","結果","担当者","メモ（氏名・健康情報は記入しない）"],
   hosts:{CARE:["kosuke-saito0807.github.io"],SPARK:["mate-spark.web.app"],PLAY:["kosuke-saito0807.github.io"]},
   appHeaders:["申請ID","受信日時","サービス","教室・事業者名","公式URL","都道府県","市区町村・対応エリア","ジャンル","対象区分","紹介文","月謝（税込円）","体験料金（税込円）","対象最少年齢","対象最高年齢","曜日","最寄駅","タグ","次回体験予定日","料金メモ","対応時間","情報確認日","掲載申請の意思","取次相談の希望","GmailメッセージID","審査状態","担当者権限の確認","審査者","公開ID","保留・差戻し理由"],
   contactHeaders:["受付ID","受付日時","サービス","担当者名（非公開）","返信用メール（非公開）","電話（非公開）","申請メモ（非公開）"],
@@ -54,6 +56,9 @@ function setupMateDirectIntake(){
     contacts.setFrozenRows(1);
   }
   mateDirectHeaders_(contacts,MATE_DIRECT.contactHeaders);
+  var inquiries=book.getSheetByName(MATE_DIRECT.inquiries);
+  if(!inquiries)throw Error("問い合わせ管理シートが見つかりません");
+  mateDirectHeaders_(inquiries,MATE_DIRECT.inquiryHeaders);
   return "受付台帳の構造・Turnstile設定を確認しました。未審査で保存されます。";
 }
 function mateDirectForm_(p){
@@ -156,22 +161,144 @@ function mateDirectView_(ok,service,message,ref){
     '</p><p><a href="'+home+'">MATEに戻る ↗</a></p><p style="font-size:13px">お問い合わせ：kosodatemate@gmail.com</p></main></body></html>');
 }
 function doGet(){return mateDirectView_(false,"","このURLは申請フォームではありません。","")}
+// Family consultations are received by the EXISTING direct-intake Web App.
+// This path must never publish providers or forward a visitor to a partner.
+function mateConsultForm_(p) {
+  var service=mateDirectRaw_(p.service,10);
+  if(service!=="CARE" && service!=="PLAY")throw Error("ご利用サービスが不正です");
+  var uuid=mateDirectRaw_(p.submission_id,60).toLowerCase();
+  if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(uuid))throw Error("受付番号を確認してください");
+  if(p._honey || p.website_check)throw Error("受付できませんでした");
+  var email=mateDirectRaw_(p.email,254);
+  if(!email || email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    /[\r\n]/.test(email))throw Error("返信用メールアドレスをご確認ください");
+  if(p.privacy_agree!=="同意する")throw Error("個人情報の取扱いへの同意が必要です");
+  var kinds=["掲載先を探している","掲載内容について","体験・利用相談","その他"];
+  var kind=mateDirectRaw_(p.inquiryType,40);
+  if(kinds.indexOf(kind)<0)throw Error("相談の種類をご確認ください");
+  var token=mateDirectRaw_(p["cf-turnstile-response"],2100);
+  if(token.length<20||token.length>2048)throw Error("セキュリティ認証が必要です");
+  // Reject overlong input server-side even if HTML maxlength is bypassed.
+  var keys=[["area",100],["guardianName",80],["phone",30],["message",600]];
+  var out={service:service,uuid:uuid,id:"MATE-CONSULT-"+uuid,email:email,kind:kind,token:token,
+    referral:p.referral_interest==="案内を希望する（情報共有は別途同意）"};
+  keys.forEach(function(pair){
+    var raw=String(p[pair[0]]==null?"":p[pair[0]]);
+    if(raw.length>pair[1])throw Error("入力内容が長すぎます");
+    // Plain-text email; strip C0 control characters, without logging original.
+    out[pair[0]]=raw.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g,"").trim();
+  });
+  return out;
+}
+function mateConsultCaptcha_(form) {
+  var secret=PropertiesService.getScriptProperties().getProperty("MATE_TURNSTILE_SECRET");
+  if(!secret)throw Error("受付システムは設定中です");
+  var res=UrlFetchApp.fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify",{
+    method:"post",payload:{secret:secret,response:form.token},muteHttpExceptions:true
+  });
+  if(res.getResponseCode()!==200)throw Error("セキュリティ認証をやり直してください");
+  var result=JSON.parse(res.getContentText());
+  // The existing widget is already registered for GitHub Pages.
+  if(result.success!==true || result.action!=="mate_consult" ||
+     MATE_DIRECT.hosts[form.service].indexOf(String(result.hostname||"").toLowerCase())<0)
+    throw Error("セキュリティ認証をやり直してください");
+}
+function mateConsultReceive_(form) {
+  mateDirectOwner_();
+  var doc=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
+  var tab=doc.getSheetByName(MATE_DIRECT.inquiries);
+  if(!tab)throw Error("問い合わせ管理台帳が見つかりません");
+  mateDirectHeaders_(tab,MATE_DIRECT.inquiryHeaders);
+  var lock=LockService.getScriptLock();
+  if(!lock.tryLock(18000))throw Error("受付が混み合っています");
+  try {
+    var last=tab.getLastRow();
+    var target=0;
+    if(last>1){
+      var ids=tab.getRange(2,1,last-1,1).getDisplayValues();
+      for(var i=0;i<ids.length;i++)if(ids[i][0]===form.id){target=i+2;break}
+    }
+    if(target){
+      // Do not send the same contact email a second time for a completed receipt.
+      var progress=String(tab.getRange(target,9,1,1).getDisplayValues()[0][0]||"");
+      if(progress==="受付")return form.id;
+    } else {
+      var bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,form.email.toLowerCase());
+      var hash=Utilities.base64EncodeWebSafe(bytes).slice(0,32);
+      var cache=CacheService.getScriptCache();
+      if(cache.get("mate.consult."+hash))throw Error("短時間に複数の相談は送れません");
+      var date=Utilities.formatDate(new Date(),"Asia/Tokyo","yyyy-MM-dd HH:mm:ss");
+      var row=[form.id,date,form.service,form.kind,"","","WEB-"+form.id,"",
+        "メール通知待ち","未確認","未確認","未確認","","","","","","プライバシーポリシー送信同意あり。取次・情報提供は未承諾。連絡先と本文はGmailのみ"];
+      target=last+1;
+      tab.getRange(target,1,1,MATE_DIRECT.inquiryHeaders.length).setValues([row]);
+    }
+    var lines=[
+      "MATE家族向け相談（非公開）",
+      "受付番号: "+form.id,"サービス: "+form.service,"相談種別: "+form.kind,
+      "返信先: "+form.email,"希望エリア: "+form.area,
+      "お名前（任意）: "+form.guardianName,"電話（任意）: "+form.phone,
+      "相談内容（任意）:\n"+form.message,
+      "案内希望: "+(form.referral?"あり（情報提供・事業者取次の同意ではない）":"なし"),
+      "個人情報取扱いの同意: あり",
+      "【注意】掲載先には自動転送せず、取次は別途同意確認"
+    ];
+    // Avoid the legacy subject-only Gmail-to-Sheets sync's 'MATE PLAY' regex,
+    // which would otherwise double-register the same submission.
+    MailApp.sendEmail({
+      to:MATE_DIRECT.owner,
+      subject:"【MATE受付】"+form.service+" 家族向け相談 "+form.id,
+      body:lines.join("\n"),
+      replyTo:form.email,
+      name:"MATE 相談受付"
+    });
+    // Mark accepted only after MailApp has successfully returned.
+    tab.getRange(target,9,1,1).setValues([["受付"]]);
+    cache=CacheService.getScriptCache();
+    bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,form.email.toLowerCase());
+    hash=Utilities.base64EncodeWebSafe(bytes).slice(0,32);
+    cache.put("mate.consult."+hash,"1",90);
+    return form.id;
+  } finally {lock.releaseLock()}
+}
+function mateConsultView_(ok,service,reason,id){
+  var home=service==="PLAY"?"https://mate-play.kosuke-saito0807.chatgpt.site/":"https://kosuke-saito0807.github.io/mate/";
+  var title=ok?"ご相談を受け付けました":"ご相談を受け付けられませんでした";
+  var text=ok?"受付番号："+mateDirectEscape_(id)+"。運営事務局が内容を確認します。":
+    mateDirectEscape_(reason||"受付できませんでした。");
+  return HtmlService.createHtmlOutput(
+    '<!doctype html><html lang="ja"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title></head>'+
+    '<body style="margin:0;background:#f8fbff;color:#15344e;font:16px/1.8 system-ui,sans-serif">'+
+    '<main style="max-width:640px;margin:45px auto;padding:24px"><h1>'+title+'</h1>'+
+    '<p>'+text+'</p><p><a href="'+home+'">MATEに戻る</a></p>'+
+    '<p style="font-size:13px">お問い合わせ：kosodatemate@gmail.com</p></main></body></html>');
+}
 function doPost(e){
-  var service=String(e&&e.parameter&&e.parameter.service||"").trim();
+  var parameters=e&&e.parameter||{};
+  var service=String(parameters.service||"").trim();
   try{
-    // Reject oversized POSTs and repeated fields to minimize parameter ambiguity.
     if(!e||!e.parameter||!e.postData||e.postData.length>15000)throw Error("送信内容を確認してください");
     if(e.parameters&&Object.keys(e.parameters).some(function(k){return e.parameters[k].length!==1}))
       throw Error("送信内容を確認してください");
-    var form=mateDirectForm_(e.parameter);
-    // Strict server-side challenge validation, not bypassable with browser JS.
+    if(parameters.intake_type==="family_consult"){
+      if(e.postData.length>9000)throw Error("送信内容を確認してください");
+      var consultation=mateConsultForm_(parameters);
+      mateConsultCaptcha_(consultation);
+      var receipt=mateConsultReceive_(consultation);
+      return mateConsultView_(true,consultation.service,"",receipt);
+    }
+    // The existing listing workflow remains unchanged and must not accept
+    // arbitrary intake_type values as listing submissions.
+    if(parameters.intake_type)throw Error("送信種別が不正です");
+    var form=mateDirectForm_(parameters);
     mateDirectCaptcha_(form);
     var outcome=mateDirectReceive_(form);
     return mateDirectView_(true,form.service,"",outcome.id);
   }catch(error){
-    // Do not log raw e.parameter or personal information, and never claim success.
     var safe=String(error&&error.message||"受付に失敗しました");
     if(safe.length>120)safe="受付に失敗しました";
+    if(parameters.intake_type==="family_consult")return mateConsultView_(false,service,safe,"");
     return mateDirectView_(false,service,safe,"");
   }
 }

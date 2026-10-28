@@ -31,10 +31,10 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <main class="wrap"><div class="hero"><div class="eyebrow">ASK MATE</div><h1 id="heading">シッター・子育てサポートのご相談</h1>
 <p class="lead" id="lead">まずは掲載事業者の公式サイトをご確認ください。利用先の選び方や掲載情報への質問を、事務局へメールで相談できます。</p><span class="pill">会員登録なし・無料・メールアドレスのみ必須</span></div>
 <div class="paper"><h2>ご相談内容</h2><p class="help">このフォームは予約を確約するものではなく、運営事務局へのお問い合わせです。確認後、メールでご案内します。</p>
-<form id="consultForm" method="POST" action="https://formsubmit.co/kosodatemate@gmail.com">
+<form id="consultForm" method="POST" action="">
 <input type="hidden" name="service" id="service" value="CARE">
-<input type="hidden" name="_subject" id="subject" value="MATE CARE 利用相談">
-<input type="hidden" name="_template" value="table">
+<input type="hidden" name="intake_type" value="family_consult">
+<input type="hidden" name="submission_id" id="submissionId" value="">
 <input type="text" name="_honey" class="visuallyHidden" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="grid">
 <label class="field full">返信用メールアドレス（必須）<input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"></label>
@@ -45,13 +45,15 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <label class="field full">ご相談内容（任意）<textarea name="message" maxlength="600" placeholder="ご希望の条件、掲載情報への質問など。お子さまの氏名・学校名・病歴・住所の詳細は書かないでください。"></textarea></label>
 </div>
 <div class="notice">検索や比較では個人情報は不要です。このフォームで入力した情報は運営事務局への返信に使います。<strong>掲載事業者には自動転送しません。</strong>紹介先が決まり取次ぎが必要になった場合は、共有先・内容を説明して改めて同意を確認します。</div>
-<label class="checkbox"><input name="privacy_agree" type="checkbox" value="同意する" required><span><a id="privacy" href="consult-privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取り扱い</a>を確認し、FormSubmitを利用した運営事務局への情報送信に同意します。（必須）</span></label>
+<label class="checkbox"><input name="privacy_agree" type="checkbox" value="同意する" required><span><a id="privacy" href="consult-privacy.html" target="_blank" rel="noopener noreferrer">個人情報の取り扱い</a>を確認し、Google Apps Scriptを通じて運営事務局へ送信し、受付管理情報を非公開Google Sheetsに記録することに同意します。（必須）</span></label>
 <label class="checkbox"><input name="referral_interest" type="checkbox" value="案内を希望する（情報共有は別途同意）"><span>条件に合う掲載事業者のご案内を希望する（任意）。このチェックだけで連絡先を事業者に渡しません。</span></label>
-<p class="help">迷惑メール対策のため送信時に認証画面が出ることがあります。返信がない場合は <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> へお問い合わせください。</p>
+<p class="help">送信前にセキュリティ認証が必要です。返信がない場合は <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> へお問い合わせください。</p>
+<div id="consultCaptcha" class="cf-turnstile" style="margin:12px 0;min-height:65px"></div>
 <p id="formStatus" role="status" aria-live="polite" hidden></p>
 <button type="submit" class="submit" id="submitBtn">事務局に相談を送る ↗</button>
 </form></div></main>
 <footer class="footer"><div class="wrap">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> ｜ <a id="footerPrivacy" href="consult-privacy.html">プライバシーポリシー</a></div></footer>
+<script src="assets/mate-direct-intake-config.js"></script>
 <script>
 (()=>{
 const play=new URLSearchParams(location.search).get('service')==='PLAY';
@@ -69,22 +71,46 @@ if(play){
 }
 const form=document.getElementById('consultForm'),status=document.getElementById('formStatus'),btn=document.getElementById('submitBtn');
 form.elements.namedItem('service').value=svc;
-form.elements.namedItem('_subject').value='MATE '+svc+' 利用相談';
-form.addEventListener('submit',async e=>{
- e.preventDefault();
- if(!form.reportValidity()||btn.disabled)return;
- btn.disabled=true;btn.textContent='送信しています…';status.hidden=false;status.classList.remove('success');status.textContent='送信結果を確認しています。';
- try{
-   const body=Object.fromEntries(new FormData(form));
-   const res=await fetch('https://formsubmit.co/ajax/kosodatemate@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)});
-   const json=await res.json();
-   if(!res.ok||!(json.success===true||json.success==='true'))throw Error('unconfirmed');
-   if(window.gtag)gtag('event','generate_lead',{service:svc,lead_type:'family_inquiry'});
-   form.reset();status.classList.add('success');status.textContent='ご相談を受け付けました。運営事務局からメールでご案内します。';btn.textContent='送信しました';
- }catch(_){
-   status.textContent='送信結果を確認できませんでした。入力内容は残っています。二重送信せず、メールでお問い合わせください。';
-   btn.disabled=false;btn.textContent='事務局に相談を送る ↗';
+const cfg=window.MATE_DIRECT_INTAKE||{};
+const ready=cfg.enabled===true&&typeof cfg.endpoint==='string'&&
+ /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(cfg.endpoint)&&
+ typeof cfg.siteKey==='string'&&/^[A-Za-z0-9_-]{12,160}$/.test(cfg.siteKey);
+if(!ready||!window.crypto||typeof window.crypto.randomUUID!=='function'){
+  status.hidden=false;
+  status.textContent='現在、受付システムを準備しています。お問い合わせは kosodatemate@gmail.com へお願いします。';
+  btn.disabled=true;
+  return;
+}
+form.elements.namedItem('submission_id').value=crypto.randomUUID();
+form.action=cfg.endpoint;
+form.method='POST';
+const captcha=document.getElementById('consultCaptcha');
+captcha.setAttribute('data-sitekey',cfg.siteKey);
+captcha.setAttribute('data-action','mate_consult');
+status.hidden=false;
+status.textContent='ご相談は運営事務局が受け付けます。掲載先へ連絡先を自動転送することはありません。';
+form.addEventListener('submit',e=>{
+ if(!form.reportValidity()||btn.disabled){e.preventDefault();return}
+ const token=form.querySelector('[name="cf-turnstile-response"]');
+ if(!token||!token.value){
+   e.preventDefault();
+   status.textContent='セキュリティ認証の完了後に送信してください。';
+   return;
  }
+ btn.disabled=true;
+ btn.textContent='受付先を確認しています…';
+ status.textContent='受付が完了した場合のみ、次の画面に受付番号が表示されます。';
+ if(window.gtag)window.gtag('event','generate_lead',{service:svc,lead_type:'family_inquiry_attempt'});
+ // Native POST navigation. Never use fetch()/CORS or show success before GAS writes and email sends.
 });
+const script=document.createElement('script');
+script.src='https://challenges.cloudflare.com/turnstile/v0/api.js';
+script.async=true;
+script.defer=true;
+script.onerror=()=>{
+ btn.disabled=true;
+ status.textContent='セキュリティ認証を読み込めませんでした。通信環境をご確認ください。';
+};
+document.head.appendChild(script);
 })();
 </script></body></html>

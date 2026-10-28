@@ -121,30 +121,40 @@ async function main() {
       await p.close();
     }
 
-    // Privacy-first CARE/PLAY family consultation: validate real browser input,
-    // intercept POST inside the test process, never send to external FormSubmit.
+    // CARE/PLAY consultation: verify native GAS POST and Turnstile fields.
+    // Intercept navigation before it reaches Google; never send real email.
     for (const service of ['CARE','PLAY']) {
       const uri=service==='PLAY'?'/consult.html?service=PLAY':'/consult.html?service=CARE';
       const family=await checkPage(browser,uri,true);
-      const input=family.locator('#consultForm');
-      assert.equal(await input.evaluate(f=>f.checkValidity()),false,'missing required email/consent');
+      const form=family.locator('#consultForm');
+      assert.equal(await form.evaluate(f=>f.checkValidity()),false,'missing email/consent');
       assert.equal(await family.locator('[name=guardianName]').getAttribute('required'),null);
       assert.equal(await family.locator('[name=phone]').getAttribute('required'),null);
       let captured=null;
-      await family.route('https://formsubmit.co/ajax/kosodatemate@gmail.com', async route=>{
-        captured=route.request().postDataJSON();
-        await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({success:'true'})});
+      await family.route('https://script.google.com/macros/s/**',async route=>{
+        assert.equal(route.request().method(),'POST');
+        captured=Object.fromEntries(new URLSearchParams(route.request().postData()));
+        await route.fulfill({status:200,contentType:'text/html',body:'<h1>Mock GAS consultation received, no mail</h1>'});
       });
       await family.locator('[name=email]').fill('qa@example.invalid');
       await family.locator('[name=privacy_agree]').check();
-      assert.equal(await input.evaluate(f=>f.checkValidity()),true);
+      await family.evaluate(()=>{
+        const token=document.createElement('input');
+        token.type='hidden';token.name='cf-turnstile-response';
+        token.value='qa-local-mocked-token-do-not-verify';
+        document.querySelector('#consultForm').appendChild(token);
+      });
+      assert.equal(await form.evaluate(f=>f.checkValidity()),true);
       await family.locator('#submitBtn').click();
-      await family.locator('#formStatus.success').waitFor();
+      await family.getByText('Mock GAS consultation received, no mail').waitFor();
+      assert.equal(captured.intake_type,'family_consult');
       assert.equal(captured.service,service);
       assert.equal(captured.email,'qa@example.invalid');
+      assert.equal(captured.privacy_agree,'同意する');
+      assert.equal(captured['cf-turnstile-response'],'qa-local-mocked-token-do-not-verify');
+      assert.ok(/^[a-f0-9-]{36}$/.test(captured.submission_id));
       assert.ok(!captured.guardianName && !captured.phone,'optional personal fields remain empty');
       assert.equal(captured.referral_interest,undefined,'no automatic referral permission');
-      assert.ok((await family.locator('#formStatus').innerText()).includes('受け付けました'));
       await family.close();
     }
 
@@ -201,7 +211,10 @@ async function main() {
     await play.locator('#listing-contact [name=website]').fill('https://example.org/');
     await play.locator('#listing-contact [name=region]').selectOption('福岡県');
     await play.locator('#listing-contact [name=city]').fill('福岡市博多区');
-    await play.locator('#listing-contact [name=category]').selectOption('科学・学び');
+    await play.locator('#listing-contact [name=category]').selectOption('科学・実験');
+    await play.locator('#listing-contact [name=ageMin]').fill('6');
+    await play.locator('#listing-contact [name=ageMax]').fill('12');
+    await play.locator('#listing-contact [name=trialPrice]').fill('2000');
     await play.locator('#listing-contact [name=ages]').selectOption('小学生');
     await play.locator('#listing-contact [name=description]').fill('QA専用の家族向け体験プログラムです。実際の送信・公開は行われないテストです。');
     await play.locator('#listing-contact [name=listing_content_checked_at]').fill('2026-10-23');
