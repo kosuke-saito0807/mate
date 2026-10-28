@@ -68,8 +68,21 @@ if(play){
  // Both services use the same family-specific privacy disclosure.
 }
 const form=document.getElementById('consultForm'),status=document.getElementById('formStatus'),btn=document.getElementById('submitBtn');
+// PLAY only: use FormSubmit's native HTML POST so the provider can show its
+// activation/CAPTCHA/error page. This avoids AJAX JSON/CORS ambiguity.
+// CARE retains its existing AJAX behavior until separately reviewed.
 form.elements.namedItem('service').value=svc;
 form.elements.namedItem('_subject').value='MATE '+svc+' 利用相談';
+if(play){
+  form.addEventListener('submit',()=>{
+    if(form.reportValidity()){
+      status.hidden=false;
+      status.textContent='受付先の確認画面へ移動します。送信結果は移動先でご確認ください。';
+      btn.textContent='受付先で確認中…';
+    }
+  });
+  return;
+}
 form.addEventListener('submit',async e=>{
  e.preventDefault();
  if(!form.reportValidity()||btn.disabled)return;
