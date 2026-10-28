@@ -1,5 +1,8 @@
 # MATE｜掲載希望者のセルフ登録・低工数運営（2026-10-23）
 
+> **2026-10-28 運用更新（現行版を優先）**：CARE・SPARK・PLAYの事業者掲載申請は直接Google Apps Scriptで受付し、FormsSubmit（旧FormSubmit）の認証・メール取込は不要です。CARE・PLAYの家族向け相談もGAS＋専用Gmail＋非公開Sheetsへ移行済み。SPARKの一括体験相談は未提供です。過去のFormSubmit設置、Gmailインポート、旧Apps Script追加手順は**実行しないでください**。現状・未完了は [3サービス運用状況](docs/MATE_3_SERVICES_READINESS_20261028.md) を参照。既存の「MATE 直接掲載受付」プロジェクトのCode.gsに別のdoPostを追加しないでください。
+
+
 ## 各サービスの登録URL
 - CARE: https://kosuke-saito0807.github.io/mate/contact.html
 - SPARK: https://mate-spark.web.app/partners.html
