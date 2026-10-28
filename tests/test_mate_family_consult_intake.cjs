@@ -54,7 +54,8 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
  assert.equal(e.sent[0].replyTo,p.email);
  assert.equal(e.table.rows.length,2);
  assert.equal(e.table.rows[1][8],'受付');
- assert.equal(e.table.rows[1][11],'同意済み');
+ assert.equal(e.table.rows[1][11],'未確認');
+ assert.match(e.table.rows[1][17],/取次・情報提供は未承諾/);
  assert.ok(!JSON.stringify(e.table.rows).includes(p.email));
  assert.ok(!JSON.stringify(e.table.rows).includes(p.message));
  assert.ok(!JSON.stringify(e.table.rows).includes(p.phone));
