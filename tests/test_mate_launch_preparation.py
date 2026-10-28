@@ -52,7 +52,10 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertNotIn("trial_inquiry_submit_attempt",spark)  # trial intake disabled; no fake lead event
         self.assertIn("trialIntakeEnabled=false;",spark)
         self.assertIn("listing_inquiry_submit_attempt",(SPARK/"assets/mate-direct-intake.js").read_text(encoding="utf-8"))
-        self.assertIn("generate_lead",(ROOT/"assets/contact.js").read_text(encoding="utf-8"))
+        self.assertFalse((ROOT/"assets/contact.js").exists())  # obsolete FormSubmit transport removed
+        consult=(ROOT/"consult.html").read_text(encoding="utf-8")
+        self.assertIn("family_inquiry_submit_attempt",consult)
+        self.assertNotIn("generate_lead",consult)
         self.assertIn("provider_outbound",(ROOT/"assets/provider-search.js").read_text(encoding="utf-8"))
 
     def test_nexte_du_contacts_and_tracking_disclosures(self):
@@ -64,7 +67,7 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertIn("問い合わせ管理",(ROOT/"MATE_LAUNCH_OPERATIONS_20261023.md").read_text(encoding="utf-8"))
 
     def test_scripts_syntax(self):
-        for p in (ROOT/"assets/provider-search.js",ROOT/"assets/contact.js"):
+        for p in (ROOT/"assets/provider-search.js",ROOT/"assets/mate-direct-intake.js"):
             r=subprocess.run(["node","--check"],input=p.read_text(encoding="utf-8"),text=True,capture_output=True)
             self.assertEqual(r.returncode,0,r.stderr)
 
