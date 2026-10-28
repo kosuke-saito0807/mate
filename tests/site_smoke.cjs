@@ -183,12 +183,16 @@ async function main() {
       headingSize:parseFloat(getComputedStyle(document.querySelector('#discover h2')).fontSize),
       sectionLabel:document.querySelector('#discover .section-label')?.textContent?.trim(),
       photoBackground:getComputedStyle(document.querySelector('.hero-art')).backgroundImage,
-      wash:getComputedStyle(document.querySelector('.hero-art'),'::after').backgroundImage
+      wash:getComputedStyle(document.querySelector('.hero-art'),'::after').backgroundImage,
+      discoveryBackground:getComputedStyle(document.querySelector('#discover')).backgroundColor,
+      noticeOffset:(()=>{const notice=document.querySelector('#discover .privacyComfort').getBoundingClientRect();const container=document.querySelector('#discover .discovery-header').getBoundingClientRect();return Math.abs((notice.left+notice.right)/2-(container.left+container.right)/2)})()
     }));
     assert.equal(sparkIdentity.heading,'次の「好き」を、見つけよう。');
     assert.equal(sparkIdentity.sectionLabel,'FIND YOUR MATE');
     assert.equal(sparkIdentity.headingAlign,'left','SPARK FIND YOUR MATE should align with CARE heading');
     assert.equal(sparkIdentity.headingSize,28,'Shared desktop FIND title scale');
+    assert.equal(sparkIdentity.discoveryBackground,'rgb(255, 255, 255)','SPARK FIND section should match CARE white background');
+    assert.ok(sparkIdentity.noticeOffset<5,'SPARK privacy notice should be centered like CARE');
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
