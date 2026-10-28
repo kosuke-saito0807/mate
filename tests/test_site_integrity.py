@@ -109,7 +109,9 @@ class SiteIntegrity(unittest.TestCase):
         config = json.loads((SITE / "config.json").read_text(encoding="utf-8"))
         self.assertFalse(config["trialIntakeEnabled"])
         page = (SITE / "index.html").read_text(encoding="utf-8")
-        self.assertIn("trialIntakeEnabled=config.trialIntakeEnabled===true",page)
+        self.assertIn("trialIntakeEnabled=false;",page)
+        self.assertNotIn("formsubmit.co",page)
+        self.assertIn("e.preventDefault();",page)
         self.assertIn("eligible&&safeHost&&trialIntakeEnabled",page)
         self.assertIn("!eligible||!safeHost||!trialIntakeEnabled",page)
 
