@@ -1,0 +1,24 @@
+/* MATE shared design/accessibility tokens — CARE / SPARK / public guides (2026-10-29). */
+:root{--mate-ink:#073661;--mate-blue:#0878ea;--mate-line:#dce8f4;--mate-surface:#f7fbff;--mate-radius:16px}
+html{scroll-padding-top:100px}body{-webkit-font-smoothing:antialiased;overflow-wrap:break-word}button,input,select,textarea{font:inherit}
+:where(h1,h2,h3){overflow-wrap:anywhere;text-wrap:balance}
+:where(p,li,.lead){overflow-wrap:break-word}
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid #0878ea;outline-offset:3px}
+:where(a,button){-webkit-tap-highlight-color:rgba(8,120,234,.18)}
+.mate-skip{position:fixed;top:8px;left:8px;z-index:9999;transform:translateY(-150%);background:#fff;color:#073661;border:2px solid #0878ea;padding:12px 18px;border-radius:10px;font-weight:800;text-decoration:none}
+.mate-skip:focus{transform:translateY(0)}
+:where(section,[id]){scroll-margin-top:100px}
+.mate-breadcrumb{font-size:13px;color:#516579;margin:0 0 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;line-height:1.6}
+.mate-breadcrumb a{color:#0878ea;text-decoration:underline;text-underline-offset:3px}
+.mate-related{margin-top:32px;border-top:1px solid #dce8f4;padding-top:18px}
+.mate-related h2{margin-top:8px}
+.mate-related ul{padding-left:20px;list-style:disc}
+.mate-related li{margin:10px 0}
+.mate-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px}
+.mate-guide-card{display:flex;flex-direction:column;gap:9px;padding:22px;border:1px solid #dce8f4;background:#fff;border-radius:18px;box-shadow:0 4px 18px rgba(7,54,97,.045);color:#073661;text-decoration:none}
+.mate-guide-card:hover{border-color:#0878ea}
+.mate-guide-card strong{font-size:18px;line-height:1.5}
+.mate-guide-card span{font-size:12px;font-weight:800;color:#0878ea}
+.mate-guide-card p{font-size:14px;line-height:1.8;color:#516579;margin:0}
+@media(max-width:760px){html{scroll-padding-top:130px}:where(section,[id]){scroll-margin-top:130px}:where(button,.btn,.cta a,.nav a,.footerNav a,.footerLinks a){min-height:44px}.mate-breadcrumb{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
