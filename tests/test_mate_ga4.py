@@ -19,6 +19,7 @@ class GA4ReleaseTests(unittest.TestCase):
                 self.assertIn("https://www.googletagmanager.com/gtag/js?id="+MEASUREMENT_ID,src)
                 self.assertEqual(len(re.findall(r"gtag\((?:['\"])(?:config)(?:['\"])",src)),1)
                 self.assertIn("page_location:location.origin+location.pathname",src)
+                self.assertIn("page_referrer:document.referrer.split(/[?#]/)[0]",src)
                 self.assertIn("allow_google_signals:false",src)
                 self.assertIn("allow_ad_personalization_signals:false",src)
                 self.assertNotIn("page_location:location.href",src)
