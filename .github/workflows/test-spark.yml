@@ -5,6 +5,8 @@ on:
     paths:
       - "spark/**"
       - "scripts/sync_spark_public.py"
+      - "scripts/prepare_play_public_link_cutover.py"
+      - "tests/test_play_public_link_cutover.py"
       - "tests/test_spark*.py"
       - "tests/test_mate_nationwide.py"
       - "tests/test_mate_launch_preparation.py"
@@ -27,6 +29,8 @@ on:
     paths:
       - "spark/**"
       - "scripts/sync_spark_public.py"
+      - "scripts/prepare_play_public_link_cutover.py"
+      - "tests/test_play_public_link_cutover.py"
       - "tests/test_spark*.py"
       - "tests/test_mate_nationwide.py"
       - "tests/test_mate_launch_preparation.py"
@@ -65,4 +69,5 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_launch_preparation.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_owner_self_service.py' -v
+          python3 -m unittest discover -s tests -p 'test_play_public_link_cutover.py' -v
           python3 -m unittest discover -s tests -p 'test_family_consultation.py' -v
