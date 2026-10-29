@@ -22,3 +22,7 @@ html{scroll-padding-top:100px}body{-webkit-font-smoothing:antialiased;overflow-w
 .mate-guide-card p{font-size:14px;line-height:1.8;color:#516579;margin:0}
 @media(max-width:760px){html{scroll-padding-top:130px}:where(section,[id]){scroll-margin-top:130px}:where(button,.btn,.cta a,.nav a,.footerNav a,.footerLinks a){min-height:44px}.mate-breadcrumb{font-size:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.mate-quick-answer{margin:22px 0 34px;padding:22px 24px;border:1px solid #dce8f4;border-radius:16px;background:#f7fbff}
+.mate-quick-answer h2{font-size:18px;line-height:1.5;margin:0 0 8px;color:#073661}
+.mate-quick-answer li{font-size:14px;margin:7px 0;line-height:1.7}
