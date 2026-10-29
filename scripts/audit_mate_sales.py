@@ -37,13 +37,19 @@ def summarize(master,queue,inquiries,contracts,today):
         "inquiryProgress":{},
         "inquiriesPending":0,
         "activeWrittenContracts":0,
+        "reviewAlerts":{"duplicateCandidateIds":0,"approvedQueueMissingHash":0,"activeContractMissingConsentEvidence":0},
         "safety":{"outboundAutomationEnabled":False,"autoSendPerformed":False}
     }
+    candidate_ids=set()
     for row in master:
         service=row.get("サービス","")
         if service not in SERVICES:
             continue
         x=result["services"][service];x["candidates"]+=1
+        key=(service,str(row.get("ID") or "").strip())
+        if key[1]:
+            if key in candidate_ids:result["reviewAlerts"]["duplicateCandidateIds"]+=1
+            candidate_ids.add(key)
         if row.get("掲載許諾") in ("許可","許諾済","承諾済"):
             x["publishedConsentClaims"]+=1
         # No website content is fetched or guessed here; this is freshness of an
@@ -63,16 +69,22 @@ def summarize(master,queue,inquiries,contracts,today):
         if service not in SERVICES:
             continue
         x=result["services"][service]
-        if row.get("実送信承認","").lower() in ("true","承認","はい") and row.get("承認ハッシュ"):
+        is_approved=row.get("実送信承認","").lower() in ("true","承認","はい")
+        if is_approved and row.get("承認ハッシュ"):
             x["sendApprovedInQueue"]+=1
+        elif is_approved and not row.get("承認ハッシュ"):
+            result["reviewAlerts"]["approvedQueueMissingHash"]+=1
         if row.get("状態") in ("送信済","SENT"):
             x["sentInQueue"]+=1
     counts=Counter(row.get("進捗") or "空欄" for row in inquiries)
     result["inquiryProgress"]=dict(sorted(counts.items()))
     result["inquiriesPending"]=sum(counts.get(x,0) for x in ("受付","確認","教室へ取次","結果確認"))
     for row in contracts:
-        if row.get("状態") in ("有効","掲載中") and row.get("契約ID") and row.get("掲載先ID"):
-            result["activeWrittenContracts"]+=1
+        if row.get("状態") in ("有効","掲載中"):
+            if not all(row.get(k) for k in ("契約ID","掲載先ID","同意者","同意日時","合意証拠URL・メールID")):
+                result["reviewAlerts"]["activeContractMissingConsentEvidence"]+=1
+            else:
+                result["activeWrittenContracts"]+=1
     return result
 
 
@@ -107,7 +119,11 @@ def main():
         lines.append(f"| {key} | {x['candidates']} | {x['contactFresh']} | "
                      f"{x['contactStaleOrMissing']} | {x['draftApproved']} | "
                      f"{x['sendApprovedInQueue']} | {x['sentInQueue']} |")
+    alerts=report["reviewAlerts"]
     lines.extend([f"対応待ち問い合わせ（CRM記録上）: {report['inquiriesPending']} 件",
+                  f"要確認の重複候補ID: {alerts['duplicateCandidateIds']} 件",
+                  f"送信承認済みだが承認ハッシュなし: {alerts['approvedQueueMissingHash']} 件（送信なし）",
+                  f"有効扱い契約の同意証拠不足: {alerts['activeContractMissingConsentEvidence']} 件",
                   f"有効契約の台帳記載（全サービス合計）: {report['activeWrittenContracts']} 件",
                   "※ 連絡先の確認日が新しくても、受信同意・営業連絡の法的適否・サイト掲載許諾が確認された意味ではありません。",
                   "※ PLAYは独立CMS。閲覧・編集・公開権限はこのCRMでは証明できません。",
@@ -116,7 +132,8 @@ def main():
     print("MATE_SALES_READ_ONLY_COUNTS "+json.dumps({
         "dateJST":report["dateJST"],"services":report["services"],
         "inquiriesPending":report["inquiriesPending"],
-        "activeWrittenContracts":report["activeWrittenContracts"]},ensure_ascii=False))
+        "activeWrittenContracts":report["activeWrittenContracts"],
+        "reviewAlerts":report["reviewAlerts"]},ensure_ascii=False))
     if os.getenv("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
             f.write(summary)
