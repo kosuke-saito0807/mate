@@ -36,7 +36,8 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <input type="hidden" name="service" id="service" value="CARE">
 <input type="hidden" name="intake_type" value="family_consult">
 <input type="hidden" name="submission_id" id="submissionId" value="">
-<input type="text" name="_honey" class="visuallyHidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+<!-- Hidden rather than visually off-screen: browser autofill must not trigger the spam trap. Turnstile, server-side honeypot checking and rate limits remain enabled. -->
+<input type="hidden" name="_honey" value="" autocomplete="off">
 <div class="grid">
 <label class="field full">返信用メールアドレス（必須）<input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"></label>
 <label class="field">相談の種類<select name="inquiryType"><option value="掲載先を探している">掲載先を探している</option><option value="掲載内容について">掲載内容について</option><option value="体験・利用相談">体験・利用相談</option><option value="その他">その他</option></select></label>
