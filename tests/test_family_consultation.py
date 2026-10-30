@@ -12,6 +12,8 @@ class FamilyFormTests(unittest.TestCase):
   self.assertIn("受付確認メール",s)
   self.assertIn("document.getElementById('browse').href='https://mate-spark.web.app/#discover'",s)
   self.assertIn('name="email" type="email" autocomplete="email" maxlength="254" required',s)
+  self.assertIn('type="hidden" name="_honey" value=""',s)
+  self.assertNotIn('type="text" name="_honey"',s)
   self.assertIn('name="guardianName" autocomplete="name"',s)
   self.assertIn('name="phone" type="tel"',s)
   self.assertIn('name="privacy_agree" type="checkbox" value="同意する" required',s)
