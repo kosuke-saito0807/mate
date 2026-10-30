@@ -189,6 +189,8 @@ async function main() {
       sectionLabel:document.querySelector('#discover .section-label')?.textContent?.trim(),
       photoBackground:getComputedStyle(document.querySelector('.hero-art')).backgroundImage,
       wash:getComputedStyle(document.querySelector('.hero-art'),'::after').backgroundImage,
+      washLayer:getComputedStyle(document.querySelector('.hero-art'),'::after').zIndex,
+      mask:getComputedStyle(document.querySelector('.hero-visual')).maskImage,
       discoveryBackground:getComputedStyle(document.querySelector('#discover')).backgroundColor,
       noticeOffset:(()=>{const notice=document.querySelector('#discover .privacyComfort').getBoundingClientRect();const container=document.querySelector('#discover .discovery-header').getBoundingClientRect();return Math.abs((notice.left+notice.right)/2-(container.left+container.right)/2)})()
     }));
@@ -200,6 +202,10 @@ async function main() {
     assert.ok(sparkIdentity.noticeOffset<5,'SPARK privacy notice should be centered like CARE');
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
+    assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
+    assert.equal(sparkIdentity.mask,'none','SPARK photo must remain uncropped without a mask');
+    assert.ok(sparkIdentity.wash.includes('0.88')&&sparkIdentity.wash.includes('0.62'),
+      'SPARK white photo wash should have visible progressive opacity');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
