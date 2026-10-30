@@ -54,7 +54,7 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
         self.assertNotIn("架空サンプルは表示例で",footer)
         self.assertIn('class="footerTop"',care)
         self.assertIn("mask-image:linear-gradient",css)
-        self.assertIn("object-fit:cover",css)
+        self.assertIn("object-fit:contain",css)
         self.assertIn("--mate-font:",css)
         self.assertIn("--mate-font:",care_css)
         self.assertIn("max-width:1380px",css)
