@@ -1,13 +1,16 @@
-"""End-user CARE/PLAY privacy-first forms and safe self-service handoff contracts."""
+"""End-user CARE/SPARK/PLAY privacy-first forms and safe self-service handoff contracts."""
 from pathlib import Path
 import subprocess
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
 class FamilyFormTests(unittest.TestCase):
- def test_care_play_share_one_no_account_form(self):
+ def test_three_services_share_one_no_account_form(self):
   s=(ROOT/"consult.html").read_text(encoding="utf-8")
   self.assertIn("会員登録なし・無料・メールアドレスのみ必須",s)
-  self.assertIn("get('service')==='PLAY'",s)
+  self.assertIn("['CARE','SPARK','PLAY'].includes(requested)",s)
+  self.assertIn("const play=svc==='PLAY',spark=svc==='SPARK'",s)
+  self.assertIn("受付確認メール",s)
+  self.assertIn('href="https://mate-spark.web.app/#discover"',s.replace("document.getElementById('browse').href=","href="))
   self.assertIn('name="email" type="email" autocomplete="email" maxlength="254" required',s)
   self.assertIn('name="guardianName" autocomplete="name"',s)
   self.assertIn('name="phone" type="tel"',s)
@@ -29,9 +32,11 @@ class FamilyFormTests(unittest.TestCase):
   self.assertIn("受付が完了した場合のみ",s)
   self.assertIn("セキュリティ認証の完了後に送信",s)
   self.assertIn("Cloudflare Turnstile",(ROOT/"consult-privacy.html").read_text(encoding="utf-8"))
+  self.assertIn("MATE SPARK",(ROOT/"consult-privacy.html").read_text(encoding="utf-8"))
  def test_front_door_links_and_current_play_application(self):
   self.assertIn('href="consult.html?service=CARE"', (ROOT/"index.html").read_text(encoding="utf-8"))
   self.assertIn('href="consult.html?service=PLAY"', (ROOT/"play-listing.html").read_text(encoding="utf-8"))
+  self.assertIn('consult.html?service=SPARK', (ROOT/"spark/index.html").read_text(encoding="utf-8"))
  def test_actual_gas_e2e_mock_runs_without_email_or_writes(self):
   p=subprocess.run(["node","tests/test_mate_selfservice_e2e.cjs"],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
   self.assertEqual(p.returncode,0,p.stdout+"\n"+p.stderr)
