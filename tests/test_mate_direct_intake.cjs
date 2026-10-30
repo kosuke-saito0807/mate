@@ -30,8 +30,8 @@ function appSheet(header) {
   };
   return sh;
 }
-function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=true,contacts=true,lock=true}={}){
-  const approved=appSheet(appHeaders),privateContacts=contacts?appSheet(contactHeaders):null;
+function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=true,contacts=true,lock=true,canAck=true}={}){
+  const approved=appSheet(appHeaders),privateContacts=contacts?appSheet(contactHeaders):null,sent=[];
   const book={getSheetByName(name){return name==="掲載セルフ申請"?approved:name==="掲載申請連絡先"?privateContacts:null},
     insertSheet(){throw Error("setup test not configured")}};
   const cache={m:new Map(),get(k){return this.m.get(k)},put(k,v){this.m.set(k,v)}};
@@ -48,11 +48,12 @@ function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=
       base64EncodeWebSafe:(v)=>Buffer.from(v).toString("base64url")
     },
     UrlFetchApp:{fetch:()=>({getResponseCode:()=>200,getContentText:()=>JSON.stringify({success:captcha,action:"mate_listing",hostname:host})})},
+    MailApp:{sendEmail(m){if(!canAck)throw Error('mock-acknowledgment-failed');sent.push(m)}},
     HtmlService:{createHtmlOutput:body=>({body})},
     Date,Number,JSON,Object,String,RegExp,Error,Array,Math
   };
   vm.createContext(sandbox);vm.runInContext(source,sandbox,{filename:"mate_direct_intake.gs"});
-  return {sandbox,approved,privateContacts,cache};
+  return {sandbox,approved,privateContacts,cache,sent};
 }
 function input(service="CARE"){
   const d=nowParts(new Date());
@@ -82,14 +83,24 @@ test("CARE submitted only to private review, no public approval",()=>{
  assert.ok(!JSON.stringify(e.approved.rows).includes("private@example.com"));
  assert.ok(!JSON.stringify(e.approved.rows).includes("Private Person"));
  assert.ok(JSON.stringify(e.privateContacts.rows).includes("private@example.com"));
+ assert.equal(e.sent.length,1);
+ assert.equal(e.sent[0].to,"private@example.com");
+ assert.match(e.sent[0].subject,/【受付確認】CARE/);
+ assert.ok(!e.sent[0].body.includes("Confidential memo"));
+ assert.ok(!e.sent[0].body.includes("Private Person"));
+ assert.match(e.approved.rows[1][28],/自動受付メール送信API:成功/);
 });
 test("SPARK accepted only from spark domain",()=>{
  const e=makeEnvironment({host:"mate-spark.web.app"});
  assert.match(execute(e,input("SPARK")),/申請を受け付けました/);
+ assert.equal(e.sent.length,1);
+ assert.match(e.sent[0].subject,/【受付確認】SPARK/);
 });
 test("PLAY accepted only from github pages",()=>{
  const e=makeEnvironment();
  assert.match(execute(e,input("PLAY")),/申請を受け付けました/);
+ assert.equal(e.sent.length,1);
+ assert.match(e.sent[0].subject,/【受付確認】PLAY/);
 });
 test("Wrong widget domain is refused",()=>{
  const e=makeEnvironment({host:"evil.example"});
@@ -129,6 +140,16 @@ test("Formula in company name is escaped",()=>{
 test("Idempotent receipt prevents second row",()=>{
  const e=makeEnvironment();execute(e,input());execute(e,input());
  assert.equal(e.approved.rows.length,2);assert.equal(e.privateContacts.rows.length,2);
+ assert.equal(e.sent.length,1);
+});
+test("auto-receipt failure never loses or publishes approved application",()=>{
+ const e=makeEnvironment({canAck:false}),html=execute(e,input());
+ assert.match(html,/申請を受け付けました/);
+ assert.equal(e.approved.rows.length,2);
+ assert.equal(e.privateContacts.rows.length,2);
+ assert.equal(e.approved.rows[1][24],"未審査");
+ assert.match(e.approved.rows[1][28],/自動受付メール送信API:失敗/);
+ assert.equal(e.sent.length,0);
 });
 test("Different request by same email is rate limited",()=>{
  const e=makeEnvironment();execute(e,input());

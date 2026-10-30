@@ -1,6 +1,7 @@
 /**
  * MATE Direct Listing Intake — standalone Google Apps Script WEB APP.
- * Publishes NO listings, sends NO email, never approves a provider.
+ * Publishes NO listings and never approves or refers a provider.
+ * After accepting a real inquiry, sends one plain-text receipt to the submitter.
  * Deploy as kosodatemate@gmail.com: Execute as ME / Access ANYONE.
  *
  * Configure Script Properties: MATE_TURNSTILE_SECRET (private).
@@ -15,7 +16,7 @@ var MATE_DIRECT = Object.freeze({
   contacts:"掲載申請連絡先",
   inquiries:"問い合わせ管理",
   inquiryHeaders:["受付ID","受付日時","サービス","問い合わせ種別","事業者・教室ID","対象教室・事業者名","GmailメッセージID/証跡","希望教室ID（複数はカンマ区切り）","進捗","掲載許諾確認","体験取次許諾確認","保護者の情報提供同意","次回対応日","教室への取次日時","結果確認日","結果","担当者","メモ（氏名・健康情報は記入しない）"],
-  hosts:{CARE:["kosuke-saito0807.github.io"],SPARK:["mate-spark.web.app"],PLAY:["kosuke-saito0807.github.io"]},
+  hosts:{CARE:["kosuke-saito0807.github.io"],SPARK:["mate-spark.web.app","kosuke-saito0807.github.io"],PLAY:["kosuke-saito0807.github.io"]},
   appHeaders:["申請ID","受信日時","サービス","教室・事業者名","公式URL","都道府県","市区町村・対応エリア","ジャンル","対象区分","紹介文","月謝（税込円）","体験料金（税込円）","対象最少年齢","対象最高年齢","曜日","最寄駅","タグ","次回体験予定日","料金メモ","対応時間","情報確認日","掲載申請の意思","取次相談の希望","GmailメッセージID","審査状態","担当者権限の確認","審査者","公開ID","保留・差戻し理由"],
   contactHeaders:["受付ID","受付日時","サービス","担当者名（非公開）","返信用メール（非公開）","電話（非公開）","申請メモ（非公開）"],
   prefectures:"北海道 青森県 岩手県 宮城県 秋田県 山形県 福島県 茨城県 栃木県 群馬県 埼玉県 千葉県 東京都 神奈川県 新潟県 富山県 石川県 福井県 山梨県 長野県 岐阜県 静岡県 愛知県 三重県 滋賀県 京都府 大阪府 兵庫県 奈良県 和歌山県 鳥取県 島根県 岡山県 広島県 山口県 徳島県 香川県 愛媛県 高知県 福岡県 佐賀県 長崎県 熊本県 大分県 宮崎県 鹿児島県 沖縄県 全国".split(" ")
@@ -120,6 +121,41 @@ function mateDirectApplication_(d,stamp){
     "未審査","未確認","","","直接受付。権限と申請者の同意内容を必ず別途確認"
   ];
 }
+// One transactional-attempt receipt per newly accepted submission. No PII or user
+// message text in the confirmation. Only real, validated submissions reach here.
+// A failed acknowledgment must never undo a saved application or operator notice.
+function mateReceiptEmail_(service,to,id,listing){
+  var title=listing?"掲載申請":"ご相談";
+  var body=[
+    "MATE "+service+" 受付確認",
+    "",
+    title+"を受け付けました。",
+    "受付番号: "+id,
+    "サービス: "+service,
+    "",
+    "これは自動送信メールです。運営事務局が内容を確認します。",
+    listing
+      ?"このメールは掲載許諾・掲載開始・契約成立を意味しません。公開前に担当者権限と内容を確認します。"
+      :"このメールは体験・予約の成立、紹介先への情報提供を意味しません。事業者への取次ぎは事前に別途確認します。",
+    "内容や日程によってはご案内できない場合があります。",
+    "お問い合わせ: "+MATE_DIRECT.owner,
+    "",
+    "※お心当たりがない場合は、このメールに返信してお知らせください。"
+  ].join("\n");
+  try{
+    MailApp.sendEmail({
+      to:to,
+      subject:"【受付確認】"+service+" "+title+" "+id,
+      body:body,
+      replyTo:MATE_DIRECT.owner,
+      name:"MATE 受付窓口"
+    });
+    return true; // API accepted the send; delivery to inbox is not guaranteed.
+  }catch(err){
+    // No recipient, message, or server exception details in logs/Sheets.
+    return false;
+  }
+}
 function mateDirectReceive_(d){
   mateDirectOwner_();
   var book=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
@@ -145,7 +181,14 @@ function mateDirectReceive_(d){
       ]);
     }
     // If appending the approval record fails, retrying the SAME receipt ID can repair it.
-    apps.getRange(apps.getLastRow()+1,1,1,MATE_DIRECT.appHeaders.length).setValues([mateDirectApplication_(d,stamp)]);
+    var insertedRow=apps.getLastRow()+1;
+    apps.getRange(insertedRow,1,1,MATE_DIRECT.appHeaders.length).setValues([mateDirectApplication_(d,stamp)]);
+    var mailAccepted=mateReceiptEmail_(d.service,d.email,aid,true);
+    try {
+      apps.getRange(insertedRow,29,1,1).setValues([[
+        "直接受付。権限と申請者の同意内容を必ず別途確認 / 自動受付メール送信API:"+(mailAccepted?"成功":"失敗")
+      ]]);
+    }catch(_ignored){} // Receipt and private contact were already saved.
     rate.put("mate.direct."+hash,"1",90);
     return {id:aid,duplicate:false};
   } finally {lock.releaseLock()}
@@ -165,7 +208,7 @@ function doGet(){return mateDirectView_(false,"","このURLは申請フォーム
 // This path must never publish providers or forward a visitor to a partner.
 function mateConsultForm_(p) {
   var service=mateDirectRaw_(p.service,10);
-  if(service!=="CARE" && service!=="PLAY")throw Error("ご利用サービスが不正です");
+  if(service!=="CARE" && service!=="SPARK" && service!=="PLAY")throw Error("ご利用サービスが不正です");
   var uuid=mateDirectRaw_(p.submission_id,60).toLowerCase();
   if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(uuid))throw Error("受付番号を確認してください");
   if(p._honey || p.website_check)throw Error("受付できませんでした");
@@ -254,6 +297,13 @@ function mateConsultReceive_(form) {
     });
     // Mark accepted only after MailApp has successfully returned.
     tab.getRange(target,9,1,1).setValues([["受付"]]);
+    var ackAccepted=mateReceiptEmail_(form.service,form.email,form.id,false);
+    try{
+      var originalMemo=tab.getRange(target,18,1,1).getDisplayValues()[0][0]||"";
+      tab.getRange(target,18,1,1).setValues([[
+        originalMemo+" / 自動受付メール送信API:"+(ackAccepted?"成功":"失敗")
+      ]]);
+    }catch(_ignored){} // Never fail the accepted consultation because of memo logging.
     cache=CacheService.getScriptCache();
     bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,form.email.toLowerCase());
     hash=Utilities.base64EncodeWebSafe(bytes).slice(0,32);
@@ -262,7 +312,7 @@ function mateConsultReceive_(form) {
   } finally {lock.releaseLock()}
 }
 function mateConsultView_(ok,service,reason,id){
-  var home=service==="PLAY"?"https://mate-play.kosuke-saito0807.chatgpt.site/":"https://kosuke-saito0807.github.io/mate/";
+  var home=service==="PLAY"?"https://mate-play.kosuke-saito0807.chatgpt.site/":service==="SPARK"?"https://mate-spark.web.app/":"https://kosuke-saito0807.github.io/mate/";
   var title=ok?"ご相談を受け付けました":"ご相談を受け付けられませんでした";
   var text=ok?"受付番号："+mateDirectEscape_(id)+"。運営事務局が内容を確認します。":
     mateDirectEscape_(reason||"受付できませんでした。");

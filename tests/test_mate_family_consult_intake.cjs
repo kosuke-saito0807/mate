@@ -13,14 +13,14 @@ function sheet(header){
     values.forEach((x,i)=>{if(x.length!==w)throw Error('col mismatch');while(rows.length<r+i)rows.push([]);x.forEach((v,j)=>{rows[r+i-1][c+j-1]=v})});}};
  }};
 }
-function env({captcha=true,action='mate_consult',host='kosuke-saito0807.github.io',canSend=true,owner=true,validTab=true}={}){
+function env({captcha=true,action='mate_consult',host='kosuke-saito0807.github.io',canSend=true,failAck=false,owner=true,validTab=true}={}){
  const table=sheet(validTab?inquiryHeaders:['wrong-header']),sent=[],cache=new Map();
  const sandbox={
   Session:{getEffectiveUser:()=>({getEmail:()=>owner?'kosodatemate@gmail.com':'personal@example.org'})},
   SpreadsheetApp:{openById:()=>({getSheetByName:n=>n==='問い合わせ管理'?table:null})},
   PropertiesService:{getScriptProperties:()=>({getProperty:()=> 'server-private-test-secret'})},
   UrlFetchApp:{fetch:()=>({getResponseCode:()=>200,getContentText:()=>JSON.stringify({success:captcha,action,hostname:host})})},
-  MailApp:{sendEmail(o){if(!canSend)throw Error('mail-delivery-unavailable');sent.push(o)}},
+  MailApp:{sendEmail(o){if(!canSend || (failAck && o.subject.startsWith('【受付確認】')))throw Error('mail-delivery-unavailable');sent.push(o)}},
   LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})},
   CacheService:{getScriptCache:()=>({get:k=>cache.get(k),put:(k,v)=>cache.set(k,v)})},
   Utilities:{
@@ -49,13 +49,21 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
  const e=env(),p=params(),html=submit(e,p);
  assert.match(html,/ご相談を受け付けました/);
  assert.match(html,/MATE-CONSULT-/);
- assert.equal(e.sent.length,1);
+ assert.equal(e.sent.length,2);
  assert.equal(e.sent[0].to,'kosodatemate@gmail.com');
+ assert.equal(e.sent[1].to,p.email);
+ assert.match(e.sent[1].subject,/【受付確認】PLAY/);
+ assert.ok(e.sent[1].body.includes('MATE-CONSULT-'+uuid));
+ assert.ok(!e.sent[1].body.includes(p.message));
+ assert.ok(!e.sent[1].body.includes(p.phone));
+ assert.ok(!e.sent[1].body.includes(p.guardianName));
+ assert.ok(!e.sent[1].subject.includes('MATE PLAY'));
  assert.equal(e.sent[0].replyTo,p.email);
  assert.equal(e.table.rows.length,2);
  assert.equal(e.table.rows[1][8],'受付');
  assert.equal(e.table.rows[1][11],'未確認');
  assert.match(e.table.rows[1][17],/取次・情報提供は未承諾/);
+ assert.match(e.table.rows[1][17],/自動受付メール送信API:成功/);
  assert.ok(!JSON.stringify(e.table.rows).includes(p.email));
  assert.ok(!JSON.stringify(e.table.rows).includes(p.message));
  assert.ok(!JSON.stringify(e.table.rows).includes(p.phone));
@@ -65,10 +73,20 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
 run('CARE uses same GAS and stores CARE service',()=>{
  const e=env();assert.match(submit(e,params('CARE')),/ご相談を受け付けました/);
  assert.equal(e.table.rows[1][2],'CARE');
+ assert.equal(e.sent.length,2);
+ assert.match(e.sent[1].subject,/【受付確認】CARE/);
+});
+run('SPARK general consultation accepted through shared GitHub Pages form',()=>{
+ const e=env({host:'kosuke-saito0807.github.io'}),p=params('SPARK');
+ assert.match(submit(e,p),/ご相談を受け付けました/);
+ assert.equal(e.table.rows[1][2],'SPARK');
+ assert.equal(e.sent.length,2);
+ assert.match(e.sent[1].subject,/【受付確認】SPARK/);
+ assert.doesNotMatch(e.sent[1].body,/Private consultation content/);
 });
 run('same receipt id never sends another email',()=>{
  const e=env(),p=params();submit(e,p);submit(e,p);
- assert.equal(e.sent.length,1);assert.equal(e.table.rows.length,2);
+ assert.equal(e.sent.length,2);assert.equal(e.table.rows.length,2);
 });
 run('missing consent fails closed',()=>{
  const e=env(),p=params();delete p.privacy_agree;
@@ -88,6 +106,16 @@ run('missing Gmail send keeps a retryable pending row',()=>{
  const e=env({canSend:false});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);
  assert.equal(e.table.rows.length,2);assert.equal(e.table.rows[1][8],'メール通知待ち');assert.equal(e.sent.length,0);
 });
+run('acknowledgment mail failure never discards accepted operator notice',()=>{
+ const e=env({failAck:true}),p=params();
+ assert.match(submit(e,p),/ご相談を受け付けました/);
+ assert.equal(e.sent.length,1);
+ assert.equal(e.sent[0].to,'kosodatemate@gmail.com');
+ assert.equal(e.table.rows[1][8],'受付');
+ assert.match(e.table.rows[1][17],/自動受付メール送信API:失敗/);
+ submit(e,p);
+ assert.equal(e.sent.length,1); // No automatic retry / duplicate mail on replay.
+});
 run('wrong sheet header prevents receipt and email',()=>{
  const e=env({validTab:false});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);
  assert.equal(e.sent.length,0);assert.equal(e.table.rows.length,1);
@@ -104,7 +132,7 @@ run('same email different receipt is throttled',()=>{
  const e=env(),p=params();submit(e,p);
  const q=params();q.submission_id='3cdcb0aa-4c48-4332-93b1-f19911235b71';
  assert.match(submit(e,q),/短時間に複数の相談は送れません/);
- assert.equal(e.sent.length,1);assert.equal(e.table.rows.length,2);
+ assert.equal(e.sent.length,2);assert.equal(e.table.rows.length,2);
 });
 run('duplicate parameters rejected before mailing',()=>{
  const e=env(),p=params();

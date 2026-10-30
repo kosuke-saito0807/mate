@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>家族向けご相談｜MATE CARE・MATE PLAY</title><meta name="description" content="MATEの子育てサポート・親子体験についてメールアドレスだけで相談。無料・会員登録不要。">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NG57XX4Y5D"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag('config','G-NG57XX4Y5D',{service:(new URLSearchParams(location.search).get('service')==='PLAY'?'PLAY':'CARE'),page_location:location.origin+location.pathname,page_referrer:document.referrer.split(/[?#]/)[0],allow_google_signals:false,allow_ad_personalization_signals:false});</script>
+<title>家族向けご相談｜MATE CARE・SPARK・PLAY</title><meta name="description" content="MATEの子育てサポート・親子体験についてメールアドレスだけで相談。無料・会員登録不要。">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NG57XX4Y5D"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag('config','G-NG57XX4Y5D',{service:(['CARE','SPARK','PLAY'].includes(new URLSearchParams(location.search).get('service'))?new URLSearchParams(location.search).get('service'):'CARE'),page_location:location.origin+location.pathname,page_referrer:document.referrer.split(/[?#]/)[0],allow_google_signals:false,allow_ad_personalization_signals:false});</script>
 <style>
 :root{--ink:#0d2847;--blue:#1769e0;--soft:#f1f7ff;--line:#dae6f3;--secondary:#526981}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8fbff;color:var(--ink);font:15px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
 body.play{--blue:#bd682c;--soft:#fff7ed;--line:#f0dfca;background:#fffaf5}
+body.spark{--blue:#0878ea;--soft:#effaf5;--line:#d7e8f2;background:#f8fcff}
 a{color:var(--blue)}button,input,textarea,select{font:inherit}button{cursor:pointer}
 .header{background:#fff;border-bottom:1px solid var(--line)}
 .wrap{width:min(760px,calc(100% - 32px));margin:auto}.header .wrap{display:flex;justify-content:space-between;align-items:center;padding:14px 0;gap:15px}
@@ -30,7 +31,7 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <header class="header"><div class="wrap"><a class="brand" id="brand" href="index.html">MATE <span>CARE</span></a><nav><a id="browse" href="index.html#find">掲載先を探す</a><a href="operator.html">運営者情報</a></nav></div></header>
 <main class="wrap"><div class="hero"><div class="eyebrow">ASK MATE</div><h1 id="heading">シッター・子育てサポートのご相談</h1>
 <p class="lead" id="lead">まずは掲載事業者の公式サイトをご確認ください。利用先の選び方や掲載情報への質問を、事務局へメールで相談できます。</p><span class="pill">会員登録なし・無料・メールアドレスのみ必須</span></div>
-<div class="paper"><h2>ご相談内容</h2><p class="help">このフォームは予約を確約するものではなく、運営事務局へのお問い合わせです。確認後、メールでご案内します。</p>
+<div class="paper"><h2>ご相談内容</h2><p class="help">このフォームは予約を確約するものではなく、運営事務局へのお問い合わせです。受付番号を表示し、入力したメールアドレスに受付確認メールを送信します（到着を保証するものではありません）。内容の確認後、必要に応じて運営からご案内します。</p>
 <form id="consultForm" method="POST" action="">
 <input type="hidden" name="service" id="service" value="CARE">
 <input type="hidden" name="intake_type" value="family_consult">
@@ -56,8 +57,9 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <script src="assets/mate-direct-intake-config.js"></script>
 <script>
 (()=>{
-const play=new URLSearchParams(location.search).get('service')==='PLAY';
-const svc=play?'PLAY':'CARE';
+const requested=new URLSearchParams(location.search).get('service');
+const svc=['CARE','SPARK','PLAY'].includes(requested)?requested:'CARE';
+const play=svc==='PLAY',spark=svc==='SPARK';
 if(play){
  document.body.classList.add('play');
  document.title='親子のお出かけ・体験のご相談｜MATE PLAY';
@@ -67,7 +69,17 @@ if(play){
  document.getElementById('browse').textContent='体験を探す';
  document.getElementById('heading').textContent='親子のお出かけ・体験のご相談';
  document.getElementById('lead').textContent='気になる親子体験や掲載情報について、MATE PLAYの事務局に相談できます。公式サイトのご案内を優先し、予約を確約するものではありません。';
- // Both services use the same family-specific privacy disclosure.
+ // All three services use the same family-specific privacy disclosure.
+}
+if(spark){
+ document.body.classList.add('spark');
+ document.title='習い事・教室のご相談｜MATE SPARK';
+ document.getElementById('brand').innerHTML='MATE <span>SPARK</span>';
+ document.getElementById('brand').href='https://mate-spark.web.app/';
+ document.getElementById('browse').href='https://mate-spark.web.app/#discover';
+ document.getElementById('browse').textContent='教室を探す';
+ document.getElementById('heading').textContent='習い事・教室のご相談';
+ document.getElementById('lead').textContent='習い事の選び方や掲載情報について、MATE SPARK事務局にご相談いただけます。教室への取次ぎや体験予約を確約するものではありません。';
 }
 const form=document.getElementById('consultForm'),status=document.getElementById('formStatus'),btn=document.getElementById('submitBtn');
 form.elements.namedItem('service').value=svc;
