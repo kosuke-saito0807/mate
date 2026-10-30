@@ -6,7 +6,7 @@ import unittest
 ROOT=Path(__file__).resolve().parents[1]
 MEASUREMENT_ID="G-NG57XX4Y5D"
 PUBLIC={
- "index.html":"CARE", "contact.html":"CARE", "consult.html":"CARE/PLAY",
+ "index.html":"CARE", "contact.html":"CARE", "consult.html":"CARE/SPARK/PLAY",
  "guide-sitter-choice.html":"CARE", "play-listing.html":"PLAY",
  "spark/index.html":"SPARK", "spark/partners.html":"SPARK",
  "spark/guide-lessons-choice.html":"SPARK",
@@ -23,8 +23,8 @@ class GA4ReleaseTests(unittest.TestCase):
                 self.assertIn("allow_google_signals:false",src)
                 self.assertIn("allow_ad_personalization_signals:false",src)
                 self.assertNotIn("page_location:location.href",src)
-                if service=="CARE/PLAY":
-                    self.assertIn("get('service')==='PLAY'?'PLAY':'CARE'",src)
+                if service=="CARE/SPARK/PLAY":
+                    self.assertIn("['CARE','SPARK','PLAY'].includes(new URLSearchParams(location.search).get('service'))",src)
                 else:
                     self.assertIn("service:'"+service+"'",src)
     def test_no_pii_sourced_from_search_or_form_values(self):
