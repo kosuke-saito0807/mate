@@ -1,0 +1,39 @@
+name: MATE domain cutover preflight (read only)
+on:
+  pull_request:
+    paths:
+      - "scripts/mate_domain_cutover_inventory.py"
+      - "tests/test_mate_domain_cutover.py"
+      - "docs/MATE_DOMAIN_AND_FREE_GROWTH_PREP_20261030.md"
+      - ".github/workflows/mate-domain-cutover-preflight.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/mate_domain_cutover_inventory.py"
+      - "tests/test_mate_domain_cutover.py"
+      - ".github/workflows/mate-domain-cutover-preflight.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate domain syntax, 3 URL mappings, no file writes
+        run: python3 -m unittest discover -s tests -p 'test_mate_domain_cutover.py' -v
+      - name: Inventory current MATE URL dependencies without changing sites
+        run: |
+          python3 scripts/mate_domain_cutover_inventory.py > /tmp/mate-cutover-inventory.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/mate-cutover-inventory.json') as source:
+              audit=json.load(source)
+          assert audit["mode"]=="READ_ONLY_PREPARATION"
+          assert audit["domain"] is None
+          assert audit["domain_ownership_verified"] is False
+          assert audit["proposed_sites"]=={}
+          print("PASS: future domain migration dependencies inventoried; NO DEPLOY or Search Console requests")
+          print("files containing old links:", len(audit["files_with_current_or_legacy_urls"]))
+          PY
