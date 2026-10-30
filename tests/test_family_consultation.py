@@ -10,7 +10,7 @@ class FamilyFormTests(unittest.TestCase):
   self.assertIn("['CARE','SPARK','PLAY'].includes(requested)",s)
   self.assertIn("const play=svc==='PLAY',spark=svc==='SPARK'",s)
   self.assertIn("受付確認メール",s)
-  self.assertIn('href="https://mate-spark.web.app/#discover"',s.replace("document.getElementById('browse').href=","href="))
+  self.assertIn("document.getElementById('browse').href='https://mate-spark.web.app/#discover'",s)
   self.assertIn('name="email" type="email" autocomplete="email" maxlength="254" required',s)
   self.assertIn('name="guardianName" autocomplete="name"',s)
   self.assertIn('name="phone" type="tel"',s)
