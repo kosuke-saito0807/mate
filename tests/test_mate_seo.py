@@ -54,7 +54,10 @@ class SeoLaunchTests(unittest.TestCase):
 
     def test_deploy_bundles_care_sitemap(self):
         workflow = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
-        self.assertIn("cp *.html data.json sitemap.xml favicon.svg favicon.ico _site/", workflow)
+        self.assertIn("cp *.html data.json robots.txt sitemap.xml favicon.svg favicon.ico _site/", workflow)
+        robots=(ROOT / "robots.txt").read_text(encoding="utf-8")
+        self.assertIn("Sitemap: https://kosuke-saito0807.github.io/mate/sitemap.xml", robots)
+        self.assertNotIn("Disallow: /\\n",robots)
 
 if __name__ == "__main__":
     unittest.main()
