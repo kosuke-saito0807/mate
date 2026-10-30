@@ -15,7 +15,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
 @media(min-width:761px){
  .hero .hero-inner{height:clamp(560px,42vw,690px);min-height:0;position:relative;width:min(1280px,calc(100% - 56px));margin:auto}
  .hero .hero-inner>div:first-child{width:min(52%,570px);z-index:2}
- .hero .hero-art{position:absolute;inset:0 0 0 auto;left:auto;right:0;transform:none;width:74%;height:100%;border-radius:0;background:transparent;z-index:0;overflow:hidden}
+ .hero .hero-art{position:absolute;inset:0 0 0 auto;left:auto;right:0;transform:none;width:74%;height:100%;border-radius:0;background:linear-gradient(90deg,#fff 0%,#edf8ff 58%,#dcefff 100%);z-index:0;overflow:hidden}
  .hero .hero-art .hero-visual{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:right center;-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.4) 14%,#000 32%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.4) 14%,#000 32%)}
  .hero .hero-art::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 13%,rgba(255,255,255,.58) 30%,transparent 57%)}
 }
