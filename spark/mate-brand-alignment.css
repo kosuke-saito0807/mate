@@ -2,7 +2,7 @@
 :root{--mate-font:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
 body,button,input,select,textarea{font-family:var(--mate-font)}
 .hero{max-width:1380px;margin-inline:auto;background:linear-gradient(90deg,#fff,#eff8ff);overflow:hidden}
-.spark-footer.footer{background:#f5f9ff;color:#073661;border-top:1px solid #bdd3ec;padding:34px 0 22px}
+.spark-footer{background:#f5f9ff;color:#073661;border-top:1px solid #bdd3ec;padding:34px 0 22px}
 .spark-footer .footerTop{display:flex;align-items:flex-start;justify-content:space-between;gap:32px}
 .spark-footer .footerBrand{flex:0 1 250px;min-width:0}
 .spark-footer .footerBrand img{width:min(280px,100%);height:auto;max-height:none;filter:none;object-fit:contain;object-position:left center}
