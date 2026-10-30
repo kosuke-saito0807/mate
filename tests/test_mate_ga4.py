@@ -4,7 +4,7 @@ import re
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-MEASUREMENT_ID="G-NG57XX4Y5D"
+MEASUREMENT_ID="G-CHXY0DC2WP"
 PUBLIC={
  "index.html":"CARE", "contact.html":"CARE", "consult.html":"CARE/SPARK/PLAY",
  "guide-sitter-choice.html":"CARE", "play-listing.html":"PLAY",

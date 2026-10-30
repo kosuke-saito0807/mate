@@ -88,7 +88,7 @@ async function audit(browser,service,mobile){
             result.partnerPage={http:r?.status()||0,forms:await formPage.locator('form').count(),
               fields:await formPage.evaluate(()=>[...document.querySelectorAll('input[name],textarea[name],select[name]')]
                 .map(e=>e.name).filter(n=>n && !n.startsWith('_')).slice(0,28)),
-              analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-NG57XX4Y5D'))};
+              analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-CHXY0DC2WP'))};
             await formPage.screenshot({path:path.join(TARGET,service.toLowerCase()+'-partner-'+view+'.png'),fullPage:true,timeout:14000});
             if((r?.status()||0)>=400)result.failures.push('掲載フォームページ HTTP '+r.status());
             if(result.partnerPage.forms===0)result.warnings.push('掲載先画面にフォーム未検出（専用CMS/認証の可能性）');
