@@ -191,6 +191,7 @@ async function main() {
       wash:getComputedStyle(document.querySelector('.hero-art'),'::after').backgroundImage,
       washLayer:getComputedStyle(document.querySelector('.hero-art'),'::after').zIndex,
       mask:getComputedStyle(document.querySelector('.hero-visual')).maskImage,
+      frame:(()=>{const image=document.querySelector('.hero-visual'),box=image.getBoundingClientRect(),hero=document.querySelector('.hero-inner').getBoundingClientRect();return {x:box.x,right:box.right,height:box.height,heroHeight:hero.height,viewport:innerWidth,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight}})(),
       discoveryBackground:getComputedStyle(document.querySelector('#discover')).backgroundColor,
       noticeOffset:(()=>{const notice=document.querySelector('#discover .privacyComfort').getBoundingClientRect();const container=document.querySelector('#discover .discovery-header').getBoundingClientRect();return Math.abs((notice.left+notice.right)/2-(container.left+container.right)/2)})()
     }));
@@ -203,9 +204,17 @@ async function main() {
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
-    assert.equal(sparkIdentity.mask,'none','SPARK photo must remain uncropped without a mask');
-    assert.ok(sparkIdentity.wash.includes('0.88')&&sparkIdentity.wash.includes('0.62'),
-      'SPARK white photo wash should have visible progressive opacity');
+    assert.ok(sparkIdentity.mask.includes('linear-gradient'),'SPARK should soften the original photo boundary');
+    assert.ok(sparkIdentity.wash.includes('0.7')&&sparkIdentity.wash.includes('0.37'),
+      'Option B white overlay must fade progressively without hiding every face');
+    assert.ok(sparkIdentity.frame.heroHeight>=570,'Option B must bring the family photo closer');
+    assert.ok(sparkIdentity.frame.x<sparkIdentity.frame.viewport*.45,
+      'Photo must start left of screen midpoint, hidden by gradual wash instead of a hard edge');
+    assert.ok(sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,
+      'Image must remain right-aligned and not overflow the viewport');
+    assert.ok(Math.abs(sparkIdentity.frame.height*sparkIdentity.frame.naturalWidth/sparkIdentity.frame.naturalHeight-
+      (sparkIdentity.frame.right-sparkIdentity.frame.x))<6,
+      'Entire family photo must keep its intrinsic aspect ratio (no stretching/cropping)');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
