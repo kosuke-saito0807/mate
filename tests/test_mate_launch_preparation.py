@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 SPARK=ROOT/"spark"
-GA4_ID="G-NG57XX4Y5D"
+GA4_ID="G-CHXY0DC2WP"
 
 
 class LaunchPreparationTests(unittest.TestCase):
