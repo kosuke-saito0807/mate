@@ -40,6 +40,28 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
         self.assertIn('rgba(255,255,255,.96) 29%',h)
         self.assertIn('linear-gradient(180deg,rgba(255,255,255,.92)',h)
 
+    def test_care_based_visual_alignment_and_footer(self):
+        html=(SITE / "index.html").read_text(encoding="utf-8")
+        css=(SITE / "mate-brand-alignment.css").read_text(encoding="utf-8")
+        care=(SITE.parent / "index.html").read_text(encoding="utf-8")
+        care_css=(SITE.parent / "assets/mate-brand-alignment.css").read_text(encoding="utf-8")
+        self.assertIn("<title>子どもの習い事・教室を探す｜MATE SPARK</title>",html)
+        self.assertIn('class="spark-footer"',html)
+        footer=html.split('<footer class="spark-footer">',1)[1].split("</footer>",1)[0]
+        self.assertIn('class="footerTop"',footer)
+        self.assertIn('class="footerLinks"',footer)
+        self.assertNotIn("全国47都道府県",footer)
+        self.assertNotIn("架空サンプルは表示例で",footer)
+        self.assertIn('class="footerTop"',care)
+        self.assertIn("mask-image:linear-gradient",css)
+        self.assertIn("object-fit:cover",css)
+        self.assertIn("--mate-font:",css)
+        self.assertIn("--mate-font:",care_css)
+        self.assertIn("max-width:1380px",css)
+        self.assertIn("max-width:1380px",care_css)
+        self.assertIn("mate-brand-alignment.css",html)
+        self.assertIn("mate-brand-alignment.css",care)
+
     def test_inline_javascript_syntax(self):
         h = (SITE / "index.html").read_text(encoding="utf-8")
         matches = re.findall(r"<script>(.*?)</script>", h, flags=re.S)
