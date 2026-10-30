@@ -20,7 +20,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
  .hero .hero-art::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 13%,rgba(255,255,255,.58) 30%,transparent 57%)}
 }
 @media(max-width:760px){
- .hero{width:100%;max-width:100%;background:#fff}
+ .hero{width:100%;max-width:100%;background:linear-gradient(180deg,#fff 0%,#f9fcff 55%,#e5f4ff 100%)}
  .hero .hero-inner{width:calc(100% - 32px);padding:30px 0 0;display:flex;flex-direction:column}
  .hero .hero-inner>div:first-child{width:100%;padding:0 0 18px}
  .hero .hero-art{position:relative;left:auto;right:auto;inset:auto;transform:none;width:100%;aspect-ratio:16/10;height:auto;border-radius:16px 16px 0 0;background:linear-gradient(180deg,#fff,#e9f6ff)}
