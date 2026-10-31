@@ -13,6 +13,9 @@ const ORIGINS={
 // The original ChatGPT Sites PLAY remains live for legacy features; this audit must
 // examine the separate production Firebase release and must NOT switch user links.
 const LEGACY_PLAY_ORIGIN='https://mate-play.kosuke-saito0807.chatgpt.site/';
+// PLAY intentionally links to the shared CARE-hosted intake while its own CMS is migrated.
+// This exact allowlist prevents silently accepting other cross-domain destinations.
+const SHARED_PLAY_LISTING='https://kosuke-saito0807.github.io/mate/play-listing.html';
 const EXPECTED_TITLES={
   CARE:'ベビーシッター・訪問保育を探す｜MATE CARE',
   SPARK:'子どもの習い事・教室を探す｜MATE SPARK',
@@ -87,7 +90,9 @@ async function audit(browser,service,mobile){
       result.partnerLink=partner.text;
       try{
         const target=new URL(partner.url);
-        if(target.origin===new URL(ORIGINS[service]).origin){
+        const isOwnOrigin=target.origin===new URL(ORIGINS[service]).origin;
+        const isApprovedPlayIntake=service==='PLAY'&&partner.url===SHARED_PLAY_LISTING;
+        if(isOwnOrigin||isApprovedPlayIntake){
           const formPage=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1366,height:820},isMobile:mobile});
           await formPage.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/,route=>route.abort());
           await formPage.route(/https?:\/\/(?:www\.)?googletagmanager\.com\/.*/,route=>route.abort());
@@ -99,15 +104,21 @@ async function audit(browser,service,mobile){
               if(attempt<2)await formPage.waitForTimeout(1000*(attempt+1));
             }
             await formPage.waitForTimeout(1100);
-            result.partnerPage={http:r?.status()||0,forms:await formPage.locator('form').count(),
+            result.partnerPage={http:r?.status()||0,sharedPlayIntake:isApprovedPlayIntake,forms:await formPage.locator('form').count(),
               fields:await formPage.evaluate(()=>[...document.querySelectorAll('input[name],textarea[name],select[name]')]
                 .map(e=>e.name).filter(n=>n && !n.startsWith('_')).slice(0,28)),
               analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-CHXY0DC2WP'))};
             await formPage.screenshot({path:path.join(TARGET,service.toLowerCase()+'-partner-'+view+'.png'),fullPage:true,timeout:14000});
             if((r?.status()||0)>=400)result.failures.push('掲載フォームページ HTTP '+r.status());
             if(result.partnerPage.forms===0)result.warnings.push('掲載先画面にフォーム未検出（専用CMS/認証の可能性）');
+            if(isApprovedPlayIntake){
+              const names=result.partnerPage.fields;
+              for(const required of ['service','company','name','email','listing_permission','listing_content_checked_at','privacy_agree']){
+                if(!names.includes(required))result.failures.push('PLAY共通掲載フォームに必須項目なし: '+required);
+              }
+            }
           }finally{await formPage.close();}
-        }else{result.warnings.push('掲載CTAが外部ドメインを参照');}
+        }else{result.warnings.push('未承認の外部掲載CTA: '+target.origin);}
       }catch(e){result.warnings.push('掲載CTA検証失敗: '+String(e.message).split('\n')[0].slice(0,110));}
     }else result.warnings.push('掲載申込CTAがトップのa要素から未検出');
 
