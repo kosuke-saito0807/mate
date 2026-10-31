@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "tests/live_three_sites.cjs"
+      - "tests/test_live_site_audit_contract.py"
       - ".github/workflows/live-three-sites.yml"
       - "*.html"
       - "spark/**"
@@ -36,6 +37,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
+      - name: Verify audit targets and safe no-submit behavior
+        run: |
+          python3 -m unittest discover -s tests -p 'test_live_site_audit_contract.py' -v
+          node --check tests/live_three_sites.cjs
       - name: Install Playwright (browser used only for reads)
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
