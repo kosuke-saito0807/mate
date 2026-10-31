@@ -390,7 +390,7 @@ async function init(){
 }
 $('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);drawDays();draw()});
 $('cards').addEventListener('click',e=>{
- const outbound=e.target.closest('a[href^="https://"]');if(outbound&&window.gtag&&!demoMode){const card=outbound.closest('[data-school-id]');gtag('event','school_outbound_click',{service:'SPARK',school_id:card?.dataset.schoolId||'unknown'})}
+ const outbound=e.target.closest('a[href^="https://"]');if(outbound&&window.gtag&&!demoMode){const card=outbound.closest('[data-school-id]');(()=>{const id=String(card?.dataset.schoolId||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','school_outbound_click',{service:'SPARK',school_id:id});gtag('event','mate_partner_click',{service:'SPARK',partner_id:id})}})()}
  const pick=e.target.closest('[data-pick]'),fav=e.target.closest('[data-fav]'),detail=e.target.closest('[data-detail]');
  if(pick)choose(pick.dataset.pick);
  if(detail)showDetail(detail.dataset.detail);
@@ -402,7 +402,7 @@ $('topRegion').addEventListener('change',()=>regionChange($('topRegion').value))
 ['age','price','category','keyword','sort','trialOnly'].forEach(id=>$(id).addEventListener('input',draw));
 $('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();drawDays();draw()});
 $('favoriteOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;draw()});
-$('detailDialog').addEventListener('click',e=>{const a=e.target.closest('a[href^="https://"]');if(a&&window.gtag&&!demoMode)gtag('event','school_outbound_click',{service:'SPARK',school_id:schools.find(s=>s.name===$('detailHeading').textContent)?.id||'unknown'});});
+$('detailDialog').addEventListener('click',e=>{const a=e.target.closest('a[href^="https://"]');if(a&&window.gtag&&!demoMode)(()=>{const id=String(schools.find(s=>s.name===$('detailHeading').textContent)?.id||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','school_outbound_click',{service:'SPARK',school_id:id});gtag('event','mate_partner_click',{service:'SPARK',partner_id:id})}})();});
 $('closeDetail').addEventListener('click',()=>$('detailDialog').close());
 $('trial').addEventListener('click',showTrial);
 $('cancelTrial').addEventListener('click',()=>$('trialDialog').close());
