@@ -13,6 +13,7 @@ on:
     branches: [main]
     paths:
       - "tests/live_three_sites.cjs"
+      - "tests/test_live_site_audit_contract.py"
       - ".github/workflows/live-three-sites.yml"
       - "*.html"
       - "spark/**"
