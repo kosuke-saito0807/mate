@@ -72,8 +72,27 @@ function mateV4SourceCsv_(url){
   const rows=Utilities.parseCsv(resp.getContentText('UTF-8'));
   const keys=(rows.shift()||[]).map(s=>String(s).trim().toLowerCase());
   const required=['service','name','website','region','email','contact_url','source_url','mail_basis','checked_at','solicitation_prohibited'];
-  if(required.some(k=>keys.indexOf(k)<0))throw Error('CSVヘッダーが不足');
-  return rows.map(row=>{const o={};keys.forEach((k,i)=>o[k]=String(row[i]||'').trim());return o});
+  if(required.every(k=>keys.includes(k)))
+    return rows.map(row=>{const o={};keys.forEach((k,i)=>o[k]=String(row[i]||'').trim());return o});
+  // Also accept common official Japanese open-data CSV headers for prospect discovery.
+  // Public facility listings are not proof that mail contact is permitted.
+  const columns={
+    name:['事業者名','法人名','企業名','教室名','施設名','名称','事業所名'],
+    website:['公式url','ホームページ','ホームページurl','ウェブサイト','webサイト','url','公式サイト'],
+    region:['都道府県','住所','所在地','地域','エリア'],
+    email:['メール','メールアドレス','公開メール'],
+    contact_url:['問い合わせurl','問合せurl','お問い合わせurl'],
+  };
+  const at=k=>{for(const alias of columns[k]){const i=keys.indexOf(alias);if(i>=0)return i}return -1};
+  const indexes={};for(const key of Object.keys(columns))indexes[key]=at(key);
+  if(indexes.name<0||indexes.website<0)throw Error('公開CSVに事業者名/公式サイトURLがないため取込停止');
+  return rows.map(row=>{
+    const get=k=>indexes[k]<0?'':String(row[indexes[k]]||'').trim();
+    return {name:get('name'),website:get('website'),region:get('region'),
+      email:get('email'),contact_url:get('contact_url'),service:'',
+      source_url:url,mail_basis:'UNVERIFIED',
+      checked_at:mateV4Jst_().slice(0,10),solicitation_prohibited:'FALSE'};
+  });
 }
 /**
  * The owner must provide a licensed, public HTTPS CSV in 収集元設定V1.
@@ -118,7 +137,7 @@ function mateV4CollectLeads(){
     let imported=0;
     for(const x of rows){
       if(count>=MATE_V4.maxNewLeadsPerRun)break;
-      if(x.service!==service||!x.name||!mateV4Https_(x.website)||!mateV4Https_(x.source_url))continue;
+      if((x.service&&x.service!==service)||!x.name||!mateV4Https_(x.website)||!mateV4Https_(x.source_url))continue;
       const id=mateV4Key_(service,x.website,x.name);
       if(seen.has(id)||known.has(id))continue;
       const deny=/^(true|yes|1|禁止)$/i.test(x.solicitation_prohibited);
