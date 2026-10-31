@@ -28,7 +28,7 @@ class DiscoveryQuality(unittest.TestCase):
     s=src(path)
     self.assertIn('class="mate-breadcrumb"',s)
     self.assertIn('class="mate-related"',s)
-    self.assertIn('https://kosuke-saito0807.github.io/mate/guides.html',s)
+    self.assertIn('https://care.kosodatemate.jp/guides.html',s)
     matches=re.findall(r'<script type="application/ld\+json">(.+?)</script>',s,re.S)
     self.assertEqual(len(matches),1)
     graph=json.loads(matches[0])
@@ -45,7 +45,7 @@ class DiscoveryQuality(unittest.TestCase):
   hub=src("guides.html")
   for path in ("guide-sitter-choice.html","guide-family-outing.html","https://mate-spark.web.app/guide-lessons-choice.html"):
    self.assertIn(path,hub)
-  for sitemap,prefix in (("sitemap.xml","https://kosuke-saito0807.github.io/mate/"),("spark/sitemap.xml","https://mate-spark.web.app/")):
+  for sitemap,prefix in (("sitemap.xml","https://care.kosodatemate.jp/"),("spark/sitemap.xml","https://mate-spark.web.app/")):
    tree=ET.fromstring(src(sitemap))
    urls=[e.text for e in tree.iter() if e.tag.endswith("loc")]
    self.assertEqual(len(urls),len(set(urls)))
