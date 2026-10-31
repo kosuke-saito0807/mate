@@ -1,0 +1,25 @@
+name: Validate MATE AutoOps V4 (never send email)
+on:
+  push:
+    paths:
+      - 'scripts/mate_auto_ops_v4.gs'
+      - 'tests/mate_auto_ops_v4_test.cjs'
+      - '.github/workflows/test-mate-auto-ops.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Apps Script syntax in V8 JavaScript
+        run: |
+          cp scripts/mate_auto_ops_v4.gs /tmp/mate-auto-ops-v4.js
+          node --check /tmp/mate-auto-ops-v4.js
+      - name: Verify mail safety and consent-gated referral synchronization with mocks
+        run: node tests/mate_auto_ops_v4_test.cjs
