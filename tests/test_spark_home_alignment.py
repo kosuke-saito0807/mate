@@ -63,7 +63,7 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
         self.assertIn("rgba(255,255,255,.70) 42%",css)
         self.assertIn("rgba(255,255,255,0) 66%",css)
         self.assertIn("z-index:3",css)
-        self.assertIn("option-b-v1",html)
+        self.assertIn("20261031-nav-hero-v2",html)
         self.assertIn("object-fit:contain;object-position:right center",html)
         self.assertNotIn("object-fit:cover",css)
         self.assertNotIn("max-width:1380px",css)
