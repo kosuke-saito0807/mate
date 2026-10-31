@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /demo-schools.json
 Disallow: /schools.json
-Sitemap: https://mate-spark.web.app/sitemap.xml
+Sitemap: https://spark.kosodatemate.jp/sitemap.xml

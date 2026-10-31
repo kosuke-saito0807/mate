@@ -43,9 +43,9 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertNotIn("ベビーシッター",meta.group(1))
  def test_hub_and_sitemaps(self):
   hub=src("guides.html")
-  for path in ("guide-sitter-choice.html","guide-family-outing.html","https://mate-spark.web.app/guide-lessons-choice.html"):
+  for path in ("guide-sitter-choice.html","guide-family-outing.html","https://spark.kosodatemate.jp/guide-lessons-choice.html"):
    self.assertIn(path,hub)
-  for sitemap,prefix in (("sitemap.xml","https://care.kosodatemate.jp/"),("spark/sitemap.xml","https://mate-spark.web.app/")):
+  for sitemap,prefix in (("sitemap.xml","https://care.kosodatemate.jp/"),("spark/sitemap.xml","https://spark.kosodatemate.jp/")):
    tree=ET.fromstring(src(sitemap))
    urls=[e.text for e in tree.iter() if e.tag.endswith("loc")]
    self.assertEqual(len(urls),len(set(urls)))

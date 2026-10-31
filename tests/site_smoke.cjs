@@ -50,7 +50,7 @@ async function main() {
     await care.locator('#results-count').waitFor();
     assert.equal(await care.locator('#results article.result').count(),0);
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
-    assert.ok((await care.locator('a[href="https://mate-spark.web.app/"]').count())>0);
+    assert.ok((await care.locator('a[href="https://spark.kosodatemate.jp/"]').count())>0);
     await care.locator('#q').fill('存在しないシッター');
     await care.locator('#sort').selectOption('name');
     await care.close();
