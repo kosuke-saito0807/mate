@@ -5,6 +5,7 @@ on:
       - "scripts/mate_domain_cutover_inventory.py"
       - "tests/test_mate_domain_cutover.py"
       - "docs/MATE_DOMAIN_AND_FREE_GROWTH_PREP_20261030.md"
+      - "docs/MATE_KOSODATEMATE_JP_REGISTRATION_CUTOVER_20261031.md"
       - ".github/workflows/mate-domain-cutover-preflight.yml"
   push:
     branches: [main]

@@ -29,6 +29,15 @@ class DomainInventoryTests(unittest.TestCase):
         self.assertEqual(report["proposed_sites"]["PLAY"], "https://play.example.jp/")
         self.assertFalse(report["domain_ownership_verified"])
         self.assertIn("Search Console", " ".join(report["gates_before_any_publication"]))
+        self.assertIn("XServer Domain", " ".join(report["gates_before_any_publication"]))
+        self.assertIn("Cloudflare is DNS provider", " ".join(report["gates_before_any_publication"]))
+        proposed = module.inventory(domain="kosodatemate.jp")
+        self.assertEqual(proposed["proposed_sites"], {
+            "CARE": "https://care.kosodatemate.jp/",
+            "SPARK": "https://spark.kosodatemate.jp/",
+            "PLAY": "https://play.kosodatemate.jp/",
+        })
+        self.assertFalse(proposed["domain_ownership_verified"])
         self.assertIn("deploy", report["prohibited_actions"])
 
     def test_rejects_provider_hosts_paths_or_malformed_domains(self):
