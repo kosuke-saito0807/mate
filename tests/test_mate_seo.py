@@ -12,7 +12,7 @@ class SeoLaunchTests(unittest.TestCase):
     def test_home_canonicals_and_structured_data(self):
         for rel, url in [
             ("index.html", "https://care.kosodatemate.jp/"),
-            ("spark/index.html", "https://mate-spark.web.app/"),
+            ("spark/index.html", "https://spark.kosodatemate.jp/"),
         ]:
             with self.subTest(path=rel):
                 html = (ROOT / rel).read_text(encoding="utf-8")
@@ -31,7 +31,7 @@ class SeoLaunchTests(unittest.TestCase):
     def test_sitemaps_only_include_real_public_pages(self):
         for rel, base, directory in [
             ("sitemap.xml", "https://care.kosodatemate.jp/", ROOT),
-            ("spark/sitemap.xml", "https://mate-spark.web.app/", ROOT / "spark"),
+            ("spark/sitemap.xml", "https://spark.kosodatemate.jp/", ROOT / "spark"),
         ]:
             with self.subTest(path=rel):
                 root = ET.fromstring((ROOT / rel).read_text(encoding="utf-8"))
