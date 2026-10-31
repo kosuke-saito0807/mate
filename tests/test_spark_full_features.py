@@ -91,7 +91,7 @@ class SparkFullFeatureTests(unittest.TestCase):
         html = (ROOT / "spark/index.html").read_text(encoding="utf-8")
         for token in ("id=\"detailDialog\"", "data-detail", "favoriteOnly",
                       "体験日が近い順", "data-fav", "id=\"trialDialog\"",
-                      "id=\"trialForm\"", "FormSubmit", "mate-spark.web.app"):
+                      "id=\"trialForm\"", "FormSubmit", "spark.kosodatemate.jp"):
             with self.subTest(token=token):
                 self.assertIn(token, html)
         ids = re.findall(r"\bid=\"([^\"]+)\"", html)
