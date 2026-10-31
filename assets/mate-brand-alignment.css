@@ -22,3 +22,12 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   .footer .footerLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:6px 16px}
   .footer .footerLinks a{min-height:44px;display:flex;align-items:center;overflow-wrap:anywhere}
 }
+/* 2026-10-31: make the two CARE header actions visually distinguishable. */
+.nav .nav-outline,.nav .nav-outline:visited{
+ background:#fff;color:#0878ea;border:1.5px solid #0878ea;
+ padding:11.5px 18px;border-radius:24px;
+}
+.nav .nav-outline:hover{background:#edf7ff}
+@media(max-width:760px){
+ .nav .nav-outline{grid-column:auto;padding:9px 7px}
+}
