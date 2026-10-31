@@ -83,7 +83,7 @@ python3 -m unittest discover -s tests -p 'test_mate_domain_cutover.py' -v
 
 ## 2026-10-31 購入申告後の引継ぎメモ
 
-- **今オーナーに必要なのは** Cloudflare Dashboard → Domains → Onboard a domain で `kosodatemate.jp` を追加し、Freeプランを選び、**割り当てられたネームサーバー2件をXServerに設定すること**。
+- **オーナーが実施したと報告済み**：Cloudflare Freeゾーン追加、割当NS2件をXServerに設定。**次に必要なのはCloudflareでゾーンが Active と表示されることの確認**（まだ未検証）。
 - 移行時にメールレコード（MX・TXT/SPF・DKIM等）がある場合はCloudflareへ引き継ぐ。レジストラ側のDNSSECが有効なら切替前に適切に無効化し、Cloudflare稼働後に再設定する。
 - 2件のネームサーバー（例示せず、実際の割当値）とCloudflareでのステータス Active を確認したら、CARE GitHub PagesとSPARK/PLAY Firebaseの**個別のカスタムドメイン設定**に進む。
 - ここまでのGitHub編集は**管理用ドキュメントのみ**。既存URL・SEOメタデータ・フォーム・公開データ・本番DNSを変更していない。
