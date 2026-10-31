@@ -6,16 +6,16 @@ const fs=require('node:fs');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const ORIGINS={
-  CARE:'https://kosuke-saito0807.github.io/mate/',
-  SPARK:'https://mate-spark.web.app/',
-  PLAY:'https://mate-play-production.web.app/'
+  CARE:'https://care.kosodatemate.jp/',
+  SPARK:'https://spark.kosodatemate.jp/',
+  PLAY:'https://play.kosodatemate.jp/'
 };
 // The original ChatGPT Sites PLAY remains live for legacy features; this audit must
 // examine the separate production Firebase release and must NOT switch user links.
 const LEGACY_PLAY_ORIGIN='https://mate-play.kosuke-saito0807.chatgpt.site/';
 // PLAY intentionally links to the shared CARE-hosted intake while its own CMS is migrated.
 // This exact allowlist prevents silently accepting other cross-domain destinations.
-const SHARED_PLAY_LISTING='https://kosuke-saito0807.github.io/mate/play-listing.html';
+const SHARED_PLAY_LISTING='https://care.kosodatemate.jp/play-listing.html';
 const EXPECTED_TITLES={
   CARE:'ベビーシッター・訪問保育を探す｜MATE CARE',
   SPARK:'子どもの習い事・教室を探す｜MATE SPARK',
@@ -28,7 +28,9 @@ async function audit(browser,service,mobile){
   const view=mobile?'mobile':'desktop';
   const page=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1366,height:820},deviceScaleFactor:1,isMobile:mobile,locale:'ja-JP'});
   const errors=[];
+  const insecureRequests=[];
   page.on('pageerror',e=>errors.push(String(e.message).slice(0,130)));
+  page.on('request',req=>{if(req.url().startsWith('http://'))insecureRequests.push(req.url().slice(0,180));});
   await page.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/,route=>route.abort());
   await page.route(/https?:\/\/(?:www\.)?googletagmanager\.com\/.*/,route=>route.abort());
   await page.route(/https?:\/\/(?:www\.)?google-analytics\.com\/.*/,route=>route.abort());
@@ -36,6 +38,8 @@ async function audit(browser,service,mobile){
   try{
     const response=await page.goto(ORIGINS[service],{waitUntil:'domcontentloaded',timeout:25000});
     result.http=response?.status()??0;result.url=page.url();result.title=(await page.title()).slice(0,120);
+    result.secureContext=await page.evaluate(()=>window.isSecureContext);
+    if(!result.secureContext)result.failures.push('Browser is not in a secure context');
     if(result.http!==200)result.failures.push('HTTP '+result.http);
     if(new URL(result.url).origin!==new URL(ORIGINS[service]).origin)
       result.failures.push('Unexpected redirect origin: '+new URL(result.url).origin);
@@ -71,6 +75,7 @@ async function audit(browser,service,mobile){
     Object.assign(result,data);
     if(data.scrollWidth>data.width+5)result.failures.push('横スクロール（'+data.scrollWidth+' > '+data.width+'）');
     if(data.brokenImages.length)result.failures.push('読み込み失敗画像 '+data.brokenImages.join(','));
+    if(insecureRequests.length)result.failures.push('HTTP mixed-content requests '+insecureRequests.slice(0,5).join(','));
     if(errors.length)result.failures.push('JS例外 '+errors.join(' | '));
     if(data.obsoleteText)result.warnings.push('旧1都3県表記あり');
     // SPARK explicitly offers a 47-prefecture select. CARE/PLAY may use a
@@ -137,7 +142,7 @@ async function audit(browser,service,mobile){
   finally{
     await page.close();
     const headline={service:result.service,view:result.view,ok:result.ok,http:result.http,
-      width:result.width,scrollWidth:result.scrollWidth,brokenImages:result.brokenImages,
+      width:result.width,scrollWidth:result.scrollWidth,secureContext:result.secureContext,brokenImages:result.brokenImages,
       prefOptions:result.prefOptions,hasNationwideText:result.hasNationwideText,
       forms:result.forms,partnerPage:result.partnerPage,issues:result.failures,warnings:result.warnings,title:result.title};
     console.log('MATE_LIVE_QA '+JSON.stringify(headline));
