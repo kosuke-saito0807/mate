@@ -80,6 +80,27 @@ function mateV4SourceCsv_(url){
  * Each source row needs 再利用許諾確認=確認済み and 有効=TRUE.
  * No search-engine scraping, personal contacts, or inferred email addresses.
  */
+function mateV4SeedExistingCRM(){
+  const b=mateV4Book_(),dest=mateV4Tab_(b,MATE_V4.leads);
+  const existing=new Set(mateV4Rows_(dest).map(x=>x['重複キー']).filter(Boolean));
+  const rows=mateV4Rows_(mateV4Tab_(b,'3サービス営業リスト'));
+  let added=0;
+  for(const x of rows){
+    if(added>=MATE_V4.maxNewLeadsPerRun)break;
+    const svc=x['サービス'],name=x['企業・教室名'],url=x['公式・窓口URL'];
+    if(!['CARE','SPARK','PLAY'].includes(svc)||!name||!mateV4Https_(url))continue;
+    const key=mateV4Key_(svc,url,name);
+    if(existing.has(key))continue;
+    mateV4Append_(dest,[
+      'CRM-'+key,mateV4Jst_(),svc,name,url,x['エリア']||'',
+      mateV4Email_(x['メール（未再確認）']),url,url,'UNVERIFIED',x['確認日']||'',
+      key,'FALSE','窓口確認待ち','既存CRMより引継ぎ。公開メールは自動送信の許可証拠ではない。',
+      'CRM ID='+x['ID']
+    ]);
+    existing.add(key);added++;
+  }
+  return added;
+}
 function mateV4CollectLeads(){
   const b=mateV4Book_(),src=mateV4Tab_(b,MATE_V4.sources),dest=mateV4Tab_(b,MATE_V4.leads);
   const sources=mateV4Rows_(src),existing=mateV4Rows_(dest);
@@ -215,7 +236,7 @@ function mateV4SyncReferralLedger(){
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
-    const report={collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
+    const report={crmSeeded:mateV4SeedExistingCRM(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
       referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach()};
     console.log(JSON.stringify(report));return report;
   }finally{lock.releaseLock()}
