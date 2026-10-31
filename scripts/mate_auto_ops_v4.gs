@@ -48,9 +48,18 @@ function mateV4Date_(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s)))return null;co
 function mateV4Fresh_(s,maxDays){
   const d=mateV4Date_(s);return !!d&&Date.now()-d.getTime()>=0&&Date.now()-d.getTime()<=maxDays*86400000;
 }
-function mateV4Https_(s){
-  try{const u=new URL(s);return u.protocol==='https:'&&!!u.hostname&&u.hostname.includes('.')&&!u.username&&!u.password&&s.length<=500}catch(e){return false}
+// Apps Script V8 does NOT expose the browser's URL constructor.
+function mateV4Host_(raw){
+  const s=String(raw||'').trim();
+  if(s.length>500||/[\\\s]/.test(s))return '';
+  const m=s.match(/^https:\/\/([^\/?#:@]+)(?::(\d+))?(?:[\/?#]|$)/i);
+  if(!m||m[2])return '';
+  const host=m[1].toLowerCase().replace(/^www\./,'');
+  if(host.length>253||!host.includes('.')||!host.split('.').every(
+    part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part)))return '';
+  return host;
 }
+function mateV4Https_(s){return !!mateV4Host_(s)}
 function mateV4Email_(s){
   const x=String(s||'').trim().toLowerCase();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(x)||x.length>250)return '';
@@ -59,7 +68,7 @@ function mateV4Email_(s){
   return x;
 }
 function mateV4Key_(service,website,name){
-  const u=new URL(website);const host=u.hostname.replace(/^www\./,'').toLowerCase();
+  const host=mateV4Host_(website);if(!host)throw Error('Invalid HTTPS website');
   const input=service+'|'+host+'|'+String(name||'').trim().toLowerCase();
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,input)
     .slice(0,14).map(x=>('0'+((x+256)%256).toString(16)).slice(-2)).join('');
