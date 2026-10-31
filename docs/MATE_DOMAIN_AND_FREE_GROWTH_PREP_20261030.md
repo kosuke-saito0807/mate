@@ -16,7 +16,7 @@
 
 ## 1. 独自ドメイン決定時の移行手順
 
-当面の方針：Cloudflareで**ベースドメインを1つ**取得し、`care.`、`spark.`、`play.` のサブドメインを使う。例 `example.jp` はテスト用で**取得済みとは意味しない**。
+2026-10-31方針：**`kosodatemate.jp` をXServerドメインで取得（未実施）**し、Cloudflareの無料DNSで`care.`、`spark.`、`play.` のサブドメインを管理する。取得可否と所有権は未検証。詳しい安全手順は [`docs/MATE_KOSODATEMATE_JP_REGISTRATION_CUTOVER_20261031.md`](MATE_KOSODATEMATE_JP_REGISTRATION_CUTOVER_20261031.md) を参照。
 
 | サービス | 現在の提供元 | 仮の新ホスト | 主な確認点 |
 | --- | --- | --- | --- |
