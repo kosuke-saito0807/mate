@@ -51,7 +51,7 @@ class SiteIntegrity(unittest.TestCase):
             self.assertNotIn("https://naraico.kosuke-saito0807.chatgpt.site", html)
             self.assertIn("https://mate-spark.web.app/", html)
         index = (SITE / "index.html").read_text(encoding="utf-8")
-        self.assertIn("https://kosuke-saito0807.github.io/mate/", index)
+        self.assertIn("https://care.kosodatemate.jp/", index)
         self.assertIn("MATE PLAY", index)
 
     def test_legacy_spark_form_cannot_be_used(self):
