@@ -23,6 +23,9 @@ const inquiries=sheet('問い合わせ管理',['受付ID','受付日時','サー
  ['MATE-CONSULT-test-no-consent','2026-10-31','CARE','','provider-001','テスト','mail-id','','教室へ取次','未確認','確認済み','確認済み','','2026-10-31'],
  ['MATE-CONSULT-test-valid','2026-10-31','PLAY','','provider-002','事業者A','mail-ok','','教室へ取次','確認済み','確認済み','確認済み','','2026-10-31']
 ]);
+const crm=sheet('3サービス営業リスト',['ID','サービス','企業・教室名','公式・窓口URL','エリア','メール（未再確認）','確認日'],[
+ ['CARE-DEMO','CARE','掲載未許諾のテスト会社','https://www.example.org/contact','東京都','info@example.org','2026-10-31']
+]);
 const book={getSheetByName:n=>tabs[n]};
 const context=vm.createContext({
  Session:{getEffectiveUser:()=>({getEmail:()=> 'kosodatemate@gmail.com'})},
@@ -37,10 +40,18 @@ const context=vm.createContext({
   computeDigest:()=>Array.from({length:32},(_,i)=>i+1),
   DigestAlgorithm:{SHA_256:'SHA_256'},
  },
- URL,Date,console
+ URL:undefined,Date,console
 });
 vm.runInContext(source,context,{filename:'mate_auto_ops_v4.gs'});
 const run=(expr)=>vm.runInContext(expr,context);
+assert.equal(run("mateV4Https_('https://www.example.org/contact')"),true,'validate HTTPS without unavailable URL Web API');
+assert.equal(run("mateV4Https_('http://example.org/')"),false);
+assert.equal(run("mateV4Https_('https://user@example.org/')"),false);
+assert.equal(run("mateV4Https_('https://example.org:8443/')"),false);
+assert.equal(run("mateV4SeedExistingCRM()"),1,'seed existing verified CRM names into no-send review queue');
+assert.equal(run("mateV4SeedExistingCRM()"),0,'CRM seeding is idempotent');
+assert.equal(leads.length,2);
+assert.equal(leads[1][13],'窓口確認待ち','never infer solicitation permission from an existing CRM record');
 assert.equal(run("mateV4SendOutreach()"),'OFF','default mail must remain off');
 settings.MATE_AUTO_SEND='ON';
 assert.equal(run("mateV4SendOutreach()"),'OFF','legal gate must remain off');
