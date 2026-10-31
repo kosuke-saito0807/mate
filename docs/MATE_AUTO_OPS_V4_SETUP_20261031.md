@@ -11,7 +11,7 @@
 2. 拡張機能→Apps Scriptを開く。既存フォーム処理・doPost等のコードは削除しない。新しい.gsファイルに次のコードを全文コピーして保存：https://github.com/kosuke-saito0807/mate/blob/main/scripts/mate_auto_ops_v4.gs
 3. 関数 installMateAutoOpsV4 を選んで実行し、Google権限を承認。1時間に1回のトリガーを設置。
 4. 初回、mateAutoOpsV4Cycle を手動実行してログを確認。メールは初期状態OFF。
-5. 新規収集には「収集元設定V1」タブに、公開利用が許可された公式・ライセンス付きHTTPS CSVのURLを記入し、再利用許諾確認=確認済み、有効=TRUEを設定する。公式データのない時点では0件のまま。個人用メールや無許可スクレイピングは対象外。
+5. 新規収集には「収集元設定V1」タブに、公開利用が許可された公式・ライセンス付きHTTPS CSVのURLを記入し、再利用許諾確認=確認済み、有効=TRUEを設定する。一般的な日本語列名（事業者名・施設名・公式サイトURL・所在地等）も読めるが、メール営業根拠は自動認定されず、窓口確認待ちとなる。公式データのない時点では0件のまま。個人用メールや無許可スクレイピングは対象外。
 6. 実営業メールを解禁するときだけ、Apps Scriptのプロジェクト設定→スクリプトプロパティで次を設定する。MATE_AUTO_SEND=ON、MATE_AUTO_SEND_LEGAL_REVIEWED=YES、MATE_SENDER_NAME=正しい運営事業者名、MATE_SENDER_ADDRESS=正しい営業所在地。上限はMATE_DAILY_CAP=5。住所や秘密情報はGitHubに保存しない。
 
 ## 自動収集CSV列（順序不問）
