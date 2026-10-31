@@ -12,9 +12,9 @@ SCRIPT=(ROOT/"tests/live_three_sites.cjs").read_text(encoding="utf-8")
 class ProductionMonitorContracts(unittest.TestCase):
     def test_audit_uses_current_three_production_sites(self):
         for row in (
-            "CARE:'https://kosuke-saito0807.github.io/mate/'",
-            "SPARK:'https://mate-spark.web.app/'",
-            "PLAY:'https://mate-play-production.web.app/'",
+            "CARE:'https://care.kosodatemate.jp/'",
+            "SPARK:'https://spark.kosodatemate.jp/'",
+            "PLAY:'https://play.kosodatemate.jp/'",
         ):
             self.assertIn(row,SCRIPT)
         self.assertIn("const LEGACY_PLAY_ORIGIN=",SCRIPT)
@@ -36,13 +36,18 @@ class ProductionMonitorContracts(unittest.TestCase):
         self.assertIn("legacyPlayNotCutOver:LEGACY_PLAY_ORIGIN",SCRIPT)
 
     def test_play_external_intake_is_exactly_allowlisted_and_checked(self):
-        self.assertIn("const SHARED_PLAY_LISTING='https://kosuke-saito0807.github.io/mate/play-listing.html'",SCRIPT)
+        self.assertIn("const SHARED_PLAY_LISTING='https://care.kosodatemate.jp/play-listing.html'",SCRIPT)
         self.assertIn("service==='PLAY'&&partner.url===SHARED_PLAY_LISTING",SCRIPT)
         self.assertIn("isOwnOrigin||isApprovedPlayIntake",SCRIPT)
         self.assertIn("if(isApprovedPlayIntake){",SCRIPT)
         for field in ("service","company","name","email","listing_permission","listing_content_checked_at","privacy_agree"):
             self.assertIn("'"+field+"'",SCRIPT)
         self.assertIn("未承認の外部掲載CTA:",SCRIPT)
+
+    def test_audit_detects_nonsecure_browser_and_mixed_content(self):
+        self.assertIn('window.isSecureContext', SCRIPT)
+        self.assertIn('HTTP mixed-content requests', SCRIPT)
+        self.assertIn("req.url().startsWith('http://')", SCRIPT)
 
     def test_audit_never_submits_forms(self):
         self.assertIn("page.request.get(href",SCRIPT)
