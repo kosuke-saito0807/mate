@@ -71,9 +71,19 @@ python3 -m unittest discover -s tests -p 'test_mate_domain_cutover.py' -v
 
 最初に必要なユーザー操作は **XServerで`kosodatemate.jp`を検索し、取得可能なら登録・決済すること**。その後は購入完了画面の状態・ドメイン名だけ共有してもらえばよい。
 
+## 2026-10-31 ネームサーバー変更の申告と次のゲート
+
+- オーナーがXServerでCloudflareネームサーバーへの変更を保存したと申告（現時点でCloudflareのゾーンが **Active** になったことや親JPゾーンへの反映は独立検証できていない）。
+- Cloudflareがこのゾーンに表示した割当NS：`noel.ns.cloudflare.com` / `ruth.ns.cloudflare.com`。XServerの古い5件ではなく、これら2件だけが登録されているか、XServer画面とCloudflare Overviewで確認する。
+- Cloudflare **Overview → Active** を確認する。Pendingなら「Check nameservers now」を押せる場合に実行し、DNSSECの旧DSレコード・NSの一致を確認する。時間経過が必要な場合もある。
+- 新規ドメインのDNSレコード0件というCloudflare取込結果は既存メール・Web等の利用がない場合に正常。`kosodatemate@gmail.com` はGmailであり、このドメインのMXは必須ではない。**メールを `@kosodatemate.jp` で使う場合は別途MXが必要**。
+- Activeを確認できたら**既存本番に影響しないFirebase Hostingのサブドメイン接続から開始する**。Firebaseコンソールで `mate-spark` → `spark.kosodatemate.jp`、`mate-play-production` → `play.kosodatemate.jp` を個別に追加し、Firebaseが提示したDNSのTXT/A/CNAMEのみCloudflareで **DNS only** 設定で登録。固定値を憶測で作成しない。
+- CAREはGitHub Pagesの独自ドメイン設定が必要。GitHub Actionsでデプロイするため**CNAMEファイルだけでは不十分**。Pages設定画面で `care.kosodatemate.jp` を登録したら、Cloudflare DNSに `CNAME care → kosuke-saito0807.github.io`（DNS only）を追加し、HTTPS/旧URLの動作を確認。既存リンクの転送・ルートパス変更に注意。
+- 全サイトの証明書/HTTPSが準備できるまではcanonical・内部リンク・検索登録を新URLへまとめて変更しない。フォーム/掲載の許諾、旧PLAYへのリンク切替保留を維持する。
+
 ## 2026-10-31 購入申告後の引継ぎメモ
 
-- **今オーナーに必要なのは** Cloudflare Dashboard → Domains → Onboard a domain で `kosodatemate.jp` を追加し、Freeプランを選び、**割り当てられたネームサーバー2件をXServerに設定すること**。
+- **オーナーが実施したと報告済み**：Cloudflare Freeゾーン追加、割当NS2件をXServerに設定。**次に必要なのはCloudflareでゾーンが Active と表示されることの確認**（まだ未検証）。
 - 移行時にメールレコード（MX・TXT/SPF・DKIM等）がある場合はCloudflareへ引き継ぐ。レジストラ側のDNSSECが有効なら切替前に適切に無効化し、Cloudflare稼働後に再設定する。
 - 2件のネームサーバー（例示せず、実際の割当値）とCloudflareでのステータス Active を確認したら、CARE GitHub PagesとSPARK/PLAY Firebaseの**個別のカスタムドメイン設定**に進む。
 - ここまでのGitHub編集は**管理用ドキュメントのみ**。既存URL・SEOメタデータ・フォーム・公開データ・本番DNSを変更していない。
