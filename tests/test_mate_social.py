@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class SocialLaunchTests(unittest.TestCase):
  def test_social_hub_only_links_real_services(self):
   html=(ROOT/"links.html").read_text(encoding="utf-8")
-  for url in ("https://care.kosodatemate.jp/","https://spark.kosodatemate.jp/","https://play.kosodatemate.jp//"):
+  for url in ("https://care.kosodatemate.jp/","https://spark.kosodatemate.jp/","https://play.kosodatemate.jp/"):
    self.assertIn(url,html)
   self.assertIn('content="noindex,follow"',html)
   self.assertIn("mate_service_select",html)
