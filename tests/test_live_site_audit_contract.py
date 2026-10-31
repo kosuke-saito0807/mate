@@ -35,6 +35,15 @@ class ProductionMonitorContracts(unittest.TestCase):
         self.assertNotIn("if(!data.hasNationwideText)result.warnings.push",SCRIPT)
         self.assertIn("legacyPlayNotCutOver:LEGACY_PLAY_ORIGIN",SCRIPT)
 
+    def test_play_external_intake_is_exactly_allowlisted_and_checked(self):
+        self.assertIn("const SHARED_PLAY_LISTING='https://kosuke-saito0807.github.io/mate/play-listing.html'",SCRIPT)
+        self.assertIn("service==='PLAY'&&partner.url===SHARED_PLAY_LISTING",SCRIPT)
+        self.assertIn("isOwnOrigin||isApprovedPlayIntake",SCRIPT)
+        self.assertIn("if(isApprovedPlayIntake){",SCRIPT)
+        for field in ("service","company","name","email","listing_permission","listing_content_checked_at","privacy_agree"):
+            self.assertIn("'"+field+"'",SCRIPT)
+        self.assertIn("未承認の外部掲載CTA:",SCRIPT)
+
     def test_audit_never_submits_forms(self):
         self.assertIn("page.request.get(href",SCRIPT)
         self.assertNotIn("page.request.post(",SCRIPT)
