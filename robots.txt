@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /direct-intake-test-20261025.html
 Disallow: /play-direct-intake-test-20261025.html
-Sitemap: https://kosuke-saito0807.github.io/mate/sitemap.xml
+Sitemap: https://care.kosodatemate.jp/sitemap.xml
