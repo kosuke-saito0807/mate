@@ -205,8 +205,11 @@ async function main() {
     assert.ok(sparkIdentity.frame.heroHeight>=570,'Option B must bring the family photo closer');
     assert.ok(sparkIdentity.frame.x<sparkIdentity.frame.viewport*.45,
       'Photo must start left of screen midpoint, hidden by gradual wash instead of a hard edge');
-    assert.ok(sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,
-      'Image must remain right-aligned and not overflow the viewport');
+    // Deliberately shift the photo right: retain the boy and allow the father to crop at the edge.
+    // The outer page still must not horizontally overflow (checked in checkPage above).
+    assert.ok(sparkIdentity.frame.right>=sparkIdentity.frame.viewport-5&&
+      sparkIdentity.frame.right<=sparkIdentity.frame.viewport+110,
+      'Hero photo may extend beyond the viewport by only the approved rightward offset');
     assert.ok(Math.abs(sparkIdentity.frame.height*sparkIdentity.frame.naturalWidth/sparkIdentity.frame.naturalHeight-
       (sparkIdentity.frame.right-sparkIdentity.frame.x))<6,
       'Entire family photo must keep its intrinsic aspect ratio (no stretching/cropping)');
