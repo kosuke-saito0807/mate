@@ -40,17 +40,12 @@ async function main() {
   const browser = await chromium.launch({headless:true, args:['--no-sandbox']});
   try {
     let care = await checkPage(browser,'/');
-    // The full desktop privacy text is one visual line without clipping.
-    const carePrivacyDesktop=await care.locator('.privacyComfort .privacyDesktop').evaluate(el=>({
-      rects:el.getClientRects().length,display:getComputedStyle(el).display,
-      width:el.getBoundingClientRect().width,viewport:innerWidth
-    }));
-    assert.equal(carePrivacyDesktop.rects,1,'CARE PC privacy information should fit on one line');
-    assert.ok(carePrivacyDesktop.width<carePrivacyDesktop.viewport,'CARE privacy text must fit desktop');
+    // CARE's redundant visitor-privacy banner is intentionally removed.
+    assert.equal(await care.locator('.privacyComfort').count(),0);
     await care.locator('#results-count').waitFor();
     assert.equal(await care.locator('#results article.result').count(),0);
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
-    assert.ok((await care.locator('a[href="https://mate-spark.web.app/"]').count())>0);
+    assert.ok((await care.locator('a[href="https://spark.kosodatemate.jp/"]').count())>0);
     await care.locator('#q').fill('存在しないシッター');
     await care.locator('#sort').selectOption('name');
     await care.close();
@@ -193,14 +188,14 @@ async function main() {
       mask:getComputedStyle(document.querySelector('.hero-visual')).maskImage,
       frame:(()=>{const image=document.querySelector('.hero-visual'),box=image.getBoundingClientRect(),hero=document.querySelector('.hero-inner').getBoundingClientRect();return {x:box.x,right:box.right,height:box.height,heroHeight:hero.height,viewport:innerWidth,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight}})(),
       discoveryBackground:getComputedStyle(document.querySelector('#discover')).backgroundColor,
-      noticeOffset:(()=>{const notice=document.querySelector('#discover .privacyComfort').getBoundingClientRect();const container=document.querySelector('#discover .discovery-header').getBoundingClientRect();return Math.abs((notice.left+notice.right)/2-(container.left+container.right)/2)})()
+      privacyNoticeCount:document.querySelectorAll('#discover .privacyComfort').length
     }));
     assert.equal(sparkIdentity.heading,'次の「好き」を、見つけよう。');
     assert.equal(sparkIdentity.sectionLabel,'FIND YOUR MATE');
     assert.equal(sparkIdentity.headingAlign,'left','SPARK FIND YOUR MATE should align with CARE heading');
     assert.equal(sparkIdentity.headingSize,28,'Shared desktop FIND title scale');
     assert.equal(sparkIdentity.discoveryBackground,'rgb(255, 255, 255)','SPARK FIND section should match CARE white background');
-    assert.ok(sparkIdentity.noticeOffset<5,'SPARK privacy notice should be centered like CARE');
+    assert.equal(sparkIdentity.privacyNoticeCount,0,'SPARK privacy notice should remain removed');
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
@@ -378,9 +373,7 @@ async function main() {
     for (const pathname of ['/','/contact.html','/spark/','/spark/partners.html']) {
       const page=await checkPage(browser,pathname,true);
       if(pathname==='/'){
-        const mobilePrivacy=page.locator('.privacyComfort .privacyMobile');
-        assert.equal(await mobilePrivacy.isVisible(),true);
-        assert.equal(await page.locator('.privacyComfort .privacyDesktop').isVisible(),false);
+        assert.equal(await page.locator('.privacyComfort').count(),0);
       }
       if(pathname==='/spark/'){
         await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
