@@ -73,6 +73,15 @@ async function audit(browser,service,mobile){
         interactiveControls:document.querySelectorAll('button,select,input').length};
     },PREFECTURES);
     Object.assign(result,data);
+    // Every service footer must use the custom-domain destination for the other two.
+    const mateLinks=await page.evaluate(()=>[...document.querySelectorAll('footer a[href]')]
+      .map(a=>({text:(a.textContent||'').trim(),href:a.href}))
+      .filter(a=>/^MATE (?:CARE|SPARK|PLAY)/.test(a.text)));
+    for(const [peer,origin] of Object.entries(ORIGINS)){
+      if(peer===service)continue;
+      if(!mateLinks.some(a=>a.text.startsWith('MATE '+peer)&&a.href.startsWith(origin)))
+        result.failures.push('Old/missing footer link to '+peer+' on '+service);
+    }
     if(data.scrollWidth>data.width+5)result.failures.push('横スクロール（'+data.scrollWidth+' > '+data.width+'）');
     if(data.brokenImages.length)result.failures.push('読み込み失敗画像 '+data.brokenImages.join(','));
     if(insecureRequests.length)result.failures.push('HTTP mixed-content requests '+insecureRequests.slice(0,5).join(','));
@@ -123,7 +132,8 @@ async function audit(browser,service,mobile){
               }
             }
           }finally{await formPage.close();}
-        }else{result.warnings.push('未承認の外部掲載CTA: '+target.origin);}
+        }else if(service==='PLAY'){result.failures.push('PLAY掲載CTAが旧ドメイン/未承認の外部URL: '+target.origin);}
+        else{result.warnings.push('未承認の外部掲載CTA: '+target.origin);}
       }catch(e){result.warnings.push('掲載CTA検証失敗: '+String(e.message).split('\n')[0].slice(0,110));}
     }else result.warnings.push('掲載申込CTAがトップのa要素から未検出');
 
