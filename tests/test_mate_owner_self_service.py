@@ -64,7 +64,7 @@ class OwnerSelfServiceTest(unittest.TestCase):
 
     def test_privacy_first_visitor(self):
         html=(ROOT/"spark/index.html").read_text(encoding="utf-8")
-        self.assertIn("会員登録不要",html)
+        self.assertNotIn('class="privacyComfort"',html)
         self.assertIn('name="guardianName"',html)
         self.assertNotIn('name="guardianName" maxlength="80" autocomplete="name" required',html)
         self.assertNotIn('name="grade" required',html)
