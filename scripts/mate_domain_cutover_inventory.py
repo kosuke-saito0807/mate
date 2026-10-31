@@ -70,7 +70,7 @@ def inventory(root=ROOT, domain=None):
         "proposed_sites": targets,
         "files_with_current_or_legacy_urls": scanned,
         "gates_before_any_publication": [
-            "Choose and prove ownership of a single Cloudflare-registered base domain",
+            "Register and verify ownership of the approved base domain (XServer Domain for .jp); Cloudflare is DNS provider, not the registrar",
             "Connect care/spark/play hostnames to the correct existing Hosting targets; do not mix SPARK and PLAY Firebase projects",
             "Keep Google Analytics measurement ID G-CHXY0DC2WP on all 3 services",
             "Preserve forms, approved-only listing data, and the live PLAY legacy API limitations; do not auto-merge old PLAY link PR #43",
