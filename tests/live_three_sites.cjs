@@ -8,7 +8,15 @@ const path=require('node:path');
 const ORIGINS={
   CARE:'https://kosuke-saito0807.github.io/mate/',
   SPARK:'https://mate-spark.web.app/',
-  PLAY:'https://mate-play.kosuke-saito0807.chatgpt.site/'
+  PLAY:'https://mate-play-production.web.app/'
+};
+// The original ChatGPT Sites PLAY remains live for legacy features; this audit must
+// examine the separate production Firebase release and must NOT switch user links.
+const LEGACY_PLAY_ORIGIN='https://mate-play.kosuke-saito0807.chatgpt.site/';
+const EXPECTED_TITLES={
+  CARE:'ベビーシッター・訪問保育を探す｜MATE CARE',
+  SPARK:'子どもの習い事・教室を探す｜MATE SPARK',
+  PLAY:'親子のお出かけ・体験を探す｜MATE PLAY'
 };
 const PREFECTURES='北海道 青森県 岩手県 宮城県 秋田県 山形県 福島県 茨城県 栃木県 群馬県 埼玉県 千葉県 東京都 神奈川県 新潟県 富山県 石川県 福井県 山梨県 長野県 岐阜県 静岡県 愛知県 三重県 滋賀県 京都府 大阪府 兵庫県 奈良県 和歌山県 鳥取県 島根県 岡山県 広島県 山口県 徳島県 香川県 愛媛県 高知県 福岡県 佐賀県 長崎県 熊本県 大分県 宮崎県 鹿児島県 沖縄県'.split(' ');
 const TARGET='artifacts/live-audit';fs.mkdirSync(TARGET,{recursive:true});
@@ -26,6 +34,10 @@ async function audit(browser,service,mobile){
     const response=await page.goto(ORIGINS[service],{waitUntil:'domcontentloaded',timeout:25000});
     result.http=response?.status()??0;result.url=page.url();result.title=(await page.title()).slice(0,120);
     if(result.http!==200)result.failures.push('HTTP '+result.http);
+    if(new URL(result.url).origin!==new URL(ORIGINS[service]).origin)
+      result.failures.push('Unexpected redirect origin: '+new URL(result.url).origin);
+    if(result.title!==EXPECTED_TITLES[service])
+      result.failures.push('Homepage title mismatch: '+result.title);
     await page.waitForTimeout(2300);
     await page.screenshot({path:path.join(TARGET,service.toLowerCase()+'-'+view+'.png'),fullPage:true,timeout:14000});
     const data=await page.evaluate((prefs)=>{
@@ -58,8 +70,10 @@ async function audit(browser,service,mobile){
     if(data.brokenImages.length)result.failures.push('読み込み失敗画像 '+data.brokenImages.join(','));
     if(errors.length)result.failures.push('JS例外 '+errors.join(' | '));
     if(data.obsoleteText)result.warnings.push('旧1都3県表記あり');
-    if(!data.hasNationwideText)result.warnings.push('全国47都道府県の表示を自動検出できず');
-    if(data.prefOptions!==47)result.warnings.push('静的select要素に都道府県'+data.prefOptions+'件（カスタム選択UIなら手動要確認）');
+    // SPARK explicitly offers a 47-prefecture select. CARE/PLAY may use a
+    // different search UI and should not be warned about missing footer copy.
+    if(service==='SPARK'&&data.prefOptions!==47)
+      result.warnings.push('SPARKの都道府県選択肢 '+data.prefOptions+'件（想定47）');
     if(!data.nextEdu||!data.contact)result.warnings.push('運営NextEdu・共通問合せの一部がトップ画面に見つからない');
     if(!data.legalLinks.length)result.warnings.push('プライバシー等への文字リンクなし');
 
@@ -145,6 +159,11 @@ async function audit(browser,service,mobile){
   }finally{await browser.close();}
   fs.writeFileSync(path.join(TARGET,'read-only-report.json'),JSON.stringify({auditedAt:new Date().toISOString(),results},null,2));
   const failures=results.filter(x=>!x.ok);
-  console.log('MATE_AUDIT_SUMMARY '+JSON.stringify({checked:results.length,pass:results.length-failures.length,fail:failures.length,warnings:results.reduce((n,x)=>n+x.warnings.length,0)}));
+  console.log('MATE_AUDIT_SUMMARY '+JSON.stringify({
+    checked:results.length, pass:results.length-failures.length, fail:failures.length,
+    warnings:results.reduce((n,x)=>n+x.warnings.length,0),
+    auditedProductionPlay:ORIGINS.PLAY,
+    legacyPlayNotCutOver:LEGACY_PLAY_ORIGIN
+  }));
   if(failures.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1});

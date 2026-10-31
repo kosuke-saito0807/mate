@@ -13,7 +13,7 @@
 | フォーム受付メール | 受信確認済み／全動作未保証 | 2026-10-29〜30にCARE・SPARK・PLAY各1通の `MATE-CONSULT` 自動受付確認メールを運営Gmailで確認。審査・担当・取次・Sheets行の全工程がすべて成功したことを示すわけではない |
 | Search Console | 旧URL側でオーナー作業済み | PLAY認証ファイル公開と本番テスト成功。Search Consoleのインデックス登録依頼は日次上限に達したため再実行しない。新ドメインでの確認は切替後 |
 | SEO/AIO基礎 | 完了（旧URL） | robots/canonical/sitemap/OG/基本構造化データ。AIO専用の不要な架空スキーマや `llms.txt` は設置しない |
-| 3サイトのタイトル・フォント・フッター・ヒーロー | **CARE/SPARK 本番反映済み、PLAY 本番反映待ち** | 3サイトともコード実装・CI成功。CARE/SPARKのGitHub Pages/Firebaseリリース成功。PLAYのGitHub main反映済みだが、オーナーの本番リリース操作が必要 |
+| 3サイトのタイトル・フォント・フッター・ヒーロー | **3サイトとも本番公開済み** | CARE/SPARKの公開成功。PLAYの修正後コミット `5c63e4b...` も本番リリース成功（GitHub Actions `41067453934`）。SPARKのメインビジュアルはB案として再公開済み。画面の最終的な見え方は利用者の確認対象 |
 | 独自ドメイン移行準備 | 完了（読み取り専用） | `scripts/mate_domain_cutover_inventory.py` で旧URL参照21ファイルを洗い出す |
 | 無料SEO記事・SNS | 原稿のみ完了 | 3記事・3投稿案を `docs/MATE_DOMAIN_AND_FREE_GROWTH_PREP_20261030.md` に準備。新ドメイン確定まで公開URLを付与して投稿しない |
 | PLAYの元CMS/静的版機能差 | **未完了** | 予約・管理API、承認後のCMS同期、旧ChatGPT Sitesとのフル同等性。Draft PR #43のリンク切替はオーナーによる機能差・フォーム受信確認まで保留 |
@@ -49,3 +49,12 @@
 - CARE/SPARKのデザイン統一PR #46をマージ。GitHub Pages公開run `41062121718`、SPARK Firebase公開run `41062121730` ともに成功。
 - PLAYのデザイン統一PR #22はマージ済み。GitHub本番用コミット `20c785065bd34870f16c872b937e329a02c09f5d`、UIビルド・ブラウザ検証・フォーム模擬テスト成功。ただし手動承認つき本番リリース未実行なら旧デザインのまま。
 - 認証済みデータや旧PLAYの管理API・予約API、GASの外部送信先は変更していない。
+
+## 2026-10-31 追加確認 — 独自ドメイン取得前の監視整備
+
+- 10月30日（JST）のPLAYオーナー承認付き本番リリース `41067453934` が成功。今回以降、PLAYのUI更新は本番反映済みとして扱う。**旧ChatGPT Sitesの予約・管理APIがFirebaseへ完全移行済みという意味ではない**。
+- SPARKのMVはB案を選択済みで、Firebase公開run `41071047390` にて成功。元画像の自然な縦横比と白フェードを維持。
+- 9時（JST）毎日の読み取り専用3サイト監視 `tests/live_three_sites.cjs` を、旧PLAY `*.chatgpt.site` ではなく本番Firebase `mate-play-production.web.app` に合わせて修正。
+- フッターに「全国47都道府県」がないことを異常とする不要な警告を削除。SPARKの都道府県選択肢のみ47件であることを確認する。表示文言と検索機能は別の要件。
+- 新しい監視はトップのタイトル・移動先ドメイン・PC/モバイルの表示・壊れた画像・JavaScript例外・公開フォームページのGETアクセスを調べる。**フォーム送信・申請・外部データ変更は行わない**。
+- 旧PLAYの予約機能とFirebase版の同等性、事業者の掲載許諾の確認、Search Consoleの新ドメイン設定は依然として未完了／未着手。PR #43（旧PLAYリンクの一括切替）は独断でマージしない。
