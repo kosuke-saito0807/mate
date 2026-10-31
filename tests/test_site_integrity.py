@@ -49,7 +49,7 @@ class SiteIntegrity(unittest.TestCase):
         for name in ("index.html", "operator.html"):
             html = (ROOT / name).read_text(encoding="utf-8")
             self.assertNotIn("https://naraico.kosuke-saito0807.chatgpt.site", html)
-            self.assertIn("https://mate-spark.web.app/", html)
+            self.assertIn("https://spark.kosodatemate.jp/", html)
         index = (SITE / "index.html").read_text(encoding="utf-8")
         self.assertIn("https://care.kosodatemate.jp/", index)
         self.assertIn("MATE PLAY", index)
