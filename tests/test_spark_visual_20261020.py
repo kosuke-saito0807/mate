@@ -37,12 +37,12 @@ class SparkVisualOctoberTests(unittest.TestCase):
 
     def test_marketing_meta_and_sitemap(self):
         page = (SITE / "index.html").read_text(encoding="utf-8")
-        self.assertIn('<link rel="canonical" href="https://mate-spark.web.app/">', page)
+        self.assertIn('<link rel="canonical" href="https://spark.kosodatemate.jp/">', page)
         sitemap = ET.parse(SITE / "sitemap.xml").getroot()
         locations = [x.text for x in sitemap.iter() if x.tag.endswith("loc")]
-        self.assertIn("https://mate-spark.web.app/", locations)
+        self.assertIn("https://spark.kosodatemate.jp/", locations)
         robots = (SITE / "robots.txt").read_text(encoding="utf-8")
-        self.assertIn("Sitemap: https://mate-spark.web.app/sitemap.xml", robots)
+        self.assertIn("Sitemap: https://spark.kosodatemate.jp/sitemap.xml", robots)
         self.assertIn("Disallow: /demo-schools.json", robots)
         self.assertIn('id="inquiry"', (SITE / "operator.html").read_text(encoding="utf-8"))
 
