@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class SeoLaunchTests(unittest.TestCase):
     def test_home_canonicals_and_structured_data(self):
         for rel, url in [
-            ("index.html", "https://kosuke-saito0807.github.io/mate/"),
+            ("index.html", "https://care.kosodatemate.jp/"),
             ("spark/index.html", "https://mate-spark.web.app/"),
         ]:
             with self.subTest(path=rel):
@@ -30,7 +30,7 @@ class SeoLaunchTests(unittest.TestCase):
 
     def test_sitemaps_only_include_real_public_pages(self):
         for rel, base, directory in [
-            ("sitemap.xml", "https://kosuke-saito0807.github.io/mate/", ROOT),
+            ("sitemap.xml", "https://care.kosodatemate.jp/", ROOT),
             ("spark/sitemap.xml", "https://mate-spark.web.app/", ROOT / "spark"),
         ]:
             with self.subTest(path=rel):
@@ -56,7 +56,7 @@ class SeoLaunchTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         self.assertIn("cp *.html data.json robots.txt sitemap.xml favicon.svg favicon.ico _site/", workflow)
         robots=(ROOT / "robots.txt").read_text(encoding="utf-8")
-        self.assertIn("Sitemap: https://kosuke-saito0807.github.io/mate/sitemap.xml", robots)
+        self.assertIn("Sitemap: https://care.kosodatemate.jp/sitemap.xml", robots)
         self.assertNotIn("Disallow: /\\n",robots)
 
 if __name__ == "__main__":
