@@ -30,7 +30,7 @@ class NationwideTests(unittest.TestCase):
     def test_ui_has_two_complete_location_dropdowns(self):
         html = (ROOT / "spark/index.html").read_text(encoding="utf-8")
         self.assertNotIn("1都3県", html)
-        self.assertIn("全国47都道府県", html)
+        self.assertIn("全国すべて", html)
         for select_id in ("region", "topRegion"):
             match = re.search(
                 rf'<select id="{select_id}">([\s\S]*?)</select>',
@@ -82,7 +82,7 @@ class NationwideTests(unittest.TestCase):
             (ROOT / "index.html").read_text(encoding="utf-8"),
             (ROOT / "spark/index.html").read_text(encoding="utf-8"),
         ]:
-            self.assertIn("全国47都道府県", content)
+            self.assertIn("全国すべて", content)
 
     def test_care_js_syntax(self):
         script = (ROOT / "assets/provider-search.js").read_text(encoding="utf-8")
