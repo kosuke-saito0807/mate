@@ -64,4 +64,18 @@ class DiscoveryQuality(unittest.TestCase):
    self.assertIn(":focus-visible",s)
    self.assertIn("prefers-reduced-motion",s)
    self.assertIn("44px",s)
+ def test_release_freshness_and_static_hosting_cache(self):
+  care=src("index.html")
+  spark=src("spark/index.html")
+  self.assertIn("mate-brand-alignment.css?v=20261102-ui",care)
+  self.assertIn("mate-brand-alignment.css?v=20261102-ui",spark)
+  config=json.loads(src("firebase.json"))
+  cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
+  self.assertEqual(cache["/release.json"],"no-store, max-age=0")
+  self.assertIn("must-revalidate",cache["**/*.html"])
+  self.assertIn("_site/release.json",src(".github/workflows/pages.yml"))
+  self.assertIn("spark/release.json",src(".github/workflows/firebase-spark-live.yml"))
+  self.assertIn("MATE_FIREBASE_AUTO_DEPLOY_ENABLED",src(".github/workflows/firebase-spark-live.yml"))
+  self.assertTrue((ROOT/"scripts/check_mate_live_sites.py").is_file())
+
 if __name__=="__main__":unittest.main()
