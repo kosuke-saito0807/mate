@@ -49,6 +49,12 @@ class ProductionMonitorContracts(unittest.TestCase):
         self.assertIn('HTTP mixed-content requests', SCRIPT)
         self.assertIn("req.url().startsWith('http://')", SCRIPT)
 
+    def test_audit_checks_live_spark_listing_visibility_and_https(self):
+        self.assertIn("formVisible:await formPage.evaluate",SCRIPT)
+        self.assertIn("if(service==='SPARK'&&!result.partnerPage.formVisible)",SCRIPT)
+        self.assertIn("httpRedirectsToHttps",SCRIPT)
+        self.assertIn("if(!result.partnerPage.secureContext)",SCRIPT)
+
     def test_audit_never_submits_forms(self):
         self.assertIn("page.request.get(href",SCRIPT)
         self.assertNotIn("page.request.post(",SCRIPT)
