@@ -99,6 +99,19 @@ run('failed Turnstile is rejected',()=>{
 run('wrong Turnstile action is rejected',()=>{
  const e=env({action:'mate_listing'});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);assert.equal(e.sent.length,0);
 });
+run('Custom CARE/SPARK/PLAY origins accept private consultation after valid Turnstile',()=>{
+ for(const [host,service] of [['care.kosodatemate.jp','CARE'],['spark.kosodatemate.jp','SPARK'],['play.kosodatemate.jp','PLAY'],['care.kosodatemate.jp','PLAY']]){
+  const e=env({host});
+  assert.match(submit(e,params(service)),/ご相談を受け付けました/);
+  assert.equal(e.sent.length,2);
+  assert.equal(e.table.rows[1][2],service);
+ }
+});
+run('Custom origin for a different service remains blocked',()=>{
+ const e=env({host:'play.kosodatemate.jp'});
+ assert.match(submit(e,params('CARE')),/ご相談を受け付けられませんでした/);
+ assert.equal(e.sent.length,0);
+});
 run('wrong widget hostname is rejected',()=>{
  const e=env({host:'evil.example'});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);assert.equal(e.sent.length,0);
 });

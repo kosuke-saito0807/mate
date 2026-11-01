@@ -102,6 +102,22 @@ test("PLAY accepted only from github pages",()=>{
  assert.equal(e.sent.length,1);
  assert.match(e.sent[0].subject,/【受付確認】PLAY/);
 });
+test("All three independent MATE custom domains are authorized for actual listing receipts",()=>{
+ for(const [host,service] of [["care.kosodatemate.jp","CARE"],["spark.kosodatemate.jp","SPARK"],["play.kosodatemate.jp","PLAY"],["care.kosodatemate.jp","PLAY"]]){
+  const e=makeEnvironment({host}),html=execute(e,input(service));
+  assert.match(html,/申請を受け付けました/,host+" / "+service);
+  assert.equal(e.approved.rows[1][24],"未審査");
+  assert.equal(e.sent.length,1);
+ }
+});
+test("Custom domains cannot forge unrelated service origins",()=>{
+ for(const [host,service] of [["spark.kosodatemate.jp","CARE"],["play.kosodatemate.jp","SPARK"],["spark.kosodatemate.jp","PLAY"]]){
+  const e=makeEnvironment({host});
+  assert.match(execute(e,input(service)),/受け付けられませんでした/,host+" / "+service);
+  assert.equal(e.approved.rows.length,1);
+  assert.equal(e.sent.length,0);
+ }
+});
 test("Wrong widget domain is refused",()=>{
  const e=makeEnvironment({host:"evil.example"});
  assert.match(execute(e,input()),/受け付けられませんでした/);
