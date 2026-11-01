@@ -162,6 +162,18 @@ function publishReviewedMateApplications(){
         };
         mateSelfAppendByHeaders_(care,values);careIds.add(unique);
       }
+      // Approval stages CARE for review; only a separately signed, dated,
+      // evidenced agreement can authorize the GitHub public exporter.
+      const contract=book.getSheetByName("掲載契約");
+      if(!contract)throw Error("掲載契約 tab missing");
+      if(!contract.getDataRange().getDisplayValues().slice(1).some(r=>r[1]==="CARE"&&r[2]===unique)){
+        mateSelfAppendByHeaders_(contract,{
+          "契約ID":"DRAFT-"+unique,"サービス":"CARE","掲載先ID":unique,
+          "企業・教室名":a[3],"プラン":"無料",
+          "成果単価税込円":"0","月額税込円":"0",
+          "条件版":"2026-11-01","状態":"未契約"
+        });
+      }
     }else if(!sparkIds.has(unique)){
       const values={
         "ID":unique,"企業・教室名":a[3],
@@ -196,7 +208,7 @@ function publishReviewedMateApplications(){
       // until signer identity, contract and partner consent are verified.
     }
     sheet.getRange(i+2,28).setValue(unique);
-    if(svc!=="PLAY")sheet.getRange(i+2,25).setValue(svc==="CARE"?"公開待ち":"契約確認待ち");
+    if(svc!=="PLAY")sheet.getRange(i+2,25).setValue("契約確認待ち");
     count++;
   }
   return count;
@@ -218,5 +230,5 @@ function installMateSelfServiceTriggers(){
    if(managed.includes(tr.getHandlerFunction()))ScriptApp.deleteTrigger(tr);
  }
  ScriptApp.newTrigger("publishReviewedMateApplications").timeBased().everyHours(1).create();
- return "MATE 掲載承認済みの契約ドラフト準備とCARE/SPARKの既存公開管理DB反映を毎時確認します。Gmail申請取込・営業メール送信なし。";
+ return "MATE CARE/SPARK/PLAYの審査承認後は契約ドラフトのみ準備します。契約完了前の公開なし。Gmail申請取込・営業メール送信なし。";
 }
