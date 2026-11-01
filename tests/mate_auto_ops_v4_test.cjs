@@ -70,4 +70,30 @@ assert.equal(referrals[1][5],'取次実施');
 assert.equal(run("mateV4SyncReferralLedger()"),0,'idempotent referral import');
 assert.equal(referrals.length,2);
 assert.equal(inquiries.length,3,'source inquiry rows stay intact');
-console.log('PASS: auto-send off by default, legal/identity gates, personal email exclusion, consent-only referral, idempotency; NO email sent.');
+// Blank worksheet rows must not skew source row numbers for future status updates.
+sheet('gap-test',['item'],[['first'],[],['third']]);
+const gapRows=run("mateV4Rows_(mateV4Tab_(mateV4Book_(),'gap-test'))");
+assert.equal(gapRows.length,2);
+assert.equal(gapRows[0]._row,2);
+assert.equal(gapRows[1]._row,4,'physical row preserved after blank row');
+
+// A licensed CSV is NOT evidence that a partner has opted into solicitation.
+// Even a CSV that self-asserts OPT_IN must arrive in human-review state.
+sheet('収集元設定V1',['サービス','ソース名','取得元CSV HTTPS URL','再利用許諾確認','有効','最終取込日時','前回結果'],[
+ ['SPARK','Source with unreviewed opt-in claim','https://licensed.example.org/data.csv','確認済み','TRUE','','']
+]);
+context.UrlFetchApp={fetch:()=>({
+ getResponseCode:()=>200,
+ getBlob:()=>({getBytes:()=>Array(300).fill(65)}),
+ getContentText:()=>[
+ 'service,name,website,region,email,contact_url,source_url,mail_basis,checked_at,solicitation_prohibited',
+ 'SPARK,Licensed Studio,https://licensed.example.org/,Tokyo,partners@licensed.example.org,https://licensed.example.org/contact,https://licensed.example.org/contact,OPT_IN,2026-11-01,FALSE'
+ ].join('\n')
+})};
+context.Utilities.parseCsv=text=>text.trim().split(/\r?\n/).map(line=>line.split(','));
+context.Utilities.computeDigest=(algo,input)=>Array.from({length:32},(_,i)=>(input.length+i*7)%256);
+assert.equal(run("mateV4CollectLeads()"),1);
+assert.equal(leads.at(-1)[13],'窓口確認待ち','unreviewed CSV must not become send-ready');
+assert.equal(leads.at(-1)[9],'OPT_IN','claimed basis retained as unverified source data');
+assert.equal(mails,0,'no outbound email is attempted');
+console.log('PASS: auto-send off by default, legal/identity gates, personal email exclusion, consent-only referral, idempotency, blank-row safety and source-review gates; NO email sent.');
