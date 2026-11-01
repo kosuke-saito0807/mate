@@ -60,6 +60,11 @@ class SparkFullFeatureTests(unittest.TestCase):
             {**CONTRACT, "終了日": "2026-10-16"},
             {**CONTRACT, "開始日": "bogus"},
             {**CONTRACT, "状態": "未契約"},
+            {**CONTRACT, "開始日": ""},
+            {**CONTRACT, "終了日": ""},
+            {**CONTRACT, "条件版": ""},
+            {**CONTRACT, "同意日時": "2026-10-19"},
+            {**CONTRACT, "契約ID": "DRAFT-spark-1"},
         ]
         for case in cases:
             with self.subTest(case=case):
