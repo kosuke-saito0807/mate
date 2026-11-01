@@ -47,6 +47,10 @@ class OwnerSelfServiceTest(unittest.TestCase):
                       'a[24]!=="承認"','a[25]!=="確認済み"',
                       '"状態":"未契約"','"体験受付許諾":"未確認"'):
             self.assertIn(token,gs)
+        # CARE approval prepares an INACTIVE contract; it does not publish
+        # until a separate authorized signer and evidence are recorded.
+        self.assertIn('"サービス":"CARE","掲載先ID":unique',gs)
+        self.assertIn('sheet.getRange(i+2,25).setValue("契約確認待ち")',gs)
         self.assertNotIn("GmailApp.sendEmail",gs)
         self.assertNotIn("GmailApp.createDraft",gs)
         self.assertNotIn("メールアドレス",gs)
