@@ -27,6 +27,11 @@ class PublicLinkCutover(unittest.TestCase):
    self.assertIn("https://mate-play-prod.web.app/",result[r/"index.html"])
    self.assertIn(m.OLD,(r/"index.html").read_text())
    self.assertIn(m.OLD,(r/"secret.txt").read_text())
+ def test_play_owner_pages_use_canonical_production_domain(self):
+  for name in ("play-listing.html","play-operator.html"):
+   page=(m.ROOT/name).read_text(encoding="utf-8")
+   self.assertIn("https://play.kosodatemate.jp/",page,name)
+   self.assertNotIn("https://mate-play.kosuke-saito0807.chatgpt.site/",page,name)
  def test_public_site_never_links_to_unindexed_test(self):
   for page in list(m.ROOT.glob("*.html"))+list((m.ROOT/"spark").glob("*.html")):
    self.assertNotIn("mate-play-test.web.app",page.read_text(encoding="utf-8"),page.name)
