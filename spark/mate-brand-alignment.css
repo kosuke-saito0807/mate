@@ -69,3 +69,37 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
  .hero h1{font-size:clamp(34px,9vw,43px);line-height:1.3}
  .nav .nav-search-cta{padding:8px 12px;font-size:11px}
 }
+
+
+/* 2026-11-01 layout parity with MATE CARE/PLAY. No image stretching. */
+@media(min-width:761px){
+ .hero .hero-inner{height:auto;min-height:510px;padding:48px 0;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:34px;align-items:center}
+ .hero .hero-art{height:420px;min-width:0;border-radius:24px;background:linear-gradient(135deg,#f2f9ff,#e7f5fc 65%,#ffffff);box-shadow:0 13px 38px #123a6112}
+ .hero .hero-art .hero-visual{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:100%;object-fit:contain;object-position:center center;transform:none;-webkit-mask-image:none;mask-image:none}
+ .hero .hero-art::after{background:linear-gradient(90deg,rgba(255,255,255,.42),rgba(255,255,255,.14) 38%,transparent 68%);z-index:3}
+ .hero h1{font-size:clamp(38px,4vw,55px);margin:18px 0 10px}
+ .hero .tagline{margin-bottom:0}
+ .scene-intro>p:last-child{white-space:nowrap;font-size:13px}
+}
+.spark-introduction{margin-block:30px 38px;background:#f7fbff;border:1px solid #dce8f7;border-radius:16px;overflow:hidden}
+.spark-introduction section{padding:25px 32px;display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:auto auto auto;gap:7px 26px}
+.spark-introduction section+section{border-top:1px solid #dce8f7}
+.spark-introduction .section-label{grid-column:1;grid-row:1;font-size:11px;font-weight:900;color:#0878ea;letter-spacing:.15em}
+.spark-introduction h2{grid-column:1;grid-row:2 / 4;margin:0;font-size:25px;line-height:1.5;letter-spacing:-.04em}
+.spark-introduction p:not(.section-label){grid-column:2;grid-row:2;margin:0;color:#627184;font-size:14px;line-height:1.9}
+.spark-introduction a{grid-column:2;grid-row:3;justify-self:start;color:#0878ea;font-weight:800;font-size:13px}
+#demoLink[hidden]{display:none!important}
+#demoBanner{background:#e8f2ff;border-color:#c9ddfa;color:#264c76}
+@media(max-width:760px){
+ .hero .hero-inner{height:auto;min-height:0;padding:28px 0 32px;gap:22px}
+ .hero .hero-art{height:auto;aspect-ratio:16/10;border-radius:20px}
+ .hero .hero-art .hero-visual{width:100%;height:100%;object-fit:contain;object-position:center center;transform:none}
+ .hero .hero-art::after{display:none}
+ .spark-introduction{margin-block:12px 30px}
+ .spark-introduction section{display:block;padding:24px 22px}
+ .spark-introduction h2{font-size:25px}
+ .spark-introduction .section-label{margin-bottom:10px}
+ .spark-introduction a{display:inline-block;margin-top:10px}
+ .scene-intro>p:last-child{white-space:normal}
+}
+@media(min-width:761px) and (max-width:1100px){.scene-intro>p:last-child{white-space:normal}}

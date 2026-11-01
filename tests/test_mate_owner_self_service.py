@@ -15,7 +15,11 @@ class OwnerSelfServiceTest(unittest.TestCase):
                               "description","listing_content_checked_at","listing_permission",
                               "trial_referral_consent","listing_payload_b64"):
                     self.assertRegex(html,r'name="'+field+r'"')
-                self.assertIn("会員登録不要",html)
+                if svc=="PLAY":
+                    self.assertIn("MATE運営事務局が内容と掲載権限を確認",html)
+                    self.assertNotIn("会員登録不要・掲載料無料。フォーム送信後",html)
+                else:
+                    self.assertIn("会員登録不要",html)
                 self.assertIn('name="description"',html)
                 self.assertIn('minlength="25"',html)
                 self.assertIn('name="listing_permission"',html)

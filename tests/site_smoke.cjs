@@ -199,24 +199,18 @@ async function main() {
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
-    assert.ok(sparkIdentity.mask.includes('linear-gradient'),'SPARK should soften the original photo boundary');
-    assert.ok(sparkIdentity.wash.includes('0.7')&&sparkIdentity.wash.includes('0.37'),
-      'Option B white overlay must fade progressively without hiding every face');
-    assert.ok(sparkIdentity.frame.heroHeight>=570,'Option B must bring the family photo closer');
-    assert.ok(sparkIdentity.frame.x<sparkIdentity.frame.viewport*.45,
-      'Photo must start left of screen midpoint, hidden by gradual wash instead of a hard edge');
-    // Deliberately shift the photo right: retain the boy and allow the father to crop at the edge.
-    // The outer page still must not horizontally overflow (checked in checkPage above).
-    assert.ok(sparkIdentity.frame.right>=sparkIdentity.frame.viewport-5&&
-      sparkIdentity.frame.right<=sparkIdentity.frame.viewport+110,
-      'Hero photo may extend beyond the viewport by only the approved rightward offset');
-    assert.ok(Math.abs(sparkIdentity.frame.height*sparkIdentity.frame.naturalWidth/sparkIdentity.frame.naturalHeight-
-      (sparkIdentity.frame.right-sparkIdentity.frame.x))<6,
-      'Entire family photo must keep its intrinsic aspect ratio (no stretching/cropping)');
+    assert.equal(sparkIdentity.mask,'none','No large edge-mask is needed for the smaller contained photo');
+    assert.ok(sparkIdentity.frame.heroHeight>=500&&sparkIdentity.frame.heroHeight<=860,
+      'SPARK hero keeps sufficient copy height while the image stays in the compact frame');
+    assert.ok(sparkIdentity.frame.x>=0&&sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,
+      'SPARK photo frame stays within the viewport');
+    assert.ok(sparkIdentity.frame.height>=250&&sparkIdentity.frame.height<=450,
+      'SPARK image fits the smaller fixed-height visual container');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
-    assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載準備中'));
-    assert.ok(await spark.locator('a[href="?demo=1#discover"]').count()>0);
+    assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載許諾'));
+    assert.equal(await spark.locator('a[href="?demo=1#discover"]').count(),0,
+      'No public demo link; QA-only demo still requires explicit query');
     await spark.close();
     spark = await checkPage(browser,'/spark/?demo=1');
     await spark.waitForFunction(() => document.querySelectorAll('#cards article.card').length===12);
