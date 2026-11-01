@@ -23,10 +23,10 @@ const tabs={
 };
 const messages=[];
 function message(svc,id){
- const payload={service:svc,company:'QA架空テスト事業者（絶対に公開しない）',
+ const payload={service:svc,company:svc==='PLAY'?'QA Mock Laboratory':'QA架空テスト事業者（絶対に公開しない）',
   website:'https://example.org/',region:'東京都',city:'文京区',
   category:svc==='CARE'?'ベビーシッター':'音楽',ages:'小学生',
-  description:'この申請は完全に架空のE2E動作検証用データです。実在の教室でも契約でもなく公開しません。',
+  description:svc==='PLAY'?'この申請はモック実行環境でのみ使用され、実際の教室でも契約でもなく外部サイトに公開されません。':'この申請は完全に架空のE2E動作検証用データです。実在の教室でも契約でもなく公開しません。',
   monthlyPrice:'8000',ageMin:'6',ageMax:'12',
   listing_content_checked_at:'2026-10-23',listing_permission:svc==='PLAY'?'公開用の掲載情報を確認・許諾（審査後）':'掲載の意向（別途合意）',
   trial_referral_consent:''};
