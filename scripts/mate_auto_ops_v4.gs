@@ -263,11 +263,11 @@ function mateV4AuditOfficialContacts(){
     if(!['窓口確認待ち','公式公開メール確認済・送信待機'].includes(x['状態']))continue;
     if(x['営業拒否']==='TRUE'||!x['重複キー']||!mateV4Https_(x['公式URL']))continue;
     const note=x['最終確認結果']||'';
-    if(note.startsWith('AUTO_AUDIT '+today))continue;
-    // Don't retry recently checked unknown sources. A newly enabled
-    // published-address exception rechecks previously held mail candidates.
-    if(x['状態']!=='公式公開メール確認済・送信待機'&&
-       /^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
+    // When the owner turns on the public-address exception, re-check
+    // already held candidates. Otherwise leave a 14-day gap after audit.
+    const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
+    if(note.startsWith('AUTO_AUDIT '+today)&&!recheckHeld)continue;
+    if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
       if(mateV4Fresh_(last,14))continue;
     }
