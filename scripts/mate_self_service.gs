@@ -1,7 +1,9 @@
 /**
  * MATE owner self-service intake and safe "approve, then publish" pipeline.
- * To install: paste this alongside scripts/mate_inquiry_intake.gs as a SEPARATE
- * .gs file in the Apps Script owned by kosodatemate@gmail.com.
+ * For the current DIRECT Apps Script intake: install/replace this as a
+ * separate .gs file in the dedicated MATE owner operations project,
+ * alongside MATE AutoOps V4, NOT as a replacement for the live doPost app.
+ * Existing direct intake already writes to 掲載セルフ申請; no Gmail import is needed.
  * Does NOT send mail, sign contracts, auto approve, or process parent's PII.
  * Approved PLAY applications are staged as UNCONTRACTED drafts; no publication.
  * All human review stays in the private "掲載セルフ申請" sheet.
@@ -209,11 +211,12 @@ function mateSelfAppendByHeaders_(sheet,obj){
 // One-time account-owner setup. No automatic send or public approval is authorized.
 function installMateSelfServiceTriggers(){
  mateSelfOwner_();mateSelfBook_();
- const fns=["syncMateSelfServiceApplications","publishReviewedMateApplications"];
+ // MATE's public forms now write directly to the Sheet. Only stage
+ // human-reviewed approvals. Retire the old FormSubmit Gmail parser trigger.
+ const managed=["syncMateSelfServiceApplications","publishReviewedMateApplications"];
  for(const tr of ScriptApp.getProjectTriggers()){
-   if(fns.includes(tr.getHandlerFunction()))ScriptApp.deleteTrigger(tr);
+   if(managed.includes(tr.getHandlerFunction()))ScriptApp.deleteTrigger(tr);
  }
- ScriptApp.newTrigger(fns[0]).timeBased().everyHours(1).create();
- ScriptApp.newTrigger(fns[1]).timeBased().everyHours(1).create();
- return "セルフ申請の受信と承認済みデータの反映を毎時確認します。営業メール送信なし。";
+ ScriptApp.newTrigger("publishReviewedMateApplications").timeBased().everyHours(1).create();
+ return "MATE 掲載承認済みの契約ドラフト準備とCARE/SPARKの既存公開管理DB反映を毎時確認します。Gmail申請取込・営業メール送信なし。";
 }
