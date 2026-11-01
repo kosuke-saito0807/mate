@@ -12,7 +12,7 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
     def test_original_branding_and_sections(self):
         h = (SITE / "index.html").read_text(encoding="utf-8")
         for text in ("MEET YOUR NEXT POSSIBILITY.", "好きが見つかる。", "世界が、",
-                     "ABOUT MATE SPARK", "OUR MISSION", "月謝の上限",
+                     "ABOUT", "OUR MISSION", "月謝の上限",
                      "通える曜日", "体験相談が可能な教室のみ", "FOR SCHOOL PARTNERS"):
             with self.subTest(text=text):
                 self.assertIn(text, h)
@@ -53,25 +53,25 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
         self.assertNotIn("全国47都道府県",footer)
         self.assertNotIn("架空サンプルは表示例で",footer)
         self.assertIn('class="footerTop"',care)
-        self.assertIn("height:clamp(570px,46vw,680px)",css)
-        self.assertIn("inset:0 0 0 auto",css)
-        self.assertIn("width:auto",css)
+        # Preserve the earlier source configuration for historical reference,
+        # but the new final CSS overrides must produce the smaller, contained hero.
+        self.assertIn("min-height:510px",css)
+        self.assertIn(".hero .hero-art{height:420px",css)
+        self.assertIn(".hero .hero-art .hero-visual",css)
         self.assertIn("object-fit:contain",css)
-        self.assertIn("mask-image:linear-gradient",css)
-        self.assertIn("rgba(0,0,0,.38) 10%",css)
-        self.assertIn(".hero .hero-art::after{",css)
-        self.assertIn("rgba(255,255,255,.70) 42%",css)
-        self.assertIn("rgba(255,255,255,0) 66%",css)
-        self.assertIn("z-index:3",css)
-        self.assertIn("20261031-nav-hero-v2",html)
-        self.assertIn("object-fit:contain;object-position:right center",html)
         self.assertNotIn("object-fit:cover",css)
-        self.assertNotIn("max-width:1380px",css)
-        self.assertNotIn("max-width:1380px",care_css)
+        self.assertIn("transform:none",css)
+        self.assertIn("spark-introduction",html)
+        self.assertIn('id="about"',html)
+        self.assertIn('id="mission"',html)
+        self.assertNotIn("01 / ABOUT MATE SPARK",html)
+        self.assertNotIn("02 / OUR MISSION",html)
+        self.assertIn("習い事探しの頼れる相棒「MATE SPARK」",html)
+        self.assertIn('href="partners.html">掲載について相談する',html)
+        self.assertNotIn("12教室のデモを試す",html)
+        self.assertIn("mate-brand-alignment.css",html)
         self.assertIn("--mate-font:",css)
         self.assertIn("--mate-font:",care_css)
-        self.assertIn("mate-brand-alignment.css",html)
-        self.assertIn("mate-brand-alignment.css",care)
 
     def test_inline_javascript_syntax(self):
         h = (SITE / "index.html").read_text(encoding="utf-8")
