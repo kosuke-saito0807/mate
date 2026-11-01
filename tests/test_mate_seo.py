@@ -28,6 +28,40 @@ class SeoLaunchTests(unittest.TestCase):
                 self.assertNotIn('"Review"', matches[0])
                 self.assertNotIn('"LocalBusiness"', matches[0])
 
+    def test_business_application_pages_are_searchable_and_interlinked(self):
+        pages = {
+            "contact.html": ("https://care.kosodatemate.jp/contact.html", "MATE CARE", "name=\"service\" value=\"CARE\""),
+            "partners.html": ("https://care.kosodatemate.jp/partners.html", "MATE CARE", "掲載条件・料金"),
+            "spark/partners.html": ("https://spark.kosodatemate.jp/partners.html", "MATE SPARK", "name=\"service\" value=\"SPARK\""),
+            "play-listing.html": ("https://care.kosodatemate.jp/play-listing.html", "MATE PLAY", "name=\"service\" value=\"PLAY\""),
+        }
+        for path, (canonical, service, marker) in pages.items():
+            with self.subTest(page=path):
+                html = (ROOT / path).read_text(encoding="utf-8")
+                self.assertIn('<link rel="canonical" href="' + canonical + '">', html)
+                self.assertEqual(html.count('rel="canonical"'), 1)
+                self.assertIn('<meta name="description" content="', html)
+                self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">', html)
+                self.assertIn('<meta property="og:url" content="' + canonical + '">', html)
+                self.assertIn('<meta property="og:site_name" content="' + service + '">', html)
+                self.assertIn('<meta name="twitter:card" content="summary_large_image">', html)
+                self.assertIn(marker, html)
+                self.assertNotIn('http://spark.kosodatemate.jp', html)
+        for path in ("contact.html", "spark/partners.html", "play-listing.html"):
+            html = (ROOT / path).read_text(encoding="utf-8")
+            self.assertIn("ほかの", html)
+            self.assertIn("https://care.kosodatemate.jp/contact.html", html)
+            self.assertIn("https://spark.kosodatemate.jp/partners.html", html)
+            self.assertIn("https://care.kosodatemate.jp/play-listing.html", html)
+
+    def test_shared_play_application_is_in_its_actual_host_sitemap(self):
+        xml = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+        self.assertIn("<loc>https://care.kosodatemate.jp/play-listing.html</loc>", xml)
+        self.assertNotIn("<loc>https://play.kosodatemate.jp/play-listing.html</loc>", xml)
+        # PLAY's production site is maintained in a separate, manually released
+        # Firebase project; this shared form must not be mistaken for that SPA.
+        self.assertNotIn("https://play.kosodatemate.jp/", xml)
+
     def test_sitemaps_only_include_real_public_pages(self):
         for rel, base, directory in [
             ("sitemap.xml", "https://care.kosodatemate.jp/", ROOT),
