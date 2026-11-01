@@ -88,9 +88,9 @@ context.UrlFetchApp={fetch:()=>({
  getContentText:()=>[
  'service,name,website,region,email,contact_url,source_url,mail_basis,checked_at,solicitation_prohibited',
  'SPARK,Licensed Studio,https://licensed.example.org/,Tokyo,partners@licensed.example.org,https://licensed.example.org/contact,https://licensed.example.org/contact,OPT_IN,2026-11-01,FALSE'
- ].join('\\n')
+ ].join('\n')
 })};
-context.Utilities.parseCsv=text=>text.trim().split(/\\r?\\n/).map(line=>line.split(','));
+context.Utilities.parseCsv=text=>text.trim().split(/\r?\n/).map(line=>line.split(','));
 context.Utilities.computeDigest=(algo,input)=>Array.from({length:32},(_,i)=>(input.length+i*7)%256);
 assert.equal(run("mateV4CollectLeads()"),1);
 assert.equal(leads.at(-1)[13],'窓口確認待ち','unreviewed CSV must not become send-ready');
