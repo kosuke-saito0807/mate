@@ -82,6 +82,28 @@ class SeoLaunchTests(unittest.TestCase):
         self.assertIn("guide-sitter-choice.html", (ROOT / "index.html").read_text(encoding="utf-8"))
         self.assertIn("guide-lessons-choice.html", (ROOT / "spark/index.html").read_text(encoding="utf-8"))
 
+    def test_new_family_guides_are_published_safely(self):
+        additions={
+            "guide-sitter-first-visit.html":"https://care.kosodatemate.jp/",
+            "guide-baby-outing-prep.html":"https://care.kosodatemate.jp/",
+            "spark/guide-lesson-trial-review.html":"https://spark.kosodatemate.jp/",
+        }
+        index=(ROOT/"guides.html").read_text(encoding="utf-8")
+        care_map=(ROOT/"sitemap.xml").read_text(encoding="utf-8")
+        spark_map=(ROOT/"spark/sitemap.xml").read_text(encoding="utf-8")
+        for rel,base in additions.items():
+            with self.subTest(path=rel):
+                text=(ROOT/rel).read_text(encoding="utf-8")
+                url=base+rel.removeprefix("spark/")
+                self.assertIn('<link rel="canonical" href="'+url+'">',text)
+                self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">',text)
+                self.assertIn('application/ld+json',text)
+                self.assertIn('G-CHXY0DC2WP',text)
+                self.assertIn("<h1>",text)
+                self.assertIn("<loc>"+url+"</loc>",spark_map if rel.startswith("spark/") else care_map)
+                self.assertIn(rel.removeprefix("spark/"),index)
+                self.assertNotIn("架空の掲載実績",text)
+
     def test_internal_qa_pages_do_not_index(self):
         for name in ("direct-intake-test-20261025.html", "play-direct-intake-test-20261025.html"):
             self.assertIn('content="noindex,nofollow,noarchive"', (ROOT / name).read_text(encoding="utf-8"))
