@@ -49,7 +49,7 @@ class SeoLaunchTests(unittest.TestCase):
                 self.assertNotIn('http://spark.kosodatemate.jp', html)
         for path in ("contact.html", "spark/partners.html", "play-listing.html"):
             html = (ROOT / path).read_text(encoding="utf-8")
-            self.assertIn("ほかの", html)
+            self.assertIn("他のサービスへの掲載申請" if path == "spark/partners.html" else "ほかの", html)
             self.assertIn("https://care.kosodatemate.jp/contact.html", html)
             self.assertIn("https://spark.kosodatemate.jp/partners.html", html)
             self.assertIn("https://care.kosodatemate.jp/play-listing.html", html)
