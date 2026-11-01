@@ -27,7 +27,7 @@ REQUIRED_SPARK = {
 }
 REQUIRED_CONTRACT = {
     "契約ID", "サービス", "掲載先ID", "同意者", "同意日時",
-    "合意証拠URL・メールID", "状態",
+    "合意証拠URL・メールID", "条件版", "開始日", "終了日", "状態",
 }
 ALLOWED_CONSENT = {"許可", "承諾済", "許諾済"}
 ALLOWED_CONTRACT = {"有効", "掲載中"}
@@ -116,17 +116,23 @@ def public_tags(raw):
 
 
 def date_eligible(row, today):
-    """Active agreement can never be prematurely effective or expired."""
+    """The signed, evidenced agreement must have a complete current term."""
     start = value(row, "開始日")
     end = value(row, "終了日")
+    signed = value(row, "同意日時")
+    if not (start and end and signed and value(row, "条件版")):
+        return False
+    if value(row, "契約ID").startswith("DRAFT-"):
+        return False
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?)?", signed):
+        return False
     try:
-        if start and datetime.date.fromisoformat(start) > today:
-            return False
-        if end and datetime.date.fromisoformat(end) < today:
-            return False
+        start_date = datetime.date.fromisoformat(start)
+        end_date = datetime.date.fromisoformat(end)
+        signed_date = datetime.date.fromisoformat(signed[:10])
     except ValueError:
         return False
-    return True
+    return signed_date <= today and start_date <= today <= end_date
 
 
 def build_public(candidates, contracts, today=None):
@@ -169,8 +175,10 @@ def build_public(candidates, contracts, today=None):
         station = value(row, "最寄駅")
         checked_at = value(row, "掲載内容確認日")
         try:
-            datetime.date.fromisoformat(checked_at)
+            checked_date = datetime.date.fromisoformat(checked_at)
         except ValueError:
+            continue
+        if not 0 <= (today - checked_date).days <= 365:
             continue
         areas = value(row, "都県・対象")
         region = next((p for p in PREFECTURES if areas.startswith(p)), "")
