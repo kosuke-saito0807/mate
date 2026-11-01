@@ -40,6 +40,14 @@ jobs:
           python3 -m json.tool spark/schools.json >/dev/null
           python3 -m json.tool spark/demo-schools.json >/dev/null
           python3 -m json.tool firebase.json >/dev/null
+      - name: Stamp deployed SPARK release for support checks
+        run: |
+          python3 - <<'PY'
+          import datetime,json,pathlib,subprocess
+          sha=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
+          output={"service":"SPARK","source_commit":sha,"deployed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"repository":"kosuke-saito0807/mate"}
+          pathlib.Path("spark/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\\n",encoding="utf-8")
+          PY
       - name: Deploy standalone SPARK to Firebase live site
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
