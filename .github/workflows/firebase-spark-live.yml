@@ -11,6 +11,12 @@ on:
       - "tests/test_mate_launch_preparation.py"
       - "tests/test_mate_owner_self_service.py"
       - "scripts/sync_spark_public.py"
+      # Revalidate + deploy when source deployment checks or workflow behavior change.
+      - "tests/test_mate_seo.py"
+      - "tests/test_mate_ga4.py"
+      - "tests/test_discoverability_ux.py"
+      - "tests/test_public_data_contract.py"
+      - ".github/workflows/firebase-spark-live.yml"
   workflow_dispatch:
 
 permissions:
