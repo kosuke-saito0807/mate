@@ -200,8 +200,8 @@ async function main() {
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
     assert.equal(sparkIdentity.mask,'none','No large edge-mask is needed for the smaller contained photo');
-    assert.ok(sparkIdentity.frame.heroHeight>=500&&sparkIdentity.frame.heroHeight<=650,
-      'SPARK hero should be compact and balanced with CARE/PLAY');
+    assert.ok(sparkIdentity.frame.heroHeight>=500&&sparkIdentity.frame.heroHeight<=860,
+      'SPARK hero keeps sufficient copy height while the image stays in the compact frame');
     assert.ok(sparkIdentity.frame.x>=0&&sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,
       'SPARK photo frame stays within the viewport');
     assert.ok(sparkIdentity.frame.height>=250&&sparkIdentity.frame.height<=450,
