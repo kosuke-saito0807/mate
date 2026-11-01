@@ -1,5 +1,15 @@
 # MATE｜FormSubmitを使わない掲載申請受付（導入手順）
 
+> **2026-11-01 追記：独自ドメイン（現在の公開URL）対応**  
+> CARE=`care.kosodatemate.jp`、SPARK=`spark.kosodatemate.jp`、PLAY=`play.kosodatemate.jp`。古いGitHub Pages/web.appだけを許可していたWebアプリのTurnstileホスト名判定を `scripts/mate_direct_intake.gs` で修正した。**GitHubへのマージだけでは、既存のGAS Webアプリが更新されない。**
+>
+> 既存の独立プロジェクト **「MATE 直接掲載受付」** を `kosodatemate@gmail.com` で開き、現在の `コード.gs` を[最新版の直接受付コード](https://github.com/kosuke-saito0807/mate/blob/main/scripts/mate_direct_intake.gs)で置換し保存する。**直前に別プロジェクトで設定した `mate_self_service.gs` や営業用V4は触らない。** `setupMateDirectIntake` を実行し、**デプロイ→デプロイを管理→既存Webアプリの編集→新バージョン→デプロイ** で既存 `/exec` URLを維持する。ターンスタイルのSecretキーは再入力不要なら触らず、外部へ共有しない。
+>
+> <https://dash.cloudflare.com/> → Turnstile → 現在のサイトキーに対応するウィジェット → Settings → Hostname Managementで `kosodatemate.jp`（または3つの正確なサブドメイン）が許可されていることを確認。**サイト側のCloudflare設定とGAS側のホスト判定は両方必要**。既存の `kosuke-saito0807.github.io` / `mate-spark.web.app` は必要に応じ残す。フォームからの申請は依然「未審査」になり、自動掲載はしない。設定を変更した後、必ず実サイトで自社管理のテスト申請をし、Sheetsに未審査1件、秘密の担当者欄は公開されないことを確認。
+>
+> これとは別に、PLAYのデータ自動同期は `play.kosodatemate.jp` 本番のレビュー済SHA検査があり、GitHub上のコード更新後に手動の本番リリースが必要となる場合がある。安全装置を迂回して有効化しない。
+
+
 **実装日：2026-10-24／最新確認：2026-10-25／状態：CARE・PLAY各運営テストフォームの実申請・非公開保存を実証。SPARKの実送信、本番切替待ち。**
 対象：CARE 掲載申請 `contact.html`、SPARK 教室掲載 `spark/partners.html`、PLAY 体験掲載 `play-listing.html`。
 保護者向けの `consult.html` と SPARK 体験相談は **まだ従来受付**。本リリースの対象外。
