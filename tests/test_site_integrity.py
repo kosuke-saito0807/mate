@@ -91,7 +91,14 @@ class SiteIntegrity(unittest.TestCase):
             "担当者": "非公開担当者", "メール": "private@example.org",
         }
         today = datetime.date(2026,10,21)
-        published = build_public([row],today=today)
+        contract = {
+            "契約ID": "CARE-C-1", "サービス": "CARE", "掲載先ID": "care-test-1",
+            "同意者": "Authorized operator", "同意日時": "2026-10-20",
+            "条件版": "2026-10", "合意証拠URL・メールID": "private-evidence",
+            "開始日": "2026-10-20", "終了日": "2027-10-20", "状態": "有効",
+        }
+        self.assertEqual(build_public([row], today=today), [])
+        published = build_public([row], [contract], today=today)
         self.assertEqual(len(published),1)
         self.assertEqual(published[0]["verified_at"],"2026-10-20")
         self.assertNotIn("メール",published[0])
@@ -101,9 +108,9 @@ class SiteIntegrity(unittest.TestCase):
             {"公式サイト": "javascript:alert(1)"}, {"掲載情報確認日": ""},
             {"掲載情報確認日": "2026-10-24"}, {"事業者名": ""},
         ):
-            self.assertEqual(build_public([{**row, **override}],today=today),[])
+            self.assertEqual(build_public([{**row, **override}], [contract], today=today),[])
         with self.assertRaises(ValueError):
-            build_public([row, row],today=today)
+            build_public([row, row], [contract], today=today)
 
     def test_unverified_trial_intake_stays_off_even_after_approved_school(self):
         config = json.loads((SITE / "config.json").read_text(encoding="utf-8"))

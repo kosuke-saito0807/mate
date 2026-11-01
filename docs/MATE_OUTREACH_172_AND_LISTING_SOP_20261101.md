@@ -38,8 +38,8 @@
 - CARE: https://care.kosodatemate.jp/contact.html
 - SPARK: https://spark.kosodatemate.jp/partners.html
 - PLAY: https://care.kosodatemate.jp/play-listing.html
-- 運営Gmailに届いた申請は、専用の `scripts/mate_self_service.gs` の `syncMateSelfServiceApplications`（導入済みの場合は毎時）が `掲載セルフ申請` に取込。エラーや改ざんを疑う申請は手動確認、無断承認しない。
-- 元メールのメッセージIDと申請情報を紐づける。内部テスト3件は「差戻し」のままで、実績・公開対象にはしない。
+- 3サイトの本番掲載申請は独立した直接受付GAS Webアプリから `掲載セルフ申請` と `掲載申請連絡先` に保存され、申請者へ自動受付メールを返す。受付メールを取り込む旧 `syncMateSelfServiceApplications` は使わない。エラー・不審申請は手動確認し、無断承認しない。
+- `掲載セルフ申請` のX列には直接受付証跡 `WEB-...` が保存される。2026-11-01のCARE/SPARK/PLAY本番テストも「差戻し」にして非公開。申請者の連絡先は事務局用タブにのみ保存する。
 
 ### B. 人が必ず確認する項目
 - 公式サイト・会社／教室名・所在地・カテゴリ・紹介文・料金や年齢などの事実、画像の利用許諾、同意の証拠。
@@ -48,10 +48,11 @@
 - 公開IDはサービスに応じて自動または運営設定。未審査の申請は公開しない。
 
 ### C. 承認後のサイト反映
-- `publishReviewedMateApplications` は、審査済CARE申請を `営業管理DB` に追加して公開データ同期対象にする。
+- `publishReviewedMateApplications` は、人が審査・権限確認を完了したCARE申請を `営業管理DB` に準備し、`掲載契約` に **未契約** の無料ドラフトを作成する（新GASコード反映後）。CAREの公開データ同期はさらに契約ID・契約先ID・同意者・同意日時・証拠・条件版・開始日/終了日が揃う有効な契約と照合し、契約なし/未契約/期限切れなら **公開対象0件** とする。ステータスは `契約確認待ち`。旧版GASから登録されたCAREも、GitHubの公開同期が契約を確認するため無契約のまま公開されない。
 - SPARK申請は `SPARK営業候補` へ反映すると同時に `掲載契約` に **未契約** の下書きを作る。独立に契約者、同意日時、合意証跡と条件を確認して `状態=有効` にするまでサイト公開対象にならない。
 - PLAYは `掲載セルフ申請` と `掲載契約` を突合。公開IDと掲載先ID一致、審査者・権限確認・掲載意思、情報確認日、有効契約、契約期間・同意証跡・カテゴリ等の全条件が必要。承認済みデータ専用自動同期はGitHubの設定フラグと「既存本番UIがレビュー済み」の条件が揃った場合のみ有効。
 - CARE/SPARKの同期： https://github.com/kosuke-saito0807/mate/actions/workflows/sync-smartsheet-public.yml
+- CAREの契約ドラフト自動作成を有効にするには、既存の **MATE営業管理DBに紐づく運用Apps Script** の `mate_self_service.gs` だけを[最新版](https://github.com/kosuke-saito0807/mate/blob/main/scripts/mate_self_service.gs)に更新・保存する。`doPost` や直接受付用の別GAS、V4営業自動化を変更しない。既存の毎時トリガーはそのまま使用する。
 - PLAYの同期： https://github.com/kosuke-saito0807/mate-platform-private/actions/workflows/play-approved-live-data-sync.yml
 - サイトの本番検索／詳細リンクまでを実際に確認し、掲載依頼者へ掲載URLを通知する。今のコードでは**全サービスの事業者への掲載完了通知の全自動送信は未実装**。
 
