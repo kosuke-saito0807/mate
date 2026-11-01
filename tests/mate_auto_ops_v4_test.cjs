@@ -171,4 +171,11 @@ settings.MATE_PUBLIC_SITE_AUDIT='OFF';
 assert.equal(run("mateV4AuditOfficialContacts()"),'OFF');
 assert.equal(mails,0,'no live third-party sending in any test');
 
+// Verify discovery never follows a cross-origin contact link.
+context.__testHtml='<html><a href="/contact/">Contact</a></html>';
+assert.equal(run("mateV4ContactLink_(__testHtml,'https://company.example.org/')"),
+  'https://company.example.org/contact/');
+context.__testHtml='<html><a href="https://external.example.org/contact/">Contact</a></html>';
+assert.equal(run("mateV4ContactLink_(__testHtml,'https://company.example.org/')"),
+  '','external host excluded from first-party email search');
 console.log('PASS: auto-send off by default, legal/identity gates, personal email exclusion, consent-only referral, idempotency, blank-row safety and source-review gates, public-business opt-in audit; NO email sent.');
