@@ -75,7 +75,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
 @media(min-width:761px){
  .hero .hero-inner{height:auto;min-height:510px;padding:48px 0;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:34px;align-items:center}
  .hero .hero-art{height:420px;min-width:0;border-radius:24px;background:#f1f8ff;box-shadow:0 13px 38px #123a6112}
- .hero .hero-art .hero-visual{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:100%;object-fit:cover;object-position:center center;transform:none;-webkit-mask-image:none;mask-image:none}
+ .hero .hero-art .hero-visual{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:100%;object-fit:contain;object-position:center center;transform:none;-webkit-mask-image:none;mask-image:none}
  .hero .hero-art::after{background:linear-gradient(90deg,rgba(255,255,255,.18),transparent 45%);z-index:1}
  .hero h1{font-size:clamp(38px,4vw,55px);margin:18px 0 10px}
  .hero .tagline{margin-bottom:0}
@@ -93,7 +93,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
 @media(max-width:760px){
  .hero .hero-inner{height:auto;min-height:0;padding:28px 0 32px;gap:22px}
  .hero .hero-art{height:auto;aspect-ratio:16/10;border-radius:20px}
- .hero .hero-art .hero-visual{width:100%;height:100%;object-fit:cover;object-position:center center;transform:none}
+ .hero .hero-art .hero-visual{width:100%;height:100%;object-fit:contain;object-position:center center;transform:none}
  .hero .hero-art::after{display:none}
  .spark-introduction{margin-block:12px 30px}
  .spark-introduction section{display:block;padding:24px 22px}
