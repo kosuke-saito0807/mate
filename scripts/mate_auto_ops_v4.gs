@@ -15,6 +15,8 @@
  *   MATE_SENDER_ADDRESS = valid real sender postal address
  *   MATE_AUTO_SEND_LEGAL_REVIEWED = YES
  *   (optional) MATE_DAILY_CAP = 5, maximum 5
+ *   MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED = YES, opt-in to vetted publicly posted business addresses
+ *   (optional) MATE_PUBLIC_SITE_AUDIT = OFF, disables safe automatic public-site review
  */
 const MATE_V4=Object.freeze({
   bookId:'1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ',
@@ -22,7 +24,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-11-01-review-drafts-replies'
+  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-11-01-public-email-audit'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -194,6 +196,128 @@ function mateV4OptoutInbox(){
   }
   return count;
 }
+
+/*
+ * Public business-address verification for Japanese unsolicited-email rules.
+ * Audit only the merchant's own HTTPS pages, never an unrelated directory,
+ * and never mistake a published address for permission to publish a listing.
+ * The sender must explicitly opt into the legal exception as a SCRIPT PROPERTY.
+ */
+function mateV4PublicHtml_(url){
+  if(!mateV4Https_(url))return '';
+  const host=mateV4Host_(url);
+  if(/^\d+(?:\.\d+){3}$/.test(host)||/\.(?:local|internal|test|example)$/.test(host))return '';
+  const r=UrlFetchApp.fetch(url,{
+    muteHttpExceptions:true,followRedirects:false,timeout:10000
+  });
+  if(r.getResponseCode()!==200)return '';
+  const bytes=r.getBlob().getBytes();
+  if(bytes.length>250000)return '';
+  const html=r.getContentText('UTF-8');
+  return /<(?:html|body|main|a|div|p)\b/i.test(html)?html.slice(0,250000):'';
+}
+function mateV4SalesRefusal_(html){
+  const t=String(html||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').slice(0,250000);
+  return /(営業|勧誘|セールス|広告|宣伝).{0,32}(お断り|ご遠慮|禁止|受け付けておりません|お控え|拒否)/i.test(t)||
+    /(お断り|ご遠慮|禁止|拒否).{0,24}(営業|勧誘|セールス|広告|宣伝)/i.test(t)||
+    /no\s+(?:sales|solicitation|marketing)\s+(?:emails?|messages?)/i.test(t);
+}
+function mateV4RoleEmail_(raw){
+  const email=mateV4Email_(raw);
+  if(!email)return '';
+  const local=email.split('@')[0];
+  return /^(?:info|contact|office|inquiry|toiawase|business|partner|partners|partnerships|hello|support|general|sales|customer|mail)(?:[._+-][a-z0-9]+)?$/i.test(local)?email:'';
+}
+function mateV4PublishedEmails_(html){
+  const found=new Set(),pattern=/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+  for(const match of String(html||'').match(pattern)||[]){
+    const email=mateV4RoleEmail_(match);
+    if(email)found.add(email);
+  }
+  return [...found];
+}
+/*
+ * Visits 4 prospects/hour, at most two pages each, with an HTTP 200,
+ * exact public business email and no visible rejection signal required.
+ * Ambiguous cases remain human-review; no form submissions or new email
+ * to the destination occur here.
+ *
+ * An operator choosing to rely on the published-address exception must
+ * independently set MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED=YES in addition
+ * to existing MATE_AUTO_SEND=ON and MATE_AUTO_SEND_LEGAL_REVIEWED=YES.
+ */
+function mateV4AuditOfficialContacts(){
+  const p=PropertiesService.getScriptProperties();
+  if(p.getProperty('MATE_PUBLIC_SITE_AUDIT')==='OFF')return 'OFF';
+  const autoException=p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'&&
+    p.getProperty('MATE_AUTO_SEND')==='ON'&&
+    p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES';
+  const b=mateV4Book_(),tab=mateV4Tab_(b,MATE_V4.leads);
+  const leads=mateV4Rows_(tab);
+  const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
+    .map(x=>x['メール'].toLowerCase()).filter(Boolean));
+  let checked=0,eligible=0,discovered=0;
+  const today=mateV4Jst_().slice(0,10);
+  for(const x of leads){
+    if(checked>=4)break;
+    if(!['窓口確認待ち','公式公開メール確認済・送信待機'].includes(x['状態']))continue;
+    if(x['営業拒否']==='TRUE'||!x['重複キー']||!mateV4Https_(x['公式URL']))continue;
+    const note=x['最終確認結果']||'';
+    if(note.startsWith('AUTO_AUDIT '+today))continue;
+    // Don't retry recently checked unknown sources. A newly enabled
+    // published-address exception rechecks previously held mail candidates.
+    if(x['状態']!=='公式公開メール確認済・送信待機'&&
+       /^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
+      const last=note.slice(11,21);
+      if(mateV4Fresh_(last,14))continue;
+    }
+    const host=mateV4Host_(x['公式URL']),pages=[];
+    for(const url of [x['窓口URL'],x['公式URL']]){
+      if(!mateV4Https_(url)||mateV4Host_(url)!==host||pages.includes(url))continue;
+      pages.push(url);
+    }
+    if(!pages.length)continue;
+    checked++;
+    try{
+      const loaded=pages.map(url=>({url,html:mateV4PublicHtml_(url)}));
+      const valid=loaded.filter(z=>z.html);
+      const refused=valid.some(z=>mateV4SalesRefusal_(z.html));
+      const possible=[...new Set(valid.flatMap(z=>mateV4PublishedEmails_(z.html)))];
+      const old=mateV4RoleEmail_(x['業務用メール']);
+      // If no email was previously listed, avoid selecting an arbitrary
+      // third-party address among several generic addresses.
+      const email=old||(!x['業務用メール']&&possible.length===1?possible[0]:'');
+      const publicPage=email&&!refused?valid.find(z=>mateV4PublishedEmails_(z.html).includes(email)):null;
+      const detail=!valid.length?'公式HTTPSページ取得不可':
+        refused?'営業・勧誘の拒否表示を検出':
+        !email?'企業の公開窓口メールを一意に確認できず':
+        !publicPage?'既存メールは公式ページで確認できず':
+        '公式事業者サイトで業務用メール掲載確認';
+      const evidence='AUTO_AUDIT '+today+' '+detail+
+        (publicPage?' '+publicPage.url:'');
+      tab.getRange(x._row,15).setValue(evidence.slice(0,520));
+      if(!publicPage)continue;
+      if(stopped.has(email)){
+        tab.getRange(x._row,13).setValue('TRUE');
+        tab.getRange(x._row,14).setValue('配信禁止');
+        continue;
+      }
+      if(!old){
+        tab.getRange(x._row,7).setValue(email);
+        discovered++;
+      }
+      tab.getRange(x._row,9).setValue(publicPage.url);
+      tab.getRange(x._row,10).setValue('PUBLIC_BUSINESS_EMAIL');
+      tab.getRange(x._row,11).setValue(today);
+      tab.getRange(x._row,14).setValue(autoException?'営業可能候補':'公式公開メール確認済・送信待機');
+      if(autoException)eligible++;
+    }catch(err){
+      tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
+    }
+  }
+  return {checked,eligible,discovered};
+}
+
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
@@ -215,7 +339,9 @@ function mateV4SendOutreach(){
     if(sent+already>=cap||sent>=MailApp.getRemainingDailyQuota())break;
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
-    if(!['OPT_IN','SOLICITATIONS_WELCOME'].includes(x['メール用途・営業可の根拠']))continue;
+    if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
+    if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
+       p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES')continue;
     const email=mateV4Email_(x['業務用メール']);
     const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email))continue;
     const service=x['サービス'];
@@ -372,7 +498,8 @@ function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
     const report={crmSeeded:mateV4SeedExistingCRM(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
-      reviewDrafts:mateV4PrepareReviewDrafts(),referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
+      publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
+      referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
       replies:mateV4TrackReplies()};
     console.log(JSON.stringify(report));return report;
   }finally{lock.releaseLock()}
