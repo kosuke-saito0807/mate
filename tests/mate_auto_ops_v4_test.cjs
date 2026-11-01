@@ -3,6 +3,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('scripts/mate_auto_ops_v4.gs','utf8');
 let mails=0;
+const reviewDrafts=[];
 const settings={};
 const tabs={};
 function sheet(name,header,rows=[]){
@@ -17,6 +18,7 @@ function sheet(name,header,rows=[]){
 }
 const log=sheet('営業送信ログV4',['候補キー','送信処理日時','サービス','宛先メール','件名','状態','根拠URL','送信根拠','送信結果の備考']);
 const stops=sheet('配信停止V1',['メール','登録日時','理由','証跡メールID']);
+const review=sheet('営業審査下書きV4',['候補キー','作成日時','サービス','事業者名','状態','Gmail下書きID','確認元URL','備考']);
 const leads=sheet('営業候補_自動収集',['候補ID','取得日時','サービス','事業者名','公式URL','都道府県・地域','業務用メール','窓口URL','確認元URL','メール用途・営業可の根拠','根拠確認日時','重複キー','営業拒否','状態','最終確認結果','備考']);
 const referrals=sheet('送客実績V1',['イベントID','発生日時','サービス','掲載先ID','事業者名','イベント種別','受付ID','集計対象','情報提供同意証跡','取次日時','結果','結果確認日時','契約上の成果単価（税込円）','確定売上（税込円）','証跡ID','備考']);
 const inquiries=sheet('問い合わせ管理',['受付ID','受付日時','サービス','問い合わせ種別','事業者・教室ID','対象教室・事業者名','GmailメッセージID/証跡','希望教室ID（複数はカンマ区切り）','進捗','掲載許諾確認','体験取次許諾確認','保護者の情報提供同意','次回対応日','教室への取次日時','結果確認日','結果','担当者','メモ（氏名・健康情報は記入しない）'],[
@@ -32,7 +34,8 @@ const context=vm.createContext({
  SpreadsheetApp:{openById:()=>book},
  PropertiesService:{getScriptProperties:()=>({getProperty:k=>settings[k]})},
  MailApp:{getRemainingDailyQuota:()=>100},
- GmailApp:{sendEmail(){mails++;throw Error('test must never send')},search:()=>[]},
+ GmailApp:{sendEmail(){mails++;throw Error('test must never send')},search:()=>[],
+  createDraft(to,subject,body){reviewDrafts.push({to,subject,body});return {getId:()=> 'draft-'+reviewDrafts.length}}},
  ScriptApp:{getProjectTriggers:()=>[],newTrigger:()=>{throw Error('not expected')}},
  LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>{}})},
  Utilities:{
@@ -70,6 +73,32 @@ assert.equal(referrals[1][5],'取次実施');
 assert.equal(run("mateV4SyncReferralLedger()"),0,'idempotent referral import');
 assert.equal(referrals.length,2);
 assert.equal(inquiries.length,3,'source inquiry rows stay intact');
+// Internal review drafting is automatic but NEVER addresses an unverified prospect.
+assert.equal(run("mateV4PrepareReviewDrafts()"),1);
+assert.equal(reviewDrafts.length,1);
+assert.equal(reviewDrafts[0].to,'kosodatemate@gmail.com');
+assert.match(reviewDrafts[0].subject,/社内確認専用・送信禁止/);
+assert.equal(review.length,2,'one internal review state reserved');
+assert.equal(review[1][4],'社内確認用ドラフト');
+assert.equal(run("mateV4PrepareReviewDrafts()"),0,'never duplicate a review draft');
+
+// A reply to an actually sent campaign is attributed without auto-answering.
+leads[1][13]='営業可能候補';
+log.push([leads[1][11],'2026-10-31 15:00:00','CARE','info@example.org',
+  '【MATE CARE】無料掲載のご案内','送信済','https://www.example.org/contact','OPT_IN','']);
+context.GmailApp.search=query=>query.includes('in:inbox newer_than:45d from:info@example.org')
+  ?[{getMessages:()=>[{
+      getFrom:()=> 'Company <info@example.org>',
+      getSubject:()=> 'Re: 【MATE CARE】無料掲載のご案内',
+      getDate:()=>new Date('2026-10-31T15:10:00+09:00'),
+      getId:()=> 'reply-example-1'
+    }]}]:[];
+assert.equal(run("mateV4TrackReplies()"),1);
+assert.equal(log.at(-1)[5],'返信あり');
+assert.equal(leads[1][13],'返信あり・要対応');
+assert.equal(run("mateV4TrackReplies()"),0,'reply triage is idempotent');
+assert.equal(mails,0,'review drafts and reply monitoring never send mail');
+
 // Blank worksheet rows must not skew source row numbers for future status updates.
 sheet('gap-test',['item'],[['first'],[],['third']]);
 const gapRows=run("mateV4Rows_(mateV4Tab_(mateV4Book_(),'gap-test'))");

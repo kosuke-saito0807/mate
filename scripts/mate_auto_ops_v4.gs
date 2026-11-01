@@ -4,7 +4,9 @@
  *
  * Install as an additional .gs file in the existing dedicated MATE Google Apps
  * Script project. Uses existing Sheets; does not alter form handlers or CMS.
- * Initial state: all mail OFF. Does NOT approve a listing or share family PII.
+ * Initial state: external outreach OFF. Internal review drafts are ON, max 3/day,
+ * one per service, addressed only to the operator; no third-party email is sent.
+ * Does NOT approve a listing or share family PII.
  * CSV input is limited to owner-approved, appropriately licensed HTTPS sources.
  *
  * Required Script Properties to enable actual mail:
@@ -20,7 +22,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-11-01'
+  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-11-01-review-drafts-replies'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -241,6 +243,104 @@ function mateV4SendOutreach(){
   }
   return sent;
 }
+
+/**
+ * Create INTERNAL review drafts addressed ONLY to the MATE operator.
+ * This is NOT an outreach draft to the prospect. Deliberately preserves
+ * unverified leads in review, rather than inferring consent from public URLs.
+ * Maximum three per JST day, one from each service.
+ */
+function mateV4PrepareReviewDrafts(){
+  const b=mateV4Book_(),props=PropertiesService.getScriptProperties();
+  if(props.getProperty('MATE_REVIEW_DRAFTS')==='OFF')return 'OFF';
+  const dest=mateV4Tab_(b,'営業審査下書きV4');
+  const drafted=mateV4Rows_(dest),today=mateV4Jst_().slice(0,10);
+  const done=new Set(drafted.map(x=>x['候補キー']).filter(Boolean));
+  const todayCount=drafted.filter(x=>x['作成日時'].startsWith(today)).length;
+  if(todayCount>=3)return 0;
+  const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
+  const blocked=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
+    .map(x=>x['メール'].toLowerCase()).filter(Boolean));
+  let created=0;
+  for(const service of ['CARE','SPARK','PLAY']){
+    if(created+todayCount>=3)break;
+    const x=leads.find(v=>v['サービス']===service&&
+      v['状態']==='窓口確認待ち'&&v['営業拒否']!=='TRUE'&&
+      v['重複キー']&&!done.has(v['重複キー'])&&
+      mateV4Https_(v['公式URL'])&&
+      !blocked.has(mateV4Email_(v['業務用メール'])));
+    if(!x)continue;
+    const key=x['重複キー'],source=x['確認元URL']||x['公式URL'];
+    const subject='【社内確認専用・送信禁止】MATE '+service+' 掲載候補：'+x['事業者名'].slice(0,55);
+    const body='MATE運営者向けの営業前チェック（自動生成）\n\n'+
+      '事業者：'+x['事業者名']+'\nサービス：'+service+
+      '\n公式URL：'+x['公式URL']+'\n確認元URL：'+source+
+      '\n旧公開業務メール（再確認前）：'+(mateV4Email_(x['業務用メール'])||'未確認')+
+      '\n確認日（旧情報）：'+(x['根拠確認日時']||'未確認')+
+      '\n送信可否の根拠：未確認。公開メールの存在だけでは営業送信を許可しない。\n\n'+
+      '確認事項：公式窓口の用途／広告メールの拒否表示／現在の連絡先／送信根拠／掲載申請URL。\n'+
+      '確認が取れたら営業候補_自動収集の根拠・確認日・状態を人が更新する。\n'+
+      'この下書きはMATE運営者自身に宛てており、事業者への営業メールではありません。\n';
+    // Reserve before external Gmail draft creation to prevent duplicate drafts
+    // if creation succeeds but the following Sheet write fails.
+    const row=dest.getLastRow()+1;
+    mateV4Append_(dest,[key,mateV4Jst_(),service,x['事業者名'],
+      '作成処理中','',source,'内部確認用。営業メール未送信']);
+    done.add(key);
+    try{
+      const draft=GmailApp.createDraft(MATE_V4.account,subject,body);
+      dest.getRange(row,5).setValue('社内確認用ドラフト');
+      dest.getRange(row,6).setValue(String(draft.getId()).slice(0,180));
+      created++;
+    }catch(err){
+      dest.getRange(row,5).setValue('作成失敗・手動確認');
+      dest.getRange(row,8).setValue('自動再試行なし：'+String(err).slice(0,140));
+    }
+  }
+  return created;
+}
+/** Mark matching MATE campaign replies for human response; never auto-reply. */
+function mateV4TrackReplies(){
+  const b=mateV4Book_(),sent=mateV4Tab_(b,MATE_V4.sent);
+  const candidates=mateV4Tab_(b,MATE_V4.leads);
+  const leads=mateV4Rows_(candidates);
+  const blocked=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
+    .map(x=>x['メール'].toLowerCase()).filter(Boolean));
+  const logs=mateV4Rows_(sent).filter(x=>x['状態']==='送信済').slice(-15);
+  let replies=0;
+  for(const entry of logs){
+    const email=mateV4Email_(entry['宛先メール']),svc=entry['サービス'];
+    if(!email||!['CARE','SPARK','PLAY'].includes(svc))continue;
+    const sentTime=Date.parse(entry['送信処理日時'].replace(' ','T')+'+09:00');
+    if(!Number.isFinite(sentTime))continue;
+    try{
+      const threads=GmailApp.search('in:inbox newer_than:45d from:'+email,0,8);
+      let reply=null;
+      for(const thread of threads)for(const msg of thread.getMessages()){
+        const raw=String(msg.getFrom()||'').toLowerCase();
+        const sender=(raw.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/)||[])[0]||'';
+        const subj=String(msg.getSubject()||'');
+        if(sender!==email||!subj.includes('MATE '+svc)||msg.getDate().getTime()<sentTime)continue;
+        if(!reply||msg.getDate()>reply.getDate())reply=msg;
+      }
+      if(!reply)continue;
+      const stopped=blocked.has(email);
+      sent.getRange(entry._row,6).setValue(stopped?'配信停止':'返信あり');
+      sent.getRange(entry._row,9).setValue('返信確認 Gmail ID='+String(reply.getId()).slice(0,150));
+      const lead=leads.find(x=>x['重複キー']===entry['候補キー']);
+      if(lead&&lead['状態']==='営業可能候補'){
+        candidates.getRange(lead._row,14).setValue(stopped?'配信禁止':'返信あり・要対応');
+        candidates.getRange(lead._row,15).setValue(stopped?'配信停止':'返信あり・人による対応待ち');
+      }
+      replies++;
+    }catch(err){
+      // A temporary Gmail read error must never cause a resend.
+      console.log('返信確認を保留: '+String(err).slice(0,150));
+    }
+  }
+  return replies;
+}
+
 function mateV4SyncReferralLedger(){
   const b=mateV4Book_(),inquiries=mateV4Rows_(mateV4Tab_(b,MATE_V4.inquiries));
   const dest=mateV4Tab_(b,MATE_V4.referrals);
@@ -272,7 +372,8 @@ function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
     const report={crmSeeded:mateV4SeedExistingCRM(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
-      referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach()};
+      reviewDrafts:mateV4PrepareReviewDrafts(),referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
+      replies:mateV4TrackReplies()};
     console.log(JSON.stringify(report));return report;
   }finally{lock.releaseLock()}
 }
