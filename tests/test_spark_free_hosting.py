@@ -25,6 +25,15 @@ class FreeHostingTests(unittest.TestCase):
         self.assertIn('type="checkbox"', html)
         self.assertNotIn('name="_captcha" value="false"', html)
 
+    def test_custom_production_hostname_shows_verified_listing_form(self):
+        html = (SPARK / "partners.html").read_text(encoding="utf-8")
+        self.assertIn("host==='spark.kosodatemate.jp'", html)
+        self.assertIn("if(previewEnabled){form.hidden=false", html)
+        config = (SPARK / "assets/mate-direct-intake-config.js").read_text(encoding="utf-8")
+        self.assertIn("enabled: true", config)
+        self.assertIn("https://script.google.com/macros/s/", config)
+        self.assertIn("siteKey:", config)
+
     def test_thank_you_no_claim_of_confirmed_delivery(self):
         html = (SPARK / "thanks.html").read_text(encoding="utf-8")
         self.assertIn("フォーム送信サービスでの処理が完了した場合", html)
