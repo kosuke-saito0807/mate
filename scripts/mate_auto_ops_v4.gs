@@ -216,6 +216,27 @@ function mateV4PublicHtml_(url){
   const html=r.getContentText('UTF-8');
   return /<(?:html|body|main|a|div|p)\b/i.test(html)?html.slice(0,250000):'';
 }
+function mateV4ContactLink_(html,baseUrl){
+  const host=mateV4Host_(baseUrl),root='https://'+host;
+  if(!host)return '';
+  const pattern=/\bhref\s*=\s*["']([^"']{1,500})["']/gi;
+  let m;
+  while((m=pattern.exec(String(html||'')))){
+    const href=m[1].replace(/&amp;/gi,'&');
+    if(!/(?:contact|inquir|toiawase|otoiawase|お問い?合わ?せ|%e3%81%8a%e5%95%8f%e3%81%84)/i.test(href))continue;
+    if(/^(?:mailto:|javascript:|data:|\/\/)/i.test(href))continue;
+    let url='';
+    if(/^https:\/\//i.test(href))url=href;
+    else if(href.startsWith('/'))url=root+href;
+    else if(!/^[a-z]+:/i.test(href)){
+      const stripped=baseUrl.replace(/[?#].*$/,'');
+      const prefix=stripped.slice(0,stripped.lastIndexOf('/')+1);
+      url=prefix+href;
+    }
+    if(mateV4Https_(url)&&mateV4Host_(url)===host&&url!==baseUrl)return url;
+  }
+  return '';
+}
 function mateV4SalesRefusal_(html){
   const t=String(html||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').slice(0,250000);
   return /(営業|勧誘|セールス|広告|宣伝).{0,32}(お断り|ご遠慮|禁止|受け付けておりません|お控え|拒否)/i.test(t)||
@@ -280,6 +301,11 @@ function mateV4AuditOfficialContacts(){
     checked++;
     try{
       const loaded=pages.map(url=>({url,html:mateV4PublicHtml_(url)}));
+      // If the CRM only has the homepage, find its same-host contact page.
+      if(loaded.length===1&&loaded[0].html){
+        const contact=mateV4ContactLink_(loaded[0].html,loaded[0].url);
+        if(contact)loaded.push({url:contact,html:mateV4PublicHtml_(contact)});
+      }
       const valid=loaded.filter(z=>z.html);
       const refused=valid.some(z=>mateV4SalesRefusal_(z.html));
       const possible=[...new Set(valid.flatMap(z=>mateV4PublishedEmails_(z.html)))];
