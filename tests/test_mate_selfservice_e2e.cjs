@@ -23,12 +23,12 @@ const tabs={
 };
 const messages=[];
 function message(svc,id){
- const payload={service:svc,company:'QA架空テスト事業者（絶対に公開しない）',
+ const payload={service:svc,company:svc==='PLAY'?'QA Mock Laboratory':'QA架空テスト事業者（絶対に公開しない）',
   website:'https://example.org/',region:'東京都',city:'文京区',
   category:svc==='CARE'?'ベビーシッター':'音楽',ages:'小学生',
-  description:'この申請は完全に架空のE2E動作検証用データです。実在の教室でも契約でもなく公開しません。',
+  description:svc==='PLAY'?'この申請はモック実行環境でのみ使用され、実際の教室でも契約でもなく外部サイトに公開されません。':'この申請は完全に架空のE2E動作検証用データです。実在の教室でも契約でもなく公開しません。',
   monthlyPrice:'8000',ageMin:'6',ageMax:'12',
-  listing_content_checked_at:'2026-10-23',listing_permission:'掲載の意向（別途合意）',
+  listing_content_checked_at:'2026-10-23',listing_permission:svc==='PLAY'?'公開用の掲載情報を確認・許諾（審査後）':'掲載の意向（別途合意）',
   trial_referral_consent:''};
  const encoded='MATE_LISTING_V1__'+Buffer.from(JSON.stringify(payload),'utf8').toString('base64');
  return {getId:()=>id,getTo:()=> 'kosodatemate@gmail.com',
@@ -74,10 +74,17 @@ assert.equal(call('publishReviewedMateApplications()'),1);
 assert.equal(tabs['営業管理DB'].getLastRow(),2);
 assert.equal(call('publishReviewedMateApplications()'),0);
 console.log('PASS CARE: reviewer-required transfer, deduplicated');
-messages.push(message('PLAY','QA-PLAY-003'));
+messages.push(message('PLAY','WEB-123e4567-e89b-42d3-a456-426614174003'));
 assert.equal(call('syncMateSelfServiceApplications()'),1);
 row=tabs['掲載セルフ申請'].rows[3];row[24]='承認';row[25]='確認済み';row[26]='QA reviewer';
-assert.equal(call('publishReviewedMateApplications()'),0);
-assert.equal(row[27]||'','');
-console.log('PASS PLAY: recorded but NEVER auto-published into independent Sites CMS');
+assert.equal(call('publishReviewedMateApplications()'),1);
+assert.match(row[27],/^mate-play-self-/);
+assert.equal(row[24],'承認','PLAY must retain reviewed state for approved-only exporter');
+const contractForPlay=tabs['掲載契約'].rows.at(-1);
+const ch=tabs['掲載契約'].rows[0];
+assert.equal(contractForPlay[ch.indexOf('サービス')],'PLAY');
+assert.equal(contractForPlay[ch.indexOf('状態')],'未契約');
+assert.equal(contractForPlay[ch.indexOf('同意者')]||'','');
+assert.equal(call('publishReviewedMateApplications()'),0,'PLAY draft must be idempotent');
+console.log('PASS PLAY: human-reviewed record receives stable ID and INACTIVE contract draft, no public listing');
 console.log('PASS simulated end-to-end of actual GAS; NO live Gmail, no FormSubmit email, no real published records');

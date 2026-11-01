@@ -2,7 +2,8 @@
  * MATE owner self-service intake and safe "approve, then publish" pipeline.
  * To install: paste this alongside scripts/mate_inquiry_intake.gs as a SEPARATE
  * .gs file in the Apps Script owned by kosodatemate@gmail.com.
- * Does NOT send mail, create contracts, auto approve, or process parent's PII.
+ * Does NOT send mail, sign contracts, auto approve, or process parent's PII.
+ * Approved PLAY applications are staged as UNCONTRACTED drafts; no publication.
  * All human review stays in the private "掲載セルフ申請" sheet.
  */
 const MATE_SELF = Object.freeze({
@@ -117,14 +118,36 @@ function publishReviewedMateApplications(){
     const a=rows[i];
     if(a[24]!=="承認"||a[25]!=="確認済み"||!a[26]||!a[21]||!a[23]||a[27])continue;
     // Never automatically publish PLAY, whose CMS is outside this repository.
-    const svc=a[2];if(svc!=="CARE"&&svc!=="SPARK")continue;
+    const svc=a[2];if(svc!=="CARE"&&svc!=="SPARK"&&svc!=="PLAY")continue;
+    if(svc==="PLAY"){
+      // Accept only an actual direct intake receipt with the exact current
+      // PLAY form consent wording. Old test submissions remain excluded.
+      const receipt=String(a[0]||"");
+      if(!/^MATE-WEB-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(receipt)||
+         a[23]!==receipt.slice("MATE-".length)||
+         a[21]!=="公開用の掲載情報を確認・許諾（審査後）"||
+         /内部テスト|内部接続テスト|架空|公開禁止/.test(a[3]+" "+a[9]+" "+a[28]))continue;
+    }
     if(!/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(a[4]))continue;
     const d=a[20];
     if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
     const checked=new Date(d+"T00:00:00+09:00");
     if(!Number.isFinite(checked.getTime())||checked.getTime()>Date.now())continue;
-    const unique=svc==="CARE"?"mate-care-self-"+a[23].slice(-14):"mate-spark-self-"+a[23].slice(-14);
-    if(svc==="CARE"){
+    const unique="mate-"+svc.toLowerCase()+"-self-"+a[23].slice(-14);
+    if(svc==="PLAY"){
+      // Keep application status 承認: PLAY export checks this exact value.
+      // No public site is changed here; only an INACTIVE contract draft.
+      const contract=book.getSheetByName("掲載契約");
+      if(!contract)throw Error("掲載契約 tab missing");
+      if(!contract.getDataRange().getDisplayValues().slice(1).some(r=>r[1]==="PLAY"&&r[2]===unique)){
+        mateSelfAppendByHeaders_(contract,{
+          "契約ID":"DRAFT-"+unique,"サービス":"PLAY","掲載先ID":unique,
+          "企業・教室名":a[3],"プラン":"無料",
+          "成果単価税込円":"0","月額税込円":"0",
+          "条件版":"2026-11-01","状態":"未契約"
+        });
+      }
+    }else if(svc==="CARE"){
       if(!careIds.has(unique)){
         const values={
           "ID":unique,"事業者名":a[3],"エリア":a[5]+"・"+a[6],
@@ -163,7 +186,7 @@ function publishReviewedMateApplications(){
           "企業・教室名":a[3],"プラン":"無料",
           "成果単価税込円":"0","月額税込円":"0",
           "条件版":"2026-10-23",
-          "合意証拠URL・メールID":a[23],
+          "合意証拠URL・メールID":"",
           "状態":"未契約"
         });
       }
@@ -171,7 +194,7 @@ function publishReviewedMateApplications(){
       // until signer identity, contract and partner consent are verified.
     }
     sheet.getRange(i+2,28).setValue(unique);
-    sheet.getRange(i+2,25).setValue(svc==="CARE"?"公開待ち":"契約確認待ち");
+    if(svc!=="PLAY")sheet.getRange(i+2,25).setValue(svc==="CARE"?"公開待ち":"契約確認待ち");
     count++;
   }
   return count;
