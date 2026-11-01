@@ -15,8 +15,10 @@ class LaunchPreparationTests(unittest.TestCase):
         html=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn("demoMode=forceDemo;",html)
         self.assertNotIn("demoMode=forceDemo||real.length===0",html)
-        self.assertIn('href="?demo=1#discover"',html)
-        self.assertIn("実在教室は掲載準備中です",html)
+        # Demo remains available only by deliberate query, not promoted publicly.
+        self.assertNotIn('href="?demo=1#discover"',html)
+        self.assertIn("新しい出会いを、準備しています。",html)
+        self.assertIn('href="partners.html">掲載について相談する',html)
         self.assertIn("schools=real",html)
         self.assertEqual(json.loads((SPARK/"schools.json").read_text(encoding="utf-8")),[])
         sample=json.loads((SPARK/"demo-schools.json").read_text(encoding="utf-8"))
