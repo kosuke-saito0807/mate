@@ -16,7 +16,7 @@ var MATE_DIRECT = Object.freeze({
   contacts:"掲載申請連絡先",
   inquiries:"問い合わせ管理",
   inquiryHeaders:["受付ID","受付日時","サービス","問い合わせ種別","事業者・教室ID","対象教室・事業者名","GmailメッセージID/証跡","希望教室ID（複数はカンマ区切り）","進捗","掲載許諾確認","体験取次許諾確認","保護者の情報提供同意","次回対応日","教室への取次日時","結果確認日","結果","担当者","メモ（氏名・健康情報は記入しない）"],
-  hosts:{CARE:["kosuke-saito0807.github.io"],SPARK:["mate-spark.web.app","kosuke-saito0807.github.io"],PLAY:["kosuke-saito0807.github.io"]},
+  hosts:{CARE:["kosuke-saito0807.github.io","care.kosodatemate.jp"],SPARK:["mate-spark.web.app","kosuke-saito0807.github.io","spark.kosodatemate.jp","care.kosodatemate.jp"],PLAY:["kosuke-saito0807.github.io","care.kosodatemate.jp","play.kosodatemate.jp"]},
   appHeaders:["申請ID","受信日時","サービス","教室・事業者名","公式URL","都道府県","市区町村・対応エリア","ジャンル","対象区分","紹介文","月謝（税込円）","体験料金（税込円）","対象最少年齢","対象最高年齢","曜日","最寄駅","タグ","次回体験予定日","料金メモ","対応時間","情報確認日","掲載申請の意思","取次相談の希望","GmailメッセージID","審査状態","担当者権限の確認","審査者","公開ID","保留・差戻し理由"],
   contactHeaders:["受付ID","受付日時","サービス","担当者名（非公開）","返信用メール（非公開）","電話（非公開）","申請メモ（非公開）"],
   prefectures:"北海道 青森県 岩手県 宮城県 秋田県 山形県 福島県 茨城県 栃木県 群馬県 埼玉県 千葉県 東京都 神奈川県 新潟県 富山県 石川県 福井県 山梨県 長野県 岐阜県 静岡県 愛知県 三重県 滋賀県 京都府 大阪府 兵庫県 奈良県 和歌山県 鳥取県 島根県 岡山県 広島県 山口県 徳島県 香川県 愛媛県 高知県 福岡県 佐賀県 長崎県 熊本県 大分県 宮崎県 鹿児島県 沖縄県 全国".split(" ")
@@ -195,8 +195,8 @@ function mateDirectReceive_(d){
 }
 function mateDirectEscape_(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function mateDirectView_(ok,service,message,ref){
-  var home={CARE:"https://kosuke-saito0807.github.io/mate/",SPARK:"https://mate-spark.web.app/",
-    PLAY:"https://mate-play.kosuke-saito0807.chatgpt.site/"}[service]||"https://kosuke-saito0807.github.io/mate/";
+  var home={CARE:"https://care.kosodatemate.jp/",SPARK:"https://spark.kosodatemate.jp/",
+    PLAY:"https://play.kosodatemate.jp/"}[service]||"https://care.kosodatemate.jp/";
   var title=ok?"申請を受け付けました":"申請を受け付けられませんでした";
   var extra=ok?"受付番号："+mateDirectEscape_(ref||"")+"。掲載には運営側の確認と承認が必要です。":mateDirectEscape_(message||"時間をおいて再度お試しください");
   return HtmlService.createHtmlOutput('<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+
@@ -312,7 +312,7 @@ function mateConsultReceive_(form) {
   } finally {lock.releaseLock()}
 }
 function mateConsultView_(ok,service,reason,id){
-  var home=service==="PLAY"?"https://mate-play.kosuke-saito0807.chatgpt.site/":service==="SPARK"?"https://mate-spark.web.app/":"https://kosuke-saito0807.github.io/mate/";
+  var home=service==="PLAY"?"https://play.kosodatemate.jp/":service==="SPARK"?"https://spark.kosodatemate.jp/":"https://care.kosodatemate.jp/";
   var title=ok?"ご相談を受け付けました":"ご相談を受け付けられませんでした";
   var text=ok?"受付番号："+mateDirectEscape_(id)+"。運営事務局が内容を確認します。":
     mateDirectEscape_(reason||"受付できませんでした。");
