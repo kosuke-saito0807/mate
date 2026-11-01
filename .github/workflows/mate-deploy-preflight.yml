@@ -72,3 +72,36 @@ jobs:
           assert json.loads(pathlib.Path("spark/release.json").read_text())["service"]=="SPARK"
           print("PASS SPARK Firebase artifact preview; NO DEPLOY")
           PY
+
+
+  spark-tls-diagnostic:
+    # Read-only diagnostics; never alter Cloudflare/Firebase or bypass TLS for publication.
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Check SPARK DNS, certificate and mixed content
+        run: |
+          python3 - <<'PY'
+          import re, socket, ssl, urllib.request
+          host="spark.kosodatemate.jp"
+          try:
+              print("DNS:", sorted(set(i[4][0] for i in socket.getaddrinfo(host,443,type=socket.SOCK_STREAM))))
+          except Exception as exc:
+              print("DNS_ERROR:",type(exc).__name__,str(exc))
+          try:
+              ctx=ssl.create_default_context()
+              with socket.create_connection((host,443),timeout=12) as raw:
+                  with ctx.wrap_socket(raw,server_hostname=host) as con:
+                      print("TLS_VERIFIED:",con.version())
+                      print("CERTIFICATE:",{k:con.getpeercert().get(k) for k in ("subject","issuer","notBefore","notAfter","subjectAltName")})
+          except Exception as exc:
+              print("TLS_ERROR:",type(exc).__name__,str(exc))
+          try:
+              req=urllib.request.Request("https://"+host+"/",headers={"User-Agent":"MATE-Release-Diagnostic/1.0"})
+              with urllib.request.urlopen(req,timeout=12) as response:
+                  body=response.read(500000).decode("utf-8","replace")
+                  print("HTTPS_STATUS:",response.status,"FINAL_URL:",response.geturl())
+                  print("MIXED_CONTENT_ASSETS:",re.findall(r'(?:src|href)=["\\x27](http://[^"\\x27<> ]+)',body,re.I)[:12])
+          except Exception as exc:
+              print("HTTPS_ERROR:",type(exc).__name__,str(exc))
+          PY
