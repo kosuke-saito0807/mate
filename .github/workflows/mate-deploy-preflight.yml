@@ -1,0 +1,74 @@
+name: Verify MATE deploy preflight (never deploy)
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  care-pages-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run exact CARE Pages deployment validations
+        run: |
+          python3 -m unittest discover -s tests -p "test_spark*.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_nationwide.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_launch_preparation.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_owner_self_service.py" -v
+          python3 -m unittest discover -s tests -p "test_family_consultation.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_seo.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_ga4.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_social.py" -v
+          python3 -m unittest discover -s tests -p "test_play_public_link_cutover.py" -v
+          python3 -m unittest discover -s tests -p "test_discoverability_ux.py" -v
+          python3 -m unittest discover -s tests -p "test_public_data_contract.py" -v
+          python3 -m unittest discover -s tests -p "test_mate_sales_quality.py" -v
+          python3 -m json.tool spark/schools.json >/dev/null
+          python3 -m json.tool spark/config.json >/dev/null
+      - name: Validate GitHub Pages package without publishing
+        run: |
+          mkdir -p _site
+          cp *.html data.json robots.txt sitemap.xml favicon.svg favicon.ico _site/
+          cp -R assets _site/assets
+          cp -R spark _site/spark
+          find _site/spark -type f -name '*.md' -delete
+          python3 - <<'PY'
+          import datetime,json,pathlib,subprocess
+          sha=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
+          output={"service":"CARE","source_commit":sha,"deployed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"repository":"kosuke-saito0807/mate"}
+          pathlib.Path("_site/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
+          assert json.loads(pathlib.Path("_site/release.json").read_text())["service"]=="CARE"
+          print("PASS Pages artifact preview; NO DEPLOY")
+          PY
+  spark-firebase-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run exact SPARK Firebase deployment validations
+        run: |
+          python3 -m unittest discover -s tests -p 'test_spark*.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_nationwide.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_launch_preparation.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_owner_self_service.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_seo.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_ga4.py' -v
+          python3 -m unittest discover -s tests -p 'test_discoverability_ux.py' -v
+          python3 -m unittest discover -s tests -p 'test_public_data_contract.py' -v
+          python3 -m json.tool spark/schools.json >/dev/null
+          python3 -m json.tool spark/demo-schools.json >/dev/null
+          python3 -m json.tool firebase.json >/dev/null
+      - name: Validate SPARK Firebase artifact metadata without publishing
+        run: |
+          python3 - <<'PY'
+          import datetime,json,pathlib,subprocess
+          sha=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
+          output={"service":"SPARK","source_commit":sha,"deployed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"repository":"kosuke-saito0807/mate"}
+          pathlib.Path("spark/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
+          assert json.loads(pathlib.Path("spark/release.json").read_text())["service"]=="SPARK"
+          print("PASS SPARK Firebase artifact preview; NO DEPLOY")
+          PY
