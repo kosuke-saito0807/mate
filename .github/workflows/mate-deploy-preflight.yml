@@ -40,7 +40,7 @@ jobs:
           import datetime,json,pathlib,subprocess
           sha=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
           output={"service":"CARE","source_commit":sha,"deployed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"repository":"kosuke-saito0807/mate"}
-          pathlib.Path("_site/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\\n",encoding="utf-8")
+          pathlib.Path("_site/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
           assert json.loads(pathlib.Path("_site/release.json").read_text())["service"]=="CARE"
           print("PASS Pages artifact preview; NO DEPLOY")
           PY
@@ -68,7 +68,7 @@ jobs:
           import datetime,json,pathlib,subprocess
           sha=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
           output={"service":"SPARK","source_commit":sha,"deployed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"repository":"kosuke-saito0807/mate"}
-          pathlib.Path("spark/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\\n",encoding="utf-8")
+          pathlib.Path("spark/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
           assert json.loads(pathlib.Path("spark/release.json").read_text())["service"]=="SPARK"
           print("PASS SPARK Firebase artifact preview; NO DEPLOY")
           PY
