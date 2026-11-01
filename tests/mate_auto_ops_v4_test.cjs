@@ -125,4 +125,50 @@ assert.equal(run("mateV4CollectLeads()"),1);
 assert.equal(leads.at(-1)[13],'窓口確認待ち','unreviewed CSV must not become send-ready');
 assert.equal(leads.at(-1)[9],'OPT_IN','claimed basis retained as unverified source data');
 assert.equal(mails,0,'no outbound email is attempted');
-console.log('PASS: auto-send off by default, legal/identity gates, personal email exclusion, consent-only referral, idempotency, blank-row safety and source-review gates; NO email sent.');
+
+/* Official-site audit: only self-published role emails with no visible
+ * solicitation refusal are eligible, and only after an explicit sender opt-in. */
+context.UrlFetchApp.fetch=url=>{
+  if(!String(url).startsWith('https://licensed.example.org/'))throw Error('unexpected URL '+url);
+  return {
+    getResponseCode:()=>200,
+    getBlob:()=>({getBytes:()=>Array(200).fill(65)}),
+    getContentText:()=>'<html><body><h1>Licensed Studio</h1><a href="mailto:partners@licensed.example.org">お問い合わせ</a></body></html>'
+  };
+};
+settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='NO';
+assert.equal(run("mateV4RoleEmail_('ceo@example.org')"),'','personal employee email not for bulk marketing');
+assert.equal(run("mateV4RoleEmail_('info@example.org')"),'info@example.org');
+let audit=run("mateV4AuditOfficialContacts()");
+assert.equal(audit.checked,1);
+assert.equal(audit.eligible,0,'public page alone does not enable unsolicited sending');
+assert.equal(leads.at(-1)[13],'公式公開メール確認済・送信待機');
+assert.equal(leads.at(-1)[9],'PUBLIC_BUSINESS_EMAIL');
+assert.equal(run("mateV4AuditOfficialContacts()").checked,0,'unapproved source is not scanned repeatedly');
+settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='YES';
+audit=run("mateV4AuditOfficialContacts()");
+assert.equal(audit.checked,1,'recheck held evidence when user explicitly approves exception');
+assert.equal(audit.eligible,1);
+assert.equal(leads.at(-1)[13],'営業可能候補');
+assert.equal(leads.at(-1)[8],'https://licensed.example.org/contact');
+assert.equal(mails,0,'audit does not send to candidate');
+const publishDone=leads.at(-1).slice();
+publishDone[0]='AUTO-BLOCKED-COMPANY';
+publishDone[11]='unique-blocked-1';
+publishDone[3]='No solicitations';
+publishDone[13]='窓口確認待ち';
+publishDone[14]='';
+leads.push(publishDone);
+context.UrlFetchApp.fetch=url=>({
+ getResponseCode:()=>200,
+ getBlob:()=>({getBytes:()=>Array(400).fill(65)}),
+ getContentText:()=>'<html><body><p>営業メールはお断りしております</p><a href="mailto:partners@licensed.example.org">contact</a></body></html>'
+});
+audit=run("mateV4AuditOfficialContacts()");
+assert.equal(audit.eligible,0,'explicit solicitation refusal blocks auto qualification');
+assert.equal(leads.at(-1)[13],'窓口確認待ち','prohibited lead stays out of queue');
+settings.MATE_PUBLIC_SITE_AUDIT='OFF';
+assert.equal(run("mateV4AuditOfficialContacts()"),'OFF');
+assert.equal(mails,0,'no live third-party sending in any test');
+
+console.log('PASS: auto-send off by default, legal/identity gates, personal email exclusion, consent-only referral, idempotency, blank-row safety and source-review gates, public-business opt-in audit; NO email sent.');
