@@ -64,7 +64,7 @@
       form.action=cfg.endpoint;
       form.method="POST";
       form.removeAttribute("target");
-      status.textContent="送信するとGoogle Apps Script経由で運営の審査台帳に保存されます。登録だけでは公開されません。";
+      status.textContent=service==="SPARK"?"":"送信するとGoogle Apps Script経由で運営の審査台帳に保存されます。登録だけでは公開されません。";
       var pending=false;
       form.addEventListener("submit",function(e){
         e.preventDefault();
