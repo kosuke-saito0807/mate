@@ -124,6 +124,8 @@ def date_eligible(row, today):
         return False
     if value(row, "契約ID").startswith("DRAFT-"):
         return False
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?)?", signed):
+        return False
     try:
         start_date = datetime.date.fromisoformat(start)
         end_date = datetime.date.fromisoformat(end)
