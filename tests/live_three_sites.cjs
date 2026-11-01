@@ -135,6 +135,17 @@ async function audit(browser,service,mobile){
             if(partnerHttp.length)result.failures.push('掲載フォームのHTTP混在コンテンツ '+partnerHttp.slice(0,3).join(','));
             if(service==='SPARK'&&!result.partnerPage.formVisible)
               result.failures.push('SPARK本番の掲載申請フォームが非表示');
+            if(service==='SPARK'){
+              // Read only: verify insecure http URLs redirect to the canonical HTTPS page.
+              try{
+                const plain=await formPage.request.get('http://spark.kosodatemate.jp/partners.html',{
+                  timeout:9000,maxRedirects:5,failOnStatusCode:false
+                });
+                result.partnerPage.httpRedirectsToHttps=plain.url().startsWith('https://spark.kosodatemate.jp/');
+                if(!result.partnerPage.httpRedirectsToHttps)
+                  result.failures.push('SPARKのHTTPアクセスがHTTPSへリダイレクトされない');
+              }catch(e){result.warnings.push('SPARKのHTTP→HTTPS転送を確認できず: '+String(e.message).slice(0,100));}
+            }
             if(result.partnerPage.forms===0)result.warnings.push('掲載先画面にフォーム未検出（専用CMS/認証の可能性）');
             if(isApprovedPlayIntake){
               const names=result.partnerPage.fields;
