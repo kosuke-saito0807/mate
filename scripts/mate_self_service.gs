@@ -124,7 +124,7 @@ function publishReviewedMateApplications(){
       // PLAY form consent wording. Old test submissions remain excluded.
       const receipt=String(a[0]||"");
       if(!/^MATE-WEB-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(receipt)||
-         a[23]!=="WEB-"+receipt.slice("MATE-".length)||
+         a[23]!==receipt.slice("MATE-".length)||
          a[21]!=="公開用の掲載情報を確認・許諾（審査後）"||
          /内部テスト|内部接続テスト|架空|公開禁止/.test(a[3]+" "+a[9]+" "+a[28]))continue;
     }
