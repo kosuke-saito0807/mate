@@ -20,7 +20,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-10-31'
+  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-11-01'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -34,9 +34,13 @@ function mateV4Rows_(s){
   const data=s.getDataRange().getDisplayValues();
   if(data.length<2)return [];
   const headings=data.shift();
-  return data.filter(r=>r.some(c=>String(c).trim())).map((r,i)=>{
-    const o={_row:i+2};headings.forEach((h,j)=>o[h]=String(r[j]||'').trim());return o;
-  });
+  // Preserve physical row numbers even when a sheet has blank rows.
+  // Source-status writes must never point to the wrong business.
+  return data.map((r,i)=>({values:r,row:i+2}))
+    .filter(x=>x.values.some(c=>String(c).trim()))
+    .map(({values:r,row})=>{
+      const o={_row:row};headings.forEach((h,j)=>o[h]=String(r[j]||'').trim());return o;
+    });
 }
 function mateV4San_(s,n){
   const v=String(s==null?'':s).trim().replace(/[\x00-\x08\x0b-\x1f]/g,'').slice(0,n);
@@ -153,11 +157,14 @@ function mateV4CollectLeads(){
       const mail=mateV4Email_(x.email);
       const checked=mateV4Fresh_(x.checked_at,14);
       const basis=['OPT_IN','SOLICITATIONS_WELCOME'].includes(x.mail_basis)?x.mail_basis:'UNVERIFIED';
-      const state=deny?'配信禁止':(mail&&checked&&basis!=='UNVERIFIED'?'営業可能候補':'窓口確認待ち');
+      // Even a properly licensed CSV can contain stale or self-asserted opt-in.
+      // Require an operator to check the current official contact page, evidence,
+      // objection notices, and date before manually marking any lead send-ready.
+      const state=deny?'配信禁止':'窓口確認待ち';
       mateV4Append_(dest,[
         'AUTO-'+id,mateV4Jst_(),service,x.name,x.website,x.region||'',
         mail,x.contact_url||'',x.source_url,basis,x.checked_at||'',id,
-        deny?'TRUE':'FALSE',state,'ソース由来の情報。掲載・取次の許諾は未取得。',''
+        deny?'TRUE':'FALSE',state,'CSVの根拠表示だけでは送信不可。公式窓口・拒否表示・根拠確認日を人が確認。掲載・取次の許諾も未取得。',''
       ]);
       seen.add(id);count++;imported++;
     }
