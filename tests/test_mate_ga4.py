@@ -10,6 +10,9 @@ PUBLIC={
  "guide-sitter-choice.html":"CARE", "play-listing.html":"PLAY",
  "spark/index.html":"SPARK", "spark/partners.html":"SPARK",
  "spark/guide-lessons-choice.html":"SPARK",
+ "guide-sitter-first-visit.html":"CARE",
+ "spark/guide-lesson-trial-review.html":"SPARK",
+ "guide-baby-outing-prep.html":"PLAY",
 }
 class GA4ReleaseTests(unittest.TestCase):
     def test_all_key_pages_have_a_single_tag_and_sanitized_url(self):
