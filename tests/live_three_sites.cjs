@@ -108,6 +108,8 @@ async function audit(browser,service,mobile){
         const isApprovedPlayIntake=service==='PLAY'&&partner.url===SHARED_PLAY_LISTING;
         if(isOwnOrigin||isApprovedPlayIntake){
           const formPage=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1366,height:820},isMobile:mobile});
+          const partnerHttp=[];
+          formPage.on('request', req=>{if(req.url().startsWith('http://'))partnerHttp.push(req.url().slice(0,180));});
           await formPage.route(/https?:\/\/(?:www\.)?formsubmit\.co\/.*/,route=>route.abort());
           await formPage.route(/https?:\/\/(?:www\.)?googletagmanager\.com\/.*/,route=>route.abort());
           try{
@@ -121,9 +123,18 @@ async function audit(browser,service,mobile){
             result.partnerPage={http:r?.status()||0,sharedPlayIntake:isApprovedPlayIntake,forms:await formPage.locator('form').count(),
               fields:await formPage.evaluate(()=>[...document.querySelectorAll('input[name],textarea[name],select[name]')]
                 .map(e=>e.name).filter(n=>n && !n.startsWith('_')).slice(0,28)),
-              analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-CHXY0DC2WP'))};
+              analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-CHXY0DC2WP')),
+              secureContext:await formPage.evaluate(()=>window.isSecureContext),
+              formVisible:await formPage.evaluate(()=>{
+                const f=document.querySelector('form[data-mate-direct-listing]');
+                return !!(f&&f.getClientRects().length);
+              })};
             await formPage.screenshot({path:path.join(TARGET,service.toLowerCase()+'-partner-'+view+'.png'),fullPage:true,timeout:14000});
             if((r?.status()||0)>=400)result.failures.push('掲載フォームページ HTTP '+r.status());
+            if(!result.partnerPage.secureContext)result.failures.push('掲載フォームがHTTPSの安全なページではない');
+            if(partnerHttp.length)result.failures.push('掲載フォームのHTTP混在コンテンツ '+partnerHttp.slice(0,3).join(','));
+            if(service==='SPARK'&&!result.partnerPage.formVisible)
+              result.failures.push('SPARK本番の掲載申請フォームが非表示');
             if(result.partnerPage.forms===0)result.warnings.push('掲載先画面にフォーム未検出（専用CMS/認証の可能性）');
             if(isApprovedPlayIntake){
               const names=result.partnerPage.fields;
