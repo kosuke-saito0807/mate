@@ -118,6 +118,6 @@ class DiscoveryQuality(unittest.TestCase):
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
   self.assertIn('seam-and-scenes-v5',home)
-  self.assertIn('seam-and-scenes-v5',spark_home)
+  self.assertIn('cover-fade-v6',spark_home)
 
 if __name__=="__main__":unittest.main()
