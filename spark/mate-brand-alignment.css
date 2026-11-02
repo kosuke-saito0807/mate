@@ -289,7 +289,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
    alone can leave a visible straight edge from the image's own background.
    Continuous alpha fade across the left 65% eliminates this seam. */
 @media(min-width:761px){
- .hero .hero-art{background:#fff}
+ .hero .hero-art{background:linear-gradient(90deg,#fff 0%,#fff 42%,#f8fbff 100%)}
  .hero .hero-art .hero-visual{
   object-fit:cover;object-position:center 47%;
   -webkit-mask-image:linear-gradient(to right,
