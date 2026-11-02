@@ -1,0 +1,71 @@
+name: Verify SPARK public DNS and HTTPS (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/spark-https-diagnostics.yml"
+      - "spark/**"
+      - "firebase.json"
+  schedule:
+    - cron: "12 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: DNS records from independent public resolvers
+        shell: bash
+        run: |
+          for nameserver in 1.1.1.1 8.8.8.8 9.9.9.9; do
+            echo "::group::DNS resolver $nameserver"
+            for kind in A AAAA CNAME; do
+              echo "Record: $kind"
+              dig +time=4 +tries=1 +short @"$nameserver" spark.kosodatemate.jp "$kind" || true
+            done
+            echo "::endgroup::"
+          done
+      - name: Verify TLS hostname and HTTPS on every resolved IPv4 edge
+        shell: bash
+        run: |
+          set -euo pipefail
+          host=spark.kosodatemate.jp
+          mapfile -t ips < <(for ns in 1.1.1.1 8.8.8.8 9.9.9.9; do dig +time=4 +tries=1 +short @"$ns" "$host" A; done | grep -E '^[0-9]+(\.[0-9]+){3}$' | sort -u)
+          echo "Distinct IPv4 endpoints: ${#ips[@]}"
+          test "${#ips[@]}" -ge 1
+          for ip in "${ips[@]}"; do
+            echo "::group::TLS hostname $host via $ip"
+            # Curl validates the cert chain and DNS hostname for each IP.
+            curl --silent --show-error --fail --max-time 20 --resolve "$host:443:$ip" -o /dev/null -w 'HTTP %{http_code}; TLS verification %{ssl_verify_result}; remote address %{remote_ip}\n' "https://$host/"
+            echo "::endgroup::"
+          done
+      - name: Verify ordinary browser-facing requests and HTTP redirect
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::group::SPARK HTTPS response headers"
+          curl --silent --show-error --fail -D /tmp/spark-headers.txt --output /tmp/spark-index.html --max-time 30 https://spark.kosodatemate.jp/
+          sed -n '1,30p' /tmp/spark-headers.txt
+          grep -Ei '^strict-transport-security:.*max-age=' /tmp/spark-headers.txt
+          echo "::endgroup::"
+          echo "::group::HTTP redirect"
+          curl --silent --show-error -I --max-time 20 http://spark.kosodatemate.jp/ | head -n 15
+          echo "::endgroup::"
+          echo "::group::OpenSSL certificate verification"
+          echo | openssl s_client -connect spark.kosodatemate.jp:443 -servername spark.kosodatemate.jp -verify_hostname spark.kosodatemate.jp -verify_return_error 2>&1 | grep -E 'Verification:|Verify return code:|subject=|issuer='
+          echo "::endgroup::"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path("/tmp/spark-index.html").read_text(encoding="utf-8",errors="replace")
+          resources=re.findall(r'''(?:src|href)=["'](http://[^"']+)''',text,re.I)
+          if resources:
+              raise SystemExit("Insecure absolute resources found: " + str(resources[:10]))
+          assert "MATE SPARK" in text
+          print("PASS: SPARK site HTTPS and no HTTP linked resources in HTML")
+          PY
