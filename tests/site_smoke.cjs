@@ -42,20 +42,25 @@ async function main() {
     let care = await checkPage(browser,'/');
     // Exactly three new photographic SCENE cards; keep the work-from-home photo intact.
     const careScene=await care.locator('.scene .card .pic img').evaluateAll(imgs=>imgs.map(img=>({
-      src:img.getAttribute('src'),naturalWidth:img.naturalWidth,
+      src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
       fit:getComputedStyle(img).objectFit,
-      rect:img.getBoundingClientRect().toJSON()
+      rect:img.getBoundingClientRect().toJSON(),
+      frame:img.parentElement.getBoundingClientRect().toJSON()
     })));
     assert.equal(careScene.length,4);
     for(const i of [0,1,3]){
       assert.ok(careScene[i].src.includes('assets/mate-care-scene-'),'CARE SCENE must use first-party photo assets');
       assert.ok(careScene[i].naturalWidth>0,'CARE photo must load in desktop browser');
-      assert.equal(careScene[i].fit,'cover','CARE photo must crop without stretching');
+      assert.equal(careScene[i].fit,'contain','CARE photo must preserve its whole image');
+      assert.ok(Math.abs(careScene[i].frame.width/careScene[i].frame.height-600/446)<.02,'CARE frame must match native WebP aspect ratio');
+      assert.ok(Math.abs(careScene[i].naturalWidth/careScene[i].naturalHeight-600/446)<.02,'CARE photo aspect ratio must match the viewport');
     }
     assert.ok(careScene[2].src.includes('mate-work-sharp-complete'),'Existing work-from-home image stays unchanged');
+    assert.equal(careScene[2].fit,'contain','Work-from-home photograph must not stretch or crop');
     const careFold=await care.evaluate(()=>({
       hero:document.querySelector('.hero').getBoundingClientRect().height,
-      introTop:document.querySelector('.mate-introduction').getBoundingClientRect().top
+      introTop:document.querySelector('.mate-introduction').getBoundingClientRect().top,
+      copyLeft:document.querySelector('.hero-kicker').getBoundingClientRect().left
     }));
     // CARE's redundant visitor-privacy banner is intentionally removed.
     assert.equal(await care.locator('.privacyComfort').count(),0);
@@ -187,11 +192,13 @@ async function main() {
       hero:document.querySelector('.hero').getBoundingClientRect().height,
       introTop:document.querySelector('.spark-introduction').getBoundingClientRect().top,
       imageTop:document.querySelector('.hero-visual').getBoundingClientRect().top,
-      heroTop:document.querySelector('.hero').getBoundingClientRect().top
+      heroTop:document.querySelector('.hero').getBoundingClientRect().top,
+      copyLeft:document.querySelector('.hero .tagline').getBoundingClientRect().left
     }));
     // CARE deliberately layers part of its hero behind the header. Match the
     // actual ABOUT fold location, not raw DOM hero height.
     assert.ok(Math.abs(sparkFold.hero-careFold.hero)<=2,'SPARK hero must match CARE height: '+JSON.stringify({careFold,sparkFold}));
+    assert.ok(Math.abs(sparkFold.copyLeft-careFold.copyLeft)<=6,'SPARK copy should align with CARE left gutter: '+JSON.stringify({careFold,sparkFold}));
     assert.ok(Math.abs(sparkFold.introTop-careFold.introTop)<=18,
       'SPARK ABOUT must begin in the same viewport region as CARE: '+JSON.stringify({careFold,sparkFold}));
     assert.ok(Math.abs(sparkFold.heroTop)<=2,'SPARK image starts flush with viewport behind navigation');

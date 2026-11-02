@@ -67,7 +67,7 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261102-photo-parity-v9",care)
+  self.assertIn("mate-brand-alignment.css?v=20261103-natural-photos-v10",care)
   self.assertIn("mate-brand-alignment.css?v=20261102-four-people-v8",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
@@ -86,7 +86,8 @@ class DiscoveryQuality(unittest.TestCase):
   play_form=src("play-listing.html")
   self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))",care_css)
   self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))",spark_css)
-  self.assertIn("aspect-ratio:auto;object-fit:cover",care_css)
+  self.assertIn("aspect-ratio: auto;",care_css)
+  self.assertIn("object-fit: contain;",care_css)
   self.assertIn("object-fit:contain;object-position:center center",spark_css)
   self.assertNotIn("SELF-SERVICE LISTING",care_form)
   self.assertNotIn("掲載内容をここで登録できます",care_form)
@@ -108,10 +109,10 @@ class DiscoveryQuality(unittest.TestCase):
   spark=src("spark/mate-brand-alignment.css")
   home=src("index.html")
   spark_home=src("spark/index.html")
-  # New CARE photos have native 4:3 geometry; no stretching or absolute image sizing.
-  self.assertIn("aspect-ratio:4 / 3",care)
+  # CARE photos use their actual 600:446 aspect ratio and contain sizing.
+  self.assertIn("aspect-ratio: 300 / 223",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
-  self.assertIn("object-fit:cover",care)
+  self.assertIn("object-fit: contain",care)
   for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
@@ -119,11 +120,13 @@ class DiscoveryQuality(unittest.TestCase):
    self.assertIn(token,spark)
   self.assertIn('photo-parity-v9',home)
   self.assertIn('four-people-v8',spark_home)
-  self.assertIn('hero-parity.css?v=20261102-topflush-v2',spark_home)
+  self.assertIn('hero-parity.css?v=20261103-copy-position-v3',spark_home)
   parity=src("spark/hero-parity.css")
   self.assertIn("height:clamp(560px, 43vw, 720px)",parity)
   self.assertIn("object-position:right center",parity)
   self.assertIn("linear-gradient",parity)
+  self.assertIn("width:min(1280px,calc(100% - 56px))",parity)
+  self.assertIn("transform:translateY(-22px)",parity)
   self.assertNotIn("package_care_photos.py",src(".github/workflows/pages.yml"))
   self.assertNotIn("images.pexels.com",home)
   self.assertNotIn("data-published-asset",home)
