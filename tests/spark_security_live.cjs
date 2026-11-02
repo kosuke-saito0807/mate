@@ -1,6 +1,8 @@
 /* Read-only real-Chrome security audit for the SPARK custom domain.
  * No form submissions, test payloads, authentication, or content mutation. */
 const fs=require('node:fs');
+const tls=require('node:tls');
+const http=require('node:http');
 const {chromium}=require('playwright');
 (async()=>{
  const browser=await chromium.launch({headless:true});
@@ -25,7 +27,7 @@ const {chromium}=require('playwright');
    });
    let status=null,secureContext=false,finalUrl=null,error=null;
    try{
-     const response=await page.goto(url,{waitUntil:'networkidle',timeout:45000});
+     const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:22000});
      status=response?.status()||null;
      await page.waitForTimeout(700);
      secureContext=await page.evaluate(()=>window.isSecureContext);
@@ -35,8 +37,30 @@ const {chromium}=require('playwright');
    await page.close();
   }
  }finally{await browser.close()}
- fs.mkdirSync('artifacts/security',{recursive:true});
- fs.writeFileSync('artifacts/security/spark-audit.json',JSON.stringify(results,null,2));
+ /* Verify SNI certificate SAN and plain-HTTP redirect separately. */
+const transport={};
+transport.cert=await new Promise(resolve=>{
+ const socket=tls.connect({host:'spark.kosodatemate.jp',port:443,servername:'spark.kosodatemate.jp',rejectUnauthorized:true,timeout:12000},()=>{
+  const c=socket.getPeerCertificate();
+  const v={authorized:socket.authorized,protocol:socket.getProtocol(),subject:c.subject,subjectaltname:c.subjectaltname,valid_to:c.valid_to};
+  socket.end();resolve(v);
+ });
+ socket.once('error',e=>resolve({error:String(e)}));
+ socket.once('timeout',()=>{socket.destroy();resolve({error:'TLS socket timeout'})});
+});
+transport.http=await new Promise(resolve=>{
+ const q=http.get('http://spark.kosodatemate.jp/',{timeout:12000},res=>{
+  const result={status:res.statusCode,location:res.headers.location||null};
+  res.resume();resolve(result);
+ });
+ q.on('error',e=>resolve({error:String(e)}));
+ q.on('timeout',()=>{q.destroy();resolve({error:'HTTP socket timeout'})});
+});
+console.log('TRANSPORT',JSON.stringify(transport));
+fs.mkdirSync('artifacts/security',{recursive:true});
+ fs.writeFileSync('artifacts/security/spark-audit.json',JSON.stringify({results,transport},null,2));
  for(const r of results){console.log(JSON.stringify(r))}
  if(results.some(r=>r.error||r.status!==200||!r.secureContext||r.insecure.length||r.mixed.length||r.certErrors.length||!r.cert?.protocol))process.exitCode=1;
+ if(!transport.cert.authorized||!String(transport.cert.subjectaltname||'').includes('spark.kosodatemate.jp'))process.exitCode=1;
+ if(transport.http.status&&(![301,302,307,308].includes(transport.http.status)||!String(transport.http.location||'').startsWith('https://spark.kosodatemate.jp/')))process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1});
