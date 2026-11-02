@@ -224,7 +224,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
    position:absolute;inset:0;display:block;
    width:100%;max-width:100%;height:100%;
    aspect-ratio:auto;object-fit:contain;object-position:center;
-   transform:none;mask-image:none;-webkit-mask-image:none
+   transform:none;mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.55) 8%,#000 19%);-webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.55) 8%,#000 19%)
  }
  .hero .hero-art::after{
    content:"";display:block;position:absolute;inset:0;z-index:3;
