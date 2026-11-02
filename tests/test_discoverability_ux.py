@@ -117,7 +117,7 @@ class DiscoveryQuality(unittest.TestCase):
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
-  self.assertIn('hero-fix-v3',home)
-  self.assertIn('hero-fix-v3',spark_home)
+  self.assertIn('live-restore-v4',home)
+  self.assertIn('live-restore-v4',spark_home)
 
 if __name__=="__main__":unittest.main()
