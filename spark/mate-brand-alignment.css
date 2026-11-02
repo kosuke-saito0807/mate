@@ -241,3 +241,24 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
  .nav>.btn{grid-column:span 3;display:flex;align-items:center;justify-content:center;min-height:42px;min-width:0;
    padding:8px 7px;font-size:11px;text-align:center;white-space:normal}
 }
+
+
+/* 2026-11-02: eliminate the visible left PHOTO edge in full-bleed hero.
+   The white panel at the left edge of the 3:2 image was still visible as
+   a vertical boundary when the wide 100vw container used object-fit:contain.
+   Fade the image pixels themselves, not just an overlay on top. */
+@media (min-width:761px) {
+  .hero .hero-art {
+    background:linear-gradient(90deg,#fff 0%,#fbfdff 40%,#f0f9ff 75%,#eaf6ff 100%);
+  }
+  .hero .hero-art .hero-visual {
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 25%,rgba(0,0,0,.12) 40%,rgba(0,0,0,.55) 59%,#000 82%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 25%,rgba(0,0,0,.12) 40%,rgba(0,0,0,.55) 59%,#000 82%);
+  }
+  .hero .hero-art::after {
+    background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.98) 25%,rgba(255,255,255,.56) 44%,rgba(255,255,255,.10) 64%,transparent 80%);
+  }
+}
+@media(max-width:760px) {
+  .hero .hero-art .hero-visual {mask-image:none;-webkit-mask-image:none}
+}

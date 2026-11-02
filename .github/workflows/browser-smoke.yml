@@ -7,6 +7,7 @@ on:
       - "assets/**"
       - "spark/**"
       - "tests/site_smoke.cjs"
+      - "tests/spark_security_live.cjs"
       - "tests/test_site_integrity.py"
       - ".github/workflows/sync-smartsheet-public.yml"
       - ".github/workflows/browser-smoke.yml"
@@ -17,6 +18,7 @@ on:
       - "assets/**"
       - "spark/**"
       - "tests/site_smoke.cjs"
+      - "tests/spark_security_live.cjs"
       - "tests/test_site_integrity.py"
       - ".github/workflows/sync-smartsheet-public.yml"
       - ".github/workflows/browser-smoke.yml"
@@ -47,6 +49,16 @@ jobs:
           trap 'kill "$SERVER_PID" || true' EXIT
           sleep 2
           node tests/site_smoke.cjs
+      - name: Audit actual SPARK HTTPS certificate and Chrome mixed content
+        run: node tests/spark_security_live.cjs
+      - name: Upload SPARK secure-context audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-spark-security-report
+          path: artifacts/security/spark-audit.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Save visual comparison screenshots
         if: always()
         uses: actions/upload-artifact@v4
