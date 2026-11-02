@@ -48,7 +48,7 @@ async function main() {
     })));
     assert.equal(careScene.length,4);
     for(const i of [0,1,3]){
-      assert.ok(careScene[i].src.includes('images.pexels.com'),'CARE SCENE should be a licensed real photograph');
+      assert.ok(careScene[i].src.includes('assets/mate-care-scene-'),'CARE SCENE must use first-party photo assets');
       assert.ok(careScene[i].naturalWidth>0,'CARE photo must load in desktop browser');
       assert.equal(careScene[i].fit,'cover','CARE photo must crop without stretching');
     }
@@ -191,9 +191,10 @@ async function main() {
     }));
     // CARE deliberately layers part of its hero behind the header. Match the
     // actual ABOUT fold location, not raw DOM hero height.
-    assert.equal(sparkFold.hero,500,'SPARK visible hero keeps the 500px layout');
+    assert.ok(Math.abs(sparkFold.hero-careFold.hero)<=2,'SPARK hero must match CARE height: '+JSON.stringify({careFold,sparkFold}));
     assert.ok(Math.abs(sparkFold.introTop-careFold.introTop)<=18,
       'SPARK ABOUT must begin in the same viewport region as CARE: '+JSON.stringify({careFold,sparkFold}));
+    assert.ok(Math.abs(sparkFold.heroTop)<=2,'SPARK image starts flush with viewport behind navigation');
     assert.ok(Math.abs(sparkFold.imageTop-sparkFold.heroTop)<=2,
       'SPARK image must begin immediately below header: '+JSON.stringify(sparkFold));
     // Avoid stretching the original three-panel activity montage (robot/music/sports).
@@ -204,7 +205,7 @@ async function main() {
       heroLoaded:document.querySelector('.hero-visual')?.naturalWidth>0
     }));
     assert.ok(['300%','300% auto'].includes(sparkImages.scene),'SPARK scene montage must retain aspect ratio');
-    assert.equal(sparkImages.heroFit,'cover','SPARK hero should reach the top edge with proportional photo coverage');
+    assert.equal(sparkImages.heroFit,'contain','SPARK family photograph must not be stretched or cropped');
     assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
     assert.equal(sparkImages.heroLoaded,true);
     const sparkIdentity=await spark.evaluate(()=>({
@@ -230,13 +231,13 @@ async function main() {
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK photograph must have the visible white edge gradient, independent of browser mask support');
-    assert.ok(Math.abs(sparkIdentity.frame.heroHeight-500)<=2,'SPARK hero height must match CARE at 560px');
+    assert.ok(Math.abs(sparkIdentity.frame.heroHeight-careFold.hero)<=2,'SPARK hero height must match CARE');
     assert.ok(Math.abs(sparkIdentity.frame.top-sparkIdentity.frame.heroTop)<=2,'SPARK family photo must begin at header-adjacent hero top');
-    assert.ok(sparkIdentity.frame.heroHeight>=490&&sparkIdentity.frame.heroHeight<=510,
+    assert.ok(sparkIdentity.frame.heroHeight>=560&&sparkIdentity.frame.heroHeight<=720,
       'SPARK full-bleed hero keeps text readable at its restored original height');
     assert.ok(sparkIdentity.frame.x>=0&&sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,
       'SPARK photo frame stays within the viewport');
-    assert.ok(sparkIdentity.frame.height>=490&&sparkIdentity.frame.height<=510,
+    assert.ok(sparkIdentity.frame.height>=560&&sparkIdentity.frame.height<=720,
       'SPARK full-bleed photograph fills the hero without stretching');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);

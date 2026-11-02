@@ -112,20 +112,20 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("aspect-ratio:4 / 3",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
   self.assertIn("object-fit:cover",care)
-  for name in ("care-scene-urgent-photo.jpg","care-scene-pickup-photo.jpg","care-scene-sick-photo.jpg"):
+  for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
   self.assertIn('photo-parity-v9',home)
   self.assertIn('four-people-v8',spark_home)
-  self.assertIn('hero-parity.css?v=20261102-aligned',spark_home)
+  self.assertIn('hero-parity.css?v=20261102-topflush-v2',spark_home)
   parity=src("spark/hero-parity.css")
-  self.assertIn("height: 500px",parity)
-  self.assertIn("object-position: center top",parity)
+  self.assertIn("height:clamp(560px, 43vw, 720px)",parity)
+  self.assertIn("object-position:right center",parity)
   self.assertIn("linear-gradient",parity)
-  self.assertIn("scripts/package_care_photos.py",src(".github/workflows/pages.yml"))
-  self.assertIn("images.pexels.com",home)
-  self.assertIn("data-published-asset",home)
+  self.assertNotIn("package_care_photos.py",src(".github/workflows/pages.yml"))
+  self.assertNotIn("images.pexels.com",home)
+  self.assertNotIn("data-published-asset",home)
 
 if __name__=="__main__":unittest.main()
