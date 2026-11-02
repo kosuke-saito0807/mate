@@ -283,3 +283,27 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
       rgba(255,255,255,.7) 39%,rgba(255,255,255,.28) 56%,transparent 77%);
  }
 }
+
+
+/* v7: fade the photo *before* it meets the white canvas.  A white overlay
+   alone can leave a visible straight edge from the image's own background.
+   Continuous alpha fade across the left 65% eliminates this seam. */
+@media(min-width:761px){
+ .hero .hero-art{background:#fff}
+ .hero .hero-art .hero-visual{
+  object-fit:cover;object-position:center 47%;
+  -webkit-mask-image:linear-gradient(to right,
+    transparent 0%,transparent 23%,rgba(0,0,0,.04) 35%,
+    rgba(0,0,0,.22) 48%,rgba(0,0,0,.67) 64%,#000 84%);
+  mask-image:linear-gradient(to right,
+    transparent 0%,transparent 23%,rgba(0,0,0,.04) 35%,
+    rgba(0,0,0,.22) 48%,rgba(0,0,0,.67) 64%,#000 84%);
+ }
+ .hero .hero-art::after{
+  display:block;content:"";position:absolute;inset:0;z-index:3;
+  background:linear-gradient(to right,#fff 0%,#fff 28%,
+   rgba(255,255,255,.98) 39%,rgba(255,255,255,.70) 54%,
+   rgba(255,255,255,.16) 74%,transparent 90%);
+  pointer-events:none
+ }
+}
