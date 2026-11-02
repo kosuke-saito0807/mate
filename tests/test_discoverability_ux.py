@@ -112,12 +112,17 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("aspect-ratio:4 / 3",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
   self.assertIn("object-fit:cover",care)
-  for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
+  for name in ("mate-hero.png.png","spark/assets/activities.png","spark/assets/spark-first-piano-lesson.png"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
   self.assertIn('sharp-v7',home)
   self.assertIn('smooth-fade-v7',spark_home)
+  self.assertIn("mate-scene-repair.css?v=20261102-photo-v9",home)
+  self.assertIn("mate-hero-repair.css?v=20261102-four-person-v9",spark_home)
+  self.assertIn("object-fit:cover!important",src("assets/mate-scene-repair.css"))
+  self.assertIn("object-fit:contain!important",src("spark/mate-hero-repair.css"))
+
 
 if __name__=="__main__":unittest.main()
