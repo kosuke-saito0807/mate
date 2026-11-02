@@ -68,7 +68,7 @@ class DiscoveryQuality(unittest.TestCase):
   care=src("index.html")
   spark=src("spark/index.html")
   self.assertIn("mate-brand-alignment.css?v=20261102-seam-and-scenes-v5",care)
-  self.assertIn("mate-brand-alignment.css?v=20261102-seam-and-scenes-v5",spark)
+  self.assertIn("mate-brand-alignment.css?v=20261102-cover-fade-v6",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
   self.assertEqual(cache["/release.json"],"no-store, max-age=0")
@@ -118,6 +118,6 @@ class DiscoveryQuality(unittest.TestCase):
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
   self.assertIn('seam-and-scenes-v5',home)
-  self.assertIn('seam-and-scenes-v5',spark_home)
+  self.assertIn('cover-fade-v6',spark_home)
 
 if __name__=="__main__":unittest.main()

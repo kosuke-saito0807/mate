@@ -262,3 +262,24 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
 @media(max-width:760px) {
   .hero .hero-art .hero-visual {mask-image:none;-webkit-mask-image:none}
 }
+
+
+/* v6: erase the seam caused by object-fit:contain's intrinsic left edge.
+   Fill the full-width hero without distortion (cover crops vertically only).
+   Keep a wide translucent white mask so hero text remains fully legible. */
+@media(min-width:761px){
+ .hero .hero-art .hero-visual{
+   object-fit:cover;
+   object-position:center 47%;
+   -webkit-mask-image:linear-gradient(to right,
+       transparent 0%,transparent 12%,rgba(0,0,0,.04) 28%,
+       rgba(0,0,0,.32) 43%,rgba(0,0,0,.86) 63%,#000 83%);
+   mask-image:linear-gradient(to right,
+       transparent 0%,transparent 12%,rgba(0,0,0,.04) 28%,
+       rgba(0,0,0,.32) 43%,rgba(0,0,0,.86) 63%,#000 83%);
+ }
+ .hero .hero-art::after{
+   background:linear-gradient(to right,#fff 0%,rgba(255,255,255,.98) 24%,
+      rgba(255,255,255,.7) 39%,rgba(255,255,255,.28) 56%,transparent 77%);
+ }
+}
