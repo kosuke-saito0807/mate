@@ -1,0 +1,26 @@
+/* CARE SCENE / final single-source repair.
+   The supplied high-resolution alternatives replace visibly distorted low-res images.
+   Keep four identical card frames; never stretch a photograph to a fixed height. */
+.scene .cards .card .pic,
+.scene .cards .card:nth-child(3) .pic{
+ position:relative!important;display:block!important;
+ width:100%!important;height:auto!important;min-height:0!important;
+ aspect-ratio:4 / 3!important;overflow:hidden!important;
+ background:#f2f7fb!important;
+}
+.scene .cards .card .pic img,
+.scene .cards .card:nth-child(3) .pic img,
+.scene .cards .card:not(:nth-child(3)) .pic img{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;max-width:100%!important;
+ max-height:100%!important;aspect-ratio:auto!important;
+ object-fit:cover!important;object-position:center center!important;
+ transform:none!important;filter:none!important;
+}
+.scene .cards .card:nth-child(3) .pic img{
+ object-fit:cover!important;object-position:center center!important;
+}
+@media(max-width:740px){
+ .scene .cards{align-items:stretch}
+ .scene .cards .card{min-width:0}
+}
