@@ -52,6 +52,8 @@ jobs:
           cp -R assets _site/assets
           cp -R spark _site/spark
           find _site/spark -type f -name '*.md' -delete
+      - name: Store CARE scene photos locally in deploy artifact
+        run: python3 scripts/package_care_photos.py
       - name: Stamp deployed CARE release for support checks
         run: |
           python3 - <<'PY'
