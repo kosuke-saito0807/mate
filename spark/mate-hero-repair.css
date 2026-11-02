@@ -58,7 +58,7 @@
    width:100vw!important;max-width:none!important;height:auto!important;
    min-height:0!important;aspect-ratio:3 / 2!important;
    border-radius:0!important;box-shadow:none!important;margin:0!important;
-   overflow:hidden!important;background:#fff!important
+   overflow:hidden!important;background:linear-gradient(180deg,#fff,#eef8ff)!important
  }
  .hero .hero-art .hero-visual{
    position:absolute!important;inset:0!important;display:block!important;
