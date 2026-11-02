@@ -127,3 +127,27 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   object-fit:contain;
   background:#f8f5ef;
 }
+
+/* Final native-image override: avoid browser interpolation, absolute sizing and
+   16/10 cropping of the three 600x446 SCENE photos. Work-from-home unchanged. */
+.scene .cards .card:not(:nth-child(3)) .pic{
+  width:100%;
+  height:auto;
+  min-height:0;
+  aspect-ratio:600 / 446;
+  overflow:hidden;
+  background:#edf4fa;
+}
+.scene .cards .card:not(:nth-child(3)) .pic img{
+  position:static;
+  display:block;
+  inset:auto;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  max-height:none;
+  aspect-ratio:600 / 446;
+  object-fit:contain;
+  object-position:center;
+  transform:none;
+}
