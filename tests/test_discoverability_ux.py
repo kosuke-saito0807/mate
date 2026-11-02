@@ -118,7 +118,7 @@ class DiscoveryQuality(unittest.TestCase):
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
-  self.assertIn('photo-parity-v9',home)
+  self.assertIn('natural-photos-v10',home)
   self.assertIn('four-people-v8',spark_home)
   self.assertIn('hero-parity.css?v=20261103-copy-position-v3',spark_home)
   parity=src("spark/hero-parity.css")
