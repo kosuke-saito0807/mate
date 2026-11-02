@@ -111,3 +111,17 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   width:100%;max-width:100%;height:auto;max-height:none;
   aspect-ratio:auto;object-fit:contain;object-position:center;transform:none
 }
+
+
+/* CARE scene photos: source assets are genuinely 600x446, not 260px.
+   Avoid scaling via fixed height and give the image its native ratio. */
+.scene .cards .card:not(:nth-child(3)) .pic{
+ position:relative;display:block;width:100%;height:auto!important;
+ aspect-ratio:300 / 223!important;overflow:hidden
+}
+.scene .cards .card:not(:nth-child(3)) .pic img{
+ position:relative!important;inset:auto!important;display:block;
+ width:100%!important;height:auto!important;max-width:100%!important;
+ max-height:none!important;aspect-ratio:300 / 223!important;
+ object-fit:contain!important;transform:none!important
+}
