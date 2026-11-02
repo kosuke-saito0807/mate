@@ -174,7 +174,7 @@ async function main() {
       heroLoaded:document.querySelector('.hero-visual')?.naturalWidth>0
     }));
     assert.ok(['300%','300% auto'].includes(sparkImages.scene),'SPARK scene montage must retain aspect ratio');
-    assert.equal(sparkImages.heroFit,'cover','SPARK desktop hero must cover the canvas to remove its left seam without stretching');
+    assert.equal(sparkImages.heroFit,'contain','SPARK hero should show the complete four-person family photograph without cropping');
     assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
     assert.equal(sparkImages.heroLoaded,true);
     const sparkIdentity=await spark.evaluate(()=>({
@@ -199,7 +199,7 @@ async function main() {
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
-    assert.ok(sparkIdentity.mask.includes('linear-gradient'),'SPARK photo left edge must fade smoothly instead of leaving a visible vertical seam');
+    assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK photograph must have the visible white edge gradient, independent of browser mask support');
     assert.ok(sparkIdentity.frame.heroHeight>=510&&sparkIdentity.frame.heroHeight<=700,
       'SPARK full-bleed hero keeps text readable at its restored original height');
     assert.ok(sparkIdentity.frame.x>=0&&sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,

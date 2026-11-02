@@ -125,3 +125,17 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
  max-height:none!important;aspect-ratio:300 / 223!important;
  object-fit:contain!important;transform:none!important
 }
+
+
+/* Final 2026-11-02 SCENE art: 500x375 SVG cards share the same 4:3 viewport.
+   The work-from-home card keeps its existing photograph and contain mode. */
+.scene .cards .card:not(:nth-child(3)) .pic{
+  display:block;position:relative;aspect-ratio:4 / 3!important;width:100%;
+  height:auto!important;min-height:0;overflow:hidden;background:#f4f8fd;
+}
+.scene .cards .card:not(:nth-child(3)) .pic img{
+  position:relative!important;inset:auto!important;display:block;
+  width:100%!important;height:auto!important;max-width:100%!important;
+  max-height:none!important;aspect-ratio:4 / 3!important;object-fit:contain!important;
+  transform:none!important
+}
