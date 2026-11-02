@@ -103,4 +103,21 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn({"key":"Strict-Transport-Security","value":"max-age=86400"},tls)
   self.assertIn({"key":"Content-Security-Policy","value":"upgrade-insecure-requests"},tls)
 
+ def test_care_scene_native_photo_ratio_and_spark_hero_reset(self):
+  care=src("assets/mate-brand-alignment.css")
+  spark=src("spark/mate-brand-alignment.css")
+  home=src("index.html")
+  spark_home=src("spark/index.html")
+  # All three CARE WebP images are 600 by 446 (not 16:10).
+  self.assertIn("aspect-ratio:300 / 223",care)
+  self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
+  self.assertIn("object-fit:cover",care)
+  for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
+   self.assertIn(name,home)
+  # Old full-bleed CSS left offsets and translateX that must be neutralized.
+  for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
+   self.assertIn(token,spark)
+  self.assertIn('hero-fix-v3',home)
+  self.assertIn('hero-fix-v3',spark_home)
+
 if __name__=="__main__":unittest.main()
