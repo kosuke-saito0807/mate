@@ -174,7 +174,7 @@ async function main() {
       heroLoaded:document.querySelector('.hero-visual')?.naturalWidth>0
     }));
     assert.ok(['300%','300% auto'].includes(sparkImages.scene),'SPARK scene montage must retain aspect ratio');
-    assert.equal(sparkImages.heroFit,'cover','SPARK desktop hero must cover the canvas to remove its left seam without stretching');
+    assert.equal(sparkImages.heroFit,'contain','SPARK desktop hero must show the complete original four-person image without cropping');
     assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
     assert.equal(sparkImages.heroLoaded,true);
     const sparkIdentity=await spark.evaluate(()=>({
