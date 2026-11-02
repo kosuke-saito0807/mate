@@ -67,8 +67,8 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261102-hero-fix-v3",care)
-  self.assertIn("mate-brand-alignment.css?v=20261102-hero-fix-v3",spark)
+  self.assertIn("mate-brand-alignment.css?v=20261102-live-restore-v4",care)
+  self.assertIn("mate-brand-alignment.css?v=20261102-live-restore-v4",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
   self.assertEqual(cache["/release.json"],"no-store, max-age=0")
