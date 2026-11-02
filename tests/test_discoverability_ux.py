@@ -67,8 +67,8 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261102-sharp-v7",care)
-  self.assertIn("mate-brand-alignment.css?v=20261102-smooth-fade-v7",spark)
+  self.assertIn("mate-brand-alignment.css?v=20261102-scenes-final-v8",care)
+  self.assertIn("mate-brand-alignment.css?v=20261102-four-people-v8",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
   self.assertEqual(cache["/release.json"],"no-store, max-age=0")
@@ -112,7 +112,7 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("aspect-ratio:4 / 3",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
   self.assertIn("object-fit:cover",care)
-  for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
+  for name in ("care-scene-urgent-20261102.svg","care-scene-pickup-20261102.svg","care-scene-sick-20261102.svg"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
