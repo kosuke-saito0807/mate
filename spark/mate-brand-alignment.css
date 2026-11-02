@@ -152,3 +152,123 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
  .hero .hero-art .hero-visual{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
  .hero .hero-art .caption{bottom:10px;left:10px}
 }
+
+
+/* 2026-11-02 visual restoration. The previous full-bleed SPARK hero
+   used inset:0 auto 0 50%, left:50% and translateX(-50%).
+   Those survived the two-column redesign and displaced the photo/text.
+   Clear ALL positional offsets, widths and transforms together. */
+@media (min-width:761px){
+  .hero .hero-inner{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
+    gap:clamp(24px,3vw,40px);
+    align-items:center;
+    min-height:0;
+    height:auto;
+    padding:50px 0;
+  }
+  .hero .hero-inner > div:first-child{
+    position:relative;
+    z-index:2;
+    grid-column:1;
+    width:auto;
+    max-width:none;
+    min-width:0;
+    padding:0;
+  }
+  .hero .hero-art{
+    position:relative;
+    grid-column:2;
+    inset:auto;
+    top:auto;right:auto;bottom:auto;left:auto;
+    transform:none;
+    width:100%;
+    max-width:100%;
+    height:auto;
+    aspect-ratio:3 / 2;
+    min-height:0;
+    margin:0;
+    border-radius:22px;
+    background:linear-gradient(135deg,#f7fcff,#e9f5ff);
+    box-shadow:0 14px 34px #14325012;
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .hero .hero-art .hero-visual{
+    position:absolute;
+    inset:0;
+    display:block;
+    width:100%;
+    height:100%;
+    max-width:100%;
+    aspect-ratio:auto;
+    object-fit:contain;
+    object-position:center;
+    transform:none;
+    mask-image:none;
+    -webkit-mask-image:none;
+    background:transparent;
+  }
+  .hero .hero-art::after{display:none}
+  .hero .hero-art .caption{display:none}
+  .hero h1{
+    font-size:clamp(34px,3.7vw,52px);
+    line-height:1.38;
+    letter-spacing:-.05em;
+    max-width:none;
+    margin:18px 0 13px;
+    overflow-wrap:normal;
+  }
+  .hero .hero-inner .strap{font-size:clamp(16px,1.7vw,20px);line-height:1.65}
+}
+@media(max-width:760px){
+  .hero .hero-inner{
+    display:flex;
+    flex-direction:column;
+    gap:19px;
+    align-items:stretch;
+    padding:30px 0 28px;
+    min-height:0;
+    height:auto;
+  }
+  .hero .hero-inner > div:first-child{
+    position:relative;
+    z-index:2;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    padding:0;
+  }
+  .hero .hero-art{
+    position:relative;
+    flex:none;
+    inset:auto;
+    top:auto;right:auto;bottom:auto;left:auto;
+    transform:none;
+    width:100%;
+    max-width:100%;
+    height:auto;
+    aspect-ratio:3 / 2;
+    border-radius:18px;
+    box-shadow:0 9px 24px #1432500d;
+    margin:0;
+    background:linear-gradient(135deg,#f7fcff,#e9f5ff);
+  }
+  .hero .hero-art .hero-visual{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    max-width:100%;
+    object-fit:contain;
+    object-position:center;
+    transform:none;
+    mask-image:none;
+    -webkit-mask-image:none;
+  }
+  .hero .hero-art::after,.hero .hero-art .caption{display:none}
+  .hero h1{max-width:100%;font-size:clamp(32px,8.2vw,42px);line-height:1.38}
+  .hero .hero-inner .strap{font-size:16px;line-height:1.7}
+}
