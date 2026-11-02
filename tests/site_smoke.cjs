@@ -199,13 +199,13 @@ async function main() {
     assert.ok(sparkIdentity.photoBackground.includes('linear-gradient'),'SPARK photo backdrop should be a gradient');
     assert.ok(sparkIdentity.wash.includes('linear-gradient'),'SPARK hero should fade into white like CARE');
     assert.equal(sparkIdentity.washLayer,'3','SPARK photo wash must visibly overlay the image, not sit behind it');
-    assert.equal(sparkIdentity.mask,'none','No large edge-mask is needed for the smaller contained photo');
-    assert.ok(sparkIdentity.frame.heroHeight>=500&&sparkIdentity.frame.heroHeight<=860,
-      'SPARK hero keeps sufficient copy height while the image stays in the compact frame');
+    assert.equal(sparkIdentity.mask,'none','SPARK full-bleed image should not use a face-clipping mask');
+    assert.ok(sparkIdentity.frame.heroHeight>=510&&sparkIdentity.frame.heroHeight<=700,
+      'SPARK full-bleed hero keeps text readable at its restored original height');
     assert.ok(sparkIdentity.frame.x>=0&&sparkIdentity.frame.right<=sparkIdentity.frame.viewport+5,
       'SPARK photo frame stays within the viewport');
-    assert.ok(sparkIdentity.frame.height>=250&&sparkIdentity.frame.height<=450,
-      'SPARK image fits the smaller fixed-height visual container');
+    assert.ok(sparkIdentity.frame.height>=510&&sparkIdentity.frame.height<=700,
+      'SPARK full-bleed photograph fills the hero without stretching');
     await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
     assert.equal(await spark.locator('#cards article.card').count(),0);
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載許諾'));
