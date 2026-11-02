@@ -51,11 +51,11 @@ async function main() {
     for(const i of [0,1,3]){
       assert.ok(careScene[i].src.includes('assets/mate-care-scene-'),'CARE SCENE must use first-party photo assets');
       assert.ok(careScene[i].naturalWidth>0,'CARE photo must load in desktop browser');
-      assert.equal(careScene[i].fit,'contain','CARE photo must preserve its whole image');
-      assert.ok(Math.abs(careScene[i].rect.width/careScene[i].rect.height-careScene[i].naturalWidth/careScene[i].naturalHeight)<.02,'CARE rendered photo must retain its native ratio');
+      assert.equal(careScene[i].fit,'cover','CARE photos should fill shared 3:2 frames without stretching');
+      assert.ok(Math.abs(careScene[i].frame.width/careScene[i].frame.height-1.5)<.025,'CARE photo frame must match SPARK 3:2 artwork');
       assert.ok(Math.abs(careScene[i].naturalWidth/careScene[i].naturalHeight-600/446)<.02,'CARE WebP intrinsic ratio should be 600x446');
     }
-    assert.equal(await care.locator('.scene .cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length),2,'CARE SCENE should have 2 roomy desktop columns');
+    assert.equal(await care.locator('.scene .cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length),4,'CARE SCENE must show four cards across as SPARK and PLAY do');
     assert.ok(careScene[2].src.includes('mate-work-sharp-complete'),'Existing work-from-home image stays unchanged');
     assert.equal(careScene[2].fit,'contain','Work-from-home photograph must not stretch or crop');
     const careFold=await care.evaluate(()=>({
@@ -431,9 +431,17 @@ async function main() {
       await page.close();
     }
     const careMobileScene=await checkPage(browser,'/',true);
-    const careMobilePhotos=await careMobileScene.locator('.scene .cards .card .pic img').evaluateAll(imgs=>imgs.map(img=>({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,box:img.getBoundingClientRect().toJSON()})));
-    for(const idx of [0,1,3]) { const p=careMobilePhotos[idx]; assert.ok(Math.abs(p.box.width/p.box.height-p.naturalWidth/p.naturalHeight)<.02,'CARE mobile photo native ratio'); }
-    assert.equal(await careMobileScene.locator('.scene .cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length),1,'CARE mobile must have one-column cards');
+    const sceneMobile=await careMobileScene.locator('.scene .cards .card .pic img').evaluateAll(imgs=>imgs.map(img=>({
+      src:img.getAttribute('src'),fit:getComputedStyle(img).objectFit,
+      frame:img.parentElement.getBoundingClientRect().toJSON(),naturalWidth:img.naturalWidth
+    })));
+    for(const idx of [0,1,3]) {
+      const p=sceneMobile[idx];
+      assert.ok(p.naturalWidth>0 && Math.abs(p.frame.width/p.frame.height-1.5)<.025,'CARE mobile photos in 3:2 undistorted frames');
+      assert.equal(p.fit,'cover','CARE mobile fills photo frames without stretching');
+    }
+    assert.equal(await careMobileScene.locator('.scene .cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length),2,
+      'CARE mobile scene should match SPARK two-column layout');
     await careMobileScene.close();
     // Narrow mobile audit at 320px and 375px for all first-party MATE pages.
     // This never submits a form; it only checks rendering, layout and loaded assets.

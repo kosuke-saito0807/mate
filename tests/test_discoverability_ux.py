@@ -67,7 +67,7 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261103-native-image-grid-v11",care)
+  self.assertIn("mate-brand-alignment.css?v=20261103-scene-parity-v12",care)
   self.assertIn("mate-brand-alignment.css?v=20261102-four-people-v8",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
@@ -86,8 +86,8 @@ class DiscoveryQuality(unittest.TestCase):
   play_form=src("play-listing.html")
   self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))",care_css)
   self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))",spark_css)
-  self.assertIn("aspect-ratio:auto!important",care_css)
-  self.assertIn("object-fit:contain!important",care_css)
+  self.assertIn("aspect-ratio: 3 / 2",care_css)
+  self.assertIn("object-fit: cover",care_css)
   self.assertIn("object-fit:contain;object-position:center center",spark_css)
   self.assertNotIn("SELF-SERVICE LISTING",care_form)
   self.assertNotIn("掲載内容をここで登録できます",care_form)
@@ -110,10 +110,10 @@ class DiscoveryQuality(unittest.TestCase):
   home=src("index.html")
   spark_home=src("spark/index.html")
   # CARE photos use their actual 600:446 aspect ratio and contain sizing.
-  self.assertIn("aspect-ratio:300 / 223",care)
-  self.assertIn("grid-template-columns: repeat(2,minmax(0,1fr))",care)
+  self.assertIn("aspect-ratio: 3 / 2",care)
+  self.assertIn("grid-template-columns: repeat(4,minmax(0,1fr))",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
-  self.assertIn("object-fit:contain",care)
+  self.assertIn("object-fit: cover",care)
   for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
