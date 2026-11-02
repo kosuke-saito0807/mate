@@ -6,8 +6,8 @@
 @media (min-width: 761px) {
   .hero {
     position: relative;
-    height: 560px;
-    min-height: 560px;
+    height: 500px;
+    min-height: 500px;
     overflow: hidden;
     background: #fff;
   }
@@ -17,7 +17,7 @@
     align-items: center;
     gap: 0;
     height: 100%;
-    min-height: 560px;
+    min-height: 500px;
     max-width: 1220px;
     padding: 0;
     margin: 0 auto;
@@ -30,6 +30,7 @@
     min-width: 0;
     max-width: 630px;
     padding: 0 0 5px;
+    transform: translateY(-16px);
     margin: 0;
   }
   .hero .hero-art {
