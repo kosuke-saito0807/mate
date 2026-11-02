@@ -51,7 +51,7 @@
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    background: #fff;
+    background: linear-gradient(90deg,#fff 0%,#f7fbff 100%);
   }
   .hero .hero-art .hero-visual {
     display: block;
