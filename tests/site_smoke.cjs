@@ -174,7 +174,7 @@ async function main() {
       heroLoaded:document.querySelector('.hero-visual')?.naturalWidth>0
     }));
     assert.ok(['300%','300% auto'].includes(sparkImages.scene),'SPARK scene montage must retain aspect ratio');
-    assert.equal(sparkImages.heroFit,'contain','SPARK hero should show the complete four-person family photograph without cropping');
+    assert.equal(sparkImages.heroFit,'cover','SPARK hero should reach the top edge with proportional photo coverage');
     assert.ok(sparkImages.icon?.startsWith('favicon.svg'));
     assert.equal(sparkImages.heroLoaded,true);
     const sparkIdentity=await spark.evaluate(()=>({
