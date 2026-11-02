@@ -67,7 +67,7 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261102-scenes-final-v8",care)
+  self.assertIn("mate-brand-alignment.css?v=20261102-photo-parity-v9",care)
   self.assertIn("mate-brand-alignment.css?v=20261102-four-people-v8",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
@@ -112,12 +112,20 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("aspect-ratio:4 / 3",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
   self.assertIn("object-fit:cover",care)
-  for name in ("care-scene-urgent-20261102.svg","care-scene-pickup-20261102.svg","care-scene-sick-20261102.svg"):
+  for name in ("care-scene-urgent-photo.jpg","care-scene-pickup-photo.jpg","care-scene-sick-photo.jpg"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
-  self.assertIn('scenes-final-v8',home)
+  self.assertIn('photo-parity-v9',home)
   self.assertIn('four-people-v8',spark_home)
+  self.assertIn('hero-parity.css?v=20261102-aligned',spark_home)
+  parity=src("spark/hero-parity.css")
+  self.assertIn("height: 500px",parity)
+  self.assertIn("object-position: center top",parity)
+  self.assertIn("linear-gradient",parity)
+  self.assertIn("scripts/package_care_photos.py",src(".github/workflows/pages.yml"))
+  self.assertIn("images.pexels.com",home)
+  self.assertIn("data-published-asset",home)
 
 if __name__=="__main__":unittest.main()

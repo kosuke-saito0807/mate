@@ -139,3 +139,29 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   max-height:none!important;aspect-ratio:4 / 3!important;object-fit:contain!important;
   transform:none!important
 }
+
+
+/* New CARE photographic SCENE cards.
+   The box remains the same 4:3 size; photographs crop naturally rather than stretch.
+   The third (work-from-home) image keeps its existing separate treatment. */
+.scene .cards .card:not(:nth-child(3)) .pic {
+  position:relative;
+  width:100%;
+  height:auto!important;
+  aspect-ratio:4/3!important;
+  overflow:hidden;
+  background:#f1f5fb;
+}
+.scene .cards .card:not(:nth-child(3)) .pic img {
+  position:absolute!important;
+  display:block;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:none!important;
+}

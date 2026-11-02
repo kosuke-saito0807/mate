@@ -36,6 +36,7 @@ jobs:
           cp -R assets _site/assets
           cp -R spark _site/spark
           find _site/spark -type f -name '*.md' -delete
+          python3 scripts/package_care_photos.py
           python3 - <<'PY'
           import datetime,json,pathlib,subprocess
           sha=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
