@@ -121,7 +121,7 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn('four-people-v8',spark_home)
   self.assertIn('hero-parity.css?v=20261102-aligned',spark_home)
   parity=src("spark/hero-parity.css")
-  self.assertIn("height: 560px",parity)
+  self.assertIn("height: 500px",parity)
   self.assertIn("object-position: center top",parity)
   self.assertIn("linear-gradient",parity)
   self.assertIn("scripts/package_care_photos.py",src(".github/workflows/pages.yml"))
