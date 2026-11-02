@@ -86,8 +86,8 @@ class DiscoveryQuality(unittest.TestCase):
   play_form=src("play-listing.html")
   self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))",care_css)
   self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))",spark_css)
-  self.assertIn("aspect-ratio: auto;",care_css)
-  self.assertIn("object-fit: contain;",care_css)
+  self.assertIn("aspect-ratio:auto!important",care_css)
+  self.assertIn("object-fit:contain!important",care_css)
   self.assertIn("object-fit:contain;object-position:center center",spark_css)
   self.assertNotIn("SELF-SERVICE LISTING",care_form)
   self.assertNotIn("掲載内容をここで登録できます",care_form)
@@ -101,7 +101,7 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("<h1>親子の楽しい体験を<em>登録</em></h1>",play_form)
   config=json.loads(src("firebase.json"))
   tls=next(x["headers"] for x in config["hosting"]["headers"] if x["source"]=="**")
-  self.assertIn({"key":"Strict-Transport-Security","value":"max-age=86400"},tls)
+  self.assertIn({"key":"Strict-Transport-Security","value":"max-age=604800"},tls)
   self.assertIn({"key":"Content-Security-Policy","value":"upgrade-insecure-requests"},tls)
 
  def test_care_scene_native_photo_ratio_and_spark_hero_reset(self):
@@ -110,15 +110,16 @@ class DiscoveryQuality(unittest.TestCase):
   home=src("index.html")
   spark_home=src("spark/index.html")
   # CARE photos use their actual 600:446 aspect ratio and contain sizing.
-  self.assertIn("aspect-ratio: 300 / 223",care)
+  self.assertIn("aspect-ratio:300 / 223",care)
+  self.assertIn("grid-template-columns: repeat(2,minmax(0,1fr))",care)
   self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
-  self.assertIn("object-fit: contain",care)
+  self.assertIn("object-fit:contain",care)
   for name in ("mate-care-scene-urgent.webp","mate-care-scene-pickup.webp","mate-care-scene-sick.webp"):
    self.assertIn(name,home)
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
-  self.assertIn('natural-photos-v10',home)
+  self.assertIn('native-image-grid-v11',home)
   self.assertIn('four-people-v8',spark_home)
   self.assertIn('hero-parity.css?v=20261103-copy-position-v3',spark_home)
   parity=src("spark/hero-parity.css")
