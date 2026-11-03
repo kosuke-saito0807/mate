@@ -22,7 +22,7 @@ def check():
     care="https://care.kosodatemate.jp/"
     spark="https://spark.kosodatemate.jp/"
     html=read(care)
-    stylesheet="assets/mate-brand-alignment.css?v=20261103-scene-reference-v14"
+    stylesheet="assets/mate-brand-alignment.css?v=20261103-design-system-v15"
     assert stylesheet in html and 'id="care-scene-four-card-guard"' in html, "Production CARE HTML has not received final four-card release"
     css=read(care+stylesheet)
     assert "grid-template-columns: repeat(4,minmax(0,1fr))" in css, "CARE production CSS lacks four columns"

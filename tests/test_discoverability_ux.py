@@ -67,7 +67,7 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261103-scene-reference-v14",care)
+  self.assertIn("mate-brand-alignment.css?v=20261103-design-system-v15",care)
   self.assertIn("mate-brand-alignment.css?v=20261102-four-people-v8",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
@@ -77,6 +77,21 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("spark/release.json",src(".github/workflows/firebase-spark-live.yml"))
   self.assertIn("MATE_FIREBASE_AUTO_DEPLOY_ENABLED",src(".github/workflows/firebase-spark-live.yml"))
   self.assertTrue((ROOT/"scripts/check_mate_live_sites.py").is_file())
+
+ def test_mate_shared_visual_system(self):
+  care=src("assets/mate-brand-alignment.css")
+  spark=src("spark/mate-brand-alignment.css")
+  for css in (care,spark):
+   self.assertIn("MATE shared visual system v1",css)
+   self.assertIn("--mate-ink:#073661",css)
+   self.assertIn("--mate-blue:#0878ea",css)
+   self.assertIn("--mate-radius:18px",css)
+   self.assertIn("font-family:var(--mate-font)",css)
+   self.assertIn("font-size:clamp(25px,2.25vw,30px)",css)
+  self.assertIn("grid-template-columns: repeat(4,minmax(0,1fr))",care)
+  self.assertIn("aspect-ratio:3/2",spark)
+  self.assertIn("object-fit: cover",care)
+  self.assertIn("object-fit:cover",spark)
 
  def test_requested_layout_form_and_https_regressions(self):
   care_css=src("assets/mate-brand-alignment.css")
@@ -119,8 +134,8 @@ class DiscoveryQuality(unittest.TestCase):
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
-  self.assertIn('scene-reference-v14',home)
-  self.assertIn('four-people-v8',spark_home)
+  self.assertIn('design-system-v15',home)
+  self.assertIn('design-system-v15',spark_home)
   self.assertIn('hero-parity.css?v=20261103-copy-position-v3',spark_home)
   parity=src("spark/hero-parity.css")
   self.assertIn("height:clamp(560px, 43vw, 720px)",parity)
