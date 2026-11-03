@@ -109,10 +109,10 @@ class DiscoveryQuality(unittest.TestCase):
   spark=src("spark/mate-brand-alignment.css")
   home=src("index.html")
   spark_home=src("spark/index.html")
-  # CARE photos use their actual 600:446 aspect ratio and contain sizing.
+  # CARE photos all use a reference-matched 3:2 frame; images are never stretched.
   self.assertIn("aspect-ratio: 3 / 2",care)
   self.assertIn("grid-template-columns: repeat(4,minmax(0,1fr))",care)
-  self.assertIn(".scene .cards .card:nth-child(3) .pic img",care)
+  self.assertIn(".scene .cards .card .pic img",care)
   self.assertIn("object-fit: cover",care)
   for name in ("mate-care-scene-urgent-v2.webp","mate-care-scene-pickup-v2.webp","mate-care-scene-sick-v2.webp"):
    self.assertIn(name,home)
