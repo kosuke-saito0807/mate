@@ -44,51 +44,19 @@ jobs:
             curl --silent --show-error --fail --max-time 20 --resolve "$host:443:$ip" -o /dev/null -w 'HTTP %{http_code}; TLS verification %{ssl_verify_result}; remote address %{remote_ip}\n' "https://$host/"
             echo "::endgroup::"
           done
-      - name: Verify IPv6 TLS route if GitHub runner has IPv6 connectivity
+      - name: Check public IPv6 edge (if GitHub runner supports IPv6)
         shell: bash
         run: |
           set -euo pipefail
           host=spark.kosodatemate.jp
-          mapfile -t ips < <(for ns in 1.1.1.1 8.8.8.8 9.9.9.9; do dig +time=4 +tries=1 +short @"$ns" "$host" AAAA; done | grep -E '^[0-9a-fA-F:]+
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "::group::SPARK HTTPS response headers"
-          curl --silent --show-error --fail -D /tmp/spark-headers.txt --output /tmp/spark-index.html --max-time 30 https://spark.kosodatemate.jp/
-          sed -n '1,30p' /tmp/spark-headers.txt
-          grep -Ei '^strict-transport-security:.*max-age=' /tmp/spark-headers.txt
-          echo "::endgroup::"
-          echo "::group::HTTP redirect"
-          curl --silent --show-error -I --max-time 20 http://spark.kosodatemate.jp/ | head -n 15
-          redirected=$(curl --silent --show-error -L -o /dev/null -w '%{url_effective}' --max-time 25 http://spark.kosodatemate.jp/)
-          echo "HTTP final URL: $redirected"
-          test "$redirected" = "https://spark.kosodatemate.jp/"
-          echo "::endgroup::"
-          echo "::group::OpenSSL certificate verification"
-          echo | openssl s_client -connect spark.kosodatemate.jp:443 -servername spark.kosodatemate.jp -verify_hostname spark.kosodatemate.jp -verify_return_error 2>&1 | grep -E 'Verification:|Verify return code:|subject=|issuer='
-          echo "::endgroup::"
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          text=Path("/tmp/spark-index.html").read_text(encoding="utf-8",errors="replace")
-          resources=re.findall(r'''(?:src|href)=["'](http://[^"']+)''',text,re.I)
-          if resources:
-              raise SystemExit("Insecure absolute resources found: " + str(resources[:10]))
-          assert "MATE SPARK" in text
-          print("PASS: SPARK site HTTPS and no HTTP linked resources in HTML")
-          PY
- | sort -u)
-          echo "Distinct IPv6 endpoints: ${#ips[@]}"
-          for ip in "${ips[@]}"; do
-            echo "::group::IPv6 $host via $ip"
-            if curl --noproxy '*' -6 -Is --connect-timeout 3 --max-time 6 "https://[2606:4700:4700::1111]/" -k >/dev/null 2>&1; then
-              curl --noproxy '*' --silent --show-error --fail -6 --max-time 20 --resolve "$host:443:[$ip]" -o /dev/null -w 'HTTPS %{http_code}; verification %{ssl_verify_result}; address %{remote_ip}\n' "https://$host/"
-            else
-              echo "Runner has no usable direct IPv6 connection; IPv6 edge not tested, not reported as PASS."
-            fi
-            echo "::endgroup::"
-          done
-      - name: Check Firebase Hosting custom domain ownership and certificate status (read only)
+          echo "Public AAAA records:"
+          dig +short @1.1.1.1 "$host" AAAA
+          if curl --noproxy '*' -6 --connect-timeout 4 --max-time 6 -skI 'https://[2606:4700:4700::1111]/' >/dev/null 2>&1; then
+            curl --noproxy '*' --silent --show-error --fail --max-time 20 -6 -o /dev/null -w 'IPv6 HTTPS %{http_code}, TLS verification %{ssl_verify_result}\n' "https://$host/"
+          else
+            echo "Runner lacks direct IPv6; cannot verify IPv6 from this runner"
+          fi
+      - name: Read Firebase Hosting custom domain status
         shell: bash
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MATE_SPARK }}
@@ -99,28 +67,24 @@ jobs:
           import json,os,urllib.request,urllib.error
           from google.oauth2 import service_account
           from google.auth.transport.requests import Request
-          secret=os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON","")
-          if not secret:
-              raise SystemExit("No project credential configured to check Firebase domain status")
-          creds=service_account.Credentials.from_service_account_info(
-              json.loads(secret),scopes=["https://www.googleapis.com/auth/firebase.hosting.readonly"])
-          creds.refresh(Request())
+          raw=os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
+          if not raw:
+              raise SystemExit("Domain status unavailable: missing Firebase service account")
+          cred=service_account.Credentials.from_service_account_info(json.loads(raw),scopes=["https://www.googleapis.com/auth/firebase.hosting.readonly"])
+          cred.refresh(Request())
           url="https://firebasehosting.googleapis.com/v1beta1/projects/mate-spark/sites/mate-spark/customDomains/spark.kosodatemate.jp"
+          req=urllib.request.Request(url,headers={"Authorization":"Bearer "+cred.token})
           try:
-              with urllib.request.urlopen(
-                  urllib.request.Request(url,headers={"Authorization":"Bearer "+creds.token}),
-                  timeout=20) as r:
-                  result=json.load(r)
-          except urllib.error.HTTPError as e:
-              print("Firebase custom domain status API responded HTTP",e.code)
-              raise SystemExit(1)
-          cert=result.get("cert") or {}
-          state={"domain":result.get("name"),"hostState":result.get("hostState"),
-                 "ownershipState":result.get("ownershipState"),
-                 "certState":cert.get("state"),"issueCodes":[x.get("code") for x in result.get("issues",[])]}
-          print("FIREBASE_CUSTOM_DOMAIN_STATUS",json.dumps(state,ensure_ascii=False),flush=True)
-          if result.get("hostState")!="HOST_ACTIVE" or cert.get("state")!="CERT_ACTIVE":
-              raise SystemExit("Firebase custom domain is not fully active; investigate DNS and certificate provisioning")
+              with urllib.request.urlopen(req,timeout=20) as res:
+                  data=json.load(res)
+          except urllib.error.HTTPError as err:
+              raise SystemExit("Firebase custom domain API returned HTTP "+str(err.code))
+          cert=data.get("cert") or {}
+          summary={"hostState":data.get("hostState"),"ownershipState":data.get("ownershipState"),
+                   "certState":cert.get("state"),"issues":[x.get("code") for x in data.get("issues",[])]}
+          print("FIREBASE_DOMAIN_STATUS:",json.dumps(summary),flush=True)
+          if data.get("hostState")!="HOST_ACTIVE" or cert.get("state")!="CERT_ACTIVE":
+              raise SystemExit("Firebase domain host or certificate not active")
           PY
       - name: Verify ordinary browser-facing requests and HTTP redirect
         shell: bash
@@ -133,6 +97,9 @@ jobs:
           echo "::endgroup::"
           echo "::group::HTTP redirect"
           curl --silent --show-error -I --max-time 20 http://spark.kosodatemate.jp/ | head -n 15
+          final=$(curl -sSL -o /dev/null -w '%{url_effective}' --max-time 25 http://spark.kosodatemate.jp/)
+          echo "HTTP URL after redirects: $final"
+          test "$final" = 'https://spark.kosodatemate.jp/'
           echo "::endgroup::"
           echo "::group::OpenSSL certificate verification"
           echo | openssl s_client -connect spark.kosodatemate.jp:443 -servername spark.kosodatemate.jp -verify_hostname spark.kosodatemate.jp -verify_return_error 2>&1 | grep -E 'Verification:|Verify return code:|subject=|issuer='
