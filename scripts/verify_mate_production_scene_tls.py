@@ -22,13 +22,13 @@ def check():
     care="https://care.kosodatemate.jp/"
     spark="https://spark.kosodatemate.jp/"
     html=read(care)
-    stylesheet="assets/mate-brand-alignment.css?v=20261103-scene-final-v13"
+    stylesheet="assets/mate-brand-alignment.css?v=20261103-scene-reference-v14"
     assert stylesheet in html and 'id="care-scene-four-card-guard"' in html, "Production CARE HTML has not received final four-card release"
     css=read(care+stylesheet)
     assert "grid-template-columns: repeat(4,minmax(0,1fr))" in css, "CARE production CSS lacks four columns"
     assert "aspect-ratio: 3 / 2" in css and "object-fit: cover" in css, "CARE photo aspect rules missing"
     for label in ["urgent","pickup","sick"]:
-        source=f"assets/mate-care-scene-{label}.webp"
+        source=f"assets/mate-care-scene-{label}-v2.webp"
         assert source in html, f"CARE photo {label} missing from production HTML"
         with urlopen(Request(care+source,headers={"User-Agent":AGENT}),timeout=20,context=ssl.create_default_context()) as res:
             assert res.status==200 and res.headers.get("Content-Type","").startswith("image/"),source

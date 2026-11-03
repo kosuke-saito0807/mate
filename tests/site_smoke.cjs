@@ -53,7 +53,9 @@ async function main() {
       assert.ok(careScene[i].naturalWidth>0,'CARE photo must load in desktop browser');
       assert.equal(careScene[i].fit,'cover','CARE photos should fill shared 3:2 frames without stretching');
       assert.ok(Math.abs(careScene[i].frame.width/careScene[i].frame.height-1.5)<.025,'CARE photo frame must match SPARK 3:2 artwork');
-      assert.ok(Math.abs(careScene[i].naturalWidth/careScene[i].naturalHeight-600/446)<.02,'CARE WebP intrinsic ratio should be 600x446');
+      assert.equal(careScene[i].naturalWidth,422,'CARE scene photo is sharp first-party editorial crop');
+      assert.equal(careScene[i].naturalHeight,282,'CARE scene photo has the same 3:2 proportions as the reference');
+      assert.ok(careScene[i].src.includes('-v2.webp'),'CARE scene photos use revised reference-matched imagery');
     }
     assert.equal(await care.locator('.scene .cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length),4,'CARE SCENE must show four cards across as SPARK and PLAY do');
     assert.ok(careScene[2].src.includes('mate-work-sharp-complete'),'Existing work-from-home image stays unchanged');

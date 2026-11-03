@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
   try{
     for(const [label,width,height,cols] of [['desktop',1366,900,4],['tablet',820,1000,2],['mobile',390,844,2]]){
       const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
-      const response=await page.goto('https://care.kosodatemate.jp/?care_scene_check=20261103-final-v13',{waitUntil:'networkidle',timeout:60000});
+      const response=await page.goto('https://care.kosodatemate.jp/?care_scene_check=20261103-reference-v14',{waitUntil:'networkidle',timeout:60000});
       assert.equal(response.status(),200,label+' HTTP');
       await page.locator('#scene').scrollIntoViewIfNeeded();
       await page.waitForFunction(()=>[...document.querySelectorAll('#scene .cards .pic img')].length===4 &&
@@ -27,6 +27,11 @@ const assert = require('node:assert/strict');
         };
       });
       const cardTops=[...new Set(report.cards.map(c=>c.top))];
+      for(const idx of [0,1,3]){
+        assert.ok(report.cards[idx].src.includes('-v2.webp'),label+' uses new coherent photographic scene for card '+idx);
+        assert.equal(report.cards[idx].imageNaturalWidth,422,label+' published revised photographic crop '+idx);
+        assert.equal(report.cards[idx].imageNaturalHeight,282,label+' true 3:2 image without stretching '+idx);
+      }
       assert.equal(report.cards.length,4,label+' exactly four cards');
       assert.equal(cardTops.length,cols===4?1:2,label+' rows match responsive reference');
       for(let i=0;i<report.cards.length;i++){

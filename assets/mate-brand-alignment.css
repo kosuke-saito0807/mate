@@ -85,7 +85,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   .mate-introduction section+section{border-top:1px solid #dce8f7}
 }
 
-/* CARE / SPARK / PLAY SCENE parity: four cards in one row.
+/* CARE / SPARK / PLAY SCENE parity: screenshot-matched four cards in one row.
    Fixed 3:2 photo windows use object-fit (never distorted transforms).
    Crop only at the edges so each photo fills a uniform frame. */
 .scene .sg { display:block; width:min(1220px,calc(100% - 44px)); max-width:1220px; margin-inline:auto; }
@@ -116,8 +116,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   overflow: hidden;
   background: #eef5fb;
 }
-.scene .cards .card .pic img,
-.scene .cards .card:not(:nth-child(3)) .pic img {
+.scene .cards .card .pic img {
   display: block;
   position: absolute;
   inset: 0;
@@ -131,9 +130,6 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
   object-position: center;
   transform: none;
 }
-.scene .cards .card:nth-child(3) .pic,
-.scene .cards .card:nth-child(3) .pic img { background: #f8f5ef; }
-.scene .cards .card:nth-child(3) .pic img { object-fit: cover; }
 .scene .cards .card .cb {
   flex: 1;
   min-height: 112px;
