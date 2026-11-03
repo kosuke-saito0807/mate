@@ -67,8 +67,8 @@ class DiscoveryQuality(unittest.TestCase):
  def test_release_freshness_and_static_hosting_cache(self):
   care=src("index.html")
   spark=src("spark/index.html")
-  self.assertIn("mate-brand-alignment.css?v=20261103-design-system-v15",care)
-  self.assertIn("mate-brand-alignment.css?v=20261103-design-system-v15",spark)
+  self.assertIn("mate-brand-alignment.css?v=20261103-sales-ready-v16",care)
+  self.assertIn("mate-brand-alignment.css?v=20261103-sales-ready-v16",spark)
   config=json.loads(src("firebase.json"))
   cache={x["source"]:x["headers"][0]["value"] for x in config["hosting"]["headers"] if x["headers"] and x["headers"][0]["key"]=="Cache-Control"}
   self.assertEqual(cache["/release.json"],"no-store, max-age=0")
@@ -92,6 +92,25 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("aspect-ratio:3/2",spark)
   self.assertIn("object-fit: cover",care)
   self.assertIn("object-fit:cover",spark)
+
+ def test_sales_readiness_faq_and_cross_service_links(self):
+  for page in ("index.html","spark/index.html"):
+   html=src(page)
+   self.assertIn('id="faq"',html)
+   self.assertIn('aria-labelledby="mate-faq-heading"',html)
+   self.assertEqual(html.count('class="mate-help-question"'),4)
+   self.assertIn("MATEの3つのサービス",html)
+   self.assertIn('data-mate-cta="listing"',html)
+   for domain in ("care.kosodatemate.jp","spark.kosodatemate.jp","play.kosodatemate.jp"):
+    self.assertIn('href="https://'+domain+'/"',html)
+   self.assertIn("承認後に公開",html)
+   self.assertNotIn("予約が確定します。",html)
+  self.assertIn('href="contact.html" data-mate-cta="listing"',src("index.html"))
+  self.assertIn('href="partners.html" data-mate-cta="listing"',src("spark/index.html"))
+  for style in ("assets/mate-brand-alignment.css","spark/mate-brand-alignment.css"):
+   self.assertIn("MATE sales-readiness UI",src(style))
+   self.assertIn(".mate-help-question summary",src(style))
+   self.assertIn("@media(max-width:800px)",src(style))
 
  def test_requested_layout_form_and_https_regressions(self):
   care_css=src("assets/mate-brand-alignment.css")
@@ -134,8 +153,8 @@ class DiscoveryQuality(unittest.TestCase):
   # Old full-bleed CSS left offsets and translateX that must be neutralized.
   for token in ("inset:auto","transform:none","grid-column:2","grid-column:1"):
    self.assertIn(token,spark)
-  self.assertIn('design-system-v15',home)
-  self.assertIn('design-system-v15',spark_home)
+  self.assertIn('sales-ready-v16',home)
+  self.assertIn('sales-ready-v16',spark_home)
   self.assertIn('hero-parity.css?v=20261103-copy-position-v3',spark_home)
   parity=src("spark/hero-parity.css")
   self.assertIn("height:clamp(560px, 43vw, 720px)",parity)

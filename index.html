@@ -38,7 +38,7 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 .privacyDesktop{white-space:nowrap}.privacyMobile{display:none}
 @media(max-width:800px){.privacyDesktop{display:none}.privacyMobile{display:inline}.privacyComfort{white-space:normal;padding:10px 12px;font-size:12px;max-width:100%}}
 @media(min-width:801px){.privacyComfort{white-space:nowrap}}.result-description{font-size:13px;line-height:1.7;color:#42637b;margin:10px 0}.result-meta{font-size:12px;color:#556d82;margin:5px 0}</style>
-<link rel="stylesheet" href="assets/brand.css?v=20261014-mobile"><link rel="stylesheet" href="assets/mate-ux.css?v=20261029"><link rel="stylesheet" href="assets/mate-brand-alignment.css?v=20261103-design-system-v15">
+<link rel="stylesheet" href="assets/brand.css?v=20261014-mobile"><link rel="stylesheet" href="assets/mate-ux.css?v=20261029"><link rel="stylesheet" href="assets/mate-brand-alignment.css?v=20261103-sales-ready-v16">
 <style id="care-scene-four-card-guard">
 /* Reference: existing work-from-home photo card; preserve natural geometry. */
 #scene{background:#eef7ff}
@@ -65,8 +65,30 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 
 <section id="find" class="searchsec"><div class="w"><div class="discovery-header"><p class="section-label">FIND YOUR MATE</p><h2>家族に合うシッターを、見つけよう。</h2><p>エリアとキーワードで頼れるシッターを探せます。実際の対応エリアは各事業者の公式案内をご確認ください。</p></div><div class="search-box"><span aria-hidden="true">⌕</span><input id="q" aria-label="シッター名・キーワードで検索" placeholder="シッター名・キーワードで検索"><span class="search-area">子育てサポート</span></div><div class="explore-layout"><aside class="filter-panel"><div class="filter-title"><h3>条件を絞る</h3><button type="button" onclick="resetSearch()">クリア</button></div><label for="area">エリア</label><select id="area"><option value="">全国すべて</option></select><div class="filter-note mate-consult-note"><a class="mate-consult-button" href="consult.html?service=CARE">MATE事務局に無料で相談する ↗</a></div></aside><div class="results-section"><div id="care-data-status" class="launch-banner">掲載許可をいただいたシッター事業者から順次公開しています。</div><div class="results-heading"><p id="results-count" aria-live="polite"></p><label>並び替え<select id="sort" aria-label="シッター事業者の並び替え"><option value="default">掲載順</option><option value="name">シッター名順</option></select></label></div><div id="results" class="results"></div></div></div></div></section>
 <section class="works" id="how-it-works"><div class="w wg"><div><div class="ey">HOW IT WORKS</div><h2>探して、確かめて、選ぶ。</h2><p class="desc">MATE CAREなら、かんたん3ステップで、あなたにぴったりのシッターが見つかります。</p></div><div class="steps"><div class="step"><div class="num">1</div><div><h3>探す</h3><p>エリアやキーワードから<br>気になるシッターを見つける</p></div></div><div class="step"><div class="num">2</div><div><h3>確かめる</h3><p>サービス内容など<br>詳しい情報をチェック</p></div></div><div class="step"><div class="num">3</div><div><h3>相談する</h3><p>気になるシッターに<br>直接お問い合わせ</p></div></div></div></div></section>
-<section class="providerCta"><div class="w"><div><h2>掲載をご希望のシッター事業者さまへ</h2><p>MATE CAREへの掲載・掲載内容の更新について、お気軽にお問い合わせください。</p></div><a class="btn" href="contact.html">掲載相談フォームへ →</a></div></section>
+<section class="providerCta"><div class="w"><div><h2>掲載をご希望のシッター事業者さまへ</h2><p>MATE CAREへの掲載・掲載内容の更新について、お気軽にお問い合わせください。</p></div><a class="btn" data-mate-cta="listing" href="contact.html">掲載相談フォームへ →</a></div></section>
+<section class="mate-help" id="faq" aria-labelledby="mate-faq-heading">
+  <div class="mate-help-inner">
+    <div class="mate-help-heading"><p class="mate-help-eyebrow">GUIDE &amp; FAQ</p><h2 id="mate-faq-heading">はじめての方へ</h2><p>安心して比較・相談するために、よくある質問をまとめました。</p></div>
+    <div class="mate-help-columns"><div class="mate-help-questions"><details class="mate-help-question"><summary>このサイトから予約が確定しますか？</summary><p>いいえ。MATE CAREは比較・情報確認・相談の窓口です。実際の予約や契約、利用条件は各事業者の公式案内でお確かめください。</p></details>
+<details class="mate-help-question"><summary>掲載される事業者の情報は確認されていますか？</summary><p>事業者の掲載意思や掲載情報の許諾を確認したものから公開します。保育サービスの品質・空き状況・利用結果を保証するものではありません。</p></details>
+<details class="mate-help-question"><summary>サイトの閲覧や相談には料金がかかりますか？</summary><p>サイトの閲覧とMATEへの相談受付は無料です。シッター等の利用料金は各事業者が定めるため、利用前に公式情報をご確認ください。</p></details>
+<details class="mate-help-question"><summary>事業者として掲載するにはどうすればよいですか？</summary><p>掲載相談フォームからお申し込みください。事務局が担当者の権限・掲載情報・同意内容を確認し、承認後に公開します。</p></details></div>
+      <aside class="mate-help-side" aria-label="MATEの3サービスと掲載相談"><h3>家族の「したい」に合わせて。</h3><nav class="mate-help-services" aria-label="MATEの3つのサービス"><a class="mate-help-service is-current" href="https://care.kosodatemate.jp/" aria-current="page"><strong>MATE CARE</strong><span>ベビーシッター・子育てサポート</span></a>
+<a class="mate-help-service" href="https://spark.kosodatemate.jp/"><strong>MATE SPARK</strong><span>習い事・教室</span></a>
+<a class="mate-help-service" href="https://play.kosodatemate.jp/"><strong>MATE PLAY</strong><span>親子のお出かけ・体験</span></a></nav><p>事業者・教室の掲載は、担当者の同意と情報確認後に進めます。</p><a class="mate-help-cta" href="contact.html" data-mate-cta="listing">シッター事業者の掲載相談 <span aria-hidden="true">↗</span></a></aside>
+    </div>
+  </div>
+</section>
 </main>
 <footer class="footer"><div class="w"><div class="footerTop"><div class="footerBrand"><img src="assets/MATE_logo_01.svg?v=20261010-logo" alt="MATE CARE"><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks"><a href="consult.html?service=CARE">シッターの相談</a><a href="#about">ABOUT</a><a href="#mission">OUR MISSION</a><a href="#scene">SCENE</a><a href="#find">シッターを探す</a><a href="guides.html">MATE無料ガイド一覧</a><a href="guide-sitter-choice.html">初めてのシッター選び</a><a href="guide-family-outing.html">親子のお出かけガイド</a><a href="partners.html">掲載条件・料金</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a><a href="operator.html">運営者情報</a><a href="consult.html?service=CARE">利用者のご相談</a><a href="contact.html">事業者の掲載相談</a></nav></div><div class="footerNote">掲載情報は公開情報をもとにMATE CAREが独自に整理したものであり、各シッター事業者との提携・推奨関係を示すものではありません。掲載情報は公開情報およびシッター事業者から提供された情報等をもとに整理しています。MATE CAREが各シッター事業者のサービス品質・安全性・料金・資格・保険等を保証するものではありません。実際のサービス内容、料金、対象年齢、対応地域、利用条件等は、利用前に各シッター事業者の公式情報をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com" style="color:inherit">お問い合わせ：kosodatemate@gmail.com</a><span aria-hidden="true"> ｜ </span>© MATE CARE. All rights reserved.</div></div></footer>
 <script src="assets/provider-search.js?v=20261023-selfservice" defer></script>
+<script>
+/* Anonymous homepage listing-CTA count: no form fields, email addresses or query strings. */
+document.addEventListener('click',function(event){
+ const element=event.target;
+ const link=element instanceof Element?element.closest('a[data-mate-cta="listing"]'):null;
+ if(!link||typeof gtag!=='function')return;
+ gtag('event','mate_listing_click',{service:'CARE',cta_location:'homepage'});
+},{passive:true});
+</script>
 </body></html>

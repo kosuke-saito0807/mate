@@ -189,3 +189,36 @@ body{color:var(--mate-ink);line-height:1.75;-webkit-font-smoothing:antialiased}
   .scene .cards .card .cb p{font-size:11px;line-height:1.7}
   .mate-introduction section,.mate-introduction section+section{padding:24px 22px}
 }
+
+
+/* MATE sales-readiness UI: accessible guidance, trust and cross-service navigation (2026-11-03). */
+.mate-help{padding:52px 0 62px;background:#fff;border-top:1px solid #e1ebf6;color:#073661}
+.mate-help *{box-sizing:border-box}
+.mate-help-inner{width:min(1220px,calc(100% - 44px));margin-inline:auto}
+.mate-help-heading{margin-bottom:25px}
+.mate-help-eyebrow{margin:0 0 7px;font-size:11px;letter-spacing:.15em;font-weight:900;color:#0878ea}
+.mate-help-heading h2{margin:0 0 7px;font-size:clamp(25px,2.25vw,30px);letter-spacing:-.035em;line-height:1.5}
+.mate-help-heading>p:last-child{margin:0;color:#627184;font-size:14px;line-height:1.85}
+.mate-help-columns{display:grid;grid-template-columns:minmax(0,1.28fr) minmax(270px,.72fr);align-items:start;gap:24px}
+.mate-help-questions{display:grid;gap:10px;min-width:0}
+.mate-help-question{border:1px solid #dce8f7;background:#fff;border-radius:13px;overflow:hidden}
+.mate-help-question summary{list-style:none;position:relative;cursor:pointer;min-height:54px;padding:16px 46px 16px 18px;line-height:1.65;font-weight:800;font-size:14px;color:#073661}
+.mate-help-question summary::-webkit-details-marker{display:none}
+.mate-help-question summary::after{content:"+";position:absolute;right:17px;top:50%;transform:translateY(-50%);font-size:22px;color:#0878ea;line-height:1}
+.mate-help-question[open] summary::after{content:"−"}
+.mate-help-question[open] summary{border-bottom:1px solid #e9eff7}
+.mate-help-question p{margin:0;padding:15px 18px 19px;color:#536b80;font-size:13px;line-height:1.9}
+.mate-help-side{min-width:0;padding:23px;border:1px solid #dce8f7;border-radius:17px;background:#f7fbff}
+.mate-help-side h3{margin:0 0 15px;font-size:17px;line-height:1.55;letter-spacing:-.02em}
+.mate-help-services{display:grid;gap:8px}
+.mate-help-service{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;min-height:50px;border:1px solid #dce8f7;border-radius:10px;background:white;text-decoration:none;color:#073661}
+.mate-help-service strong{font-size:13px;white-space:nowrap}
+.mate-help-service span{font-size:12px;color:#5e7388;text-align:right}
+.mate-help-service:hover,.mate-help-service:focus-visible{border-color:#0878ea;background:#eef7ff}
+.mate-help-service.is-current{border-color:#99c9fa;background:#eff7ff}
+.mate-help-side>p{font-size:12px;line-height:1.85;color:#536b80;margin:18px 0 12px}
+.mate-help-cta{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px 14px;border-radius:10px;background:#0878ea;color:#fff!important;font-weight:800;font-size:13px;text-decoration:none;text-align:center}
+.mate-help-cta:hover{background:#0869cc}
+.mate-help :where(a,summary):focus-visible{outline:3px solid #0878ea;outline-offset:3px}
+@media(max-width:800px){.mate-help{padding:40px 0 48px}.mate-help-columns{grid-template-columns:minmax(0,1fr)}.mate-help-heading{margin-bottom:20px}.mate-help-side{padding:20px}}
+@media(max-width:430px){.mate-help-question summary{font-size:13px;padding:15px 42px 15px 14px}.mate-help-service{flex-direction:column;align-items:flex-start;gap:3px}.mate-help-service span{text-align:left}}

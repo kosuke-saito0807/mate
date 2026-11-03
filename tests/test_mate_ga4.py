@@ -30,6 +30,15 @@ class GA4ReleaseTests(unittest.TestCase):
                     self.assertIn("['CARE','SPARK','PLAY'].includes(new URLSearchParams(location.search).get('service'))",src)
                 else:
                     self.assertIn("service:'"+service+"'",src)
+    def test_anon_listing_cta_events_no_personal_values(self):
+        for path,service in (("index.html","CARE"),("spark/index.html","SPARK")):
+            source=(ROOT/path).read_text(encoding="utf-8")
+            self.assertIn("mate_listing_click",source)
+            self.assertIn('data-mate-cta="listing"',source)
+            self.assertIn("cta_location:'homepage'",source)
+            self.assertIn("service:'"+service+"'",source)
+            self.assertNotIn("formData",source.split("Anonymous homepage listing-CTA count:",1)[1].split("</script>",1)[0])
+
     def test_no_pii_sourced_from_search_or_form_values(self):
         for path in PUBLIC:
             src=(ROOT/path).read_text(encoding="utf-8")

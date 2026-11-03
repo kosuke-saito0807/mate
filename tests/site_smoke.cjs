@@ -40,6 +40,12 @@ async function main() {
   const browser = await chromium.launch({headless:true, args:['--no-sandbox']});
   try {
     let care = await checkPage(browser,'/');
+    assert.equal(await care.locator('#faq .mate-help-question').count(),4,'CARE FAQ should expose four questions');
+    assert.equal(await care.locator('#faq .mate-help-service').count(),3,'CARE cross-service navigation');
+    await care.locator('#faq .mate-help-question summary').first().click();
+    assert.ok(await care.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'CARE FAQ details should open by keyboard/click');
+    assert.equal(await care.locator('#faq a[data-mate-cta="listing"]').count(),1,'CARE listing CTA');
+
     // Exactly three new photographic SCENE cards; keep the work-from-home photo intact.
     const careScene=await care.locator('.scene .card .pic img').evaluateAll(imgs=>imgs.map(img=>({
       src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
@@ -191,6 +197,12 @@ async function main() {
     }
 
     let spark = await checkPage(browser,'/spark/');
+    assert.equal(await spark.locator('#faq .mate-help-question').count(),4,'SPARK FAQ should expose four questions');
+    assert.equal(await spark.locator('#faq .mate-help-service').count(),3,'SPARK cross-service navigation');
+    await spark.locator('#faq .mate-help-question summary').first().click();
+    assert.ok(await spark.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'SPARK FAQ details should open by keyboard/click');
+    assert.equal(await spark.locator('#faq a[data-mate-cta="listing"]').count(),1,'SPARK listing CTA');
+
     const sparkFold=await spark.evaluate(()=>({
       hero:document.querySelector('.hero').getBoundingClientRect().height,
       introTop:document.querySelector('.spark-introduction').getBoundingClientRect().top,

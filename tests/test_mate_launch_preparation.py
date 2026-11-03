@@ -11,6 +11,15 @@ GA4_ID="G-CHXY0DC2WP"
 
 
 class LaunchPreparationTests(unittest.TestCase):
+    def test_safety_information_is_in_main_navigation_path(self):
+        for path in ("index.html","spark/index.html"):
+            html=(ROOT/path).read_text(encoding="utf-8")
+            self.assertIn('<section class="mate-help" id="faq"',html)
+            self.assertIn('class="mate-help-services"',html)
+            self.assertIn('aria-current="page"',html)
+            self.assertIn("掲載意思",html)
+            self.assertIn("公式案内",html)
+
     def test_real_listings_by_default_demo_requires_explicit_query(self):
         html=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn("demoMode=forceDemo;",html)
