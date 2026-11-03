@@ -87,6 +87,9 @@ class SeoLaunchTests(unittest.TestCase):
             "guide-sitter-first-visit.html":"https://care.kosodatemate.jp/",
             "guide-baby-outing-prep.html":"https://care.kosodatemate.jp/",
             "spark/guide-lesson-trial-review.html":"https://spark.kosodatemate.jp/",
+            "guide-sitter-fees-check.html":"https://care.kosodatemate.jp/",
+            "guide-weekend-family-event.html":"https://care.kosodatemate.jp/",
+            "spark/guide-lesson-age-fit.html":"https://spark.kosodatemate.jp/",
         }
         index=(ROOT/"guides.html").read_text(encoding="utf-8")
         care_map=(ROOT/"sitemap.xml").read_text(encoding="utf-8")

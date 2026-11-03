@@ -30,6 +30,23 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertIn('consult.html?service=SPARK',spark)
         self.assertIn('href="partners.html">掲載について相談する',spark)
 
+    def test_partner_pages_share_navy_blue_design_without_changing_intake(self):
+        root_theme=(ROOT/"assets/mate-partner-theme.css").read_text(encoding="utf-8")
+        spark_theme=(SPARK/"assets/mate-partner-theme.css").read_text(encoding="utf-8")
+        self.assertEqual(root_theme,spark_theme)
+        self.assertIn("--accent:#0878ea",root_theme)
+        for path in ("contact.html","partners.html","play-listing.html","spark/partners.html"):
+            html=(ROOT/path).read_text(encoding="utf-8")
+            self.assertIn('class="mate-partner-page"',html)
+            self.assertIn('mate-partner-theme.css?v=20261103-v1',html)
+        for path in ("assets/mate-direct-intake.js","spark/assets/mate-direct-intake.js"):
+            src=(ROOT/path).read_text(encoding="utf-8")
+            self.assertIn("listing_form_start",src)
+            self.assertIn("listing_inquiry_submit_attempt",src)
+            self.assertIn("HTMLFormElement.prototype.submit.call(form)",src)
+        for path in ("contact.html","play-listing.html","spark/partners.html"):
+            self.assertIn("mate-direct-intake.js?v=20261103-funnel",(ROOT/path).read_text(encoding="utf-8"))
+
     def test_real_listings_by_default_demo_requires_explicit_query(self):
         html=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn("demoMode=forceDemo;",html)

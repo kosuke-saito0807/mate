@@ -12,6 +12,9 @@ PUBLIC={
  "spark/guide-lessons-choice.html":"SPARK",
  "guide-sitter-first-visit.html":"CARE",
  "spark/guide-lesson-trial-review.html":"SPARK",
+ "guide-sitter-fees-check.html":"CARE",
+ "guide-weekend-family-event.html":"PLAY",
+ "spark/guide-lesson-age-fit.html":"SPARK",
  "guide-baby-outing-prep.html":"PLAY",
 }
 class GA4ReleaseTests(unittest.TestCase):

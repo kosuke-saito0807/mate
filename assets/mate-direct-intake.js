@@ -65,6 +65,16 @@
       form.method="POST";
       form.removeAttribute("target");
       status.textContent="送信するとGoogle Apps Script経由で運営の審査台帳に保存されます。登録だけでは公開されません。";
+      // Record only the first human interaction, never input names or contents.
+      // A submit attempt is NOT a completed application: GAS confirms receipt.
+      var formStarted=false;
+      form.addEventListener("focusin",function(e){
+        var field=e.target;
+        if(formStarted||!field||!field.matches||!field.matches('input:not([type="hidden"]),select,textarea'))return;
+        if(field.matches('input[name="_honey"]'))return;
+        formStarted=true;
+        if(typeof window.gtag==="function")window.gtag("event","listing_form_start",{service:service,form_type:"partner_listing"});
+      });
       var pending=false;
       form.addEventListener("submit",function(e){
         e.preventDefault();

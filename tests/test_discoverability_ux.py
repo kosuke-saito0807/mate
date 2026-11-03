@@ -6,9 +6,11 @@ ROOT=Path(__file__).resolve().parents[1]
 PAGES={
  "index.html":"CARE","spark/index.html":"SPARK","guide-sitter-choice.html":"CARE",
  "guide-family-outing.html":"PLAY","spark/guide-lessons-choice.html":"SPARK",
+ "guide-sitter-fees-check.html":"CARE","guide-weekend-family-event.html":"PLAY",
+ "spark/guide-lesson-age-fit.html":"SPARK",
  "guides.html":"MATE",
 }
-GUIDES={"guide-sitter-choice.html","guide-family-outing.html","spark/guide-lessons-choice.html"}
+GUIDES={"guide-sitter-choice.html","guide-family-outing.html","spark/guide-lessons-choice.html","guide-sitter-fees-check.html","guide-weekend-family-event.html","spark/guide-lesson-age-fit.html"}
 def src(path):return (ROOT/path).read_text(encoding="utf-8")
 class DiscoveryQuality(unittest.TestCase):
  def test_ux_baseline_and_keyboard_skip(self):

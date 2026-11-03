@@ -1,0 +1,42 @@
+/* MATE shared partner/application visual system, no form behavior changes. */
+body.mate-partner-page{
+  --blue:#0878ea;--b:#0878ea;--green:#0878ea;--accent:#0878ea;
+  --n:#073661;--ink:#073661;--navy:#073661;--text:#073661;
+  --line:#dce8f7;--border:#dce8f7;--m:#627184;--muted:#627184;--bg:#f5f9ff;
+  --l:#f5f9ff;--pale:#f5f9ff;
+  color:#073661;background:#f5f9ff;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  line-height:1.8;-webkit-font-smoothing:antialiased;
+}
+body.mate-partner-page :is(.box,.paper,.plan-card,.optional,.optionalListing,.step,.steps>.step,.extraListing){
+  border-color:#dce8f7;border-radius:16px;
+}
+body.mate-partner-page :is(.paper,.box,.plan-card){box-shadow:0 5px 20px rgba(7,54,97,.05)}
+body.mate-partner-page :is(.lead,.muted,.hint,.note){color:#627184}
+body.mate-partner-page :is(.kicker,.num,.eyebrow){color:#0878ea}
+body.mate-partner-page :is(h1,h2,h3){color:#073661;letter-spacing:-.025em;text-wrap:balance}
+body.mate-partner-page h1{font-size:clamp(28px,3.4vw,38px);line-height:1.4}
+body.mate-partner-page :is(a:not(.button):not(.cta):not(.submit),a:visited:not(.button):not(.cta):not(.submit)){color:#086bcf}
+body.mate-partner-page :is(.button,.cta,.submit,button[type="submit"]){background:#0878ea;color:#fff;border-radius:12px;min-height:46px;line-height:1.5;text-align:center}
+body.mate-partner-page :is(.button,.cta,.submit,button[type="submit"]):hover{background:#086bcd}
+body.mate-partner-page :is(.step,.optional,.optionalListing,.extraListing){background:#f7fbff}
+body.mate-partner-page :is(input:not([type="checkbox"]):not([type="hidden"]),select,textarea){border-color:#c9daed;border-radius:10px;min-height:46px;color:#073661}
+body.mate-partner-page :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #0878ea;outline-offset:3px}
+body.mate-partner-page :is(.consent,.formGrid .consent){line-height:1.85}
+body.mate-partner-page :is(.formGrid,.formgrid,.fields)>*{min-width:0}
+body.mate-partner-page :is(.lead,.paper,.box,.formGrid,.formgrid,.fields){overflow-wrap:anywhere}
+body.mate-partner-page .plan-card strong{color:#0878ea}
+body.mate-partner-page .top .wrap{max-width:1120px}
+body.mate-partner-page .lead{background:linear-gradient(110deg,#f3f9ff,#f9fcff)}
+body.mate-partner-page .notice{background:#eff7ff;color:#536b80}
+body.mate-partner-page .brandlogo{object-fit:contain}
+@media(max-width:700px){
+  body.mate-partner-page :is(.paper,.box){padding:clamp(18px,5vw,28px)}
+  body.mate-partner-page :is(.formGrid,.formgrid,.fields,.steps){grid-template-columns:minmax(0,1fr)}
+  body.mate-partner-page :is(.button,.cta.send,.submit,button[type="submit"]){max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  body.mate-partner-page *,body.mate-partner-page *::before,body.mate-partner-page *::after{
+    scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;
+  }
+}
