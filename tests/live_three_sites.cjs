@@ -36,7 +36,15 @@ async function audit(browser,service,mobile){
   await page.route(/https?:\/\/(?:www\.)?google-analytics\.com\/.*/,route=>route.abort());
   let result={service,view,ok:false,failures:[],warnings:[]};
   try{
-    const response=await page.goto(ORIGINS[service],{waitUntil:'domcontentloaded',timeout:25000});
+    // Publishing CARE via GitHub Pages can briefly return a 503 Unicorn
+    // during cache/edge propagation. Retry only 5xx responses, never hide
+    // persistent errors or suppress final release checks.
+    let response;
+    for(let attempt=1;attempt<=3;attempt++){
+      response=await page.goto(ORIGINS[service],{waitUntil:'domcontentloaded',timeout:25000});
+      if(response && response.status()<500)break;
+      if(attempt<3)await page.waitForTimeout(1800*attempt);
+    }
     result.http=response?.status()??0;result.url=page.url();result.title=(await page.title()).slice(0,120);
     result.secureContext=await page.evaluate(()=>window.isSecureContext);
     if(!result.secureContext)result.failures.push('Browser is not in a secure context');
