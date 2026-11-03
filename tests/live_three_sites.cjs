@@ -81,6 +81,36 @@ async function audit(browser,service,mobile){
         interactiveControls:document.querySelectorAll('button,select,input').length};
     },PREFECTURES);
     Object.assign(result,data);
+    // Read-only performance diagnostics: record transferred image bytes and
+    // potential layout stretching before replacing any existing hero imagery.
+    // These are diagnostic warnings, not fabricated Lighthouse/LCP scores.
+    const mediaDiagnostics=await page.evaluate(()=>{
+      const resources=performance.getEntriesByType('resource')
+        .filter(e=>/\\.(?:png|jpe?g|webp|avif|gif)(?:[?#]|$)/i.test(e.name))
+        .map(e=>({url:e.name.split('?')[0].slice(0,180),
+          transferredBytes:e.transferSize||0,
+          decodedBytes:e.decodedBodySize||0,
+          durationMs:Math.round(e.duration)}));
+      const oversized=resources.filter(e=>e.transferredBytes>500000)
+        .sort((a,b)=>b.transferredBytes-a.transferredBytes).slice(0,6);
+      const distorted=[...document.images].filter(im=>{
+        if(!im.complete||!im.naturalWidth||!im.naturalHeight)return false;
+        const rect=im.getBoundingClientRect();
+        const css=getComputedStyle(im);
+        if(rect.width<80||rect.height<50||css.objectFit==='cover'||css.objectFit==='contain')return false;
+        return Math.abs(rect.width/rect.height-im.naturalWidth/im.naturalHeight)>0.12;
+      }).map(im=>({alt:(im.alt||'').slice(0,75),
+        intrinsic:im.naturalWidth+'x'+im.naturalHeight,
+        displayed:Math.round(im.getBoundingClientRect().width)+'x'+Math.round(im.getBoundingClientRect().height)})).slice(0,8);
+      return {imageResources:resources.length,
+        recordedImageTransferBytes:resources.reduce((n,e)=>n+e.transferredBytes,0),
+        oversizedImages:oversized,possibleDistortedImages:distorted};
+    });
+    result.mediaDiagnostics=mediaDiagnostics;
+    if(mediaDiagnostics.oversizedImages.length)
+      result.warnings.push('500KB超の画像あり（表示速度の最適化候補）: '+mediaDiagnostics.oversizedImages.length+'件');
+    if(mediaDiagnostics.possibleDistortedImages.length)
+      result.warnings.push('縦横比の不一致が疑われる画像あり: '+mediaDiagnostics.possibleDistortedImages.length+'件');
     // Every service footer must use the custom-domain destination for the other two.
     const mateLinks=await page.evaluate(()=>[...document.querySelectorAll('footer a[href]')]
       .map(a=>({text:(a.textContent||'').trim(),href:a.href}))
@@ -184,7 +214,7 @@ async function audit(browser,service,mobile){
     const headline={service:result.service,view:result.view,ok:result.ok,http:result.http,
       width:result.width,scrollWidth:result.scrollWidth,secureContext:result.secureContext,brokenImages:result.brokenImages,
       prefOptions:result.prefOptions,hasNationwideText:result.hasNationwideText,
-      forms:result.forms,partnerPage:result.partnerPage,issues:result.failures,warnings:result.warnings,title:result.title};
+      forms:result.forms,partnerPage:result.partnerPage,mediaDiagnostics:result.mediaDiagnostics,issues:result.failures,warnings:result.warnings,title:result.title};
     console.log('MATE_LIVE_QA '+JSON.stringify(headline));
     results.push(headline);
   }
