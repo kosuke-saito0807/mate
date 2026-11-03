@@ -15,8 +15,25 @@ jobs:
   production-check:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v6
       - name: Verify actual public CARE markup, photo assets and SPARK TLS
         run: python3 scripts/verify_mate_production_scene_tls.py
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Install browser for production-only scene geometry audit
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify actual public CARE photo geometry on desktop and mobile
+        run: node tests/verify_live_care_scene.cjs
+      - name: Save actual production CARE photos for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: care-scene-live-production-qa
+          path: artifacts/live-care-scene/*.png
+          if-no-files-found: ignore
+          retention-days: 7

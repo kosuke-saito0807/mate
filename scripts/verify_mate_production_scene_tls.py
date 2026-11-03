@@ -22,8 +22,8 @@ def check():
     care="https://care.kosodatemate.jp/"
     spark="https://spark.kosodatemate.jp/"
     html=read(care)
-    stylesheet="assets/mate-brand-alignment.css?v=20261103-scene-parity-v12"
-    assert stylesheet in html, "Production CARE HTML has not received four-card release"
+    stylesheet="assets/mate-brand-alignment.css?v=20261103-scene-final-v13"
+    assert stylesheet in html and 'id="care-scene-four-card-guard"' in html, "Production CARE HTML has not received final four-card release"
     css=read(care+stylesheet)
     assert "grid-template-columns: repeat(4,minmax(0,1fr))" in css, "CARE production CSS lacks four columns"
     assert "aspect-ratio: 3 / 2" in css and "object-fit: cover" in css, "CARE photo aspect rules missing"
@@ -32,7 +32,7 @@ def check():
         assert source in html, f"CARE photo {label} missing from production HTML"
         with urlopen(Request(care+source,headers={"User-Agent":AGENT}),timeout=20,context=ssl.create_default_context()) as res:
             assert res.status==200 and res.headers.get("Content-Type","").startswith("image/"),source
-    print("PASS: production CARE shows four-column SCENE CSS and all three natural photo assets",flush=True)
+    assert html.count('loading="eager"') >= 4, "CARE scene photos must not lazy-load below fold"\n    print("PASS: production CARE shows four-column SCENE CSS and all four eager image assets",flush=True)
     spark_html=read(spark)
     assert "MATE SPARK" in spark_html, "SPARK homepage unexpected"
     with socket.create_connection(("spark.kosodatemate.jp",443),timeout=12) as raw:

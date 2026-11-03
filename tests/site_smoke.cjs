@@ -57,7 +57,7 @@ async function main() {
     }
     assert.equal(await care.locator('.scene .cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length),4,'CARE SCENE must show four cards across as SPARK and PLAY do');
     assert.ok(careScene[2].src.includes('mate-work-sharp-complete'),'Existing work-from-home image stays unchanged');
-    assert.equal(careScene[2].fit,'contain','Work-from-home photograph must not stretch or crop');
+    assert.equal(careScene[2].fit,'cover','Work-from-home photo should fill its 3:2 card without stretching');
     const careFold=await care.evaluate(()=>({
       hero:document.querySelector('.hero').getBoundingClientRect().height,
       introTop:document.querySelector('.mate-introduction').getBoundingClientRect().top,

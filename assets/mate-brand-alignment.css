@@ -88,7 +88,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
 /* CARE / SPARK / PLAY SCENE parity: four cards in one row.
    Fixed 3:2 photo windows use object-fit (never distorted transforms).
    Crop only at the edges so each photo fills a uniform frame. */
-.scene .sg { display: block; }
+.scene .sg { display:block; width:min(1220px,calc(100% - 44px)); max-width:1220px; margin-inline:auto; }
 .scene .intro { margin-bottom: 24px; }
 .scene .cards {
   display: grid;
@@ -133,7 +133,7 @@ body,button,input,select,textarea{font-family:var(--mate-font)}
 }
 .scene .cards .card:nth-child(3) .pic,
 .scene .cards .card:nth-child(3) .pic img { background: #f8f5ef; }
-.scene .cards .card:nth-child(3) .pic img { object-fit: contain; }
+.scene .cards .card:nth-child(3) .pic img { object-fit: cover; }
 .scene .cards .card .cb {
   flex: 1;
   min-height: 112px;
