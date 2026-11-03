@@ -70,7 +70,7 @@ async function main() {
     assert.equal(careScene[2].fit,'cover','Work-from-home photo should fill its 3:2 card without stretching');
     const careFold=await care.evaluate(()=>({
       hero:document.querySelector('.hero').getBoundingClientRect().height,
-      introTop:document.querySelector('.mate-introduction').getBoundingClientRect().top,
+      introTop:document.querySelector('.mate-introduction').getBoundingClientRect().top+window.scrollY,
       copyLeft:document.querySelector('.hero-kicker').getBoundingClientRect().left
     }));
     // CARE's redundant visitor-privacy banner is intentionally removed.
@@ -212,9 +212,9 @@ async function main() {
 
     const sparkFold=await spark.evaluate(()=>({
       hero:document.querySelector('.hero').getBoundingClientRect().height,
-      introTop:document.querySelector('.spark-introduction').getBoundingClientRect().top,
-      imageTop:document.querySelector('.hero-visual').getBoundingClientRect().top,
-      heroTop:document.querySelector('.hero').getBoundingClientRect().top,
+      introTop:document.querySelector('.spark-introduction').getBoundingClientRect().top+window.scrollY,
+      imageTop:document.querySelector('.hero-visual').getBoundingClientRect().top+window.scrollY,
+      heroTop:document.querySelector('.hero').getBoundingClientRect().top+window.scrollY,
       copyLeft:document.querySelector('.hero .tagline').getBoundingClientRect().left
     }));
     // CARE deliberately layers part of its hero behind the header. Match the
