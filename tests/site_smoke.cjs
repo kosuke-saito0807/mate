@@ -78,6 +78,8 @@ async function main() {
     await care.locator('#results-count').waitFor();
     assert.equal(await care.locator('#results article.result').count(),0);
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
+    assert.equal(await care.locator('#results a[href="consult.html?service=CARE"]').count(),1,'CARE empty results should guide parents to consultation');
+    assert.equal(await care.locator('#results a[href="contact.html"]').count(),1,'CARE empty results also provide a separate business route');
     assert.ok((await care.locator('a[href="https://spark.kosodatemate.jp/"]').count())>0);
     await care.locator('#q').fill('存在しないシッター');
     await care.locator('#sort').selectOption('name');
@@ -201,6 +203,7 @@ async function main() {
     let spark = await checkPage(browser,'/spark/');
     assert.equal(await spark.locator('#faq .mate-help-question').count(),4,'SPARK FAQ should expose four questions');
     assert.equal(await spark.locator('#faq .mate-help-service').count(),3,'SPARK cross-service navigation');
+    assert.equal(await spark.locator('#cards a[href="https://care.kosodatemate.jp/consult.html?service=SPARK"]').count(),1,'SPARK empty results should guide parents to consultation');
     await spark.locator('#faq .mate-help-question summary').first().click();
     assert.ok(await spark.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'SPARK FAQ details should open by keyboard/click');
     assert.equal(await spark.locator('#faq a[data-mate-cta="listing"]').count(),1,'SPARK listing CTA');

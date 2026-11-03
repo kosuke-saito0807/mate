@@ -20,6 +20,16 @@ class LaunchPreparationTests(unittest.TestCase):
             self.assertIn("掲載意思",html)
             self.assertIn("公式案内",html)
 
+    def test_empty_results_help_families_before_businesses(self):
+        search=(ROOT/"assets/provider-search.js").read_text(encoding="utf-8")
+        care=(ROOT/"index.html").read_text(encoding="utf-8")
+        spark=(SPARK/"index.html").read_text(encoding="utf-8")
+        self.assertIn('consult.html?service=CARE',search)
+        self.assertIn('事業者の方はこちら',search)
+        self.assertIn('provider-search.js?v=20261103-family-first',care)
+        self.assertIn('consult.html?service=SPARK',spark)
+        self.assertIn('href="partners.html">掲載について相談する',spark)
+
     def test_real_listings_by_default_demo_requires_explicit_query(self):
         html=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn("demoMode=forceDemo;",html)
