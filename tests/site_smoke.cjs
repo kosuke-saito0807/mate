@@ -45,6 +45,8 @@ async function main() {
     await care.locator('#faq .mate-help-question summary').first().click();
     assert.ok(await care.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'CARE FAQ details should open by keyboard/click');
     assert.equal(await care.locator('#faq a[data-mate-cta="listing"]').count(),1,'CARE listing CTA');
+    // FAQ interaction scrolls the page; restore top before comparing hero/ABOUT geometry.
+    await care.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,0);});
 
     // Exactly three new photographic SCENE cards; keep the work-from-home photo intact.
     const careScene=await care.locator('.scene .card .pic img').evaluateAll(imgs=>imgs.map(img=>({
@@ -202,6 +204,8 @@ async function main() {
     await spark.locator('#faq .mate-help-question summary').first().click();
     assert.ok(await spark.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'SPARK FAQ details should open by keyboard/click');
     assert.equal(await spark.locator('#faq a[data-mate-cta="listing"]').count(),1,'SPARK listing CTA');
+    // FAQ interaction scrolls the page; restore top before comparing hero/ABOUT geometry.
+    await spark.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,0);});
 
     const sparkFold=await spark.evaluate(()=>({
       hero:document.querySelector('.hero').getBoundingClientRect().height,
