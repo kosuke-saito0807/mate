@@ -379,13 +379,29 @@ function mateV4SendOutreach(){
     const link=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
       service==='SPARK'?'https://spark.kosodatemate.jp/partners.html':'https://care.kosodatemate.jp/contact.html';
     const subject='【MATE '+service+'】無料掲載のご案内｜'+x['事業者名'].slice(0,70);
-    const body=x['事業者名']+' ご担当者様\n\nMATE運営事務局です。\n'+
-      '子育て家庭に向けた情報サイト「MATE '+service+'」への無料掲載についてご案内します。\n'+
-      '掲載料は無料で、有料プランに自動移行しません。掲載内容・許諾を確認した後に公開します。\n'+
-      '掲載をご希望の場合はこちらから申請いただけます。\n'+link+'\n\n'+
-      'ご案内が不要な場合は「配信停止」とご返信ください。再送しません。\n'+
-      '運営：'+sender+'\n所在地：'+address+'\n連絡先：'+MATE_V4.account+
-      '\n運営者情報：https://care.kosodatemate.jp/operator.html';
+    const body=[
+      x['事業者名']+' ご担当者様',
+      '',
+      '突然のご連絡失礼いたします。子育て家庭向け情報サイト「MATE '+service+'」を運営しております、MATE運営事務局です。',
+      '',
+      'このたび、貴社のサービスをご紹介する機会についてご相談したく、ご連絡いたしました。',
+      'MATEでは、子育て中のご家庭が地域のサービスや施設を見つけやすくなるよう、各事業者様の情報をご案内しております。',
+      '',
+      '基本情報の掲載は無料で、掲載料・紹介料はかかりません。',
+      '掲載をご希望いただける場合は、以下のフォームより事業者情報をご登録いただけますと幸いです。',
+      link,
+      '',
+      'お申し込み後、掲載内容およびご担当者様の権限を確認したうえで、掲載の可否・開始について改めてご案内いたします。',
+      'なお、有料プランへ自動的に移行することはございません。',
+      '',
+      'ご不明な点がございましたら、お気軽に本メールへご返信ください。',
+      'また、今後このようなご案内が不要な場合は「配信停止」とご返信ください。以後の送信を停止いたします。',
+      '',
+      'MATE運営事務局（'+sender+'）',
+      '所在地：'+address,
+      'お問い合わせ：'+MATE_V4.account,
+      '運営者情報：https://care.kosodatemate.jp/operator.html'
+    ].join('\\n');
     // Reserve before external send: ambiguous failures are held, never retried automatically.
     const targetRow=sheet.getLastRow()+1;
     mateV4Append_(sheet,[key,mateV4Jst_(),service,email,subject,'送信結果要確認',x['確認元URL'],x['メール用途・営業可の根拠'],'二重送信防止:実行前に予約']);
