@@ -46,6 +46,17 @@ class CareContractPublication(unittest.TestCase):
                         "private-agreement-evidence", "CARE-AGREEMENT-01"):
             self.assertNotIn(private, serialized)
 
+    def test_e2e_synthetic_accounts_cannot_publish_even_if_erroneously_approved(self):
+        for identity,company in [
+            ("MATE-WEB-708fa2f3-60b9-4b98-9cc1-13f9462dab32", "あああ"),
+            ("care-real-looking", "斎藤テスト"),
+            ("care-qa", "NextEdu（内部テスト・非公開）"),
+        ]:
+            with self.subTest(identity=identity):
+                business={**CARE,"ID":identity,"事業者名":company}
+                contract={**CONTRACT,"掲載先ID":identity}
+                self.assertEqual(build_public([business],[contract],today=TODAY),[])
+
     def test_unsigned_expired_future_unrelated_contracts_never_publish(self):
         edits = [
             {"状態": "未契約"}, {"サービス": "SPARK"},
