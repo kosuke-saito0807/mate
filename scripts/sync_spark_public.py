@@ -160,6 +160,11 @@ def build_public(candidates, contracts, today=None):
     seen = set()
     for row in candidates:
         school_id = value(row, "ID")
+        # Never mistake an E2E applicant or synthetic school for a live partner.
+        if (school_id.upper().startswith(("MATE-WEB-", "MATE-E2E-", "TEST-", "DEMO-"))
+                or re.search(r"テスト|架空|ダミー|非公開", value(row, "企業・教室名"))
+                or value(row, "企業・教室名") == "あああ"):
+            continue
         if school_id in seen:
             raise ValueError(f"duplicate school ID: {school_id}")
         if school_id:
