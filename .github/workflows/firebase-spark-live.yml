@@ -16,6 +16,7 @@ on:
       - "tests/test_mate_ga4.py"
       - "tests/test_discoverability_ux.py"
       - "tests/test_public_data_contract.py"
+      - "tests/test_listing_terms_gate.py"
       - ".github/workflows/firebase-spark-live.yml"
   workflow_dispatch:
 
@@ -43,6 +44,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_ga4.py' -v
           python3 -m unittest discover -s tests -p 'test_discoverability_ux.py' -v
           python3 -m unittest discover -s tests -p 'test_public_data_contract.py' -v
+          python3 -m unittest discover -s tests -p 'test_listing_terms_gate.py' -v
           python3 -m json.tool spark/schools.json >/dev/null
           python3 -m json.tool spark/demo-schools.json >/dev/null
           python3 -m json.tool firebase.json >/dev/null
