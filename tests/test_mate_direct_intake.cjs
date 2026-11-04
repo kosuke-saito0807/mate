@@ -11,6 +11,7 @@ const headers=(text)=> {
 };
 const appHeaders=headers(source);
 const contactHeaders=["受付ID","受付日時","サービス","担当者名（非公開）","返信用メール（非公開）","電話（非公開）","申請メモ（非公開）"];
+const ledgerHeaders=["申請ID","サービス","事業者名","担当者メール","規約版","規約URL","明示同意","同意日時","担当者権限確認","審査状態","承諾通知日時","無料契約状態","公開禁止フラグ","備考"];
 const nowParts=(d)=>{
   const parts=Object.fromEntries(new Intl.DateTimeFormat("en",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d).map(p=>[p.type,p.value]));
   return [parts.year,parts.month,parts.day].join("-");
@@ -20,10 +21,12 @@ function appSheet(header) {
   const sh={
     rows,
     getLastRow(){return rows.length},
-    getRange(r,c,height,width){
+    getRange(r,c,height=1,width=1){
       return {
         getDisplayValues(){return Array.from({length:height},(_,i)=>Array.from({length:width},(_,j)=>String(rows[r-1+i]?.[c-1+j]??"")))},
-        setValues(values){values.forEach((v,i)=>{rows[r-1+i]||=[]; v.forEach((x,j)=>{rows[r-1+i][c-1+j]=x})});return this}
+        setValues(values){values.forEach((v,i)=>{rows[r-1+i]||=[]; v.forEach((x,j)=>{rows[r-1+i][c-1+j]=x})});return this},
+        setNumberFormat(){return this},
+        setValue(v){rows[r-1]||=[]; rows[r-1][c-1]=v;return this}
       }
     },
     setFrozenRows(){}
@@ -31,8 +34,8 @@ function appSheet(header) {
   return sh;
 }
 function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=true,contacts=true,lock=true,canAck=true}={}){
-  const approved=appSheet(appHeaders),privateContacts=contacts?appSheet(contactHeaders):null,sent=[];
-  const book={getSheetByName(name){return name==="掲載セルフ申請"?approved:name==="掲載申請連絡先"?privateContacts:null},
+  const approved=appSheet(appHeaders.concat(["表示受付番号（数字10桁）"])),privateContacts=contacts?appSheet(contactHeaders):null,ledger=appSheet(ledgerHeaders),sent=[];
+  const book={getSheetByName(name){return name==="掲載セルフ申請"?approved:name==="掲載申請連絡先"?privateContacts:name==="掲載同意証跡V1"?ledger:null},
     insertSheet(){throw Error("setup test not configured")}};
   const cache={m:new Map(),get(k){return this.m.get(k)},put(k,v){this.m.set(k,v)}};
   const sandbox={
@@ -42,7 +45,7 @@ function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=
     LockService:{getScriptLock:()=>({tryLock:()=>lock,releaseLock(){}})},
     CacheService:{getScriptCache:()=>cache},
     Utilities:{
-      formatDate(d){return d instanceof Date?nowParts(d):String(d)},
+      formatDate(d,tz,fmt){if(!(d instanceof Date))return String(d);const date=nowParts(d);return fmt==="yyMMdd"?date.slice(2).replace(/-/g,""):date},
       DigestAlgorithm:{SHA_256:"sha"},
       computeDigest:(_,s)=>Array.from(require("node:crypto").createHash("sha256").update(s).digest()),
       base64EncodeWebSafe:(v)=>Buffer.from(v).toString("base64url")
@@ -53,7 +56,7 @@ function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=
     Date,Number,JSON,Object,String,RegExp,Error,Array,Math
   };
   vm.createContext(sandbox);vm.runInContext(source,sandbox,{filename:"mate_direct_intake.gs"});
-  return {sandbox,approved,privateContacts,cache,sent};
+  return {sandbox,approved,privateContacts,ledger,cache,sent};
 }
 function input(service="CARE"){
   const d=nowParts(new Date());
@@ -63,7 +66,7 @@ function input(service="CARE"){
     region:"東京都",city:"北区",category:"ベビーシッター",
     description:"法人運営の子育て支援事業の説明を記載します。掲載権限の審査待ちで、一般公開しません。",
     listing_content_checked_at:d,listing_permission:"掲載の意向",
-    privacy_agree:"同意する", "cf-turnstile-response":"mock-cloudflare-siteverify-token-01234567890",
+    privacy_agree:"同意する",agreement_version:"2026-11-04-v1",listing_terms_agree:"2026-11-04-v1", "cf-turnstile-response":"mock-cloudflare-siteverify-token-01234567890",
     ages:"幼児",tags:"子育て"
   };
 }
@@ -78,6 +81,10 @@ test("CARE submitted only to private review, no public approval",()=>{
  assert.match(html,/申請を受け付けました/);
  assert.equal(e.approved.rows.length,2);
  assert.equal(e.privateContacts.rows.length,2);
+ assert.equal(e.ledger.rows.length,2);
+ assert.match(e.approved.rows[1][29],/^\d{10}$/);
+ assert.match(html,new RegExp(e.approved.rows[1][29]));
+ assert.match(e.sent[0]?.body||"",new RegExp(e.approved.rows[1][29]));
  assert.equal(e.approved.rows[1][24],"未審査");
  assert.equal(e.approved.rows[1][25],"未確認");
  assert.ok(!JSON.stringify(e.approved.rows).includes("private@example.com"));
@@ -143,6 +150,14 @@ test("Invalid privacy consent is refused",()=>{
  assert.match(execute(e,data),/受け付けられませんでした/);
  assert.equal(e.approved.rows.length,1);
 });
+test("Missing or forged listing terms consent is refused server-side",()=>{
+ for(const field of ["listing_terms_agree","agreement_version"]){
+   const e=makeEnvironment(),data=input();delete data[field];
+   assert.match(execute(e,data),/受け付けられませんでした/);
+   assert.equal(e.approved.rows.length,1);
+   assert.equal(e.ledger.rows.length,1);
+ }
+});
 test("Malformed URL is refused",()=>{
  const e=makeEnvironment(),data=input();data.website="https://user:pass@example.org/path";
  assert.match(execute(e,data),/受け付けられませんでした/);
@@ -157,6 +172,7 @@ test("Idempotent receipt prevents second row",()=>{
  const e=makeEnvironment();execute(e,input());execute(e,input());
  assert.equal(e.approved.rows.length,2);assert.equal(e.privateContacts.rows.length,2);
  assert.equal(e.sent.length,1);
+ assert.equal(e.ledger.rows.length,2);
 });
 test("auto-receipt failure never loses or publishes approved application",()=>{
  const e=makeEnvironment({canAck:false}),html=execute(e,input());
