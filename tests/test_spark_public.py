@@ -36,6 +36,17 @@ class ExportTests(unittest.TestCase):
         self.assertNotIn("メール", result[0])
         self.assertNotIn("合意証拠URL・メールID", result[0])
 
+    def test_dummy_accounts_cannot_publish_even_with_approved_contract(self):
+        for identity,name in [
+            ("MATE-WEB-fake", "架空スクール"),
+            ("spark-1", "斎藤テスト"),
+            ("spark-2", "あああ"),
+        ]:
+            with self.subTest(identity=identity):
+                school={**BASE,"ID":identity,"企業・教室名":name}
+                contract={**CONTRACT,"掲載先ID":identity}
+                self.assertEqual(build_public([school],[contract]),[])
+
     def test_trial_requires_specific_permission(self):
         result = build_public([{**BASE, "体験受付許諾": "未確認"}], [CONTRACT])
         self.assertFalse(result[0]["acceptsTrial"])
