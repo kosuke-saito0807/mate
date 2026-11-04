@@ -134,27 +134,31 @@ function mateDirectApplication_(d,stamp){
 // message text in the confirmation. Only real, validated submissions reach here.
 // A failed acknowledgment must never undo a saved application or operator notice.
 function mateReceiptEmail_(service,to,id,listing){
-  var title=listing?"掲載申請":"ご相談";
+  var title=listing?"無料掲載のお申し込み":"ご相談";
   var body=[
-    "MATE "+service+" 受付確認",
+    "このたびはMATE "+service+"にお問い合わせいただき、誠にありがとうございます。",
     "",
-    title+"を受け付けました。",
-    "受付番号: "+id,
-    "サービス: "+service,
+    title+"を下記のとおり受け付けました。",
     "",
-    "これは自動送信メールです。運営事務局が内容を確認します。",
+    "受付番号："+id,
+    "対象サービス：MATE "+service,
+    "",
+    "内容を確認のうえ、必要に応じて担当者よりご連絡いたします。",
     listing
-      ?"このメールは掲載許諾・掲載開始・契約成立を意味しません。公開前に担当者権限と内容を確認します。"
-      :"このメールは体験・予約の成立、紹介先への情報提供を意味しません。事業者への取次ぎは事前に別途確認します。",
-    "内容や日程によってはご案内できない場合があります。",
-    "お問い合わせ: "+MATE_DIRECT.owner,
+      ?"掲載内容やご担当者様の権限を確認した後、掲載可否と開始について改めてご案内いたします。現時点では掲載・契約は確定しておりません。"
+      :"ご相談内容に応じてご案内いたします。予約の確定や事業者への情報提供は、別途ご案内・ご確認のうえで進めます。",
     "",
-    "※お心当たりがない場合は、このメールに返信してお知らせください。"
+    "ご不明点や修正のご希望がございましたら、こちらのメールにご返信ください。",
+    "",
+    "MATE運営事務局（NextEdu）",
+    "お問い合わせ："+MATE_DIRECT.owner,
+    "",
+    "※本メールはお申し込みの受付確認として自動送信しています。お心当たりがない場合はお知らせください。"
   ].join("\n");
   try{
     MailApp.sendEmail({
       to:to,
-      subject:"【受付確認】"+service+" "+title+" "+id,
+      subject:"【MATE "+service+"】"+title+"受付のご案内｜"+id,
       body:body,
       replyTo:MATE_DIRECT.owner,
       name:"MATE 受付窓口"
@@ -230,8 +234,8 @@ function mateDirectEscape_(s){return String(s).replace(/[&<>"']/g,function(c){re
 function mateDirectView_(ok,service,message,ref){
   var home={CARE:"https://care.kosodatemate.jp/",SPARK:"https://spark.kosodatemate.jp/",
     PLAY:"https://play.kosodatemate.jp/"}[service]||"https://care.kosodatemate.jp/";
-  var title=ok?"申請を受け付けました":"申請を受け付けられませんでした";
-  var extra=ok?"受付番号："+mateDirectEscape_(ref||"")+"。掲載には運営側の確認と承認が必要です。":mateDirectEscape_(message||"時間をおいて再度お試しください");
+  var title=ok?"お申し込みありがとうございます":"お申し込みを受け付けられませんでした";
+  var extra=ok?"無料掲載のお申し込みを受け付けました。<p>受付番号：<strong>"+mateDirectEscape_(ref||"")+"</strong></p><p>内容を確認のうえ、掲載可否や開始についてメールでご案内いたします。ご確認が必要な場合は担当者よりご連絡いたします。</p><p>※お申し込み時点では、掲載・契約は確定しておりません。</p>":mateDirectEscape_(message||"時間をおいて再度お試しください");
   return HtmlService.createHtmlOutput('<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+
     '</title></head><body style="font:16px/1.9 system-ui,sans-serif;margin:0;background:#f6f9fe;color:#173a55"><main style="max-width:610px;padding:48px 24px;margin:auto"><h1>'+title+'</h1><p>'+extra+
     '</p><p><a href="'+home+'">MATEに戻る ↗</a></p><p style="font-size:13px">お問い合わせ：kosodatemate@gmail.com</p></main></body></html>');
@@ -346,8 +350,8 @@ function mateConsultReceive_(form) {
 }
 function mateConsultView_(ok,service,reason,id){
   var home=service==="PLAY"?"https://play.kosodatemate.jp/":service==="SPARK"?"https://spark.kosodatemate.jp/":"https://care.kosodatemate.jp/";
-  var title=ok?"ご相談を受け付けました":"ご相談を受け付けられませんでした";
-  var text=ok?"受付番号："+mateDirectEscape_(id)+"。運営事務局が内容を確認します。":
+  var title=ok?"お問い合わせありがとうございます":"お問い合わせを受け付けられませんでした";
+  var text=ok?"お問い合わせを受け付けました。<p>受付番号：<strong>"+mateDirectEscape_(id)+"</strong></p><p>内容を確認し、必要に応じて担当者よりご連絡いたします。</p>":
     mateDirectEscape_(reason||"受付できませんでした。");
   return HtmlService.createHtmlOutput(
     '<!doctype html><html lang="ja"><head><meta charset="utf-8">'+
