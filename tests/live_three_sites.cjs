@@ -163,6 +163,15 @@ async function audit(browser,service,mobile){
                 .map(e=>e.name).filter(n=>n && !n.startsWith('_')).slice(0,28)),
               analyticsConfigured:await formPage.evaluate(()=>document.documentElement.innerHTML.includes('G-CHXY0DC2WP')),
               secureContext:await formPage.evaluate(()=>window.isSecureContext),
+              freeTermsGate:await formPage.evaluate(()=>{
+                const form=document.querySelector('form[data-mate-direct-listing]');
+                const input=form?.querySelector('input[name="listing_terms_agree"][type="checkbox"][required]');
+                const version=form?.querySelector('input[name="agreement_version"]');
+                const link=form?.querySelector('a[href*="listing-terms.html"]');
+                return {consentRequired:!!input,consentInitiallyUnchecked:!!input&&!input.checked,
+                  version:version?.value||'',labelWithoutVersion:!!link &&
+                  link.textContent.trim()==='無料掲載の申込条件'};
+              }),
               formVisible:await formPage.evaluate(()=>{
                 const f=document.querySelector('form[data-mate-direct-listing]');
                 return !!(f&&f.getClientRects().length);
@@ -185,6 +194,15 @@ async function audit(browser,service,mobile){
               }catch(e){result.warnings.push('SPARKのHTTP→HTTPS転送を確認できず: '+String(e.message).slice(0,100));}
             }
             if(result.partnerPage.forms===0)result.warnings.push('掲載先画面にフォーム未検出（専用CMS/認証の可能性）');
+            if(result.partnerPage.forms>0){
+              const gate=result.partnerPage.freeTermsGate;
+              if(!gate?.consentRequired||!gate?.consentInitiallyUnchecked)
+                result.failures.push('無料掲載規約の明示同意チェックが必須・初期OFFでない');
+              if(gate?.version!=='2026-11-04-v1')
+                result.failures.push('掲載規約バージョンが不一致');
+              if(!gate?.labelWithoutVersion)
+                result.failures.push('無料掲載規約のリンク文言に版番号が残るかリンクが存在しない');
+            }
             if(isApprovedPlayIntake){
               const names=result.partnerPage.fields;
               for(const required of ['service','company','name','email','listing_permission','listing_content_checked_at','privacy_agree']){
