@@ -401,7 +401,7 @@ function mateV4SendOutreach(){
       '所在地：'+address,
       'お問い合わせ：'+MATE_V4.account,
       '運営者情報：https://care.kosodatemate.jp/operator.html'
-    ].join('\\n');
+    ].join('\n');
     // Reserve before external send: ambiguous failures are held, never retried automatically.
     const targetRow=sheet.getLastRow()+1;
     mateV4Append_(sheet,[key,mateV4Jst_(),service,email,subject,'送信結果要確認',x['確認元URL'],x['メール用途・営業可の根拠'],'二重送信防止:実行前に予約']);
