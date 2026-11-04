@@ -225,6 +225,42 @@ async function audit(browser,service,mobile){
         if(res.status()>=400)result.failures.push('内部リンク HTTP '+res.status()+': '+u.pathname.slice(0,100));
       }catch(e){result.warnings.push('内部リンク検査不可: '+u.pathname.slice(0,100));}
     }
+    // Read-only public crawl and analytics checks for three independent origins.
+    // Search Console indexing and GA4 ingestion require authenticated dashboards;
+    // these checks only prove publicly served static configuration.
+    const checks={};
+    for(const file of ['robots.txt','sitemap.xml']){
+      try{
+        const response=await page.request.get(ORIGINS[service]+file,{timeout:12000,failOnStatusCode:false});
+        const body=response.status()===200?await response.text():'';
+        checks[file]={status:response.status(),configured:body.includes('https://'+new URL(ORIGINS[service]).hostname+'/sitemap.xml')||file==='sitemap.xml'&&body.includes(ORIGINS[service])};
+        if(response.status()!==200||!checks[file].configured)
+          result.failures.push(service+' '+file+' not served with matching domain');
+        if(file==='robots.txt'&&/Disallow:\\s*\\/\\s*(?:\\n|$)/m.test(body))
+          result.failures.push(service+' production robots.txt blocks all crawling');
+      }catch(e){result.warnings.push(file+' public check unavailable: '+String(e.message).slice(0,100));}
+    }
+    result.publicSeo=checks;
+    if(service==='PLAY'){
+      const release=await page.evaluate(()=>{
+        const sha=document.querySelector('meta[name="mate-play-deploy-sha"]')?.content||'';
+        const canonical=document.querySelector('link[rel="canonical"]')?.href||'';
+        return {sha,canonical};
+      });
+      result.playRelease=release;
+      if(!/^[0-9a-f]{40}$/.test(release.sha))
+        result.failures.push('PLAY production SHA stamp missing or not a verified Git commit');
+      if(release.canonical!==ORIGINS.PLAY)
+        result.failures.push('PLAY production canonical does not match owned domain');
+      try{
+        const bridge=await page.request.get(ORIGINS.PLAY+'play-analytics-bridge.js',{timeout:12000});
+        const script=bridge.status()===200?await bridge.text():'';
+        if(!script.includes('G-CHXY0DC2WP')||!script.includes('MATE_PLAY_METRIC'))
+          result.failures.push('PLAY GA4 bridge missing or wrong measurement ID');
+      }catch(e){result.warnings.push('PLAY GA4 bridge could not be loaded: '+String(e.message).slice(0,100));}
+    }else if(!await page.evaluate(()=>document.documentElement.outerHTML.includes('G-CHXY0DC2WP'))){
+      result.failures.push(service+' GA4 tag missing in served HTML');
+    }
     result.ok=result.failures.length===0;
   }catch(e){result.failures.push(String(e.message).split('\n')[0].slice(0,220));}
   finally{
