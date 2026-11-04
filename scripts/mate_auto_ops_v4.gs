@@ -11,6 +11,8 @@
  *
  * Required Script Properties to enable actual mail:
  *   MATE_AUTO_SEND = ON
+ *   MATE_OUTREACH_PHASE = PILOT (max 1/day), then LIVE (max 5/day)
+ *   Phase OFF or unset forbids all external sending even if other toggles are ON.
  *   MATE_SENDER_NAME = accurate sender name / operator
  *   MATE_SENDER_ADDRESS = valid real sender postal address
  *   MATE_AUTO_SEND_LEGAL_REVIEWED = YES
@@ -347,10 +349,12 @@ function mateV4AuditOfficialContacts(){
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
+  const phase=p.getProperty('MATE_OUTREACH_PHASE')||'OFF';
+  if(phase!=='PILOT'&&phase!=='LIVE')return 'OFF';
   const sender=String(p.getProperty('MATE_SENDER_NAME')||'').trim();
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
   if(sender.length<2||address.length<10||/未設定|\[.+\]/.test(address))throw Error('実在する送信者名と所在地を設定');
-  const cap=Math.min(5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
+  const cap=Math.min(phase==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
   const logs=mateV4Rows_(sheet);
