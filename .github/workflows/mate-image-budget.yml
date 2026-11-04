@@ -40,6 +40,24 @@ jobs:
                   b.verify()
           print('PASS:',len(manifest),'WebP images decode at the same width/height')
           PY
+      - name: Summarize actual image savings for review
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          records=json.loads(Path('artifacts/webp-candidates/manifest.json').read_text())
+          total_before=sum(r['originalBytes'] for r in records if 'originalBytes' in r)
+          total_after=sum(r['candidateBytes'] for r in records if 'candidateBytes' in r)
+          table=['| Original file | Original KB | WebP KB | Saved |','|---|---:|---:|---:|']
+          for r in sorted(records,key=lambda x:x.get('originalBytes',0),reverse=True):
+              if 'error' in r: continue
+              table.append(f"| {r['source']} | {r['originalBytes']/1024:.0f} | {r['candidateBytes']/1024:.0f} | {r['savingPct']:.1f}% |")
+          summary=f"## MATE WebP review-only image candidates\\n\\nFiles: {len(records)}. Before: {total_before/1024:.0f} KB. After: {total_after/1024:.0f} KB. No images deployed.\\n\\n"+'\\n'.join(table)+'\\n'
+          Path('artifacts/webp-candidates/review-summary.md').write_text(summary)
+          if os.getenv('GITHUB_STEP_SUMMARY'):
+              with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:out.write(summary)
+          print(summary)
+          PY
       - name: Upload review-only candidates, no website changes
         uses: actions/upload-artifact@v4
         with:
