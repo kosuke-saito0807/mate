@@ -85,6 +85,12 @@ def build_public(rows, contracts=(), today=None):
             continue
         school_id = as_text(row.get("ID"))
         school_name = as_text(row.get("事業者名"))
+        # The self-service form is NOT an approved publication source.
+        # Even an accidentally activated contract may not publish E2E data.
+        if (school_id.upper().startswith(("MATE-WEB-", "MATE-E2E-", "TEST-", "DEMO-"))
+                or re.search(r"テスト|架空|ダミー|非公開", school_name)
+                or school_name.strip() in {"あああ", "サイトウテスト"}):
+            continue
         url = as_text(row.get("公式サイト"))
         checked = as_text(row.get("掲載情報確認日"))
         try:
