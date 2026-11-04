@@ -1,0 +1,49 @@
+name: MATE image budget and WebP candidates (no deployment)
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/prepare_webp_candidates.py"
+      - "assets/**"
+      - "spark/assets/**"
+      - ".github/workflows/mate-image-budget.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build lossless-dimension WebP comparison candidates
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==11.3.0
+          python scripts/prepare_webp_candidates.py
+      - name: Check candidates are valid and original dimensions match
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root=Path('.')
+          manifest=json.loads((root/'artifacts/webp-candidates/manifest.json').read_text())
+          for item in manifest:
+              assert 'error' not in item, item
+              before=root/item['source']
+              after=root/item['candidate']
+              with Image.open(before) as a, Image.open(after) as b:
+                  assert a.size==b.size,(before,a.size,b.size)
+                  b.verify()
+          print('PASS:',len(manifest),'WebP images decode at the same width/height')
+          PY
+      - name: Upload review-only candidates, no website changes
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-webp-review-candidates
+          path: artifacts/webp-candidates/
+          if-no-files-found: error
+          retention-days: 14
