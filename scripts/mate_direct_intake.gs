@@ -14,6 +14,8 @@ var MATE_DIRECT = Object.freeze({
   owner:"kosodatemate@gmail.com",
   applications:"掲載セルフ申請",
   contacts:"掲載申請連絡先",
+  consentLedger:"掲載同意証跡V1",
+  listingTermsVersion:"2026-11-04-v1",
   inquiries:"問い合わせ管理",
   inquiryHeaders:["受付ID","受付日時","サービス","問い合わせ種別","事業者・教室ID","対象教室・事業者名","GmailメッセージID/証跡","希望教室ID（複数はカンマ区切り）","進捗","掲載許諾確認","体験取次許諾確認","保護者の情報提供同意","次回対応日","教室への取次日時","結果確認日","結果","担当者","メモ（氏名・健康情報は記入しない）"],
   hosts:{CARE:["kosuke-saito0807.github.io","care.kosodatemate.jp"],SPARK:["mate-spark.web.app","kosuke-saito0807.github.io","spark.kosodatemate.jp","care.kosodatemate.jp"],PLAY:["kosuke-saito0807.github.io","care.kosodatemate.jp","play.kosodatemate.jp"]},
@@ -50,6 +52,10 @@ function setupMateDirectIntake(){
   var apps=book.getSheetByName(MATE_DIRECT.applications);
   if(!apps)throw Error("掲載セルフ申請が見つかりません");
   mateDirectHeaders_(apps,MATE_DIRECT.appHeaders);
+  if(apps.getRange(1,30).getDisplayValues()[0][0]!=="表示受付番号（数字10桁）")
+    throw Error("受付番号の表示列が見つかりません");
+  var ledger=book.getSheetByName(MATE_DIRECT.consentLedger);
+  if(!ledger)throw Error("掲載同意証跡の台帳が見つかりません");
   var contacts=book.getSheetByName(MATE_DIRECT.contacts);
   if(!contacts){
     contacts=book.insertSheet(MATE_DIRECT.contacts);
@@ -80,11 +86,14 @@ function mateDirectForm_(p){
   if(!mateDirectDate_(checked))throw Error("掲載内容の確認日をご確認ください");
   if(!mateDirectRaw_(p.listing_permission,140))throw Error("掲載の意向への同意が必要です");
   if(p.privacy_agree!=="同意する")throw Error("個人情報の取扱いへの同意が必要です");
+  if(mateDirectRaw_(p.agreement_version,32)!==MATE_DIRECT.listingTermsVersion ||
+     mateDirectRaw_(p.listing_terms_agree,32)!==MATE_DIRECT.listingTermsVersion)
+    throw Error("無料掲載条件への同意が必要です");
   var token=mateDirectRaw_(p["cf-turnstile-response"],2100);
   if(token.length<20||token.length>2048)throw Error("セキュリティ認証が必要です");
   var data={service:service,id:id,name:name,email:email,token:token,checked:checked,
     company:company,url:url,region:region,city:city,description:desc,
-    category:mateDirectText_(p.category,70)};
+    category:mateDirectText_(p.category,70),termsVersion:MATE_DIRECT.listingTermsVersion};
   ["phone","message","area","ages","monthlyPrice","trialPrice","ageMin","ageMax",
    "weekdays","station","tags","nextTrialDate","pricingNotes","openingHours","trial_referral_consent",
    "listing_permission"].forEach(function(k){data[k]=mateDirectText_(p[k],k==="message"?500:k==="phone"?30:160)});
@@ -161,14 +170,24 @@ function mateDirectReceive_(d){
   var book=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
   var apps=book.getSheetByName(MATE_DIRECT.applications);
   var contacts=book.getSheetByName(MATE_DIRECT.contacts);
-  if(!apps||!contacts)throw Error("受付システムは準備中です");
+  var ledger=book.getSheetByName(MATE_DIRECT.consentLedger);
+  if(!apps||!contacts||!ledger)throw Error("受付システムは準備中です");
+  if(apps.getRange(1,30).getDisplayValues()[0][0]!=="表示受付番号（数字10桁）")
+    throw Error("受付番号の表示列が見つかりません");
   mateDirectHeaders_(apps,MATE_DIRECT.appHeaders);
   mateDirectHeaders_(contacts,MATE_DIRECT.contactHeaders);
   var lock=LockService.getScriptLock();
   if(!lock.tryLock(18000))throw Error("混雑しています。時間をおいてください");
   try{
     var aid="MATE-WEB-"+d.id;
-    if(mateDirectExists_(apps,1,aid))return {id:aid,duplicate:true};
+    if(mateDirectExists_(apps,1,aid)){
+      var matches=apps.getRange(2,1,apps.getLastRow()-1,1).getDisplayValues();
+      for(var q=0;q<matches.length;q++)if(matches[q][0]===aid){
+        var alias=apps.getRange(q+2,30).getDisplayValues()[0][0];
+        return {id:aid,receipt:/^\d{10}$/.test(alias)?alias:aid,duplicate:true};
+      }
+      return {id:aid,receipt:aid,duplicate:true};
+    }
     var rate=CacheService.getScriptCache();
     // Hash the address; do not retain private email in a cache key.
     var bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,d.email.toLowerCase());
@@ -182,15 +201,29 @@ function mateDirectReceive_(d){
     }
     // If appending the approval record fails, retrying the SAME receipt ID can repair it.
     var insertedRow=apps.getLastRow()+1;
+    if(insertedRow>9999)throw Error("受付番号の発行上限に達しました");
+    var receipt=Utilities.formatDate(new Date(),"Asia/Tokyo","yyMMdd")+String(insertedRow).padStart(4,"0");
+    if(mateDirectExists_(apps,30,receipt))throw Error("受付番号が重複しました");
+    // Save the user-consented terms version and server time before accepting.
+    // No contract, publication, referral or billing is authorized by this record.
+    if(!mateDirectExists_(ledger,1,aid)){
+      ledger.getRange(ledger.getLastRow()+1,1,1,14).setValues([[
+        aid,d.service,d.company,d.email,d.termsVersion,
+        "https://care.kosodatemate.jp/listing-terms.html","同意する",stamp,
+        "未確認","未審査","","未成立","公開禁止（未承認）",
+        "フォーム上の明示同意・サーバー受信日時。申請のみで契約は未成立。"
+      ]]);
+    }
     apps.getRange(insertedRow,1,1,MATE_DIRECT.appHeaders.length).setValues([mateDirectApplication_(d,stamp)]);
-    var mailAccepted=mateReceiptEmail_(d.service,d.email,aid,true);
+    apps.getRange(insertedRow,30).setNumberFormat("@").setValue(receipt);
+    var mailAccepted=mateReceiptEmail_(d.service,d.email,receipt,true);
     try {
       apps.getRange(insertedRow,29,1,1).setValues([[
         "直接受付。権限と申請者の同意内容を必ず別途確認 / 自動受付メール送信API:"+(mailAccepted?"成功":"失敗")
       ]]);
     }catch(_ignored){} // Receipt and private contact were already saved.
     rate.put("mate.direct."+hash,"1",90);
-    return {id:aid,duplicate:false};
+    return {id:aid,receipt:receipt,duplicate:false};
   } finally {lock.releaseLock()}
 }
 function mateDirectEscape_(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -344,7 +377,7 @@ function doPost(e){
     var form=mateDirectForm_(parameters);
     mateDirectCaptcha_(form);
     var outcome=mateDirectReceive_(form);
-    return mateDirectView_(true,form.service,"",outcome.id);
+    return mateDirectView_(true,form.service,"",outcome.receipt||outcome.id);
   }catch(error){
     var safe=String(error&&error.message||"受付に失敗しました");
     if(safe.length>120)safe="受付に失敗しました";
