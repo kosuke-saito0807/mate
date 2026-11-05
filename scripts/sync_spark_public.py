@@ -11,8 +11,11 @@ import json
 import os
 import re
 import tempfile
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from mate_public_photos import public_photos, IMAGE_HEADERS
 
 SPARK_SHEET = "SPARK営業候補"
 CONTRACT_SHEET = "掲載契約"
@@ -135,7 +138,7 @@ def date_eligible(row, today):
     return signed_date <= today and start_date <= today <= end_date
 
 
-def build_public(candidates, contracts, today=None):
+def build_public(candidates, contracts, today=None, images=()):
     """Return a sanitized public data set, failing closed on ambiguity."""
     if today is None:
         # Japanese operational calendar, even when CI runs on UTC.
@@ -229,6 +232,7 @@ def build_public(candidates, contracts, today=None):
             d = None
         if d is not None and d >= today and output["acceptsTrial"]:
             output["nextTrialDate"] = d.isoformat()
+        output.update(public_photos(value(row, '掲載申請ID（内部）'), 'SPARK', images, category))
         public.append(output)
     return sorted(public, key=lambda s: (s["region"], s["name"], s["id"]))
 
@@ -256,9 +260,13 @@ def main():
     if not REQUIRED_CONTRACT.issubset(agreement_headers):
         raise RuntimeError("Contract headers missing: " + repr(sorted(REQUIRED_CONTRACT - agreement_headers)))
 
+    photo_sheet=book.worksheet('掲載画像V1_非公開')
+    if not set(IMAGE_HEADERS).issubset(set(photo_sheet.row_values(1))):
+        raise RuntimeError('SPARK image ledger headers missing; stop before data release')
     result = build_public(
         sheet_c.get_all_records(default_blank=""),
         sheet_agreements.get_all_records(default_blank=""),
+        images=photo_sheet.get_all_records(default_blank=""),
     )
     # Never put the source's private contact columns or consent evidence in this public JSON.
     destination = Path("spark/schools.json")
