@@ -21,6 +21,7 @@ jobs:
       - name: Verify signed-CARE-contract publication safety
         run: |
           python3 -m unittest discover -s tests -p 'test_care_contract_publication.py' -v
+          python3 -m unittest discover -s tests -p 'test_public_photos.py' -v
           python3 -m unittest discover -s tests -p 'test_site_integrity.py' -v
       - name: Install Google Sheets dependencies
         run: pip install gspread google-auth
