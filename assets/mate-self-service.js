@@ -23,6 +23,25 @@ window.MATESelfService = {
     if(data.listing_content_checked_at && data.listing_content_checked_at>todayJst){
       window.alert("掲載内容の確認日に未来の日付は指定できません。");return false;
     }
+    // Images remain in the separate private image ledger, not the public
+    // listing payload. Validate before native form submission for clarity.
+    const rawImages=String(form.elements.namedItem("listing_image_urls")?.value||"").trim();
+    const submittedImages=rawImages?rawImages.split(/\r?\n/).map(s=>s.trim()).filter(Boolean):[];
+    if(submittedImages.length>5||new Set(submittedImages).size!==submittedImages.length){
+      window.alert("掲載画像は重複のないURLを最大5件まで入力してください。");return false;
+    }
+    for(const u of submittedImages){
+      try{
+        const link=new URL(u);
+        if(link.protocol!=="https:"||link.username||link.password||!/\.(jpe?g|png|webp|avif)$/i.test(link.pathname)||u.length>450){
+          window.alert("画像URLはHTTPSのJPG・PNG・WebP・AVIF形式にしてください。");return false;
+        }
+      }catch(e){window.alert("画像URLを確認してください。");return false}
+    }
+    const consent=form.elements.namedItem("listing_image_rights");
+    if(submittedImages.length&&(!consent||!consent.checked)){
+      window.alert("写真の掲載権限への同意を確認してください。");return false;
+    }
     const bytes=new TextEncoder().encode(JSON.stringify(data));
     if(bytes.length>7000)return false;
     let binary="";
