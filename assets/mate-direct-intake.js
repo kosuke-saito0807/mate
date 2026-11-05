@@ -16,6 +16,11 @@
     var validSiteKey=typeof cfg.siteKey==="string" && /^[A-Za-z0-9_-]{12,160}$/.test(cfg.siteKey);
     var ready=cfg.enabled===true&&validEndpoint&&validSiteKey;
     forms.forEach(function(form){
+      var media=form.querySelector('.mate-image-fields');
+      if(media){
+        media.hidden=cfg.photosEnabled!==true;
+        media.querySelectorAll('input,textarea').forEach(function(field){field.disabled=cfg.photosEnabled!==true});
+      }
       var button=form.querySelector('button[type="submit"]');
       var status=form.querySelector('[role="status"]')||document.createElement("p");
       if(!status.parentNode){status.setAttribute("role","status");form.appendChild(status)}
