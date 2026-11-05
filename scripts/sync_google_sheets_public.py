@@ -7,8 +7,11 @@ import json
 import os
 import re
 import tempfile
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from mate_public_photos import public_photos, IMAGE_HEADERS
 
 SPREADSHEET_ID = os.environ.get("GOOGLE_SHEETS_ID", "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ")
 WORKSHEET_NAME = os.environ.get("GOOGLE_SHEETS_WORKSHEET", "営業管理DB")
@@ -73,7 +76,7 @@ def signed_care_contracts(contracts, today):
     return active
 
 
-def build_public(rows, contracts=(), today=None):
+def build_public(rows, contracts=(), today=None, images=()):
     if today is None:
         today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).date()
     active = signed_care_contracts(contracts, today)
@@ -127,6 +130,7 @@ def build_public(rows, contracts=(), today=None):
                 provider["data_as_of"] = datetime.date.fromisoformat(source_date).isoformat()
         except ValueError:
             pass  # Unknown source date is omitted rather than guessed.
+        provider.update(public_photos(as_text(row.get('掲載申請ID（内部）')), 'CARE', images, provider.get('category','')))
         result.append(provider)
     return sorted(result, key=lambda x: (x["area"], x["name"], x["id"]))
 
@@ -154,7 +158,10 @@ def main():
         raise RuntimeError("CARE contract source missing columns: " + ", ".join(sorted(missing_contract)))
     records = sheet.get_all_records(default_blank="")
     contracts = contract_sheet.get_all_records(default_blank="")
-    public = build_public(records, contracts)
+    photo_sheet=book.worksheet('掲載画像V1_非公開')
+    if not set(IMAGE_HEADERS).issubset(set(photo_sheet.row_values(1))):
+        raise RuntimeError('CARE image ledger headers missing; stop before data release')
+    public = build_public(records, contracts, images=photo_sheet.get_all_records(default_blank=''))
     output = Path("data.json")
     with tempfile.NamedTemporaryFile(
         mode="w", encoding="utf-8", dir=output.parent,
