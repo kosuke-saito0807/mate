@@ -15,6 +15,7 @@ var MATE_DIRECT = Object.freeze({
   applications:"掲載セルフ申請",
   contacts:"掲載申請連絡先",
   consentLedger:"掲載同意証跡V1",
+  imagesLedger:"掲載画像V1_非公開",
   listingTermsVersion:"2026-11-04-v1",
   inquiries:"問い合わせ管理",
   inquiryHeaders:["受付ID","受付日時","サービス","問い合わせ種別","事業者・教室ID","対象教室・事業者名","GmailメッセージID/証跡","希望教室ID（複数はカンマ区切り）","進捗","掲載許諾確認","体験取次許諾確認","保護者の情報提供同意","次回対応日","教室への取次日時","結果確認日","結果","担当者","メモ（氏名・健康情報は記入しない）"],
@@ -56,6 +57,8 @@ function setupMateDirectIntake(){
     throw Error("受付番号の表示列が見つかりません");
   var ledger=book.getSheetByName(MATE_DIRECT.consentLedger);
   if(!ledger)throw Error("掲載同意証跡の台帳が見つかりません");
+  var imageSheet=book.getSheetByName(MATE_DIRECT.imagesLedger);
+  if(!imageSheet)throw Error("掲載画像の非公開台帳が見つかりません");
   var contacts=book.getSheetByName(MATE_DIRECT.contacts);
   if(!contacts){
     contacts=book.insertSheet(MATE_DIRECT.contacts);
@@ -91,9 +94,23 @@ function mateDirectForm_(p){
     throw Error("無料掲載条件への同意が必要です");
   var token=mateDirectRaw_(p["cf-turnstile-response"],2100);
   if(token.length<20||token.length>2048)throw Error("セキュリティ認証が必要です");
+  var imageRaw=String(p.listing_image_urls||"").trim();
+  if(imageRaw.length>3000)throw Error("画像URLを確認してください");
+  var images=imageRaw?imageRaw.split(/\r?\n/).map(function(s){return s.trim()}).filter(Boolean):[];
+  if(images.length>5||new Set(images).size!==images.length)throw Error("掲載画像は異なるURLで最大5枚までです");
+  images.forEach(function(u){
+    var hostname=u.indexOf("https://")===0?u.slice(8).split("/")[0]:"";
+    var path=u.replace(/[?#].*$/,"");
+    if(u.length>450||!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(hostname)||
+       !/\.(?:jpe?g|png|webp|avif)$/i.test(path)||/[\s<>"']/.test(u))
+       throw Error("画像にはHTTPSのJPG・PNG・WebP・AVIF画像URLをご入力ください");
+  });
+  if(images.length&&p.listing_image_rights!=="掲載権限あり")
+    throw Error("画像を掲載する権限の確認が必要です");
   var data={service:service,id:id,name:name,email:email,token:token,checked:checked,
     company:company,url:url,region:region,city:city,description:desc,
-    category:mateDirectText_(p.category,70),termsVersion:MATE_DIRECT.listingTermsVersion};
+    category:mateDirectText_(p.category,70),termsVersion:MATE_DIRECT.listingTermsVersion,
+    images:images,imageRights:images.length?'掲載権限あり':'画像登録なし'};
   ["phone","message","area","ages","monthlyPrice","trialPrice","ageMin","ageMax",
    "weekdays","station","tags","nextTrialDate","pricingNotes","openingHours","trial_referral_consent",
    "listing_permission"].forEach(function(k){data[k]=mateDirectText_(p[k],k==="message"?500:k==="phone"?30:160)});
@@ -175,7 +192,8 @@ function mateDirectReceive_(d){
   var apps=book.getSheetByName(MATE_DIRECT.applications);
   var contacts=book.getSheetByName(MATE_DIRECT.contacts);
   var ledger=book.getSheetByName(MATE_DIRECT.consentLedger);
-  if(!apps||!contacts||!ledger)throw Error("受付システムは準備中です");
+  var imageLedger=book.getSheetByName(MATE_DIRECT.imagesLedger);
+  if(!apps||!contacts||!ledger||!imageLedger)throw Error("受付システムは準備中です");
   if(apps.getRange(1,30).getDisplayValues()[0][0]!=="表示受付番号（数字10桁）")
     throw Error("受付番号の表示列が見つかりません");
   mateDirectHeaders_(apps,MATE_DIRECT.appHeaders);
@@ -217,6 +235,13 @@ function mateDirectReceive_(d){
         "未確認","未審査","","未成立","公開禁止（未承認）",
         "フォーム上の明示同意・サーバー受信日時。申請のみで契約は未成立。"
       ]]);
+    }
+    // All applications have a matching private image row, including zero photos.
+    if(!mateDirectExists_(imageLedger,1,aid)){
+      var mediaRow=[aid,d.service].concat(d.images);
+      while(mediaRow.length<7)mediaRow.push("");
+      mediaRow=mediaRow.concat([d.imageRights,d.images.length?"未審査":"画像なし","",""]);
+      imageLedger.getRange(imageLedger.getLastRow()+1,1,1,11).setValues([mediaRow]);
     }
     apps.getRange(insertedRow,1,1,MATE_DIRECT.appHeaders.length).setValues([mateDirectApplication_(d,stamp)]);
     apps.getRange(insertedRow,30).setNumberFormat("@").setValue(receipt);
