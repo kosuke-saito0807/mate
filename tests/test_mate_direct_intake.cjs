@@ -234,3 +234,44 @@ test("photo upload without rights does not create an application",()=>{
  assert.equal(e.approved.rows.length,1);
  assert.equal(e.photos.rows.length,1);
 });
+
+
+test("CARE SPARK PLAY each accept 5 licensed photos into private ledger, never public",()=>{
+ const jpeg=Buffer.from([255,216,255,...Array(68).fill(0),255,217]);
+ const payload="MATE_PHOTOS_V1__"+JSON.stringify(Array(5).fill(jpeg.toString("base64")));
+ for(const [host,service] of [
+   ["care.kosodatemate.jp","CARE"],
+   ["spark.kosodatemate.jp","SPARK"],
+   ["care.kosodatemate.jp","PLAY"],
+   ["play.kosodatemate.jp","PLAY"]
+ ]){
+   const e=makeEnvironment({host}),d=input(service);
+   d.listing_photo_payload=payload;
+   d.listing_image_rights="掲載権限あり";
+   const html=execute(e,d);
+   assert.match(html,/無料掲載のお申し込みを受け付けました/,service+" "+host);
+   assert.equal(e.approved.rows.length,2);
+   assert.equal(e.photos.rows.length,2);
+   assert.equal(e.photos.rows[1][1],service);
+   for(let i=2;i<=6;i++)assert.match(e.photos.rows[1][i],/^DRIVE:[A-Za-z0-9_-]{20,128}$/);
+   assert.equal(e.photos.rows[1][7],"掲載権限あり");
+   assert.equal(e.photos.rows[1][8],"未審査");
+   assert.equal(e.approved.rows[1][24],"未審査");
+   assert.equal(e.approved.rows[1][25],"未確認");
+   assert.equal(e.ledger.rows[1][11],"未成立");
+   assert.equal(e.ledger.rows[1][12],"公開禁止（未承認）");
+   assert.ok(!JSON.stringify(e.approved.rows).includes("MATE_PHOTOS_V1__"));
+ }
+});
+test("All three reject 6 photos without storage, receipt or publication",()=>{
+ const jpeg=Buffer.from([255,216,255,...Array(68).fill(0),255,217]);
+ const payload="MATE_PHOTOS_V1__"+JSON.stringify(Array(6).fill(jpeg.toString("base64")));
+ for(const [host,service] of [["care.kosodatemate.jp","CARE"],["spark.kosodatemate.jp","SPARK"],["care.kosodatemate.jp","PLAY"]]){
+   const e=makeEnvironment({host}),d=input(service);
+   d.listing_photo_payload=payload;d.listing_image_rights="掲載権限あり";
+   assert.match(execute(e,d),/写真は最大5枚まで登録できます/);
+   assert.equal(e.approved.rows.length,1);
+   assert.equal(e.photos.rows.length,1);
+   assert.equal(e.sent.length,0);
+ }
+});
