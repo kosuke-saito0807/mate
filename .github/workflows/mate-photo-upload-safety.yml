@@ -7,6 +7,12 @@ on:
       - "scripts/mate_public_photos.py"
       - "scripts/mate_drive_media.py"
       - "assets/mate-photo-picker.js"
+      - "assets/mate-direct-intake-config.js"
+      - "spark/assets/mate-direct-intake-config.js"
+      - "spark/assets/mate-direct-intake.js"
+      - "contact.html"
+      - "play-listing.html"
+      - "spark/partners.html"
       - "assets/mate-gallery.js"
       - "spark/assets/mate-gallery.js"
       - "tests/test_mate_direct_intake.cjs"
@@ -35,6 +41,24 @@ jobs:
           node --check assets/mate-gallery.js
           node --check spark/assets/mate-gallery.js
           python -m py_compile scripts/mate_drive_media.py scripts/mate_public_photos.py scripts/sync_google_sheets_public.py scripts/sync_spark_public.py
+      - name: Guard production photo form activation on all three MATE services
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in ('assets/mate-direct-intake-config.js','spark/assets/mate-direct-intake-config.js'):
+              config=Path(path).read_text()
+              assert 'enabled: true' in config and 'photosEnabled: true' in config, path
+          for path in ('contact.html','play-listing.html','spark/partners.html'):
+              body=Path(path).read_text()
+              assert 'mate-image-fields' in body and 'listing_photo_payload' in body, path
+              assert 'listing_image_rights' in body and 'mate-photo-picker.js' in body, path
+              assert 'type="file"' in body and 'data-photo-preview' in body, path
+          for path in ('assets/mate-direct-intake.js','spark/assets/mate-direct-intake.js'):
+              code=Path(path).read_text()
+              assert 'MATEPhotoPicker' in code and '.populate()' in code, path
+              assert 'upload.disabled=true' in code or 'chosenFile.disabled=true' in code, path
+          print('PASS: CARE, SPARK and PLAY photo controls remain live, licensed and private-by-default')
+          PY
       - name: Test private storage, image rights and publication gating
         run: |
           node tests/test_mate_direct_intake.cjs
