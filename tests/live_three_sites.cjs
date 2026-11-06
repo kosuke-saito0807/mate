@@ -236,7 +236,7 @@ async function audit(browser,service,mobile){
         checks[file]={status:response.status(),configured:body.includes('https://'+new URL(ORIGINS[service]).hostname+'/sitemap.xml')||file==='sitemap.xml'&&body.includes(ORIGINS[service])};
         if(response.status()!==200||!checks[file].configured)
           result.failures.push(service+' '+file+' not served with matching domain');
-        if(file==='robots.txt'&&/Disallow:\\s*\\/\\s*(?:\\n|$)/m.test(body))
+        if(file==='robots.txt'&&/Disallow:\s*\/\s*(?:\n|$)/m.test(body))
           result.failures.push(service+' production robots.txt blocks all crawling');
       }catch(e){result.warnings.push(file+' public check unavailable: '+String(e.message).slice(0,100));}
     }
