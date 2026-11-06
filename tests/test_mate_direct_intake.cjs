@@ -41,7 +41,7 @@ function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=
   const sandbox={
     Session:{getEffectiveUser:()=>({getEmail:()=>"kosodatemate@gmail.com"})},
     SpreadsheetApp:{openById:()=>book},
-    PropertiesService:{getScriptProperties:()=>({getProperty:()=>secret?"test-secret":null,setProperty(){}})},
+    PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==="MATE_TURNSTILE_SECRET"?(secret?"test-secret":null):k==="MATE_UPLOAD_FOLDER_ID"?"folder-id":"",setProperty(){}})},
     DriveApp:{getFolderById:()=>({getFilesByName:()=>({hasNext:()=>false}),createFile:()=>({getId:()=>("A".repeat(35))})}),createFolder:()=>({getId:()=>("A".repeat(35))})},
     LockService:{getScriptLock:()=>({tryLock:()=>lock,releaseLock(){}})},
     CacheService:{getScriptCache:()=>cache},
