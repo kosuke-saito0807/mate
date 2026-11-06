@@ -65,10 +65,7 @@ footer{border-top:1px solid var(--border);padding:29px 0;font-size:12px;color:#5
 <label class="field">特長タグ（任意）<input name="tags" maxlength="160" placeholder="例：雨の日OK、未就学児歓迎"></label>
 <label class="field full">事務局への補足・確認事項（任意）<textarea name="message" maxlength="500" placeholder="画像許諾や日時などの注意点。氏名・健康情報等は含めないでください。"></textarea></label>
 </div></details>
-<input type="hidden" name="agreement_version" value="2026-11-04-v1"><div class="consents"><label class="consent"><input type="checkbox" name="listing_terms_agree" value="2026-11-04-v1" required><span><a href="listing-terms.html" target="_blank" rel="noopener">無料掲載の申込条件</a>を確認して同意します。申込時点では契約・掲載は成立しません。（必須）</span></label><label class="consent"><input type="checkbox" name="listing_permission" value="公開用の掲載情報を確認・許諾（審査後）" required><span>私はこの施設・体験の掲載申請権限を持ち、<strong>入力した公開用の情報の掲載に同意</strong>します。事務局の確認・承認後にのみ公開されることを理解しました。（必須）</span></label>
-<label class="consent"><input type="checkbox" name="trial_referral_consent" value="体験相談の取次ぎ希望（別途許諾）"><span>家族からの体験相談の取次ぎも検討したい（任意）。このチェックだけで保護者情報の提供や送客は開始しません。</span></label>
-<label class="consent"><input type="checkbox" name="privacy_agree" value="同意する" required><span><a href="play-privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a>を確認し、Google Apps Scriptを用いた運営の非公開Google Sheetsへの申請情報の登録に同意します。（必須）</span></label></div>
-<p class="notice">ご家族が体験・お出かけについて相談する場合は、<a href="consult.html?service=PLAY">個人情報の少ない家族向け相談フォーム</a>をご利用ください。</p>
+
 <section class="mate-image-fields" hidden style="margin:20px 0;padding:20px;border:1px solid #dce7f5;border-radius:14px;background:#f8fbff">
 <h3>掲載写真（任意・最大5枚）</h3>
 <p style="font-size:13px;color:#607890">写真を選択、またはここにドラッグ＆ドロップしてください。最初の1枚がサムネイルになります。未登録ならジャンルに合った画像を自動表示します。顔が写る方の同意もご確認ください。</p>
@@ -77,6 +74,11 @@ footer{border-top:1px solid var(--border);padding:29px 0;font-size:12px;color:#5
 <div class="mate-upload-grid" data-photo-preview></div>
 <input type="hidden" name="listing_photo_payload" value="">
 <label class="consent"><input type="checkbox" name="listing_image_rights" value="掲載権限あり"><span>写真を登録する場合、著作権・肖像権等の掲載権限を確認し、MATEでの表示を許諾します。画像未登録時は不要です。</span></label></section>
+<input type="hidden" name="agreement_version" value="2026-11-04-v1"><div class="consents"><label class="consent"><input type="checkbox" name="listing_terms_agree" value="2026-11-04-v1" required><span><a href="listing-terms.html" target="_blank" rel="noopener">無料掲載の申込条件</a>を確認して同意します。申込時点では契約・掲載は成立しません。（必須）</span></label><label class="consent"><input type="checkbox" name="listing_permission" value="公開用の掲載情報を確認・許諾（審査後）" required><span>私はこの施設・体験の掲載申請権限を持ち、<strong>入力した公開用の情報の掲載に同意</strong>します。事務局の確認・承認後にのみ公開されることを理解しました。（必須）</span></label>
+<label class="consent"><input type="checkbox" name="trial_referral_consent" value="体験相談の取次ぎ希望（別途許諾）"><span>家族からの体験相談の取次ぎも検討したい（任意）。このチェックだけで保護者情報の提供や送客は開始しません。</span></label>
+<label class="consent"><input type="checkbox" name="privacy_agree" value="同意する" required><span><a href="play-privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a>を確認し、Google Apps Scriptを用いた運営の非公開Google Sheetsへの申請情報の登録に同意します。（必須）</span></label></div>
+<p class="notice">ご家族が体験・お出かけについて相談する場合は、<a href="consult.html?service=PLAY">個人情報の少ない家族向け相談フォーム</a>をご利用ください。</p>
+
 <p id="form-status" role="status" aria-live="polite" hidden></p><button type="submit" class="submit">無料掲載を申し込む</button></form>
 </div></main><footer><div class="wrap"><nav aria-label="ほかのMATE掲載サービス" style="margin-bottom:14px">ほかの事業者向け掲載申請：<a href="https://care.kosodatemate.jp/contact.html">ベビーシッター・訪問保育（CARE）</a>　・　<a href="https://spark.kosodatemate.jp/partners.html">習い事教室（SPARK）</a></nav>運営：NextEdu ／ お問い合わせ：<a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a>　・　<a href="play-privacy.html">プライバシーポリシー</a>　・　<a href="https://play.kosodatemate.jp/">MATE PLAYを開く</a></div></footer>
 <script src="assets/mate-self-service.js?v=20261023"></script><script src="assets/mate-direct-intake-config.js" defer></script><script src="assets/mate-direct-intake.js?v=20261103-funnel" defer></script>
