@@ -41,7 +41,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.json spark/schools.json assets/partner-media/care spark/assets/partner-media/spark
+          git add data.json spark/schools.json
+          if [ -d assets/partner-media ]; then git add -A assets/partner-media; fi
+          if [ -d spark/assets/partner-media ]; then git add -A spark/assets/partner-media; fi
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
