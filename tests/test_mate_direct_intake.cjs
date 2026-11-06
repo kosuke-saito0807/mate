@@ -210,3 +210,27 @@ test("Missing reviewer, proof and contract remain absent",()=>{
  assert.equal(r[26],""); assert.equal(r[27],"");assert.ok(r[23].startsWith("WEB-"));
 });
 console.log("GAS direct intake tests done");
+
+
+test("registered JPEG is stored privately and not auto-public",()=>{
+ const e=makeEnvironment(),d=input();
+ const jpeg=Buffer.from([255,216,255,...Array(68).fill(0),255,217]);
+ d.listing_photo_payload="MATE_PHOTOS_V1__"+JSON.stringify([jpeg.toString("base64")]);
+ d.listing_image_rights="掲載権限あり";
+ const html=execute(e,d);
+ assert.match(html,/申請を受け付けました/);
+ assert.equal(e.photos.rows[1][2],"DRIVE:"+("A".repeat(35)));
+ assert.equal(e.photos.rows[1][7],"掲載権限あり");
+ assert.equal(e.photos.rows[1][8],"未審査");
+ assert.equal(e.approved.rows[1][24],"未審査");
+ assert.ok(!JSON.stringify(e.approved.rows).includes("MATE_PHOTOS_V1__"));
+});
+test("photo upload without rights does not create an application",()=>{
+ const e=makeEnvironment(),d=input();
+ const jpeg=Buffer.from([255,216,255,...Array(68).fill(0),255,217]);
+ d.listing_photo_payload="MATE_PHOTOS_V1__"+JSON.stringify([jpeg.toString("base64")]);
+ const html=execute(e,d);
+ assert.match(html,/画像を掲載する権限/);
+ assert.equal(e.approved.rows.length,1);
+ assert.equal(e.photos.rows.length,1);
+});
