@@ -98,6 +98,11 @@
         if(window.gtag)window.gtag("event","listing_inquiry_submit_attempt",{service:service,lead_type:"partner"});
         // Native navigation is supported across domains; no CORS bypass and no
         // client-side unverified "Thank you" redirect.
+        // Only compressed JPEG payload is sent, never original local filenames.
+        if(media && !media.hidden){
+          var chosenFile=media.querySelector('input[type="file"]');
+          if(chosenFile)chosenFile.disabled=true;
+        }
         HTMLFormElement.prototype.submit.call(form);
       });
     });
