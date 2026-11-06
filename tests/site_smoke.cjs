@@ -388,7 +388,10 @@ async function main() {
       const pageResponse=await p.goto('https://mate-spark.web.app/',{waitUntil:'networkidle'});
       assert.equal(pageResponse.status(),200);
       await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===1);
-      await p.locator('[data-pick]').first().click();
+      // Keyboard activation tests the real comparison button without flaky
+      // viewport pointer interception by sticky header or lazy card imagery.
+      await p.locator('[data-pick]').first().focus();
+      await p.keyboard.press('Enter');
       // Even if a legacy config flag were switched on, the old FormSubmit
       // transport is retired and the trial referral remains disabled until
       // a reviewed GAS backend, school permission, and parental consent exist.
