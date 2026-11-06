@@ -85,7 +85,7 @@ class SiteIntegrity(unittest.TestCase):
         sys.path.insert(0, str(ROOT / "scripts"))
         from sync_google_sheets_public import build_public
         row = {
-            "ID": "care-test-1", "事業者名": "テスト事業者",
+            "ID": "care-test-1", "事業者名": "北区の保育事業者",
             "掲載許可": "許可", "MATE掲載ステータス": "掲載許可",
             "公式サイト": "https://example.org/", "掲載情報確認日": "2026-10-20",
             "担当者": "非公開担当者", "メール": "private@example.org",
