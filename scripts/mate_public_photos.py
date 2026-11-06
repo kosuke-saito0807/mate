@@ -23,7 +23,7 @@ def safe_image_url(value):
     except ValueError:
         return False
 
-def public_photos(public_id, service, records, category):
+def public_photos(public_id, service, records, category, media_map=None):
     """Return safe published images only when independently reviewed as licensed."""
     key="fallback-"+service.lower()
     raw=re.sub(r"\s+","-",str(category or "").strip().lower())
@@ -41,10 +41,14 @@ def public_photos(public_id, service, records, category):
     images=[str(r.get("画像URL"+str(i)) or "").strip() for i in range(1,6)]
     images=[u for u in images if u]
     if not images:return result
+    media_map=media_map or {}
     if (r.get("画像掲載権限の申告")!="掲載権限あり" or
         r.get("画像審査状態")!="確認済み" or
-        len(set(images))!=len(images) or not all(map(safe_image_url,images))):
+        len(set(images))!=len(images)):
         return result
-    result["images"]=images
-    result["thumbnail"]=images[0]
+    resolved=[media_map.get(u,u) for u in images]
+    if not all(map(safe_image_url,resolved)):
+        return result
+    result["images"]=resolved
+    result["thumbnail"]=resolved[0]
     return result
