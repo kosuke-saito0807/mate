@@ -18,7 +18,11 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
     folder=Path(destination)
     approved=set(allowed_ids)
     mapping={}
-    if not approved:return mapping
+    # Even after all approvals are withdrawn, remove only previously generated
+    # photo assets. They must not remain reachable by their old public URLs.
+    if not approved:
+        _prune_generated_media(folder, set())
+        return mapping
     session=None
     for record in records:
         aid=str(record.get("申請ID") or "").strip()
@@ -66,4 +70,25 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                 # A single inaccessible/missing photo may not block the approved
                 # provider from being listed. The public gallery will fall back.
                 continue
+    _prune_generated_media(folder, set(mapping.values()), url_prefix)
     return mapping
+
+def _prune_generated_media(folder, expected_urls, url_prefix=""):
+    """Delete obsolete generated JPEGs only, never operator-uploaded source files.
+
+    The publishing job must first derive expected media from currently approved,
+    licensed records. Any former public JPEG outside that set is revoked.
+    """
+    if not folder.exists():
+        return
+    expected={u[len(url_prefix.rstrip("/"))+1:] for u in expected_urls
+              if url_prefix and u.startswith(url_prefix.rstrip("/")+"/")}
+    for file in folder.glob("*/*.jpg"):
+        rel=file.relative_to(folder).as_posix()
+        if not re.fullmatch(r"[0-9a-f-]{36}/[0-9]{2}-[0-9a-f]{16}\\.jpg", rel):
+            continue
+        if rel not in expected:
+            file.unlink()
+    for child in folder.iterdir():
+        if child.is_dir() and not any(child.iterdir()) and re.fullmatch(r"[0-9a-f-]{36}",child.name):
+            child.rmdir()
