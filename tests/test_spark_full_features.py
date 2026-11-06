@@ -12,7 +12,7 @@ from sync_spark_public import build_public, public_amount, public_age, public_we
 
 DATE = datetime.date(2026, 10, 17)
 SCHOOL = {
-    "ID": "spark-school-1", "企業・教室名": "架空ではない承認済み教室",
+    "ID": "spark-school-1", "企業・教室名": "承認済みのプログラミング教室",
     "都県・対象": "東京都・文京区", "ジャンル": "プログラミング",
     "公式・窓口URL": "https://example.edu.jp/school",
     "メール": "private@example.org", "電話": "09000000000",
