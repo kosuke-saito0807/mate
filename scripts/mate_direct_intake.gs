@@ -60,7 +60,7 @@ function setupMateDirectIntake(){
   if(!ledger)throw Error("掲載同意証跡の台帳が見つかりません");
   var imageSheet=book.getSheetByName(MATE_DIRECT.imagesLedger);
   if(!imageSheet)throw Error("掲載画像の非公開台帳が見つかりません");
-  mateDirectMediaFolder_();
+  setupMateMediaReadersV1();
   var contacts=book.getSheetByName(MATE_DIRECT.contacts);
   if(!contacts){
     contacts=book.insertSheet(MATE_DIRECT.contacts);
@@ -161,17 +161,29 @@ function mateDirectMediaFolder_(){
   }
   var result=DriveApp.getFolderById(id);
   if(!result)throw Error("画像保管フォルダにアクセスできません");
-  // Optional Google service accounts for the approved media-only exporter.
-  // Never grant 'anyone with the link' access to unpublished files.
-  var readers=String(props.getProperty("MATE_MEDIA_READER_EMAILS")||"").trim();
-  if(readers){
-    readers.split(",").map(function(x){return x.trim()}).filter(Boolean).forEach(function(email){
-      if(!/^[A-Za-z0-9._-]+@[A-Za-z0-9-]+\.iam\.gserviceaccount\.com$/.test(email))
-        throw Error("画像公開専用のサービスアカウントメールのみ指定できます");
-      result.addViewer(email);
-    });
-  }
   return result;
+}
+function setupMateMediaReadersV1(){
+  mateDirectOwner_();
+  var folder=mateDirectMediaFolder_();
+  var props=PropertiesService.getScriptProperties();
+  var raw=String(props.getProperty("MATE_MEDIA_READER_EMAILS")||"").trim();
+  if(!raw) return "画像フォルダは非公開です。読み取り用サービスアカウントはまだ設定されていません。";
+  var addresses=[...new Set(raw.split(",").map(function(x){return x.trim().toLowerCase()}).filter(Boolean))];
+  if(addresses.length>4)throw Error("閲覧者は最大4サービスアカウントまでにしてください");
+  addresses.forEach(function(email){
+    if(!/^[a-z0-9._-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com$/.test(email))
+      throw Error("画像公開専用サービスアカウントのメール形式が異なります");
+  });
+  var successes=0;
+  addresses.forEach(function(email){
+    try{folder.addViewer(email);successes++}
+    catch(err){
+      throw Error("Google Driveでサービスアカウントに閲覧権限を付与できません: "+email+" / "+String(err).slice(0,140));
+    }
+  });
+  return "画像フォルダの閲覧権限設定を処理しました。対象サービスアカウント: "+successes+
+    "。フォルダの一般アクセスは「制限付き」を維持してください。";
 }
 function mateDirectStoreMedia_(applicationId,form){
   var folder=mateDirectMediaFolder_();
