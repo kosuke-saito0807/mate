@@ -47,7 +47,7 @@ function submit(e,p){return e.sandbox.doPost({parameter:p,parameters:Object.from
 function run(title,fn){try{fn();console.log('PASS',title)}catch(e){console.error('FAIL',title,e);process.exitCode=1}}
 run('PLAY receives email, returns id and logs only metadata',()=>{
  const e=env(),p=params(),html=submit(e,p);
- assert.match(html,/ご相談を受け付けました/);
+ assert.match(html,/お問い合わせを受け付けました/);
  assert.match(html,/MATE-CONSULT-/);
  assert.equal(e.sent.length,2);
  assert.equal(e.sent[0].to,'kosodatemate@gmail.com');
@@ -71,14 +71,14 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
  assert.ok(!e.sent[0].subject.includes('MATE PLAY'));
 });
 run('CARE uses same GAS and stores CARE service',()=>{
- const e=env();assert.match(submit(e,params('CARE')),/ご相談を受け付けました/);
+ const e=env();assert.match(submit(e,params('CARE')),/お問い合わせを受け付けました/);
  assert.equal(e.table.rows[1][2],'CARE');
  assert.equal(e.sent.length,2);
  assert.match(e.sent[1].subject,/【受付確認】CARE/);
 });
 run('SPARK general consultation accepted through shared GitHub Pages form',()=>{
  const e=env({host:'kosuke-saito0807.github.io'}),p=params('SPARK');
- assert.match(submit(e,p),/ご相談を受け付けました/);
+ assert.match(submit(e,p),/お問い合わせを受け付けました/);
  assert.equal(e.table.rows[1][2],'SPARK');
  assert.equal(e.sent.length,2);
  assert.match(e.sent[1].subject,/【受付確認】SPARK/);
@@ -90,38 +90,38 @@ run('same receipt id never sends another email',()=>{
 });
 run('missing consent fails closed',()=>{
  const e=env(),p=params();delete p.privacy_agree;
- assert.match(submit(e,p),/ご相談を受け付けられませんでした/);
+ assert.match(submit(e,p),/お問い合わせを受け付けられませんでした/);
  assert.equal(e.sent.length,0);assert.equal(e.table.rows.length,1);
 });
 run('failed Turnstile is rejected',()=>{
- const e=env({captcha:false});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);assert.equal(e.sent.length,0);
+ const e=env({captcha:false});assert.match(submit(e,params()),/お問い合わせを受け付けられませんでした/);assert.equal(e.sent.length,0);
 });
 run('wrong Turnstile action is rejected',()=>{
- const e=env({action:'mate_listing'});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);assert.equal(e.sent.length,0);
+ const e=env({action:'mate_listing'});assert.match(submit(e,params()),/お問い合わせを受け付けられませんでした/);assert.equal(e.sent.length,0);
 });
 run('Custom CARE/SPARK/PLAY origins accept private consultation after valid Turnstile',()=>{
  for(const [host,service] of [['care.kosodatemate.jp','CARE'],['spark.kosodatemate.jp','SPARK'],['play.kosodatemate.jp','PLAY'],['care.kosodatemate.jp','PLAY']]){
   const e=env({host});
-  assert.match(submit(e,params(service)),/ご相談を受け付けました/);
+  assert.match(submit(e,params(service)),/お問い合わせを受け付けました/);
   assert.equal(e.sent.length,2);
   assert.equal(e.table.rows[1][2],service);
  }
 });
 run('Custom origin for a different service remains blocked',()=>{
  const e=env({host:'play.kosodatemate.jp'});
- assert.match(submit(e,params('CARE')),/ご相談を受け付けられませんでした/);
+ assert.match(submit(e,params('CARE')),/お問い合わせを受け付けられませんでした/);
  assert.equal(e.sent.length,0);
 });
 run('wrong widget hostname is rejected',()=>{
- const e=env({host:'evil.example'});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);assert.equal(e.sent.length,0);
+ const e=env({host:'evil.example'});assert.match(submit(e,params()),/お問い合わせを受け付けられませんでした/);assert.equal(e.sent.length,0);
 });
 run('missing Gmail send keeps a retryable pending row',()=>{
- const e=env({canSend:false});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);
+ const e=env({canSend:false});assert.match(submit(e,params()),/お問い合わせを受け付けられませんでした/);
  assert.equal(e.table.rows.length,2);assert.equal(e.table.rows[1][8],'メール通知待ち');assert.equal(e.sent.length,0);
 });
 run('acknowledgment mail failure never discards accepted operator notice',()=>{
  const e=env({failAck:true}),p=params();
- assert.match(submit(e,p),/ご相談を受け付けました/);
+ assert.match(submit(e,p),/お問い合わせを受け付けました/);
  assert.equal(e.sent.length,1);
  assert.equal(e.sent[0].to,'kosodatemate@gmail.com');
  assert.equal(e.table.rows[1][8],'受付');
@@ -130,16 +130,16 @@ run('acknowledgment mail failure never discards accepted operator notice',()=>{
  assert.equal(e.sent.length,1); // No automatic retry / duplicate mail on replay.
 });
 run('wrong sheet header prevents receipt and email',()=>{
- const e=env({validTab:false});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);
+ const e=env({validTab:false});assert.match(submit(e,params()),/お問い合わせを受け付けられませんでした/);
  assert.equal(e.sent.length,0);assert.equal(e.table.rows.length,1);
 });
 run('wrong GAS account cannot receive',()=>{
- const e=env({owner:false});assert.match(submit(e,params()),/ご相談を受け付けられませんでした/);
+ const e=env({owner:false});assert.match(submit(e,params()),/お問い合わせを受け付けられませんでした/);
  assert.equal(e.sent.length,0);
 });
 run('honeypot refuses automated submission',()=>{
  const e=env(),p=params();p._honey='spam';
- assert.match(submit(e,p),/ご相談を受け付けられませんでした/);assert.equal(e.sent.length,0);
+ assert.match(submit(e,p),/お問い合わせを受け付けられませんでした/);assert.equal(e.sent.length,0);
 });
 run('same email different receipt is throttled',()=>{
  const e=env(),p=params();submit(e,p);
@@ -150,12 +150,12 @@ run('same email different receipt is throttled',()=>{
 run('duplicate parameters rejected before mailing',()=>{
  const e=env(),p=params();
  const event={parameter:p,parameters:{service:['PLAY','CARE']},postData:{length:1900}};
- assert.match(e.sandbox.doPost(event).body,/ご相談を受け付けられませんでした/);
+ assert.match(e.sandbox.doPost(event).body,/お問い合わせを受け付けられませんでした/);
  assert.equal(e.sent.length,0);
 });
 run('unknown intake route rejected without changing listing',()=>{
  const e=env(),p=params();p.intake_type='unknown';
- assert.match(submit(e,p),/申請を受け付けられませんでした/);
+ assert.match(submit(e,p),/お申し込みを受け付けられませんでした/);
  assert.equal(e.sent.length,0);
 });
 console.log('MATE family consultation GAS contract suite completed');
