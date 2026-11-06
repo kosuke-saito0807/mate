@@ -1,0 +1,43 @@
+name: MATE secure photo uploads and galleries (offline)
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/mate_direct_intake.gs"
+      - "scripts/mate_public_photos.py"
+      - "scripts/mate_drive_media.py"
+      - "assets/mate-photo-picker.js"
+      - "assets/mate-gallery.js"
+      - "spark/assets/mate-gallery.js"
+      - "tests/test_mate_direct_intake.cjs"
+      - "tests/test_public_photos.py"
+      - ".github/workflows/mate-photo-upload-safety.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate syntax
+        run: |
+          cp scripts/mate_direct_intake.gs /tmp/mate_direct_photo_receiver.js
+          node --check /tmp/mate_direct_photo_receiver.js
+          node --check assets/mate-photo-picker.js
+          node --check assets/mate-gallery.js
+          node --check spark/assets/mate-gallery.js
+          python -m py_compile scripts/mate_drive_media.py scripts/mate_public_photos.py scripts/sync_google_sheets_public.py scripts/sync_spark_public.py
+      - name: Test private storage, image rights and publication gating
+        run: |
+          node tests/test_mate_direct_intake.cjs
+          python3 -m unittest discover -s tests -p 'test_public_photos.py' -v
+          python3 -m unittest discover -s tests -p 'test_care_contract_publication.py' -v
+          python3 -m unittest discover -s tests -p 'test_spark_public.py' -v
