@@ -185,6 +185,34 @@ function setupMateMediaReadersV1(){
   return "画像フォルダの閲覧権限設定を処理しました。対象サービスアカウント: "+successes+
     "。フォルダの一般アクセスは「制限付き」を維持してください。";
 }
+/**
+ * Owner-only read-only preflight; returns no token, JSON private key or raw IDs.
+ * Intended to be run after setupMateDirectIntake.
+ */
+function checkMateMediaSetupV1(){
+  mateDirectOwner_();
+  var props=PropertiesService.getScriptProperties();
+  var folderId=props.getProperty(MATE_DIRECT.uploadFolderProperty);
+  if(!folderId)return {status:"BLOCKED",reason:"先に setupMateDirectIntake を実行してください"};
+  var folder=DriveApp.getFolderById(folderId);
+  var rows=SpreadsheetApp.openById(MATE_DIRECT.sheetId).getSheetByName(MATE_DIRECT.imagesLedger);
+  if(!rows)throw Error("画像台帳がありません");
+  var readers=String(props.getProperty("MATE_MEDIA_READER_EMAILS")||"").split(",")
+    .map(function(x){return x.trim().toLowerCase()}).filter(Boolean);
+  var viewerEmails=folder.getViewers().map(function(x){return String(x.getEmail()||"").toLowerCase()});
+  var missing=readers.filter(function(x){return viewerEmails.indexOf(x)<0});
+  return {
+    status:readers.length&&missing.length===0?"READY":"BLOCKED",
+    privateFolder:folder.getUrl(),
+    sheet:rows.getName(),
+    configuredServiceAccounts:readers.length,
+    sharedReaders:readers.length-missing.length,
+    missingReaders:missing.length,
+    generalAccessReminder:"Google Driveのフォルダは制限付きのままにする",
+    next:missing.length?"setupMateMediaReadersV1 を実行して再確認":
+      !readers.length?"MATE_MEDIA_READER_EMAILS を設定":"受付GASを新バージョンでデプロイして画像保存を試す"
+  };
+}
 function mateDirectStoreMedia_(applicationId,form){
   var folder=mateDirectMediaFolder_();
   var images=[];
