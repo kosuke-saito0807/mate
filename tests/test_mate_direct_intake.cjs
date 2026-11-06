@@ -81,7 +81,7 @@ function execute(env,data){
 function test(name,fn){try{fn();console.log("PASS",name)}catch(e){console.error("FAIL",name,e);process.exitCode=1}}
 test("CARE submitted only to private review, no public approval",()=>{
  const e=makeEnvironment(),html=execute(e,input());
- assert.match(html,/申請を受け付けました/);
+ assert.match(html,/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.approved.rows.length,2);
  assert.equal(e.privateContacts.rows.length,2);
  assert.equal(e.ledger.rows.length,2);
@@ -104,20 +104,20 @@ test("CARE submitted only to private review, no public approval",()=>{
 });
 test("SPARK accepted only from spark domain",()=>{
  const e=makeEnvironment({host:"mate-spark.web.app"});
- assert.match(execute(e,input("SPARK")),/申請を受け付けました/);
+ assert.match(execute(e,input("SPARK")),/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.sent.length,1);
  assert.match(e.sent[0].subject,/【受付確認】SPARK/);
 });
 test("PLAY accepted only from github pages",()=>{
  const e=makeEnvironment();
- assert.match(execute(e,input("PLAY")),/申請を受け付けました/);
+ assert.match(execute(e,input("PLAY")),/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.sent.length,1);
  assert.match(e.sent[0].subject,/【受付確認】PLAY/);
 });
 test("All three independent MATE custom domains are authorized for actual listing receipts",()=>{
  for(const [host,service] of [["care.kosodatemate.jp","CARE"],["spark.kosodatemate.jp","SPARK"],["play.kosodatemate.jp","PLAY"],["care.kosodatemate.jp","PLAY"]]){
   const e=makeEnvironment({host}),html=execute(e,input(service));
-  assert.match(html,/申請を受け付けました/,host+" / "+service);
+  assert.match(html,/無料掲載のお申し込みを受け付けました/,host+" / "+service);
   assert.equal(e.approved.rows[1][24],"未審査");
   assert.equal(e.sent.length,1);
  }
@@ -170,7 +170,7 @@ test("Malformed URL is refused",()=>{
 });
 test("Formula in company name is escaped",()=>{
  const e=makeEnvironment(),data=input();data.company="=HYPERLINK(1)";
- assert.match(execute(e,data),/申請を受け付けました/);
+ assert.match(execute(e,data),/無料掲載のお申し込みを受け付けました/);
  assert.ok(e.approved.rows[1][3].startsWith("'="));
 });
 test("Idempotent receipt prevents second row",()=>{
@@ -181,7 +181,7 @@ test("Idempotent receipt prevents second row",()=>{
 });
 test("auto-receipt failure never loses or publishes approved application",()=>{
  const e=makeEnvironment({canAck:false}),html=execute(e,input());
- assert.match(html,/申請を受け付けました/);
+ assert.match(html,/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.approved.rows.length,2);
  assert.equal(e.privateContacts.rows.length,2);
  assert.equal(e.approved.rows[1][24],"未審査");
@@ -218,7 +218,7 @@ test("registered JPEG is stored privately and not auto-public",()=>{
  d.listing_photo_payload="MATE_PHOTOS_V1__"+JSON.stringify([jpeg.toString("base64")]);
  d.listing_image_rights="掲載権限あり";
  const html=execute(e,d);
- assert.match(html,/申請を受け付けました/);
+ assert.match(html,/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.photos.rows[1][2],"DRIVE:"+("A".repeat(35)));
  assert.equal(e.photos.rows[1][7],"掲載権限あり");
  assert.equal(e.photos.rows[1][8],"未審査");
