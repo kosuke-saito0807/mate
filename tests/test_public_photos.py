@@ -39,4 +39,25 @@ class Photos(unittest.TestCase):
     def test_no_images_uses_default(self):
         self.assertEqual(public_photos(AID,"CARE",[],"訪問保育")["images"],[])
         self.assertIsNone(public_photos(AID,"CARE",[],"訪問保育")["thumbnail"])
+
+    def test_revoked_approved_media_is_removed_but_unrelated_files_preserved(self):
+        import tempfile
+        from mate_drive_media import sync_approved_media, _prune_generated_media
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            uuid="01234567-89ab-4cde-8f01-23456789abcd"
+            folder=root/uuid
+            folder.mkdir()
+            published=folder/"01-1234567890abcdef.jpg"
+            published.write_bytes(b"previously approved example")
+            unrelated=folder/"manual-source.jpg"
+            unrelated.write_bytes(b"do not touch owner source files")
+            prefix="/partner-media/play" if "kosuke-saito0807/mate".endswith("private") else "/assets/partner-media/care"
+            _prune_generated_media(root,{prefix+"/"+uuid+"/"+published.name},prefix)
+            self.assertTrue(published.exists(),"approved asset must be retained")
+            sync_approved_media([],set(),"PLAY" if prefix.endswith("play") else "CARE",root,prefix,None)
+            self.assertFalse(published.exists(),"revoked asset must not retain a public URL")
+            self.assertTrue(unrelated.exists(),"only generated files may be pruned")
+
 if __name__=="__main__":unittest.main()
