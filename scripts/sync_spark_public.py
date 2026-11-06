@@ -16,6 +16,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from mate_public_photos import public_photos, IMAGE_HEADERS
+from mate_drive_media import sync_approved_media
 
 SPARK_SHEET = "SPARK営業候補"
 CONTRACT_SHEET = "掲載契約"
@@ -138,7 +139,7 @@ def date_eligible(row, today):
     return signed_date <= today and start_date <= today <= end_date
 
 
-def build_public(candidates, contracts, today=None, images=()):
+def build_public(candidates, contracts, today=None, images=(), media_map=None):
     """Return a sanitized public data set, failing closed on ambiguity."""
     if today is None:
         # Japanese operational calendar, even when CI runs on UTC.
@@ -232,7 +233,7 @@ def build_public(candidates, contracts, today=None, images=()):
             d = None
         if d is not None and d >= today and output["acceptsTrial"]:
             output["nextTrialDate"] = d.isoformat()
-        output.update(public_photos(value(row, '掲載申請ID（内部）'), 'SPARK', images, category))
+        output.update(public_photos(value(row, '掲載申請ID（内部）'), 'SPARK', images, category, media_map))
         public.append(output)
     return sorted(public, key=lambda s: (s["region"], s["name"], s["id"]))
 
@@ -247,7 +248,7 @@ def main():
 
     credentials = Credentials.from_service_account_info(
         json.loads(secret),
-        scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
+        scopes=["https://www.googleapis.com/auth/spreadsheets.readonly","https://www.googleapis.com/auth/drive.readonly"],
     )
     client = gspread.authorize(credentials)
     book = client.open_by_key(spreadsheet_id)
@@ -263,11 +264,14 @@ def main():
     photo_sheet=book.worksheet('掲載画像V1_非公開')
     if not set(IMAGE_HEADERS).issubset(set(photo_sheet.row_values(1))):
         raise RuntimeError('SPARK image ledger headers missing; stop before data release')
-    result = build_public(
-        sheet_c.get_all_records(default_blank=""),
-        sheet_agreements.get_all_records(default_blank=""),
-        images=photo_sheet.get_all_records(default_blank=""),
-    )
+    rows=sheet_c.get_all_records(default_blank='')
+    contracts=sheet_agreements.get_all_records(default_blank='')
+    images=photo_sheet.get_all_records(default_blank='')
+    preflight=build_public(rows,contracts)
+    live_ids={p['id'] for p in preflight}
+    allow={value(r,'掲載申請ID（内部）') for r in rows if value(r,'ID') in live_ids}
+    photo_map=sync_approved_media(images,allow,'SPARK',Path('spark/assets/partner-media/spark'),'/assets/partner-media/spark',credentials)
+    result = build_public(rows,contracts,images=images,media_map=photo_map)
     # Never put the source's private contact columns or consent evidence in this public JSON.
     destination = Path("spark/schools.json")
     destination.parent.mkdir(parents=True, exist_ok=True)
