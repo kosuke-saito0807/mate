@@ -16,6 +16,7 @@ var MATE_DIRECT = Object.freeze({
   contacts:"掲載申請連絡先",
   consentLedger:"掲載同意証跡V1",
   imagesLedger:"掲載画像V1_非公開",
+  uploadFolderProperty:"MATE_UPLOAD_FOLDER_ID",
   listingTermsVersion:"2026-11-04-v1",
   inquiries:"問い合わせ管理",
   inquiryHeaders:["受付ID","受付日時","サービス","問い合わせ種別","事業者・教室ID","対象教室・事業者名","GmailメッセージID/証跡","希望教室ID（複数はカンマ区切り）","進捗","掲載許諾確認","体験取次許諾確認","保護者の情報提供同意","次回対応日","教室への取次日時","結果確認日","結果","担当者","メモ（氏名・健康情報は記入しない）"],
@@ -59,6 +60,7 @@ function setupMateDirectIntake(){
   if(!ledger)throw Error("掲載同意証跡の台帳が見つかりません");
   var imageSheet=book.getSheetByName(MATE_DIRECT.imagesLedger);
   if(!imageSheet)throw Error("掲載画像の非公開台帳が見つかりません");
+  mateDirectMediaFolder_();
   var contacts=book.getSheetByName(MATE_DIRECT.contacts);
   if(!contacts){
     contacts=book.insertSheet(MATE_DIRECT.contacts);
@@ -94,19 +96,34 @@ function mateDirectForm_(p){
     throw Error("無料掲載条件への同意が必要です");
   var token=mateDirectRaw_(p["cf-turnstile-response"],2100);
   if(token.length<20||token.length>2048)throw Error("セキュリティ認証が必要です");
-  var imageRaw=String(p.listing_image_urls||"").trim();
-  if(imageRaw.length>3000)throw Error("画像URLを確認してください");
-  var images=imageRaw?imageRaw.split(/\r?\n/).map(function(s){return s.trim()}).filter(Boolean):[];
-  if(images.length>5||new Set(images).size!==images.length)throw Error("掲載画像は異なるURLで最大5枚までです");
-  images.forEach(function(u){
-    var hostname=u.indexOf("https://")===0?u.slice(8).split("/")[0]:"";
-    var path=u.replace(/[?#].*$/,"");
-    if(u.length>450||!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(hostname)||
-       !/\.(?:jpe?g|png|webp|avif)$/i.test(path)||/[\s<>"']/.test(u))
-       throw Error("画像にはHTTPSのJPG・PNG・WebP・AVIF画像URLをご入力ください");
-  });
-  if(images.length&&p.listing_image_rights!=="掲載権限あり")
-    throw Error("画像を掲載する権限の確認が必要です");
+  // File-picker v1: client strips metadata and downsizes to JPEG.
+  // Explicitly reject old arbitrary photo-URL fields.
+  if(p.listing_image_urls)throw Error("画像URLではなく写真ファイルを選択してください");
+  var photoRaw=String(p.listing_photo_payload||"");
+  var images=[];
+  if(photoRaw){
+    if(photoRaw.length>1650000||photoRaw.indexOf("MATE_PHOTOS_V1__")!==0)
+      throw Error("画像データが大きすぎるか形式が異なります");
+    var entries;
+    try{entries=JSON.parse(photoRaw.slice("MATE_PHOTOS_V1__".length))}
+    catch(e){throw Error("画像データを読み込めませんでした")}
+    if(!Array.isArray(entries)||entries.length<1||entries.length>5)
+      throw Error("写真は最大5枚まで登録できます");
+    var total=0;
+    entries.forEach(function(encoded){
+      if(typeof encoded!=="string"||encoded.length>340000||! /^[A-Za-z0-9+/]+={0,2}$/.test(encoded))
+        throw Error("画像形式を確認してください");
+      var decoded=Utilities.base64Decode(encoded);
+      if(decoded.length<64||decoded.length>240000||
+         (decoded[0]&255)!==255||(decoded[1]&255)!==216||(decoded[2]&255)!==255)
+        throw Error("JPEG画像を確認してください");
+      total+=decoded.length;
+      images.push(decoded);
+    });
+    if(total>1050000)throw Error("画像の合計容量が大きすぎます");
+    if(p.listing_image_rights!=="掲載権限あり")
+      throw Error("画像を掲載する権限の確認が必要です");
+  }
   var data={service:service,id:id,name:name,email:email,token:token,checked:checked,
     company:company,url:url,region:region,city:city,description:desc,
     category:mateDirectText_(p.category,70),termsVersion:MATE_DIRECT.listingTermsVersion,
@@ -131,6 +148,38 @@ function mateDirectCaptcha_(form){
   if(body.success!==true || body.action!=="mate_listing" ||
      MATE_DIRECT.hosts[form.service].indexOf(String(body.hostname||"").toLowerCase())<0)
     throw Error("セキュリティ認証をやり直してください");
+}
+function mateDirectMediaFolder_(){
+  var props=PropertiesService.getScriptProperties();
+  var id=props.getProperty(MATE_DIRECT.uploadFolderProperty);
+  // Only the designated business owner can create the private storage folder.
+  if(!id){
+    mateDirectOwner_();
+    var folder=DriveApp.createFolder("MATE_申込画像_非公開_本番");
+    id=folder.getId();
+    props.setProperty(MATE_DIRECT.uploadFolderProperty,id);
+  }
+  var result=DriveApp.getFolderById(id);
+  if(!result)throw Error("画像保管フォルダにアクセスできません");
+  return result;
+}
+function mateDirectStoreMedia_(applicationId,form){
+  var folder=mateDirectMediaFolder_();
+  var images=[];
+  for(var i=0;i<form.images.length;i++){
+    var name=applicationId.replace(/[^A-Za-z0-9_-]/g,"_")+"_photo_"+(i+1)+".jpg";
+    var found=folder.getFilesByName(name);
+    var file;
+    if(found.hasNext())file=found.next();
+    else{
+      var blob=Utilities.newBlob(form.images[i],"image/jpeg",name);
+      file=folder.createFile(blob);
+    }
+    // Do NOT call file.setSharing(ANYONE,...). Only the private publisher
+    // service account may read the folder after owner explicitly grants access.
+    images.push("DRIVE:"+file.getId());
+  }
+  return images;
 }
 function mateDirectExists_(sheet,column,key){
   var last=sheet.getLastRow();
@@ -238,7 +287,7 @@ function mateDirectReceive_(d){
     }
     // All applications have a matching private image row, including zero photos.
     if(!mateDirectExists_(imageLedger,1,aid)){
-      var mediaRow=[aid,d.service].concat(d.images);
+      var mediaRow=[aid,d.service].concat(mateDirectStoreMedia_(aid,d));
       while(mediaRow.length<7)mediaRow.push("");
       mediaRow=mediaRow.concat([d.imageRights,d.images.length?"未審査":"画像なし","",""]);
       imageLedger.getRange(imageLedger.getLastRow()+1,1,1,11).setValues([mediaRow]);
@@ -390,7 +439,7 @@ function doPost(e){
   var parameters=e&&e.parameter||{};
   var service=String(parameters.service||"").trim();
   try{
-    if(!e||!e.parameter||!e.postData||e.postData.length>15000)throw Error("送信内容を確認してください");
+    if(!e||!e.parameter||!e.postData||e.postData.length>1800000)throw Error("送信内容を確認してください");
     if(e.parameters&&Object.keys(e.parameters).some(function(k){return e.parameters[k].length!==1}))
       throw Error("送信内容を確認してください");
     if(parameters.intake_type==="family_consult"){
