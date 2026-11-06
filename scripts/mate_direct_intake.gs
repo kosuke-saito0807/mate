@@ -71,7 +71,7 @@ function setupMateDirectIntake(){
   var inquiries=book.getSheetByName(MATE_DIRECT.inquiries);
   if(!inquiries)throw Error("問い合わせ管理シートが見つかりません");
   mateDirectHeaders_(inquiries,MATE_DIRECT.inquiryHeaders);
-  return "受付台帳の構造・Turnstile設定を確認しました。未審査で保存されます。";
+  return "受付台帳・Turnstile・非公開画像フォルダを確認しました。画像フォルダURL: "+imageSheet.getName()+" / "+DriveApp.getFolderById(PropertiesService.getScriptProperties().getProperty(MATE_DIRECT.uploadFolderProperty)).getUrl();
 }
 function mateDirectForm_(p){
   var service=mateDirectRaw_(p.service,10);
@@ -161,6 +161,16 @@ function mateDirectMediaFolder_(){
   }
   var result=DriveApp.getFolderById(id);
   if(!result)throw Error("画像保管フォルダにアクセスできません");
+  // Optional Google service accounts for the approved media-only exporter.
+  // Never grant 'anyone with the link' access to unpublished files.
+  var readers=String(props.getProperty("MATE_MEDIA_READER_EMAILS")||"").trim();
+  if(readers){
+    readers.split(",").map(function(x){return x.trim()}).filter(Boolean).forEach(function(email){
+      if(!/^[A-Za-z0-9._-]+@[A-Za-z0-9-]+\.iam\.gserviceaccount\.com$/.test(email))
+        throw Error("画像公開専用のサービスアカウントメールのみ指定できます");
+      result.addViewer(email);
+    });
+  }
   return result;
 }
 function mateDirectStoreMedia_(applicationId,form){
