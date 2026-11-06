@@ -50,7 +50,7 @@ def public_photos(public_id, service, records, category, media_map=None):
     for original,final in zip(images,resolved):
         if original.startswith("DRIVE:"):
             if original not in media_map or not re.fullmatch(
-                r"/(?:assets/partner-media/(?:care|spark)|partner-media/play)/[0-9a-f-]{36}/[0-9]{2}-[0-9a-f]{16}\\.jpg",
+                r"/(?:assets/partner-media/(?:care|spark)|partner-media/play)/[0-9a-f-]{36}/[0-9]{2}-[0-9a-f]{16}\.jpg",
                 final):
                 return result
         elif not safe_image_url(final):
