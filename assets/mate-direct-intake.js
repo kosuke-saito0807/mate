@@ -17,12 +17,9 @@
     var ready=cfg.enabled===true&&validEndpoint&&validSiteKey;
     forms.forEach(function(form){
       var media=form.querySelector('.mate-image-fields');
-      // Only CARE pilot URL displays upload input before general activation.
-      // Applicants remain unapproved and no photo is ever auto-published.
-      var pilot=location.hostname==="care.kosodatemate.jp" &&
-        location.pathname==="/contact.html" &&
-        new URLSearchParams(location.search).get("mate_media_pilot")==="1";
-      var photosActive=cfg.photosEnabled===true||pilot;
+      // Single production feature flag controls the upload field on CARE + PLAY.
+      // Photos remain private until explicit operator review and an active contract.
+      var photosActive=cfg.photosEnabled===true;
       if(media){
         media.hidden=!photosActive;
         media.querySelectorAll('input,textarea').forEach(function(field){field.disabled=!photosActive});
