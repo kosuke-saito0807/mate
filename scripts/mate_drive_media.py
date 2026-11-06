@@ -1,0 +1,69 @@
+"""Publish *approved* MATE applicant photos from private Drive as static JPGs.
+No public read of Drive IDs; missing credentials/photos yield category fallbacks.
+Caller MUST provide only applicant IDs that have an approved, active listing.
+"""
+from __future__ import annotations
+import hashlib
+import os
+import re
+from pathlib import Path
+
+DRIVE_ID=re.compile(r"^DRIVE:([A-Za-z0-9_-]{20,128})$")
+APP_ID=re.compile(r"^MATE-WEB-([0-9a-f-]{36})$",re.I)
+
+def sync_approved_media(records, allowed_ids, service, destination, url_prefix, credentials):
+    """Materialize private JPG assets and return map DRIVE:id -> static URL.
+    Does not authorize anything: the publisher supplies allowlisted IDs.
+    """
+    folder=Path(destination)
+    approved=set(allowed_ids)
+    mapping={}
+    if not approved:return mapping
+    session=None
+    for record in records:
+        aid=str(record.get("申請ID") or "").strip()
+        m=APP_ID.fullmatch(aid)
+        if not m or aid not in approved or record.get("サービス")!=service:
+            continue
+        if record.get("画像審査状態")!="確認済み" or record.get("画像掲載権限の申告")!="掲載権限あり":
+            continue
+        urls=[str(record.get(f"画像URL{i}") or "").strip() for i in range(1,6)]
+        if not any(urls):continue
+        if len(set(u for u in urls if u))!=len([u for u in urls if u]):continue
+        for n,raw in enumerate(urls,1):
+            photo=DRIVE_ID.fullmatch(raw)
+            if not photo:continue
+            if session is None:
+                from google.auth.transport.requests import AuthorizedSession
+                session=AuthorizedSession(credentials)
+            file_id=photo.group(1)
+            try:
+                meta=session.get(
+                  "https://www.googleapis.com/drive/v3/files/"+file_id,
+                  params={"fields":"id,mimeType,size,trashed"},timeout=12)
+                meta.raise_for_status()
+                info=meta.json()
+                if info.get("trashed") or info.get("mimeType")!="image/jpeg" or int(info.get("size") or 0)>240000:
+                    continue
+                response=session.get(
+                  "https://www.googleapis.com/drive/v3/files/"+file_id,
+                  params={"alt":"media"},timeout=20)
+                response.raise_for_status()
+                blob=response.content
+                if not (64<=len(blob)<=240000 and blob[:3]==b"\xff\xd8\xff" and blob[-2:]==b"\xff\xd9"):
+                    continue
+                digest=hashlib.sha256(blob).hexdigest()[:16]
+                name=f"{n:02d}-{digest}.jpg"
+                relative=Path(m.group(1).lower())/name
+                target=folder/relative
+                target.parent.mkdir(parents=True,exist_ok=True)
+                if not target.exists() or target.read_bytes()!=blob:
+                    tmp=target.with_suffix(".tmp")
+                    tmp.write_bytes(blob)
+                    os.replace(tmp,target)
+                mapping[raw]=url_prefix.rstrip("/")+"/"+relative.as_posix()
+            except Exception:
+                # A single inaccessible/missing photo may not block the approved
+                # provider from being listed. The public gallery will fall back.
+                continue
+    return mapping
