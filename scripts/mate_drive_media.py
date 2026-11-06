@@ -85,7 +85,7 @@ def _prune_generated_media(folder, expected_urls, url_prefix=""):
               if url_prefix and u.startswith(url_prefix.rstrip("/")+"/")}
     for file in folder.glob("*/*.jpg"):
         rel=file.relative_to(folder).as_posix()
-        if not re.fullmatch(r"[0-9a-f-]{36}/[0-9]{2}-[0-9a-f]{16}\\.jpg", rel):
+        if not re.fullmatch(r"[0-9a-f-]{36}/[0-9]{2}-[0-9a-f]{16}\.jpg", rel):
             continue
         if rel not in expected:
             file.unlink()
