@@ -84,6 +84,9 @@
       form.addEventListener("submit",function(e){
         e.preventDefault();
         if(pending||!form.reportValidity())return;
+        if(media && !media.hidden && !window.MATEPhotoPicker?.get(form)?.populate()){
+          status.textContent="写真の選択・利用許諾を確認してください。";return;
+        }
         if(typeof window.MATESelfService?.populate!=="function"||!window.MATESelfService.populate(form)){
           status.textContent="公開情報に未入力または不正な項目があります。確認してください。";return;
         }
