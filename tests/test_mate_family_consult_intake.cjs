@@ -68,7 +68,7 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
  assert.ok(!JSON.stringify(e.table.rows).includes(p.message));
  assert.ok(!JSON.stringify(e.table.rows).includes(p.phone));
  assert.ok(e.sent[0].body.includes(p.message));
- assert.ok(e.sent[0].subject.includes('MATE PLAY'));
+ assert.ok(e.sent[0].subject.includes('【MATE受付】PLAY'));
 });
 run('CARE uses same GAS and stores CARE service',()=>{
  const e=env();assert.match(submit(e,params('CARE')),/お問い合わせを受け付けました/);
