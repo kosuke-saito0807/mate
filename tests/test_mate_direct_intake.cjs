@@ -34,21 +34,24 @@ function appSheet(header) {
   return sh;
 }
 function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=true,contacts=true,lock=true,canAck=true}={}){
-  const approved=appSheet(appHeaders.concat(["表示受付番号（数字10桁）"])),privateContacts=contacts?appSheet(contactHeaders):null,ledger=appSheet(ledgerHeaders),sent=[];
-  const book={getSheetByName(name){return name==="掲載セルフ申請"?approved:name==="掲載申請連絡先"?privateContacts:name==="掲載同意証跡V1"?ledger:null},
+  const approved=appSheet(appHeaders.concat(["表示受付番号（数字10桁）"])),privateContacts=contacts?appSheet(contactHeaders):null,ledger=appSheet(ledgerHeaders),photos=appSheet(["申請ID","サービス","画像URL1","画像URL2","画像URL3","画像URL4","画像URL5","画像掲載権限の申告","画像審査状態","審査確認日","画像審査メモ"]),sent=[];
+  const book={getSheetByName(name){return name==="掲載セルフ申請"?approved:name==="掲載申請連絡先"?privateContacts:name==="掲載同意証跡V1"?ledger:name==="掲載画像V1_非公開"?photos:null},
     insertSheet(){throw Error("setup test not configured")}};
   const cache={m:new Map(),get(k){return this.m.get(k)},put(k,v){this.m.set(k,v)}};
   const sandbox={
     Session:{getEffectiveUser:()=>({getEmail:()=>"kosodatemate@gmail.com"})},
     SpreadsheetApp:{openById:()=>book},
-    PropertiesService:{getScriptProperties:()=>({getProperty:()=>secret?"test-secret":null})},
+    PropertiesService:{getScriptProperties:()=>({getProperty:()=>secret?"test-secret":null,setProperty(){}})},
+    DriveApp:{getFolderById:()=>({getFilesByName:()=>({hasNext:()=>false}),createFile:()=>({getId:()=>("A".repeat(35))})}),createFolder:()=>({getId:()=>("A".repeat(35))})},
     LockService:{getScriptLock:()=>({tryLock:()=>lock,releaseLock(){}})},
     CacheService:{getScriptCache:()=>cache},
     Utilities:{
       formatDate(d,tz,fmt){if(!(d instanceof Date))return String(d);const date=nowParts(d);return fmt==="yyMMdd"?date.slice(2).replace(/-/g,""):date},
       DigestAlgorithm:{SHA_256:"sha"},
       computeDigest:(_,s)=>Array.from(require("node:crypto").createHash("sha256").update(s).digest()),
-      base64EncodeWebSafe:(v)=>Buffer.from(v).toString("base64url")
+      base64EncodeWebSafe:(v)=>Buffer.from(v).toString("base64url"),
+      base64Decode:(v)=>Array.from(Buffer.from(v,"base64")),
+      newBlob:(b,type,name)=>({b,type,name})
     },
     UrlFetchApp:{fetch:()=>({getResponseCode:()=>200,getContentText:()=>JSON.stringify({success:captcha,action:"mate_listing",hostname:host})})},
     MailApp:{sendEmail(m){if(!canAck)throw Error('mock-acknowledgment-failed');sent.push(m)}},
@@ -56,7 +59,7 @@ function makeEnvironment({host="kosuke-saito0807.github.io",captcha=true,secret=
     Date,Number,JSON,Object,String,RegExp,Error,Array,Math
   };
   vm.createContext(sandbox);vm.runInContext(source,sandbox,{filename:"mate_direct_intake.gs"});
-  return {sandbox,approved,privateContacts,ledger,cache,sent};
+  return {sandbox,approved,privateContacts,ledger,photos,cache,sent};
 }
 function input(service="CARE"){
   const d=nowParts(new Date());
@@ -82,6 +85,8 @@ test("CARE submitted only to private review, no public approval",()=>{
  assert.equal(e.approved.rows.length,2);
  assert.equal(e.privateContacts.rows.length,2);
  assert.equal(e.ledger.rows.length,2);
+ assert.equal(e.photos.rows.length,2);
+ assert.equal(e.photos.rows[1][8],"画像なし");
  assert.match(e.approved.rows[1][29],/^\d{10}$/);
  assert.match(html,new RegExp(e.approved.rows[1][29]));
  assert.match(e.sent[0]?.body||"",new RegExp(e.approved.rows[1][29]));
