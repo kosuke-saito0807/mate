@@ -24,6 +24,18 @@ class Photos(unittest.TestCase):
     def test_wrong_applicant_and_duplicate(self):
         self.assertEqual(public_photos("other","CARE",[row()],"訪問保育")["images"],[])
         self.assertEqual(public_photos(AID,"CARE",[row(),row()],"訪問保育")["images"],[])
+    def test_drive_asset_requires_verified_private_copy(self):
+        drive="DRIVE:"+"A"*30
+        r=row()
+        r["画像URL1"]=drive
+        r["画像URL2"]=""
+        correct="/"+("partner-media/play" if r["サービス"]=="PLAY" else "assets/partner-media/care")+"/01234567-89ab-4cde-8f01-23456789abcd/01-1234567890abcdef.jpg"
+        self.assertEqual(public_photos(AID,r["サービス"],[r],"訪問保育")["images"],[])
+        mapped=public_photos(AID,r["サービス"],[r],"訪問保育",media_map={drive:correct})
+        self.assertEqual(mapped["images"],[correct])
+        self.assertEqual(mapped["thumbnail"],correct)
+        r["画像審査状態"]="未審査"
+        self.assertEqual(public_photos(AID,r["サービス"],[r],"訪問保育",media_map={drive:correct})["images"],[])
     def test_no_images_uses_default(self):
         self.assertEqual(public_photos(AID,"CARE",[],"訪問保育")["images"],[])
         self.assertIsNone(public_photos(AID,"CARE",[],"訪問保育")["thumbnail"])
