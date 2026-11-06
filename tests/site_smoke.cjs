@@ -481,6 +481,41 @@ async function main() {
         await p.close();
       }
     }
+    // Photo-upload UI end-to-end browser exercise on localhost only.
+    // Uses real first-party WebP bytes and never submits any form.
+    for(const route of ['/contact.html','/play-listing.html','/spark/partners.html']){
+      const p=await checkPage(browser,route,true);
+      const media=p.locator('.mate-image-fields');
+      assert.equal(await media.isVisible(),true,route+' photo intake should be on');
+      const picker=media.locator('input[type=file]');
+      await picker.setInputFiles('assets/mate-care-scene-urgent-v2.webp');
+      await p.waitForFunction(()=>document.querySelector('.mate-image-fields [data-photo-preview] img')?.complete===true);
+      assert.equal(await media.locator('[data-photo-preview] img').count(),1,route+' photo preview');
+      assert.equal(await media.locator('[name=listing_image_rights]').count(),1,route+' explicit rights consent');
+      await media.locator('[data-photo-preview] button').click();
+      assert.equal(await media.locator('[data-photo-preview] img').count(),0,route+' removable preview');
+      assert.equal(await media.locator('[data-photo-count]').innerText().then(x=>x.includes('0 / 5')),true);
+      await p.close();
+    }
+    // Static approved-photo gallery interaction, without actual publication.
+    const photoTest=await checkPage(browser,'/',true);
+    const imagePath=require('node:path').resolve('assets/mate-care-scene-urgent-v2.webp');
+    await photoTest.route('**/assets/partner-media/care/**',route=>route.fulfill({
+      status:200,contentType:'image/webp',body:fs.readFileSync(imagePath)
+    }));
+    await photoTest.evaluate(()=>{
+      const container=document.createElement('div');container.id='qa-photos';document.body.appendChild(container);
+      const appId='01234567-89ab-4cde-8f01-23456789abcd';
+      const urls=[1,2,3].map((n)=>'/assets/partner-media/care/'+appId+'/'+String(n).padStart(2,'0')+'-1234567890abcdef.jpg');
+      container.innerHTML=window.MATEGallery.render({name:'QA非公開',category:'訪問保育',images:urls},'CARE');
+    });
+    assert.equal(await photoTest.locator('#qa-photos .mate-photo-slides img').count(),3);
+    assert.equal(await photoTest.locator('#qa-photos .mate-photo-count').innerText(),'1 / 3');
+    await photoTest.locator('#qa-photos .mate-photo-next').click();
+    assert.equal(await photoTest.locator('#qa-photos .mate-photo-count').innerText(),'2 / 3');
+    await photoTest.locator('#qa-photos .mate-photo-prev').click();
+    assert.equal(await photoTest.locator('#qa-photos .mate-photo-count').innerText(),'1 / 3');
+    await photoTest.close();
     // Public-site read-only probes. Sources outside this repo may block automation.
     // Navigation and screenshots only; never submit forms or send emails.
     const liveSites=[
