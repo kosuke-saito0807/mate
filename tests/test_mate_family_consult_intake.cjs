@@ -20,7 +20,7 @@ function env({captcha=true,action='mate_consult',host='kosuke-saito0807.github.i
   SpreadsheetApp:{openById:()=>({getSheetByName:n=>n==='問い合わせ管理'?table:null})},
   PropertiesService:{getScriptProperties:()=>({getProperty:()=> 'server-private-test-secret'})},
   UrlFetchApp:{fetch:()=>({getResponseCode:()=>200,getContentText:()=>JSON.stringify({success:captcha,action,hostname:host})})},
-  MailApp:{sendEmail(o){if(!canSend || (failAck && o.subject.startsWith('【受付確認】')))throw Error('mail-delivery-unavailable');sent.push(o)}},
+  MailApp:{sendEmail(o){if(!canSend || (failAck && o.subject.includes('ご相談受付のご案内')))throw Error('mail-delivery-unavailable');sent.push(o)}},
   LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})},
   CacheService:{getScriptCache:()=>({get:k=>cache.get(k),put:(k,v)=>cache.set(k,v)})},
   Utilities:{
@@ -52,12 +52,12 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
  assert.equal(e.sent.length,2);
  assert.equal(e.sent[0].to,'kosodatemate@gmail.com');
  assert.equal(e.sent[1].to,p.email);
- assert.match(e.sent[1].subject,/【受付確認】PLAY/);
+ assert.match(e.sent[1].subject,/【MATE PLAY】ご相談受付のご案内/);
  assert.ok(e.sent[1].body.includes('MATE-CONSULT-'+uuid));
  assert.ok(!e.sent[1].body.includes(p.message));
  assert.ok(!e.sent[1].body.includes(p.phone));
  assert.ok(!e.sent[1].body.includes(p.guardianName));
- assert.ok(!e.sent[1].subject.includes('MATE PLAY'));
+ assert.ok(e.sent[1].subject.includes('MATE PLAY'));
  assert.equal(e.sent[0].replyTo,p.email);
  assert.equal(e.table.rows.length,2);
  assert.equal(e.table.rows[1][8],'受付');
@@ -68,20 +68,20 @@ run('PLAY receives email, returns id and logs only metadata',()=>{
  assert.ok(!JSON.stringify(e.table.rows).includes(p.message));
  assert.ok(!JSON.stringify(e.table.rows).includes(p.phone));
  assert.ok(e.sent[0].body.includes(p.message));
- assert.ok(!e.sent[0].subject.includes('MATE PLAY'));
+ assert.ok(e.sent[0].subject.includes('MATE PLAY'));
 });
 run('CARE uses same GAS and stores CARE service',()=>{
  const e=env();assert.match(submit(e,params('CARE')),/お問い合わせを受け付けました/);
  assert.equal(e.table.rows[1][2],'CARE');
  assert.equal(e.sent.length,2);
- assert.match(e.sent[1].subject,/【受付確認】CARE/);
+ assert.match(e.sent[1].subject,/【MATE CARE】ご相談受付のご案内/);
 });
 run('SPARK general consultation accepted through shared GitHub Pages form',()=>{
  const e=env({host:'kosuke-saito0807.github.io'}),p=params('SPARK');
  assert.match(submit(e,p),/お問い合わせを受け付けました/);
  assert.equal(e.table.rows[1][2],'SPARK');
  assert.equal(e.sent.length,2);
- assert.match(e.sent[1].subject,/【受付確認】SPARK/);
+ assert.match(e.sent[1].subject,/【MATE SPARK】ご相談受付のご案内/);
  assert.doesNotMatch(e.sent[1].body,/Private consultation content/);
 });
 run('same receipt id never sends another email',()=>{
