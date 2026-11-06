@@ -17,9 +17,15 @@
     var ready=cfg.enabled===true&&validEndpoint&&validSiteKey;
     forms.forEach(function(form){
       var media=form.querySelector('.mate-image-fields');
+      // Only CARE pilot URL displays upload input before general activation.
+      // Applicants remain unapproved and no photo is ever auto-published.
+      var pilot=location.hostname==="care.kosodatemate.jp" &&
+        location.pathname==="/contact.html" &&
+        new URLSearchParams(location.search).get("mate_media_pilot")==="1";
+      var photosActive=cfg.photosEnabled===true||pilot;
       if(media){
-        media.hidden=cfg.photosEnabled!==true;
-        media.querySelectorAll('input,textarea').forEach(function(field){field.disabled=cfg.photosEnabled!==true});
+        media.hidden=!photosActive;
+        media.querySelectorAll('input,textarea').forEach(function(field){field.disabled=!photosActive});
       }
       var button=form.querySelector('button[type="submit"]');
       var status=form.querySelector('[role="status"]')||document.createElement("p");
