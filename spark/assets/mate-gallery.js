@@ -5,6 +5,7 @@
  "use strict";
  function safe(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
  function imageSafe(s){
+   if(/^\/assets\/partner-media\/(?:care|spark)\/[0-9a-f-]{36}\/[0-9]{2}-[0-9a-f]{16}\.jpg$/.test(String(s||"")))return true;
    try{const u=new URL(s);return u.protocol==="https:"&&!u.username&&!u.password&&/\.(jpg|jpeg|png|webp|avif)$/i.test(u.pathname)&&u.href.length<500&&!u.hash;}catch{return false}
  }
  function fallback(service,category){
