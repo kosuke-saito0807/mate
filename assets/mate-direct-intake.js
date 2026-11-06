@@ -98,6 +98,12 @@
         if(window.gtag)window.gtag("event","listing_inquiry_submit_attempt",{service:service,lead_type:"partner"});
         // Native navigation is supported across domains; no CORS bypass and no
         // client-side unverified "Thank you" redirect.
+        // Photos have already been compressed into the validated hidden payload.
+        // Do not submit the original local file field or its filename.
+        if(media && !media.hidden){
+          var upload=media.querySelector('input[type="file"]');
+          if(upload)upload.disabled=true;
+        }
         HTMLFormElement.prototype.submit.call(form);
       });
     });
