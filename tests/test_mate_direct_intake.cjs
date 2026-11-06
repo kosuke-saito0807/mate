@@ -97,7 +97,7 @@ test("CARE submitted only to private review, no public approval",()=>{
  assert.ok(JSON.stringify(e.privateContacts.rows).includes("private@example.com"));
  assert.equal(e.sent.length,1);
  assert.equal(e.sent[0].to,"private@example.com");
- assert.match(e.sent[0].subject,/【受付確認】CARE/);
+ assert.match(e.sent[0].subject,/【MATE CARE】無料掲載のお申し込み受付/);
  assert.ok(!e.sent[0].body.includes("Confidential memo"));
  assert.ok(!e.sent[0].body.includes("Private Person"));
  assert.match(e.approved.rows[1][28],/自動受付メール送信API:成功/);
@@ -106,13 +106,13 @@ test("SPARK accepted only from spark domain",()=>{
  const e=makeEnvironment({host:"mate-spark.web.app"});
  assert.match(execute(e,input("SPARK")),/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.sent.length,1);
- assert.match(e.sent[0].subject,/【受付確認】SPARK/);
+ assert.match(e.sent[0].subject,/【MATE SPARK】無料掲載のお申し込み受付/);
 });
 test("PLAY accepted only from github pages",()=>{
  const e=makeEnvironment();
  assert.match(execute(e,input("PLAY")),/無料掲載のお申し込みを受け付けました/);
  assert.equal(e.sent.length,1);
- assert.match(e.sent[0].subject,/【受付確認】PLAY/);
+ assert.match(e.sent[0].subject,/【MATE PLAY】無料掲載のお申し込み受付/);
 });
 test("All three independent MATE custom domains are authorized for actual listing receipts",()=>{
  for(const [host,service] of [["care.kosodatemate.jp","CARE"],["spark.kosodatemate.jp","SPARK"],["play.kosodatemate.jp","PLAY"],["care.kosodatemate.jp","PLAY"]]){
