@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from mate_public_photos import public_photos, IMAGE_HEADERS
+from mate_drive_media import sync_approved_media
 
 SPREADSHEET_ID = os.environ.get("GOOGLE_SHEETS_ID", "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ")
 WORKSHEET_NAME = os.environ.get("GOOGLE_SHEETS_WORKSHEET", "営業管理DB")
@@ -76,7 +77,7 @@ def signed_care_contracts(contracts, today):
     return active
 
 
-def build_public(rows, contracts=(), today=None, images=()):
+def build_public(rows, contracts=(), today=None, images=(), media_map=None):
     if today is None:
         today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).date()
     active = signed_care_contracts(contracts, today)
@@ -130,7 +131,7 @@ def build_public(rows, contracts=(), today=None, images=()):
                 provider["data_as_of"] = datetime.date.fromisoformat(source_date).isoformat()
         except ValueError:
             pass  # Unknown source date is omitted rather than guessed.
-        provider.update(public_photos(as_text(row.get('掲載申請ID（内部）')), 'CARE', images, provider.get('category','')))
+        provider.update(public_photos(as_text(row.get('掲載申請ID（内部）')), 'CARE', images, provider.get('category',''), media_map))
         result.append(provider)
     return sorted(result, key=lambda x: (x["area"], x["name"], x["id"]))
 
@@ -144,7 +145,7 @@ def main():
 
     info = json.loads(secret)
     creds = Credentials.from_service_account_info(
-        info, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
+        info, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly","https://www.googleapis.com/auth/drive.readonly"],
     )
     client = gspread.authorize(creds)
     book = client.open_by_key(SPREADSHEET_ID)
@@ -161,7 +162,12 @@ def main():
     photo_sheet=book.worksheet('掲載画像V1_非公開')
     if not set(IMAGE_HEADERS).issubset(set(photo_sheet.row_values(1))):
         raise RuntimeError('CARE image ledger headers missing; stop before data release')
-    public = build_public(records, contracts, images=photo_sheet.get_all_records(default_blank=''))
+    photo_records=photo_sheet.get_all_records(default_blank='')
+    live=build_public(records,contracts)
+    live_ids={p['id'] for p in live}
+    allow={as_text(r.get('掲載申請ID（内部）')) for r in records if as_text(r.get('ID')) in live_ids}
+    photo_map=sync_approved_media(photo_records,allow,'CARE',Path('assets/partner-media/care'),'/assets/partner-media/care',creds)
+    public = build_public(records, contracts, images=photo_records, media_map=photo_map)
     output = Path("data.json")
     with tempfile.NamedTemporaryFile(
         mode="w", encoding="utf-8", dir=output.parent,
