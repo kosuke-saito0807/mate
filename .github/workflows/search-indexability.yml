@@ -1,0 +1,30 @@
+name: MATE public search indexability (read-only)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/check_mate_search_indexability.py'
+      - '.github/workflows/search-indexability.yml'
+  workflow_run:
+    workflows:
+      - 'Deploy MATE SITTER to GitHub Pages'
+    types: [completed]
+  schedule:
+    - cron: '17 2 * * 1'
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify audit script syntax on pull requests
+        run: python3 -m py_compile scripts/check_mate_search_indexability.py
+      - name: Audit live sitemap URLs only after release (no form submissions)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/check_mate_search_indexability.py
