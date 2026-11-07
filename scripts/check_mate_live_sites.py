@@ -14,12 +14,12 @@ from urllib import error, request
 SITES = {
     "CARE": {
         "base": "https://care.kosodatemate.jp",
-        "pages": [("/", "シッターの相談"), ("/contact.html", "事業者情報を登録する")],
+        "pages": [("/", "シッターの相談"), ("/contact.html", "無料掲載のお申し込み")],
         "release": True,
     },
     "SPARK": {
         "base": "https://spark.kosodatemate.jp",
-        "pages": [("/", "習い事探しの頼れる相棒「MATE SPARK」"), ("/partners.html", "教室の情報をご登録ください")],
+        "pages": [("/", "習い事探しの頼れる相棒「MATE SPARK」"), ("/partners.html", "無料掲載のお申し込み")],
         "release": True,
     },
     "PLAY": {
