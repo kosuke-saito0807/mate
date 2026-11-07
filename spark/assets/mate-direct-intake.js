@@ -63,6 +63,8 @@
       widget.className="cf-turnstile";
       widget.setAttribute("data-sitekey",cfg.siteKey);
       widget.setAttribute("data-action","mate_listing");
+      widget.setAttribute("data-refresh-expired","auto");
+      widget.setAttribute("data-refresh-timeout","auto");
       wrap.appendChild(widget);
       if(button&&button.parentNode)button.parentNode.insertBefore(wrap,button);
       else form.appendChild(wrap);
@@ -91,6 +93,17 @@
           status.textContent="公開情報に未入力または不正な項目があります。確認してください。";return;
         }
         var token=form.querySelector('[name="cf-turnstile-response"]');
+        // Never navigate to GAS with a token that Cloudflare has already expired.
+        // This preserves all entered fields and selected compressed photos.
+        if(window.turnstile && typeof window.turnstile.isExpired==="function"){
+          try{
+            if(window.turnstile.isExpired()){
+              if(typeof window.turnstile.reset==="function")window.turnstile.reset();
+              status.textContent="セキュリティ認証の有効期限が切れました。認証が更新されたら、もう一度送信してください。";
+              return;
+            }
+          }catch(_ignored){}
+        }
         if(!token||!token.value){status.textContent="セキュリティ認証の完了後に送信してください。";return}
         pending=true;
         if(button){button.disabled=true;button.textContent="送信しています…"}
