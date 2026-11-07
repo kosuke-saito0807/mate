@@ -146,8 +146,18 @@ function mateDirectCaptcha_(form){
   if(res.getResponseCode()!==200)throw Error("セキュリティ認証をやり直してください");
   var body=JSON.parse(res.getContentText());
   if(body.success!==true || body.action!=="mate_listing" ||
-     MATE_DIRECT.hosts[form.service].indexOf(String(body.hostname||"").toLowerCase())<0)
+     MATE_DIRECT.hosts[form.service].indexOf(String(body.hostname||"").toLowerCase())<0){
+    // Operator-only Apps Script execution log: do not log raw tokens, secrets,
+    // applicant names, IP addresses or email addresses.
+    var safeCodes=Array.isArray(body["error-codes"])?body["error-codes"]
+      .filter(function(code){return /^[a-z0-9-]{2,60}$/i.test(String(code))}).slice(0,3):[];
+    var cause=body.success!==true?"SITEVERIFY_FAILED":
+      body.action!=="mate_listing"?"ACTION_MISMATCH":"HOSTNAME_MISMATCH";
+    console.warn("MATE_TURNSTILE_REJECT "+JSON.stringify({
+      service:form.service,cause:cause,codes:safeCodes
+    }));
     throw Error("セキュリティ認証をやり直してください");
+  }
 }
 function mateDirectMediaFolder_(){
   var props=PropertiesService.getScriptProperties();
