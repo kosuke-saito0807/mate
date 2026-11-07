@@ -10,6 +10,30 @@ SCRIPT=(ROOT/"tests/live_three_sites.cjs").read_text(encoding="utf-8")
 
 
 class ProductionMonitorContracts(unittest.TestCase):
+    def test_scheduled_health_markers_match_real_published_pages(self):
+        import importlib.util
+        p=ROOT/"scripts/check_mate_live_sites.py"
+        spec=importlib.util.spec_from_file_location("mate_health",p)
+        health=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(health)
+        for service, config in health.SITES.items():
+            for route, marker in config["pages"]:
+                # Locally owned pages are checked without network access; PLAY
+                # belongs to a separate private repo and is checked online.
+                if service not in {"CARE","SPARK"}:continue
+                local=(ROOT/("spark" if service=="SPARK" else "")/route.lstrip("/")) if route!="/" else (
+                  ROOT/("spark/index.html" if service=="SPARK" else "index.html"))
+                self.assertTrue(local.is_file(),str(local))
+                self.assertIn(marker,local.read_text(encoding="utf-8"),service+" "+route)
+
+    def test_health_monitor_has_no_form_post_or_write_operations(self):
+        script=(ROOT/"scripts/check_mate_live_sites.py").read_text(encoding="utf-8")
+        self.assertIn("ssl.create_default_context()",script)
+        self.assertIn("release.json",script)
+        self.assertNotIn("method=\"POST\"",script)
+        self.assertNotIn("MailApp",script)
+        self.assertNotIn("doPost(",script)
+
     def test_audit_uses_current_three_production_sites(self):
         for row in (
             "CARE:'https://care.kosodatemate.jp/'",
