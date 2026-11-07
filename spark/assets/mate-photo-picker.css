@@ -1,1 +1,63 @@
-.mate-photo-drop{border:2px dashed #9ab8d4;border-radius:14px;padding:22px;text-align:center;background:#f8fbff;cursor:pointer;display:block;transition:background .15s}.mate-photo-drop:hover,.mate-photo-drop.over{background:#e9f3ff;border-color:#307aca}.mate-photo-drop input[type=file]{display:block;margin:12px auto 0;max-width:100%}.mate-upload-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px;margin:15px 0}.mate-upload-thumb{border-radius:12px;overflow:hidden;background:#eaf1f8;display:grid}.mate-upload-thumb img{width:100%;aspect-ratio:4/3;object-fit:cover}.mate-upload-thumb button{font-size:12px;cursor:pointer;border:0;background:#edf4fc;color:#235b88;padding:5px}.mate-image-fields[hidden]{display:none!important}
+/* Accessible responsive upload area shared by CARE, SPARK and PLAY.
+   The native chooser remains keyboard-accessible but is visually hidden;
+   one custom, fully visible button replaces clipped browser-native controls. */
+.mate-photo-drop{
+  box-sizing:border-box;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  border:2px dashed #9ab8d4;
+  border-radius:14px;
+  padding:20px 14px;
+  text-align:center;
+  background:#f8fbff;
+  cursor:pointer;
+  transition:background .15s,border-color .15s;
+  overflow:visible;
+}
+.mate-photo-drop:hover,.mate-photo-drop.over{background:#e9f3ff;border-color:#307aca}
+.mate-photo-drop:focus-within{outline:3px solid #135cbd;outline-offset:3px}
+.mate-photo-drop strong{
+  box-sizing:border-box;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  min-height:44px;
+  width:fit-content;
+  max-width:100%;
+  padding:10px 18px;
+  border:1.5px solid #2976c6;
+  border-radius:10px;
+  background:#fff;
+  color:#155490;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.5;
+  text-wrap:balance;
+  overflow-wrap:anywhere;
+}
+.mate-photo-drop input[type="file"]{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  opacity:0;
+  clip-path:inset(50%);
+  overflow:hidden;
+}
+.mate-upload-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px;margin:15px 0}
+.mate-upload-thumb{border-radius:12px;overflow:hidden;background:#eaf1f8;display:grid}
+.mate-upload-thumb img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.mate-upload-thumb button{font-size:12px;cursor:pointer;border:0;background:#edf4fc;color:#235b88;padding:5px}
+.mate-image-fields[hidden]{display:none!important}
+@media(max-width:420px){.mate-photo-drop{padding:18px 10px}.mate-photo-drop strong{width:100%}}
