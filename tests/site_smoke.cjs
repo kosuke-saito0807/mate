@@ -403,6 +403,14 @@ async function main() {
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
       assert.match(await p.locator('#partnerForm').getAttribute('action'),/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
       assert.equal(await p.locator('#partnerForm').getAttribute('data-mate-direct-listing'),'true');
+      const photos=p.locator('#partnerForm .mate-image-fields');
+      assert.equal(await photos.isVisible(),true,'SPARK hosted photo picker visible');
+      await photos.locator('input[type=file]').setInputFiles('assets/mate-care-scene-urgent-v2.webp');
+      await p.waitForFunction(()=>document.querySelector('#partnerForm [data-photo-preview] img')?.complete===true);
+      assert.equal(await photos.locator('[data-photo-preview] img').count(),1);
+      await photos.locator('[data-photo-preview] button').click();
+      assert.equal(await photos.locator('[data-photo-preview] img').count(),0);
+
       assert.equal(await p.locator('#partnerForm button[type=submit]').isEnabled(),true);
       assert.equal(await p.locator('#partnerForm .cf-turnstile').count(),1);
       assert.equal(await p.locator('#partnerForm [name=privacy_agree]').count(),1);
@@ -483,7 +491,9 @@ async function main() {
     }
     // Photo-upload UI end-to-end browser exercise on localhost only.
     // Uses real first-party WebP bytes and never submits any form.
-    for(const route of ['/contact.html','/play-listing.html','/spark/partners.html']){
+    // SPARK's form is intentionally disabled on localhost; it is exercised on
+    // the simulated approved Firebase hostname inside simulatedProduction().
+    for(const route of ['/contact.html','/play-listing.html']){
       const p=await checkPage(browser,route,true);
       const media=p.locator('.mate-image-fields');
       assert.equal(await media.isVisible(),true,route+' photo intake should be on');
