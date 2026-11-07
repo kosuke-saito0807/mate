@@ -2,6 +2,14 @@ name: MATE 3-site public HTTPS and release health (read only)
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/check_mate_live_sites.py'
+      - 'tests/test_live_site_audit_contract.py'
+      - 'contact.html'
+      - 'spark/partners.html'
+      - '.github/workflows/mate-public-health.yml'
   schedule:
     - cron: '37 */12 * * *'
 
@@ -21,5 +29,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Confirm monitoring markers still exist in actual form source
+        run: python3 -m unittest discover -s tests -p 'test_live_site_audit_contract.py' -v
       - name: Check 3-site HTTPS certificates and published release markers without sending forms
         run: python3 scripts/check_mate_live_sites.py
