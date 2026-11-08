@@ -11,6 +11,8 @@ on:
   pull_request:
     paths:
       - "scripts/audit_mate_sales.py"
+      - "scripts/check_mate_business_gates.py"
+      - "tests/test_mate_business_gates.py"
       - ".github/workflows/mate-sales-readiness.yml"
   schedule:
     - cron: "0 23 * * *"   # Every day at 08:00 Japan time
@@ -36,8 +38,10 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_sales_quality.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_business_gates.py' -v
       - name: Install read-only Sheets client
+        if: github.event_name != 'pull_request'
         run: pip install gspread google-auth
       - name: Generate non-identifying daily sales readiness summary
+        if: github.event_name != 'pull_request'
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEETS_ID: "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ"
@@ -49,6 +53,7 @@ jobs:
           GOOGLE_SHEETS_ID: "1CLJeXuznctRtH8Y3AMZ2XyOu3dQedmh9obBDrPlIEuQ"
         run: python3 scripts/check_mate_business_gates.py
       - name: Retain anonymous counters only
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: mate-sales-readiness-aggregate
