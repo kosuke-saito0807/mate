@@ -38,7 +38,7 @@ def summarize(master,queue,inquiries,contracts,today):
         "inquiriesPending":0,
         "activeWrittenContracts":0,
         "reviewAlerts":{"duplicateCandidateIds":0,"approvedQueueMissingHash":0,"activeContractMissingConsentEvidence":0},
-        "safety":{"outboundAutomationEnabled":False,"autoSendPerformed":False}
+        "safety":{"outboundAutomationEnabled":"NOT_VERIFIED","autoSendPerformed":"NOT_VERIFIED"}
     }
     candidate_ids=set()
     for row in master:
@@ -127,7 +127,7 @@ def main():
                   f"有効契約の台帳記載（全サービス合計）: {report['activeWrittenContracts']} 件",
                   "※ 連絡先の確認日が新しくても、受信同意・営業連絡の法的適否・サイト掲載許諾が確認された意味ではありません。",
                   "※ PLAYは独立CMS。閲覧・編集・公開権限はこのCRMでは証明できません。",
-                  "※ 自動メール送信はこのワークフローにはなく、Apps Script V3の個別承認と所有者側設定が必要です。"])
+                  "※ Apps ScriptのMATE_AUTO_SEND実値はこの読取専用監査では検証していません。送信OFFと断定せずオーナーの設定確認が必要です。"])
     summary="\n".join(lines)+"\n"
     print("MATE_SALES_READ_ONLY_COUNTS "+json.dumps({
         "dateJST":report["dateJST"],"services":report["services"],
