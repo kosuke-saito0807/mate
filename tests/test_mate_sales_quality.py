@@ -17,7 +17,7 @@ class SalesQuality(unittest.TestCase):
   self.assertEqual(report["activeWrittenContracts"],1)
   self.assertEqual(report["inquiriesPending"],1)
   self.assertEqual(report["services"]["PLAY"]["sendApprovedInQueue"],1)
-  self.assertEqual(report["safety"],{"outboundAutomationEnabled":False,"autoSendPerformed":False})
+  self.assertEqual(report["safety"],{"outboundAutomationEnabled":"NOT_VERIFIED","autoSendPerformed":"NOT_VERIFIED"})
  def test_no_lead_names_or_emails_in_public_aggregate(self):
   import json
   r=m.summarize([{"サービス":"CARE","ID":"private001","担当者":"privateName","メール":"private@example.org"}],[],[],[],dt.date(2026,10,29))
