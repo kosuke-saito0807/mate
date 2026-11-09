@@ -314,7 +314,7 @@ function draw(){
     '<div class="labels">'+marks+'</div>'+
     '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
     '</div></article>';
- }).join('')||(!demoMode&&schools.length===0?'<div class="empty"><h3>新しい出会いを、準備しています。</h3><p>掲載を許諾いただいた教室を順次公開します。</p><p><a class="btn" href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事について相談する ↗</a></p><p><a class="btn light" href="partners.html">掲載について相談する ↗</a></p></div>':'<div class="empty"><h3>条件に合う教室はありません</h3><p>条件を変更してみてください。掲載のない地域もあります。</p><p><a class="btn light" href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事について相談する ↗</a></p></div>');
+ }).join('')||(!demoMode&&schools.length===0?'<div class="empty"><h3>新しい出会いを、準備しています。</h3><p>掲載を許諾いただいた教室を順次公開します。</p><p><a class="btn" href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事について相談する ↗</a></p><p><a class="btn light" href="guide-lessons-choice.html">習い事の選び方・体験前のチェックポイント ↗</a></p><p><a class="btn light" href="partners.html">教室の無料掲載申請はこちら ↗</a></p></div>':'<div class="empty"><h3>条件に合う教室はありません</h3><p>条件を変更してみてください。掲載のない地域もあります。</p><p><a class="btn light" href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事について相談する ↗</a></p></div>');
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
  $('selectionBar').hidden=selected.size===0;
  // No actual submissions before explicit school permission, and never on fictional demo data.
