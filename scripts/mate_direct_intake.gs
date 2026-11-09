@@ -287,7 +287,7 @@ function mateReceiptEmail_(service,to,id,listing){
       subject:"【MATE "+service+"】"+title+"受付のご案内｜"+id,
       body:body,
       replyTo:MATE_DIRECT.owner,
-      name:"MATE 受付窓口"
+      name:"MATE運営事務局"
     });
     return true; // API accepted the send; delivery to inbox is not guaranteed.
   }catch(err){
@@ -507,7 +507,7 @@ function mateConsultReceive_(form) {
       subject:"【MATE受付】"+form.service+" 家族向け相談 "+form.id,
       body:lines.join("\n"),
       replyTo:form.email,
-      name:"MATE 相談受付"
+      name:"MATE運営事務局"
     });
     // Mark accepted only after MailApp has successfully returned.
     tab.getRange(target,9,1,1).setValues([["受付"]]);
