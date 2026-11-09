@@ -125,6 +125,19 @@ test("All three independent MATE custom domains are authorized for actual listin
   assert.equal(e.sent.length,2);
  }
 });
+test("Branded receipt page always returns to the first-party service top",()=>{
+ for(const [host,service,home] of [
+ ["care.kosodatemate.jp","CARE","https://care.kosodatemate.jp/"],
+ ["spark.kosodatemate.jp","SPARK","https://spark.kosodatemate.jp/"],
+ ["care.kosodatemate.jp","PLAY","https://play.kosodatemate.jp/"]
+ ]){
+   const e=makeEnvironment({host}),html=execute(e,input(service));
+   assert.match(html,/<base target="_top">/);
+   assert.ok(html.includes('href="'+home+'" target="_top"'),service);
+   assert.match(html,/MATE_logo_01\.svg/);
+   assert.equal(e.sent.length,2,'applicant acknowledgement and official-operator notice');
+ }
+});
 test("Custom domains cannot forge unrelated service origins",()=>{
  for(const [host,service] of [["spark.kosodatemate.jp","CARE"],["play.kosodatemate.jp","SPARK"],["spark.kosodatemate.jp","PLAY"]]){
   const e=makeEnvironment({host});
