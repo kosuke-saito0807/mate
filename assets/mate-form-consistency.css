@@ -1,0 +1,58 @@
+
+/* MATE cross-service form + pricing consistency: blue/navy, readable wrapping. */
+body.mate-partner-page, body.mate-family-consult-page{
+ --accent:#0878ea!important;--blue:#0878ea!important;--b:#0878ea!important;
+ --bg:#f5f9ff!important;--line:#dce8f7!important;--border:#dce8f7!important;
+ --ink:#073661!important;--text:#073661!important;--n:#073661!important;
+ background:#f5f9ff!important;color:#073661!important;
+}
+body.mate-partner-page :is(.hint,.notice,.note,.lead,.muted){color:#627184}
+body.mate-partner-page :is(.button,.submit,button[type="submit"],.cta.send){background:#0878ea!important;color:#fff!important}
+body.mate-partner-page :is(.button,.submit,button[type="submit"],.cta.send):hover{background:#075fc0!important}
+body.mate-partner-page :is(.logo span,.kicker,.num){color:#0878ea!important}
+body.mate-partner-page header,body.mate-family-consult-page .header{border-bottom-color:#dce8f7;background:#fff}
+body.mate-partner-page :is(.logo,.brandlogo){color:#073661}
+body.mate-partner-page .logo img{width:min(220px,100%);height:auto;vertical-align:middle}
+body.mate-partner-page a:not(.button):not(.cta){overflow-wrap:anywhere}
+body.mate-partner-page form :is(label,.hint,summary){text-wrap:pretty}
+body.mate-partner-page .consent{align-items:flex-start}
+body.mate-partner-page .consent input[type="checkbox"]{flex:none}
+.mate-common-footer{background:#f5f9ff;color:#607b95;border-top:1px solid #dce8f7;font-size:12px;padding:30px 20px}
+.mate-common-inner{max-width:1120px;margin:0 auto;display:grid;gap:16px}
+.mate-common-head{display:flex;gap:15px;align-items:center}
+.mate-common-head img{max-width:190px;height:auto;max-height:48px;object-fit:contain}
+.mate-common-head p{margin:0}
+.mate-common-footer nav{display:flex;flex-wrap:wrap;gap:10px 22px}
+.mate-common-footer nav a{font-size:12px;line-height:1.65;color:#607b95!important;text-decoration:none}
+.mate-common-footer nav a:hover{text-decoration:underline;color:#0878ea!important}
+.mate-common-footer p{color:#607b95;margin:0}
+.mate-common-footer p a{color:#0878ea!important}
+.mate-partner-pricing{max-width:990px;margin:auto;padding:24px 20px 60px;color:#073661}
+.mate-simple-header{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:8px 0 16px;border-bottom:1px solid #dce8f7}
+.mate-simple-header img{width:min(300px,60vw);height:auto;max-height:65px;object-fit:contain}
+.mate-breadcrumb{font-size:12px;color:#627184;margin:20px 0}
+.mate-pricing-lead{max-width:850px;color:#627184}
+.mate-partner-pricing section{margin:32px 0}
+.mate-partner-pricing h1{font-size:clamp(28px,4vw,38px);line-height:1.5}
+.mate-partner-pricing h2{font-size:clamp(20px,2.7vw,27px);margin:0 0 14px}
+.mate-partner-pricing .mate-pricing-hero{border:1px solid #c9ddf5;background:#edf6ff;border-radius:20px;padding:30px}
+.mate-pricing-hero strong{color:#0878ea;font-size:34px}
+.mate-pricing-hero .button,.mate-pricing-cta .button{margin-top:10px;max-width:100%;display:inline-flex;align-items:center;justify-content:center;padding:13px 22px;line-height:1.6;min-height:52px;text-align:center;text-decoration:none}
+.mate-partner-pricing .mate-pricing-steps{padding-left:26px}
+.mate-pricing-steps li{padding:5px 0 15px}
+.mate-pricing-steps span{display:block;color:#627184}
+.mate-pricing-faq details{border-top:1px solid #dce8f7;padding:14px 0}
+.mate-pricing-faq details:last-child{border-bottom:1px solid #dce8f7}
+.mate-pricing-faq summary{cursor:pointer;font-weight:750}
+.mate-pricing-cta{background:#edf6ff;border-radius:18px;padding:30px}
+.mate-pricing-muted{font-size:12px;margin-top:16px}
+.mate-consult-button{white-space:normal!important;overflow-wrap:normal!important;word-break:keep-all!important;text-wrap:balance;line-height:1.6!important;padding:14px 15px!important;min-width:0}
+.mate-consult-button span{display:inline-block}
+@media(max-width:650px){
+ .mate-common-footer nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+ .mate-common-footer nav a{padding:8px 0;min-height:40px}
+ .mate-common-head{flex-wrap:wrap}
+ .mate-pricing-hero .button,.mate-pricing-cta .button{width:100%}
+ .mate-simple-header{align-items:flex-start;flex-wrap:wrap}
+ .mate-consult-button{font-size:13px!important}
+}
