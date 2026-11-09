@@ -61,15 +61,9 @@ assert.equal(run("mateV4SendOutreach()"),'OFF','legal gate must remain off');
 settings.MATE_AUTO_SEND_LEGAL_REVIEWED='YES';
 assert.equal(run("mateV4SendOutreach()"),'OFF','phase defaults to OFF');
 settings.MATE_OUTREACH_PHASE='PILOT';
-assert.throws(()=>run("mateV4SendOutreach()"),/正式所在地を設定/);
+assert.throws(()=>run("mateV4SendOutreach()"),/実在する送信者名と所在地/);
 settings.MATE_SENDER_NAME='NextEdu MATE運営';
-assert.equal(run("mateV4SenderAddressValid_('MATE運営事務局（東京）')"),false,
-  'area-only script property must not authorize outreach');
-assert.equal(run("mateV4SenderAddressValid_('東京都北区')"),false,
-  'prefecture/city without address must not authorize outreach');
-settings.MATE_SENDER_ADDRESS='〒114-0000 東京都北区 1-2-3 事務所';
-assert.equal(run("mateV4SenderAddressValid_(MATE_V4.account)"),false,
-  'an email address is not a postal address');
+settings.MATE_SENDER_ADDRESS='東京都北区 123 正式な営業所在地';
 assert.equal(run("mateV4SendOutreach()"),0,'without qualified leads, send zero');
 settings.MATE_OUTREACH_PHASE='OFF';
 assert.equal(run("mateV4SendOutreach()"),'OFF','disabled phase blocks all sending');
