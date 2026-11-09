@@ -25,10 +25,10 @@ class LaunchPreparationTests(unittest.TestCase):
         care=(ROOT/"index.html").read_text(encoding="utf-8")
         spark=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn('consult.html?service=CARE',search)
-        self.assertIn('事業者の方はこちら',search)
+        self.assertIn('シッター事業者の無料掲載申請はこちら',search)
         self.assertIn('provider-search.js?v=20261103-family-first',care)
         self.assertIn('consult.html?service=SPARK',spark)
-        self.assertIn('href="partners.html">掲載について相談する',spark)
+        self.assertIn('href="partners.html">教室の無料掲載申請はこちら',spark)
 
     def test_partner_pages_share_navy_blue_design_without_changing_intake(self):
         root_theme=(ROOT/"assets/mate-partner-theme.css").read_text(encoding="utf-8")
@@ -54,7 +54,7 @@ class LaunchPreparationTests(unittest.TestCase):
         # Demo remains available only by deliberate query, not promoted publicly.
         self.assertNotIn('href="?demo=1#discover"',html)
         self.assertIn("新しい出会いを、準備しています。",html)
-        self.assertIn('href="partners.html">掲載について相談する',html)
+        self.assertIn('href="partners.html">教室の無料掲載申請はこちら',html)
         self.assertIn("schools=real",html)
         self.assertEqual(json.loads((SPARK/"schools.json").read_text(encoding="utf-8")),[])
         sample=json.loads((SPARK/"demo-schools.json").read_text(encoding="utf-8"))
