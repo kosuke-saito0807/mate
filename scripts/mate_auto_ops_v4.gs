@@ -346,6 +346,23 @@ function mateV4AuditOfficialContacts(){
   return {checked,eligible,discovered};
 }
 
+/**
+ * Explicit fail-closed operator address gate. A broad area such as
+ * "MATE運営事務局（東京）" is NOT a business postal address.
+ * This is syntax validation only: the address must still be real, owned by
+ * the sender and separately reviewed before sending externally.
+ */
+function mateV4SenderAddressValid_(raw){
+  const a=String(raw||'').trim();
+  if(a.length<15||/未設定|要確認|仮|ダミー|テスト|（東京）|\(東京\)|^MATE運営事務局（東京）$/.test(a))return false;
+  // Use a traceable Japanese postal address, including a postal code and
+  // prefecture + street/building identifier; city/prefecture alone fails.
+  const postal=a.match(/(?:〒\s*)?\d{3}[-ー]?\d{4}/);
+  if(!postal||!/[都道府県]/.test(a))return false;
+  const withoutPostal=a.replace(postal[0],'').trim();
+  return /\d/.test(withoutPostal)&&withoutPostal.length>=6;
+}
+
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
@@ -353,7 +370,7 @@ function mateV4SendOutreach(){
   if(phase!=='PILOT'&&phase!=='LIVE')return 'OFF';
   const sender=String(p.getProperty('MATE_SENDER_NAME')||'').trim();
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
-  if(sender.length<2||address.length<10||/未設定|\[.+\]/.test(address))throw Error('実在する送信者名と所在地を設定');
+  if(sender.length<2||!mateV4SenderAddressValid_(address))throw Error('郵便番号・番地を含む実在する送信者の正式所在地を設定');
   const cap=Math.min(phase==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
