@@ -56,6 +56,14 @@ assert.equal(run("mateV4SeedExistingCRM()"),0,'CRM seeding is idempotent');
 assert.equal(leads.length,2);
 assert.equal(leads[1][13],'窓口確認待ち','never infer solicitation permission from an existing CRM record');
 assert.equal(run("mateV4SendOutreach()"),'OFF','default mail must remain off');
+const preview=JSON.parse(run('previewMateOutreachReadinessV4()'));
+assert.equal(preview.mode,'READ_ONLY_NO_SEND');
+assert.equal(preview.automationSwitch,'OFF');
+assert.equal(preview.totalCandidateRows,leads.length-1);
+assert.equal(preview.notEvidenceOfLegalPermission,true);
+assert.deepEqual(Object.keys(preview.eligibleByScriptChecks).sort(),['CARE','PLAY','SPARK']);
+assert.equal(mails,0,'preflight must never send external email');
+
 settings.MATE_AUTO_SEND='ON';
 assert.equal(run("mateV4SendOutreach()"),'OFF','legal gate must remain off');
 settings.MATE_AUTO_SEND_LEGAL_REVIEWED='YES';
