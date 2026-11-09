@@ -355,6 +355,18 @@ function mateDirectReceive_(d){
     apps.getRange(insertedRow,1,1,MATE_DIRECT.appHeaders.length).setValues([mateDirectApplication_(d,stamp)]);
     apps.getRange(insertedRow,30).setNumberFormat("@").setValue(receipt);
     var mailAccepted=mateReceiptEmail_(d.service,d.email,receipt,true);
+    // Operator-only receipt notice: includes no applicant personal information.
+    // A failed internal notice does not roll back an accepted application.
+    try {
+      MailApp.sendEmail({
+        to:MATE_DIRECT.owner,
+        subject:"【MATE掲載申請】"+d.service+" 新規受付 "+receipt,
+        body:"MATE "+d.service+" の無料掲載申請を受け付けました。\n受付番号："+receipt+
+          "\n非公開台帳：https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
+          "/edit\n審査状態：未審査（承認・公開・請求なし）",
+        name:"MATE運営事務局"
+      });
+    } catch(_noticeFailure) {} // Receipt is already persisted; no retry duplicates.
     try {
       apps.getRange(insertedRow,29,1,1).setValues([[
         "直接受付。権限と申請者の同意内容を必ず別途確認 / 自動受付メール送信API:"+(mailAccepted?"成功":"失敗")
@@ -365,14 +377,40 @@ function mateDirectReceive_(d){
   } finally {lock.releaseLock()}
 }
 function mateDirectEscape_(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function mateDirectConfirmationShell_(title,content,service){
+  var domains={CARE:"https://care.kosodatemate.jp/",SPARK:"https://spark.kosodatemate.jp/",PLAY:"https://play.kosodatemate.jp/"};
+  var home=domains[service]||domains.CARE, brand=/^(CARE|SPARK|PLAY)$/.test(service)?service:"CARE";
+  // A direct POST to Apps Script necessarily displays on the script.google.com
+  // origin. A user-activated target=_top link leaves the sandbox and returns
+  // to the correct first-party site, rather than staying in a GAS iframe.
+  return HtmlService.createHtmlOutput('<!doctype html><html lang="ja"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<meta name="robots" content="noindex,nofollow"><base target="_top"><title>'+mateDirectEscape_(title)+'｜MATE '+brand+'</title>'+
+    '<style>:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f5f9ff;color:#073661;font:16px/1.85 system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif}'+
+    'a{color:#0878ea}header,footer{background:#fff;border-bottom:1px solid #dce8f7}header .inner,footer .inner{width:min(860px,calc(100% - 36px));margin:auto;padding:19px 0}'+
+    'header img{max-width:220px;width:100%;height:46px;object-fit:contain;object-position:left center}header strong{display:inline-block;font-size:13px;letter-spacing:.09em;margin-left:12px}'+
+    'main{width:min(690px,calc(100% - 36px));margin:44px auto 64px;padding:36px clamp(22px,5vw,42px);background:#fff;border:1px solid #dce8f7;border-radius:20px;box-shadow:0 8px 24px #0736610a}'+
+    'h1{font-size:clamp(25px,4vw,34px);line-height:1.5}main p{overflow-wrap:anywhere}main .receipt{font-weight:800;color:#073661;background:#eff7ff;padding:12px;border-radius:10px}'+
+    '.button{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:12px 24px;margin-top:18px;border-radius:12px;background:#0878ea;color:#fff!important;text-decoration:none;font-weight:800;text-align:center}'+
+    'footer{border-top:1px solid #dce8f7;border-bottom:0;color:#627184;font-size:12px}footer nav{display:flex;gap:12px 20px;flex-wrap:wrap;margin:10px 0}</style></head>'+
+    '<body><header><div class="inner"><a href="'+home+'"><img src="https://care.kosodatemate.jp/assets/MATE_logo_01.svg" alt="MATE｜子育てに頼れる相棒を。"></a><strong>MATE '+brand+'</strong></div></header>'+
+    '<main><h1>'+mateDirectEscape_(title)+'</h1>'+content+
+    '<p><a class="button" href="'+home+'" target="_top">MATE '+brand+'のトップに戻る ↗</a></p>'+
+    '<p style="font-size:12px;color:#627184">送信内容の控えは受付確認メールをご確認ください。</p></main>'+
+    '<footer><div class="inner"><strong>運営：NextEdu｜MATE運営事務局</strong><nav>'+
+    '<a href="https://care.kosodatemate.jp/" target="_top">CARE</a>'+
+    '<a href="https://spark.kosodatemate.jp/" target="_top">SPARK</a>'+
+    '<a href="https://play.kosodatemate.jp/" target="_top">PLAY</a>'+
+    '<a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a></nav>'+
+    '<a href="https://care.kosodatemate.jp/privacy.html" target="_top">プライバシーポリシー</a></div></footer></body></html>');
+}
 function mateDirectView_(ok,service,message,ref){
-  var home={CARE:"https://care.kosodatemate.jp/",SPARK:"https://spark.kosodatemate.jp/",
-    PLAY:"https://play.kosodatemate.jp/"}[service]||"https://care.kosodatemate.jp/";
   var title=ok?"お申し込みありがとうございます":"お申し込みを受け付けられませんでした";
-  var extra=ok?"無料掲載のお申し込みを受け付けました。<p>受付番号：<strong>"+mateDirectEscape_(ref||"")+"</strong></p><p>内容を確認のうえ、掲載可否や開始についてメールでご案内いたします。ご確認が必要な場合は担当者よりご連絡いたします。</p><p>※お申し込み時点では、掲載・契約は確定しておりません。</p>":mateDirectEscape_(message||"時間をおいて再度お試しください");
-  return HtmlService.createHtmlOutput('<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+
-    '</title></head><body style="font:16px/1.9 system-ui,sans-serif;margin:0;background:#f6f9fe;color:#173a55"><main style="max-width:610px;padding:48px 24px;margin:auto"><h1>'+title+'</h1><p>'+extra+
-    '</p><p><a href="'+home+'">MATEに戻る ↗</a></p><p style="font-size:13px">お問い合わせ：kosodatemate@gmail.com</p></main></body></html>');
+  var content=ok?'<p>無料掲載のお申し込みを受け付けました。</p><p class="receipt">受付番号：'+mateDirectEscape_(ref||"")+'</p>'+
+    '<p>担当者の権限・掲載内容・同意を確認してから、掲載可否と開始時期をご案内します。</p>'+
+    '<p>お申し込みだけでは契約・掲載・請求は発生しません。</p>':
+    '<p role="alert">'+mateDirectEscape_(message||"時間をおいて再度お試しください")+'</p>';
+  return mateDirectConfirmationShell_(title,content,service);
 }
 function doGet(){return mateDirectView_(false,"","このURLは申請フォームではありません。","")}
 // Family consultations are received by the EXISTING direct-intake Web App.
@@ -483,17 +521,11 @@ function mateConsultReceive_(form) {
   } finally {lock.releaseLock()}
 }
 function mateConsultView_(ok,service,reason,id){
-  var home=service==="PLAY"?"https://play.kosodatemate.jp/":service==="SPARK"?"https://spark.kosodatemate.jp/":"https://care.kosodatemate.jp/";
   var title=ok?"お問い合わせありがとうございます":"お問い合わせを受け付けられませんでした";
-  var text=ok?"お問い合わせを受け付けました。<p>受付番号：<strong>"+mateDirectEscape_(id)+"</strong></p><p>内容を確認し、必要に応じて担当者よりご連絡いたします。</p>":
-    mateDirectEscape_(reason||"受付できませんでした。");
-  return HtmlService.createHtmlOutput(
-    '<!doctype html><html lang="ja"><head><meta charset="utf-8">'+
-    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title></head>'+
-    '<body style="margin:0;background:#f8fbff;color:#15344e;font:16px/1.8 system-ui,sans-serif">'+
-    '<main style="max-width:640px;margin:45px auto;padding:24px"><h1>'+title+'</h1>'+
-    '<p>'+text+'</p><p><a href="'+home+'">MATEに戻る</a></p>'+
-    '<p style="font-size:13px">お問い合わせ：kosodatemate@gmail.com</p></main></body></html>');
+  var content=ok?'<p>お問い合わせを受け付けました。</p><p class="receipt">受付番号：'+mateDirectEscape_(id)+'</p>'+
+    '<p>内容を確認し、必要に応じてMATE運営事務局からご連絡いたします。</p>':
+    '<p role="alert">'+mateDirectEscape_(reason||"受付できませんでした。")+'</p>';
+  return mateDirectConfirmationShell_(title,content,service);
 }
 function doPost(e){
   var parameters=e&&e.parameter||{};
