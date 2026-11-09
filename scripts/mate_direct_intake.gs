@@ -410,6 +410,11 @@ function mateDirectView_(ok,service,message,ref){
     '<p>担当者の権限・掲載内容・同意を確認してから、掲載可否と開始時期をご案内します。</p>'+
     '<p>お申し込みだけでは契約・掲載・請求は発生しません。</p>':
     '<p role="alert">'+mateDirectEscape_(message||"時間をおいて再度お試しください")+'</p>';
+  if (!ok) {
+    var retry={CARE:"https://care.kosodatemate.jp/contact.html",SPARK:"https://spark.kosodatemate.jp/partners.html",PLAY:"https://care.kosodatemate.jp/play-listing.html"}[service];
+    if(retry)content+='<p><a href="'+retry+'" target="_top">入力フォームに戻って再確認する ↗</a></p>';
+    content+='<p>繰り返し失敗する場合は <a href="mailto:kosodatemate@gmail.com">MATE運営事務局</a>へご連絡ください。個人情報はこのエラー画面に表示しません。</p>';
+  }
   return mateDirectConfirmationShell_(title,content,service);
 }
 function doGet(){return mateDirectView_(false,"","このURLは申請フォームではありません。","")}
