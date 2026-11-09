@@ -114,6 +114,17 @@ class DiscoveryQuality(unittest.TestCase):
    self.assertIn(".mate-help-question summary",src(style))
    self.assertIn("@media(max-width:800px)",src(style))
 
+ def test_empty_search_guides_and_free_listing_paths(self):
+  care=src("assets/provider-search.js")
+  spark=src("spark/index.html")
+  self.assertIn('href="guide-sitter-choice.html"',care)
+  self.assertIn("シッター事業者の無料掲載申請はこちら",care)
+  self.assertIn('href="guide-lessons-choice.html"',spark)
+  self.assertIn("教室の無料掲載申請はこちら",spark)
+  # No fictional providers or unauthorized bookings created by fallback links.
+  self.assertIn("掲載許可をいただいたシッター事業者から順次公開",care)
+  self.assertIn("掲載を許諾いただいた教室を順次公開",spark)
+
  def test_requested_layout_form_and_https_regressions(self):
   care_css=src("assets/mate-brand-alignment.css")
   spark_css=src("spark/mate-brand-alignment.css")
