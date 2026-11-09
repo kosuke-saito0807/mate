@@ -346,6 +346,49 @@ function mateV4AuditOfficialContacts(){
   return {checked,eligible,discovered};
 }
 
+/**
+ * Read-only, no-send launch preflight. Reports aggregate counts only; no
+ * names, addresses, prospect emails, or applicant details leave Apps Script.
+ * This is a technical inspection, not proof of legal solicitation permission.
+ */
+function previewMateOutreachReadinessV4(){
+  const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
+  const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
+  const logs=mateV4Rows_(mateV4Tab_(b,MATE_V4.sent));
+  const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
+    .map(x=>String(x['メール']||'').toLowerCase()).filter(Boolean));
+  const attempted=new Set(logs.map(x=>x['候補キー']).filter(Boolean));
+  const priorRecipients=new Set(logs.map(x=>String(x['宛先メール']||'').toLowerCase()).filter(Boolean));
+  const output={
+    mode:'READ_ONLY_NO_SEND',
+    automationSwitch:p.getProperty('MATE_AUTO_SEND')==='ON'?'ON':'OFF',
+    phase:p.getProperty('MATE_OUTREACH_PHASE')||'OFF',
+    senderNameSet:String(p.getProperty('MATE_SENDER_NAME')||'').trim().length>=2,
+    senderAddressSet:String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim().length>=10,
+    legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
+    publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
+    dailyCap:Math.min(5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
+    totalCandidateRows:leads.length,
+    activeSuppressions:stopped.size,
+    outreachLogRows:logs.length,
+    eligibleByScriptChecks:{CARE:0,SPARK:0,PLAY:0},
+    notEvidenceOfLegalPermission:true
+  };
+  const seenEmails=new Set();
+  leads.forEach(function(x){
+    const service=x['サービス'],email=mateV4Email_(x['業務用メール']),key=x['重複キー'];
+    if(!['CARE','SPARK','PLAY'].includes(service)||!email||!key)return;
+    if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE'||
+       !mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))return;
+    if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))return;
+    if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&!output.publicBusinessEmailExceptionReviewed)return;
+    if(stopped.has(email)||attempted.has(key)||priorRecipients.has(email)||seenEmails.has(email))return;
+    seenEmails.add(email);
+    output.eligibleByScriptChecks[service]+=1;
+  });
+  return JSON.stringify(output);
+}
+
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
