@@ -68,7 +68,7 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
         self.assertNotIn("01 / ABOUT MATE SPARK",html)
         self.assertNotIn("02 / OUR MISSION",html)
         self.assertIn("習い事探しの頼れる相棒「MATE SPARK」",html)
-        self.assertIn('href="partners.html">掲載について相談する',html)
+        self.assertIn('href="partners.html">教室の無料掲載申請はこちら',html)
         self.assertNotIn("12教室のデモを試す",html)
         self.assertIn("mate-brand-alignment.css",html)
         self.assertIn("--mate-font:",css)
