@@ -5,7 +5,7 @@
 <style>
 :root{--ink:#0d2847;--blue:#1769e0;--soft:#f1f7ff;--line:#dae6f3;--secondary:#526981}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8fbff;color:var(--ink);font:15px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
-body.play{--blue:#bd682c;--soft:#fff7ed;--line:#f0dfca;background:#fffaf5}
+body.play{--blue:#0878ea;--soft:#f1f7ff;--line:#dae6f3;background:#f5f9ff}
 body.spark{--blue:#0878ea;--soft:#effaf5;--line:#d7e8f2;background:#f8fcff}
 a{color:var(--blue)}button,input,textarea,select{font:inherit}button{cursor:pointer}
 .header{background:#fff;border-bottom:1px solid var(--line)}
@@ -35,9 +35,9 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 @media(max-width:580px){.hero .lead br{display:none}.paper h2:first-child{margin-bottom:15px}}
 </style><link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=20261028-unified"><meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://care.kosodatemate.jp/consult.html">
-</head>
-<body>
-<header class="header"><div class="wrap"><a class="brand" id="brand" href="index.html">MATE <span>CARE</span></a><nav><a id="browse" href="index.html#find">掲載先を探す</a><a href="operator.html">運営者情報</a></nav></div></header>
+<link rel="stylesheet" href="assets/mate-form-consistency.css?v=20261109"></head>
+<body class="mate-family-consult-page">
+<header class="header"><div class="wrap"><a class="brand" id="brand" href="index.html"><img src="assets/MATE_logo_01.svg" alt="MATE" width="145" style="height:auto;max-height:48px;vertical-align:middle"><span class="service-tag">MATE CARE</span></a><nav><a id="browse" href="index.html#find">掲載先を探す</a><a href="operator.html">運営者情報</a></nav></div></header>
 <main class="wrap"><div class="hero"><div class="eyebrow">ASK MATE</div><h1 id="heading">シッター・子育てサポートのご相談</h1>
 <p class="lead" id="lead">まずは掲載事業者の公式サイトをご確認ください。<br>利用先の選び方や掲載情報への質問を、MATE事務局へメールで相談できます。</p></div>
 <div class="paper"><h2>ご相談内容</h2>
@@ -63,7 +63,7 @@ h2{font-size:19px;margin:22px 0 8px}.help{font-size:13px;color:var(--secondary);
 <p id="formStatus" role="status" aria-live="polite" hidden></p>
 <button type="submit" class="submit" id="submitBtn">事務局に相談を送る ↗</button>
 </form></div></main>
-<footer class="footer"><div class="wrap">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> ｜ <a id="footerPrivacy" href="consult-privacy.html">プライバシーポリシー</a></div></footer>
+<footer class="mate-common-footer"><div class="mate-common-inner"><div class="mate-common-head"><img src="https://care.kosodatemate.jp/assets/MATE_logo_01.svg" alt="MATE"><p>子育てに頼れる相棒を。</p></div><nav aria-label="MATEサービスと運営情報"><a href="https://care.kosodatemate.jp/">MATE CARE</a><a href="https://spark.kosodatemate.jp/">MATE SPARK</a><a href="https://play.kosodatemate.jp/">MATE PLAY</a><a href="https://care.kosodatemate.jp/contact.html">CARE無料掲載</a><a href="https://spark.kosodatemate.jp/partners.html">SPARK無料掲載</a><a href="https://care.kosodatemate.jp/play-listing.html">PLAY無料掲載</a><a href="https://care.kosodatemate.jp/listing-terms.html">無料掲載条件</a><a href="https://care.kosodatemate.jp/privacy.html">プライバシーポリシー</a><a href="https://care.kosodatemate.jp/operator.html">運営者情報</a></nav><p>運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">kosodatemate@gmail.com</a> ｜ © MATE</p></div></footer>
 <script src="assets/mate-direct-intake-config.js"></script>
 <script>
 (()=>{
@@ -73,7 +73,7 @@ const play=svc==='PLAY',spark=svc==='SPARK';
 if(play){
  document.body.classList.add('play');
  document.title='親子のお出かけ・体験のご相談｜MATE PLAY';
- document.getElementById('brand').innerHTML='MATE <span>PLAY</span>';
+ document.querySelector('#brand .service-tag').textContent='MATE PLAY';
  document.getElementById('brand').href='https://play.kosodatemate.jp/';
  document.getElementById('browse').href='https://play.kosodatemate.jp/';
  document.getElementById('browse').textContent='体験を探す';
@@ -84,7 +84,7 @@ if(play){
 if(spark){
  document.body.classList.add('spark');
  document.title='習い事・教室のご相談｜MATE SPARK';
- document.getElementById('brand').innerHTML='MATE <span>SPARK</span>';
+ document.querySelector('#brand .service-tag').textContent='MATE SPARK';
  document.getElementById('brand').href='https://spark.kosodatemate.jp/';
  document.getElementById('browse').href='https://spark.kosodatemate.jp/#discover';
  document.getElementById('browse').textContent='教室を探す';
