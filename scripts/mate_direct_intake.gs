@@ -295,6 +295,35 @@ function mateReceiptEmail_(service,to,id,listing){
     return false;
   }
 }
+/**
+ * Locate the exact approval row by immutable application ID. If not synced yet,
+ * predict its future row only when every existing easy-review row is strictly
+ * aligned with the immutable source sheet. Never link to an unrelated decision.
+ */
+function mateDirectReviewLink_(book,apps,aid,sourceRow){
+  // Notifications are secondary to successful reception. If the reviewer tab
+  // cannot be queried at receipt time, never fail or roll back the submission.
+  try{
+  var review=book.getSheetByName('掲載審査_かんたん承認');
+  if(!review)return null;
+  var base='https://docs.google.com/spreadsheets/d/'+MATE_DIRECT.sheetId+
+    '/edit#gid='+(typeof review.getSheetId==='function'?review.getSheetId():193110041)+'&range=A';
+  var last=review.getLastRow();
+  if(last<1)return null;
+  var ids=last>1?review.getRange(2,31,last-1,1).getDisplayValues():[];
+  for(var i=0;i<ids.length;i++){
+    if(ids[i][0]===aid)return {url:base+(i+2)+':E'+(i+2),pending:false,row:i+2};
+  }
+  // The sync script appends exactly one easy-review row per valid source row.
+  // Predict the row only if the existing row sequence still mirrors the source.
+  if(last>sourceRow)return null;
+  var sourceIds=last>1?apps.getRange(2,1,last-1,1).getDisplayValues():[];
+  for(var j=0;j<ids.length;j++){
+    if(!ids[j][0]||ids[j][0]!==sourceIds[j][0])return null;
+  }
+  return {url:base+sourceRow+':E'+sourceRow,pending:true,row:sourceRow};
+  }catch(_reviewLookupError){return null;}
+}
 function mateDirectReceive_(d){
   mateDirectOwner_();
   var book=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
@@ -355,6 +384,11 @@ function mateDirectReceive_(d){
     apps.getRange(insertedRow,1,1,MATE_DIRECT.appHeaders.length).setValues([mateDirectApplication_(d,stamp)]);
     apps.getRange(insertedRow,30).setNumberFormat("@").setValue(receipt);
     var mailAccepted=mateReceiptEmail_(d.service,d.email,receipt,true);
+    // Resolve the exact review row, or its future row when source/review remain
+    // strictly aligned. Otherwise never send a misleading decision link.
+    var reviewTarget=mateDirectReviewLink_(book,apps,aid,insertedRow);
+    var sourceTarget="https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
+      "/edit#gid=1771193381&range=A"+insertedRow+":AD"+insertedRow;
     // Operator-only receipt notice: includes no applicant personal information.
     // A failed internal notice does not roll back an accepted application.
     try {
@@ -369,12 +403,16 @@ function mateDirectReceive_(d){
           "対象エリア："+mateDirectText_(d.region,24)+" "+mateDirectText_(d.city,140),
           "公式サイト："+mateDirectRaw_(d.url,500),
           "",
-          "① 申請内容を直接開く（運営専用）：",
-          "https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
-            "/edit#gid=1771193381&range=A"+insertedRow+":AD"+insertedRow,
-          "② 掲載審査画面を開く（運営専用）：",
-          "https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
-            "/edit#gid=193110041",
+          "① この申請の原本行を開く（受付番号："+receipt+"／運営専用）：",
+          sourceTarget,
+          "② この申請のかんたん承認行を開く（運営専用）：",
+          reviewTarget?reviewTarget.url:
+            "https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+"/edit#gid=193110041",
+          reviewTarget&&reviewTarget.pending?
+            "※審査行はまだ同期前です。15分間隔の処理で同期後に、この行へ表示されます。":
+          !reviewTarget?
+            "※審査行が特定できません。審査画面で受付番号："+receipt+" を検索してください。":"",
+
           "",
           "「掲載の判断」で承認か見送りを選択してください。",
           "承認前に本人権限・公開情報・写真の権利・無料掲載条件を確認。",

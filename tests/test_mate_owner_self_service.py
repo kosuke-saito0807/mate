@@ -49,6 +49,17 @@ class OwnerSelfServiceTest(unittest.TestCase):
         r=subprocess.run(["node","--check"],input=script,text=True,capture_output=True)
         self.assertEqual(r.returncode,0,r.stderr)
 
+    def test_operator_receipt_email_deep_links_to_correct_review_row(self):
+        script=(ROOT/"scripts/mate_direct_intake.gs").read_text(encoding="utf-8")
+        self.assertIn("function mateDirectReviewLink_(book,apps,aid,sourceRow)",script)
+        self.assertIn("ids[i][0]===aid",script)
+        self.assertIn("ids[j][0]!==sourceIds[j][0]",script)
+        self.assertIn("getRange(2,31,last-1,1)",script)
+        self.assertIn("reviewTarget?reviewTarget.url",script)
+        self.assertIn('"/edit#gid=1771193381&range=A"',script)
+        self.assertIn("reviewTarget&&reviewTarget.pending",script)
+        self.assertIn('"/edit#gid=193110041",',script)  # safe fallback when unknown
+
     def test_no_customer_pii_in_business_registration_payload(self):
         for path in ("assets/mate-self-service.js","spark/assets/mate-self-service.js"):
             text=(ROOT/path).read_text(encoding="utf-8")
