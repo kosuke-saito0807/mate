@@ -280,8 +280,14 @@ async function main() {
       'SPARK photo frame stays within the viewport');
     assert.ok(sparkIdentity.frame.height>=560&&sparkIdentity.frame.height<=720,
       'SPARK full-bleed photograph fills the hero without stretching');
-    await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
-    assert.equal(await spark.locator('#cards article.card').count(),0);
+    if(liveSchools.length){
+      await spark.waitForFunction(n=>document.querySelector('#cards article.card')?.dataset.schoolId===n[0].id,
+        liveSchools);
+      assert.equal(await spark.locator('#cards article.card').count(),liveSchools.length);
+    }else{
+      await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
+      assert.equal(await spark.locator('#cards article.card').count(),0);
+    }
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載許諾'));
     assert.equal(await spark.locator('a[href="?demo=1#discover"]').count(),0,
       'No public demo link; QA-only demo still requires explicit query');
