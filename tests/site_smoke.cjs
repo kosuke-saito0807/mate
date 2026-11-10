@@ -203,7 +203,19 @@ async function main() {
     let spark = await checkPage(browser,'/spark/');
     assert.equal(await spark.locator('#faq .mate-help-question').count(),4,'SPARK FAQ should expose four questions');
     assert.equal(await spark.locator('#faq .mate-help-service').count(),3,'SPARK cross-service navigation');
-    assert.equal(await spark.locator('#cards a[href="https://care.kosodatemate.jp/consult.html?service=SPARK"]').count(),1,'SPARK empty results should guide parents to consultation');
+    // Empty state offers consultation; a legitimately published school instead
+    // renders its verified listing. Do not assume schools.json must stay empty.
+    const liveSchools=JSON.parse(fs.readFileSync('spark/schools.json','utf8'))
+      .filter(s=>s&&s.approved===true&&s.id&&s.name);
+    if(liveSchools.length){
+      for(const school of liveSchools){
+        assert.equal(await spark.locator('#cards [data-school-id="'+school.id+'"]').count(),1,
+          'approved SPARK school should appear in search results');
+      }
+    }else{
+      assert.equal(await spark.locator('#cards a[href="https://care.kosodatemate.jp/consult.html?service=SPARK"]').count(),1,
+        'SPARK empty results should guide parents to consultation');
+    }
     await spark.locator('#faq .mate-help-question summary').first().click();
     assert.ok(await spark.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'SPARK FAQ details should open by keyboard/click');
     assert.equal(await spark.locator('#faq a[data-mate-cta="listing"]').count(),1,'SPARK listing CTA');
