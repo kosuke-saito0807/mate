@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),crypto=require('node:crypto');
-const source=fs.readFileSync('scripts/mate_direct_intake.gs','utf8');
+const source=fs.readFileSync('scripts/mate_direct_intake.gs','utf8')+'\n'+fs.readFileSync('scripts/mate_approved_media_access_repair.gs','utf8');
 function row(n){return Array(n).fill('')}
 const aid='MATE-WEB-48444d99-17e4-4fd9-a2ac-45a07e93e832',pub='mate_spark_48444d9917e44fd9';
 const app=row(30);Object.assign(app,{0:aid,2:'SPARK',3:'CodeCampKIDS 大崎教室',24:'承認',25:'確認済み',26:'MATE運営事務局',27:pub});
