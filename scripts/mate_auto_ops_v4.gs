@@ -740,3 +740,24 @@ function installMateV4DailyDigest(){
     .atHour(9).everyDays(1).inTimezone('Asia/Tokyo').create();
   return 'MATE日次サマリーを午前9時台に運営者本人へ1日1通。外部営業送信スイッチは変更しません。';
 }
+
+
+/**
+ * Single read-only operator checkpoint. Prints all relevant safe counters to
+ * Apps Script execution log without requiring a temporary wrapper function.
+ * It never sends mail, writes Sheets or changes trigger/settings state.
+ */
+function checkMateAutoOpsV4(){
+  const report=JSON.parse(previewMateOutreachReadinessV4());
+  const names=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
+  const state={
+    mode:'READ_ONLY_NO_SEND',
+    dailyLeadCycleInstalled:names.includes('mateAutoOpsV4Cycle'),
+    ownerGrowthDigestInstalled:names.includes('mateV4DailyGrowthDigest'),
+    dailyLeadCycleTriggers:names.filter(n=>n==='mateAutoOpsV4Cycle').length,
+    ownerGrowthDigestTriggers:names.filter(n=>n==='mateV4DailyGrowthDigest').length,
+    ...report
+  };
+  console.log(JSON.stringify(state));
+  return state;
+}
