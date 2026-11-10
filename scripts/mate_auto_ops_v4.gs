@@ -708,7 +708,7 @@ function mateV4DailyGrowthDigest(){
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
     '承認済み申請：CARE '+approved.CARE+' / SPARK '+approved.SPARK+' / PLAY '+approved.PLAY,
     '本日送信試行ログ：'+sent.filter(r=>r['送信処理日時'].startsWith(today)).length,
-    '本日未審査申請：'+application.filter(r=>r['受付日時']&&r['受付日時'].startsWith(today)&&r['審査状態']!=='承認').length,
+    '本日未審査申請：'+application.filter(r=>r['受信日時']&&r['受信日時'].startsWith(today)&&r['審査状態']!=='承認').length,
     '',
     '掲載承認・権限・契約は人が確認。未確認の営業宛先には送信しません。',
     '台帳：https://docs.google.com/spreadsheets/d/'+MATE_V4.bookId+'/edit'
