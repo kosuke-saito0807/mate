@@ -2,3 +2,20 @@
 .mate-photo-slides img.mate-category-photo{object-fit:cover}
 .mate-photo-slides img.mate-real-photo{object-fit:contain;padding:2px;box-sizing:border-box}
 .mate-photo-slides{background:linear-gradient(145deg,#eef7ff,#f8f5ee)}.mate-photo-slides img[hidden]{display:none!important}.mate-photo-carousel button{position:absolute;top:50%;transform:translateY(-50%);border:0;background:#fffdf4ed;color:#18476a;border-radius:100%;width:32px;height:32px;cursor:pointer;font-size:24px;line-height:1;z-index:2;box-shadow:0 1px 7px #0002}.mate-photo-carousel button:focus-visible{outline:3px solid #1679d6;outline-offset:2px}.mate-photo-prev{left:9px}.mate-photo-next{right:9px}.mate-photo-count{position:absolute;right:10px;bottom:10px;background:#183954b8;color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;z-index:1}.mate-photo-fallback{position:absolute;bottom:9px;left:10px;border-radius:20px;background:#fffdf4e0;color:#4b697e;padding:2px 9px;font-size:10px;z-index:1}.result>.mate-photo-carousel{margin:-1px -1px 16px}.cardArt .mate-photo-carousel{width:100%;height:100%;min-height:0;aspect-ratio:auto}.cardArt .mate-photo-carousel~.flag,.cardArt .mate-photo-carousel~.favorite{z-index:3}@media(prefers-reduced-motion:reduce){.mate-photo-carousel *{transition:none!important}}
+/* MATE premium photo presentation, while keeping subjects uncropped. */
+.mate-photo-carousel{background:linear-gradient(145deg,#f1f7ff 0%,#ebf4f7 55%,#f8f7ee 100%);isolation:isolate}
+.mate-photo-slides::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  border:1px solid rgba(255,255,255,.58);box-shadow:inset 0 0 30px rgba(13,63,119,.035)}
+.mate-photo-slides img.mate-real-photo{object-fit:contain;object-position:center;
+  padding:8px;box-sizing:border-box;filter:drop-shadow(0 8px 13px rgba(18,63,91,.12))}
+.mate-photo-slides img.mate-category-photo{object-fit:cover;object-position:center}
+.mate-photo-carousel .mate-photo-fallback{top:10px;bottom:auto;left:10px;
+  padding:5px 11px;background:rgba(255,255,255,.89);color:#284c69;
+  border:1px solid rgba(255,255,255,.6);font-size:10px;letter-spacing:.06em;
+  box-shadow:0 4px 18px rgba(29,70,112,.10);backdrop-filter:blur(7px)}
+.mate-photo-carousel button{background:rgba(255,255,255,.95);width:36px;height:36px;
+  box-shadow:0 5px 16px rgba(32,71,112,.14);transition:transform .15s,background .15s}
+.mate-photo-carousel button:hover{background:white;transform:translateY(-50%) scale(1.06)}
+.mate-photo-carousel .mate-photo-count{background:rgba(12,39,66,.72);padding:4px 11px;
+  backdrop-filter:blur(7px);border:1px solid rgba(255,255,255,.13)}
+@media(prefers-reduced-motion:reduce){.mate-photo-carousel button{transition:none}}
