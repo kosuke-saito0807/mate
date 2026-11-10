@@ -16,7 +16,7 @@
 <rect x="70" y="68" width="154" height="36" rx="18" fill="#fff" opacity=".88"/>
 <text x="147" y="91" text-anchor="middle" fill="#1f785e" font-family="Arial,sans-serif" font-weight="800" font-size="16" letter-spacing="2.4">MATE SPARK</text>
 <rect x="70" y="493" width="522" height="67" rx="21" fill="#fff" fill-opacity=".92"/>
-<text x="92" y="521" font-size="18" font-weight="800" fill="#1f785e" font-family="Arial,sans-serif" letter-spacing="1.4">MOVE & PLAY</text>
+<text x="92" y="521" font-size="18" font-weight="800" fill="#1f785e" font-family="Arial,sans-serif" letter-spacing="1.4">MOVE &amp; PLAY</text>
 <text x="92" y="547" font-size="16" font-weight="600" fill="#1f785e" opacity=".76" font-family="Arial,sans-serif">からだを動かす楽しさ</text>
 <path d="M796 493h65m-15-11 15 11-15 11" fill="none" stroke="#1f785e" stroke-linecap="round" stroke-linejoin="round" stroke-width="7" opacity=".56"/>
 </svg>
