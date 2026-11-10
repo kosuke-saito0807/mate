@@ -25,6 +25,27 @@ class OwnerSelfServiceTest(unittest.TestCase):
                 self.assertIn('name="listing_permission"',html)
                 self.assertIn('name="trial_referral_consent"',html)
 
+    def test_spark_school_grade_range_maps_to_legacy_age_fields(self):
+        page=(ROOT/"spark/partners.html").read_text(encoding="utf-8")
+        script=(ROOT/"spark/assets/mate-self-service.js").read_text(encoding="utf-8")
+        for name in ("gradeFrom","gradeTo"):
+            self.assertIn('name="'+name+'" required',page)
+        for label in ("未就園児（0〜2歳）","年少","年中","年長","小学1年生",
+                      "小学6年生","中学1年生","高校3年生"):
+            self.assertIn(label,page)
+        self.assertIn('name="ageMin" type="hidden"',page)
+        self.assertIn('name="ageMax" type="hidden"',page)
+        self.assertIn('name="ages" type="hidden"',page)
+        self.assertNotIn('type="number" min="0" max="18" name="ageMin"',page)
+        self.assertIn("first>last",script)
+        self.assertIn('form.elements.namedItem("ageMin").value',script)
+        self.assertIn('form.elements.namedItem("ageMax").value',script)
+        self.assertIn('form.elements.namedItem("ages").value',script)
+        self.assertIn("grades.indexOf(from)",script)
+        self.assertIn("category.join",script)
+        r=subprocess.run(["node","--check"],input=script,text=True,capture_output=True)
+        self.assertEqual(r.returncode,0,r.stderr)
+
     def test_no_customer_pii_in_business_registration_payload(self):
         for path in ("assets/mate-self-service.js","spark/assets/mate-self-service.js"):
             text=(ROOT/path).read_text(encoding="utf-8")
