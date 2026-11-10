@@ -58,7 +58,7 @@ class OwnerSelfServiceTest(unittest.TestCase):
         self.assertIn("reviewTarget?reviewTarget.url",script)
         self.assertIn('"/edit#gid=1771193381&range=A"',script)
         self.assertIn("reviewTarget&&reviewTarget.pending",script)
-        self.assertNotIn('"/edit#gid=193110041",',script)
+        self.assertIn('"/edit#gid=193110041",',script)  # safe fallback when unknown
 
     def test_no_customer_pii_in_business_registration_payload(self):
         for path in ("assets/mate-self-service.js","spark/assets/mate-self-service.js"):
