@@ -56,7 +56,7 @@ class OwnerSelfServiceTest(unittest.TestCase):
         self.assertIn("ids[j][0]!==sourceIds[j][0]",script)
         self.assertIn("getRange(2,31,last-1,1)",script)
         self.assertIn("reviewTarget?reviewTarget.url",script)
-        self.assertIn("typeof apps.getSheetId==='function'",script)
+        self.assertIn('"/edit#gid=1771193381&range=A"',script)
         self.assertIn("reviewTarget&&reviewTarget.pending",script)
         self.assertNotIn('"/edit#gid=193110041",',script)
 
