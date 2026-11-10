@@ -299,7 +299,7 @@ function draw(){
   const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
   const nextTrial=(!fictional&&s.nextTrialDate)?'<div class="meta">次回体験予定：'+escapeHtml(s.nextTrialDate.replaceAll('-','/'))+'</div>':'';
    const trialCost=typeof s.trialPrice==='number'?(s.trialPrice===0?'無料体験':'体験 '+yen(s.trialPrice)):'体験料金：要確認';
-  return '<article class="card" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt '+cls+'">'+
+  return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt '+cls+'">'+
     '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
     (window.MATEGallery?window.MATEGallery.render(s,'SPARK'):'<span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span>')+
     '<button type="button" class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-pressed="'+(favorite.has(s.id)?'true':'false')+'" aria-label="'+escapeHtml(s.name)+'をお気に入り'+(favorite.has(s.id)?'から解除':'に追加')+'">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
@@ -315,6 +315,11 @@ function draw(){
     '<div class="cardActions"><button class="btn light" data-pick="'+escapeHtml(s.id)+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button>'+action+'</div>'+
     '</div></article>';
  }).join('')||(!demoMode&&schools.length===0?'<div class="empty"><h3>新しい出会いを、準備しています。</h3><p>掲載を許諾いただいた教室を順次公開します。</p><p><a class="btn" href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事について相談する ↗</a></p><p><a class="btn light" href="guide-lessons-choice.html">習い事の選び方・体験前のチェックポイント ↗</a></p><p><a class="btn light" href="partners.html">教室の無料掲載申請はこちら ↗</a></p></div>':'<div class="empty"><h3>条件に合う教室はありません</h3><p>条件を変更してみてください。掲載のない地域もあります。</p><p><a class="btn light" href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事について相談する ↗</a></p></div>');
+ // One-time navigation to an approved listing, never a demo/unsanctioned ID.
+ if(!window.MATEListingHashResolved&&/^#listing-[a-z0-9_-]{6,95}$/i.test(location.hash)){
+  const target=document.getElementById(location.hash.slice(1));
+  if(target){window.MATEListingHashResolved=true;target.scrollIntoView({block:'center'});}
+ }
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
  $('selectionBar').hidden=selected.size===0;
  // No actual submissions before explicit school permission, and never on fictional demo data.

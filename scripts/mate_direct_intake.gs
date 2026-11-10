@@ -361,9 +361,26 @@ function mateDirectReceive_(d){
       MailApp.sendEmail({
         to:MATE_DIRECT.owner,
         subject:"【MATE掲載申請】"+d.service+" 新規受付 "+receipt,
-        body:"MATE "+d.service+" の無料掲載申請を受け付けました。\n受付番号："+receipt+
-          "\n非公開台帳：https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
-          "/edit\n審査状態：未審査（承認・公開・請求なし）",
+        body:[
+          "MATE "+d.service+" の無料掲載申請を受け付けました。",
+          "受付番号："+receipt,
+          "事業者・教室："+mateDirectText_(d.company,160),
+          "ジャンル："+mateDirectText_(d.category,70),
+          "対象エリア："+mateDirectText_(d.region,24)+" "+mateDirectText_(d.city,140),
+          "公式サイト："+mateDirectRaw_(d.url,500),
+          "",
+          "① 申請内容を直接開く（運営専用）：",
+          "https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
+            "/edit#gid=1771193381&range=A"+insertedRow+":AD"+insertedRow,
+          "② 掲載審査画面を開く（運営専用）：",
+          "https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
+            "/edit#gid=193110041",
+          "",
+          "「掲載の判断」で承認か見送りを選択してください。",
+          "承認前に本人権限・公開情報・写真の権利・無料掲載条件を確認。",
+          "公開完了メールは本番反映を検証してから送信します。",
+          "※受付時点では掲載・契約・課金はありません。"
+        ].join("\n"),
         name:"MATE運営事務局"
       });
     } catch(_noticeFailure) {} // Receipt is already persisted; no retry duplicates.

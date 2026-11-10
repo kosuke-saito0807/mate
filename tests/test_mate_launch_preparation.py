@@ -26,7 +26,7 @@ class LaunchPreparationTests(unittest.TestCase):
         spark=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn('consult.html?service=CARE',search)
         self.assertIn('シッター事業者の無料掲載申請はこちら',search)
-        self.assertIn('provider-search.js?v=20261103-family-first',care)
+        self.assertIn('provider-search.js?v=20261109-direct-listing',care)
         self.assertIn('consult.html?service=SPARK',spark)
         self.assertIn('href="partners.html">教室の無料掲載申請はこちら',spark)
 
@@ -45,7 +45,22 @@ class LaunchPreparationTests(unittest.TestCase):
             self.assertIn("listing_inquiry_submit_attempt",src)
             self.assertIn("HTMLFormElement.prototype.submit.call(form)",src)
         for path in ("contact.html","play-listing.html","spark/partners.html"):
-            self.assertIn("mate-direct-intake.js?v=20261103-funnel",(ROOT/path).read_text(encoding="utf-8"))
+            self.assertIn("mate-direct-intake.js?v=20261109-approval-mail-v2",(ROOT/path).read_text(encoding="utf-8"))
+
+    def test_common_listing_guidance_and_approved_deep_links(self):
+        for path in ("assets/mate-direct-intake.js","spark/assets/mate-direct-intake.js"):
+            js=(ROOT/path).read_text(encoding="utf-8")
+            self.assertIn("お申し込み前にご確認ください",js)
+            self.assertIn("有料サービスへの自動切替",js)
+            self.assertIn('listing_terms_agree',js)
+            self.assertIn('listing_permission',js)
+        for path in ("assets/mate-form-consistency.css","spark/assets/mate-form-consistency.css"):
+            self.assertIn(".mate-common-application-notes",(ROOT/path).read_text(encoding="utf-8"))
+        self.assertIn('id="listing-',(ROOT/"assets/provider-search.js").read_text(encoding="utf-8"))
+        self.assertIn('id="listing-',(SPARK/"index.html").read_text(encoding="utf-8"))
+        script=(ROOT/"scripts/mate_direct_intake.gs").read_text(encoding="utf-8")
+        self.assertIn("gid=193110041",script)
+        self.assertIn("gid=1771193381",script)
 
     def test_real_listings_by_default_demo_requires_explicit_query(self):
         html=(SPARK/"index.html").read_text(encoding="utf-8")

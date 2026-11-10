@@ -99,6 +99,8 @@ test("CARE submitted only to private review, no public approval",()=>{
  assert.equal(e.sent[0].to,"private@example.com");
   assert.equal(e.sent[1].to,"kosodatemate@gmail.com");
   assert.match(e.sent[1].subject,/【MATE掲載申請】CARE 新規受付/);
+  assert.match(e.sent[1].body,/gid=1771193381&range=A2:AD2/);
+  assert.match(e.sent[1].body,/gid=193110041/);
  assert.match(e.sent[0].subject,/【MATE CARE】無料掲載のお申し込み受付/);
  assert.ok(!e.sent[0].body.includes("Confidential memo"));
  assert.ok(!e.sent[0].body.includes("Private Person"));

@@ -70,3 +70,14 @@ body.mate-partner-page .consent input[type="checkbox"]{flex:none}
 .footer .footerLinks,.spark-footer .footerLinks{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:26px 16px!important}
 .footer .mateFooterGroup:nth-child(3),.spark-footer .mateFooterGroup:nth-child(3){grid-column:1/-1}
 }
+
+/* Identical partner-review notes, controls and consent rhythm across all services. */
+.mate-common-application-notes{margin:25px 0 18px;padding:20px clamp(15px,3vw,24px);border-radius:16px;border:1px solid #cbdff4;background:#f1f7ff;color:#073661}
+.mate-common-application-notes h3{font-size:16px;line-height:1.5;margin:0 0 10px;color:#073661}
+.mate-common-application-notes ul{margin:0;padding-left:22px;font-size:13px;line-height:1.85}
+.mate-common-application-notes li+li{margin-top:5px}
+body.mate-partner-page form :is(input,textarea,select){accent-color:#0878ea}
+body.mate-partner-page form :is(input,textarea,select):focus-visible{outline:2px solid #0878ea!important;outline-offset:2px!important;border-color:#0878ea!important}
+body.mate-partner-page form label:has(input[type="checkbox"]){font-size:13px;line-height:1.8}
+body.mate-partner-page form button[type="submit"]{min-height:52px;white-space:normal;text-wrap:balance;line-height:1.65}
+@media(max-width:620px){.mate-common-application-notes{padding:18px 15px}.mate-common-application-notes ul{padding-left:19px}}

@@ -28,6 +28,45 @@
       status.hidden=false;
       var sendLabel=button?button.textContent:"";
       var service=(form.querySelector('[name="service"]')||{}).value;
+
+      // One shared operator-safe explanation across CARE / SPARK / PLAY.
+      // The applicant's original field values and consent checkbox semantics
+      // remain untouched; styling/copy only.
+      var notes=document.createElement("section");
+      notes.className="mate-common-application-notes";
+      notes.setAttribute("aria-label","無料掲載申請の注意事項");
+      var heading=document.createElement("h3");
+      heading.textContent="お申し込み前にご確認ください";
+      notes.appendChild(heading);
+      var list=document.createElement("ul");
+      [
+        "基本情報の掲載は0円。月額料金・紹介料はかかりません。有料サービスへの自動切替もありません。",
+        "送信後、入力したメールアドレスへ受付番号をお送りします。事務局が申込権限と掲載情報を確認し、承認・見送りをメールでお知らせします。",
+        "承認された場合も、本番サイトの掲載を確認してから公開URLをお送りします。申請時点では契約・掲載・請求は発生しません。",
+        "写真は任意で最大5枚。必要な肖像権・著作権を確認し、保護者やお子さまの個人情報は記載しないでください。"
+      ].forEach(function(copy){
+        var item=document.createElement("li");item.textContent=copy;list.appendChild(item);
+      });
+      notes.appendChild(list);
+      var beforeSubmit=form.querySelector('button[type="submit"]');
+      if(beforeSubmit&&beforeSubmit.parentNode)beforeSubmit.parentNode.insertBefore(notes,beforeSubmit);
+      form.querySelectorAll('input[name="listing_terms_agree"],input[name="listing_permission"],input[name="trial_referral_consent"]').forEach(function(input){
+        var parent=input.closest("label");if(!parent)return;
+        var content=parent.querySelector("span");
+        if(!content)return;
+        var name=input.name;
+        var terms=content.querySelector("a[href]");
+        if(name==="listing_terms_agree"&&terms){
+          // Retain the service-specific approved terms URL.
+          var link=terms.cloneNode(true);
+          content.replaceChildren(link,document.createTextNode("を確認し同意します。申込みだけでは契約・公開は始まりません。（必須）"));
+        }else if(name==="listing_permission"){
+          content.textContent="申請する事業者・教室・施設を代表または代理する権限があり、掲載内容が正しいことと、審査後の掲載に同意します。（必須）";
+        }else if(name==="trial_referral_consent"){
+          content.textContent="家族からの相談の取次ぎについても相談したい（任意）。このチェックだけで予約・個人情報提供・有料契約は開始しません。";
+        }
+      });
+
       if(!ready){
         status.textContent="現在、掲載受付システムを準備しています。お問い合わせは kosodatemate@gmail.com へお願いします。";
         if(button){button.disabled=true;button.setAttribute("aria-disabled","true")}
