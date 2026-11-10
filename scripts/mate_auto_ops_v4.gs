@@ -494,7 +494,7 @@ function mateV4SenderAddressLooksComplete_(raw){
   return s.length>=13 && /(?:東京都|北海道|大阪府|京都府|.{2,3}県)/.test(s)
     && /[市区町村]/.test(s)
     && /(?:[0-9０-９]+(?:[-－‐ー][0-9０-９]+)*|[一二三四五六七八九十]+丁目)/.test(s)
-    && !/仮|未設定|ダミー|サンプル|正式な営業所在地|\\[.+\\]/.test(s);
+    && !/仮|未設定|ダミー|サンプル|正式な営業所在地/.test(s);
 }
 /** Set up one-per-day PILOT only; keep all external emails OFF.
  * Never assert an unverified postal address, legal review or public-email exception.
