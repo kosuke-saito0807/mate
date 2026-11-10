@@ -46,28 +46,52 @@ function matePubExactContract_(rows,service,publicId,company){
   var now=Utilities.formatDate(new Date(),"Asia/Tokyo","yyyy-MM-dd");
   return matePubGet_(r,8)<=now && matePubGet_(r,9)>=now;
 }
-function matePubVerifiedUrl_(url,service){
-  // No browser-only URL constructor: first-party literal origin and safe path.
-  var host=MATE_PUBLISHED_MAIL.allowedHosts[service];
-  if(!host || typeof url!=="string" || url.length>270)return false;
-  var prefix="https://"+host;
-  if(url!==prefix && url.indexOf(prefix+"/")!==0)return false;
-  var path=url.slice(prefix.length);
-  return /^[a-zA-Z0-9_./~-]*$/.test(path) && path.indexOf("..")<0 &&
-    path.length<=220;
+function matePubPublicDatasetUrl_(service){
+  return {CARE:"https://care.kosodatemate.jp/data.json",
+          SPARK:"https://spark.kosodatemate.jp/schools.json",
+          PLAY:"https://play.kosodatemate.jp/data/schools.json"}[service]||"";
 }
-function matePubLiveEvidence_(url,company,publicId){
-  // No redirects or fetching third-party hosts. A successful public response
-  // alone is insufficient: match exact listing ID and name in the response.
+function matePubExpectedLink_(service,publicId){
+  if(!/^[a-zA-Z0-9_-]{6,95}$/.test(publicId))return "";
+  if(service==="CARE"||service==="SPARK")
+    return "https://"+MATE_PUBLISHED_MAIL.allowedHosts[service]+"/#listing-"+publicId;
+  // PLAY does not currently have a proven per-item deep link.
+  if(service==="PLAY")return "https://play.kosodatemate.jp/";
+  return "";
+}
+function matePubVerifiedUrl_(url,service){
+  var host=MATE_PUBLISHED_MAIL.allowedHosts[service];
+  if(!host||typeof url!=="string")return false;
+  var root="https://"+host+"/";
+  if(service==="PLAY")return url===root;
+  return /^https:\/\/[a-z.]+\/#listing-[a-zA-Z0-9_-]{6,95}$/.test(url) &&
+    url.indexOf(root+"#listing-")===0;
+}
+function matePubLiveEvidence_(url,company,publicId,service){
+  // Fetch only an exact hardcoded first-party JSON URL. Never follow redirects.
+  // Verify one live approved listing by immutable ID, name and public status.
+  // The static HTML is an application shell and cannot prove a listing exists.
+  if(!matePubVerifiedUrl_(url,service))return false;
   try{
-    var response=UrlFetchApp.fetch(url,{
+    var feed=matePubPublicDatasetUrl_(service);
+    if(!feed)return false;
+    var response=UrlFetchApp.fetch(feed,{
       followRedirects:false,muteHttpExceptions:true,validateHttpsCertificates:true,
-      headers:{"Accept":"text/html,application/json"}
+      headers:{"Accept":"application/json","Cache-Control":"no-cache"}
     });
     if(response.getResponseCode()!==200)return false;
-    var text=response.getContentText();
-    if(text.length>750000)return false;
-    return text.indexOf(publicId)!==-1 && text.indexOf(company)!==-1;
+    var raw=response.getContentText();
+    if(!raw||raw.length>1000000)return false;
+    var payload=JSON.parse(raw);
+    var rows=service==="PLAY"?payload&&payload.schools:payload;
+    if(!Array.isArray(rows))return false;
+    var exact=rows.filter(function(x){
+      if(!x||typeof x!=="object"||x.id!==publicId||x.name!==company)return false;
+      return service==="SPARK"?x.approved===true:
+             service==="CARE"?x.verified===true&&x.status==="掲載許可":
+             service==="PLAY"?x.id===publicId:false;
+    });
+    return exact.length===1;
   }catch(e){return false}
 }
 function matePubEvaluate_(app,approvals,contracts,contacts){
@@ -121,7 +145,7 @@ function matePubRun_(send){
         summary.held++;summary.reasons[result]=(summary.reasons[result]||0)+1;return;
       }
       summary.eligible++;
-      if(!matePubLiveEvidence_(result.url,result.company,result.publicId)){
+      if(!matePubLiveEvidence_(result.url,result.company,result.publicId,result.service)){
         summary.held++;summary.reasons["本番ページでIDと名称を確認できない"]=
           (summary.reasons["本番ページでIDと名称を確認できない"]||0)+1;return;
       }
@@ -161,3 +185,83 @@ function matePubRun_(send){
 function previewMatePublicationMail(){return matePubRun_(false)}
 /** Explicitly gated real send; only eligible, already-published applications. */
 function dispatchMatePublicationMail(){return matePubRun_(true)}
+
+/**
+ * Reconcile owner-approved, contracted, genuinely published listings.
+ * Safe even when the outbound mail switch is OFF; never sends mail.
+ * This is the missing sync from public JSON to the private approval ledger.
+ * Only transitions rows explicitly marked 掲載承認, not 未審査 or internal tests.
+ */
+function matePubReconcile_(write){
+  matePubOwner_();
+  var book=SpreadsheetApp.openById(MATE_PUBLISHED_MAIL.spreadsheetId);
+  var approvals=matePubRows_(book,MATE_PUBLISHED_MAIL.approvalTab);
+  var apps=matePubRows_(book,MATE_PUBLISHED_MAIL.applicationTab);
+  var contracts=matePubRows_(book,MATE_PUBLISHED_MAIL.contractTab);
+  var summary={mode:write?"RECONCILE":"READ_ONLY",reviewed:0,live:0,updated:0,held:0};
+  var lock=LockService.getScriptLock();
+  if(write&&!lock.tryLock(1000))throw Error("別の掲載処理が実行中です");
+  try{
+    approvals.values.forEach(function(row,i){
+      if(matePubGet_(row,12)!=="掲載承認")return;
+      summary.reviewed++;
+      if(!["公開待ち","公開確認済"].includes(matePubGet_(row,13))){summary.held++;return}
+      var service=matePubGet_(row,3),publicId=matePubGet_(row,11),
+        company=matePubGet_(row,4),aid=matePubGet_(row,2);
+      var candidates=apps.values.filter(function(a){return matePubGet_(a,1)===aid});
+      if(candidates.length!==1){summary.held++;return}
+      var a=candidates[0];
+      if(matePubGet_(a,3)!==service||matePubGet_(a,4)!==company ||
+         matePubGet_(a,28)!==publicId ||
+         matePubGet_(a,25)!=="承認" || matePubGet_(a,26)!=="確認済み"||
+         !matePubGet_(a,27)||!matePubGet_(a,21)||!matePubGet_(a,22) ||
+         matePubGet_(row,10)!=="確認済み" ||!matePubGet_(row,6)||
+         !matePubGet_(row,7)||!matePubGet_(row,8)||!matePubGet_(row,9)||
+         !matePubExactContract_(contracts.values,service,publicId,company)){
+        summary.held++;return;
+      }
+      var url=matePubExpectedLink_(service,publicId);
+      if(!url||!matePubLiveEvidence_(url,company,publicId,service)){
+        summary.held++;return;
+      }
+      summary.live++;
+      // No changes when conflicting URL/status/previous send evidence exists.
+      if(matePubGet_(row,14)&&matePubGet_(row,14)!==url){summary.held++;return}
+      if(matePubGet_(row,15)!=="未送信"&&matePubGet_(row,15)!==""){summary.held++;return}
+      if(write && (matePubGet_(row,13)!=="公開確認済" || !matePubGet_(row,14))){
+        approvals.sheet.getRange(i+2,13,1,2).setValues([["公開確認済",url]]);
+        summary.updated++;
+      }
+    });
+  }finally{if(write)lock.releaseLock()}
+  return summary;
+}
+function previewMatePublicationReconciliation(){return matePubReconcile_(false)}
+function reconcileMatePublicationReconciliation(){return matePubReconcile_(true)}
+
+/**
+ * One-time owner installation. Replaces only this handler's triggers, leaves
+ * other MATE outreach and form triggers unchanged.
+ * Installing never enables outbound mail or sends anything.
+ */
+function installMatePublicationAutomation(){
+  matePubOwner_();
+  var handlers=ScriptApp.getProjectTriggers().filter(function(t){
+    return t.getHandlerFunction()==="matePublicationCycle";
+  });
+  handlers.forEach(function(t){ScriptApp.deleteTrigger(t)});
+  ScriptApp.newTrigger("matePublicationCycle").timeBased().everyHours(1).create();
+  return {handler:"matePublicationCycle",triggerCount:1,
+          publicationMailEnabled:PropertiesService.getScriptProperties()
+            .getProperty("MATE_PUBLICATION_MAIL_ENABLED")==="ON",
+          reminder:"メール送信は別途本人が有効化するまでOFF。営業メール送信とは無関係"};
+}
+/** Hourly: safely mark already-public listings, then optionally notify. */
+function matePublicationCycle(){
+  matePubOwner_();
+  var reconciliation=matePubReconcile_(true);
+  var enabled=PropertiesService.getScriptProperties()
+    .getProperty("MATE_PUBLICATION_MAIL_ENABLED")==="ON";
+  return {reconciliation:reconciliation,
+          notification:enabled?matePubRun_(true):{mode:"DISABLED_NO_SEND"}};
+}
