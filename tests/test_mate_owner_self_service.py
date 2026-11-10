@@ -30,7 +30,7 @@ class OwnerSelfServiceTest(unittest.TestCase):
         script=(ROOT/"spark/assets/mate-self-service.js").read_text(encoding="utf-8")
         for name in ("gradeFrom","gradeTo"):
             self.assertIn('name="'+name+'" required',page)
-        for label in ("未就園児（0〜2歳）","年少","年中","年長","小学1年生",
+        for label in ("0歳（乳児）","1歳","2歳","年少","年中","年長","小学1年生",
                       "小学6年生","中学1年生","高校3年生"):
             self.assertIn(label,page)
         self.assertIn('name="ageMin" type="hidden"',page)
@@ -42,6 +42,9 @@ class OwnerSelfServiceTest(unittest.TestCase):
         self.assertIn('form.elements.namedItem("ageMax").value',script)
         self.assertIn('form.elements.namedItem("ages").value',script)
         self.assertIn("grades.indexOf(from)",script)
+        self.assertIn('"a0","a1","a2"',script)
+        self.assertIn("const lower=[0,1,2,3",script)
+        self.assertIn("const upper=[0,1,2,4",script)
         self.assertIn("category.join",script)
         r=subprocess.run(["node","--check"],input=script,text=True,capture_output=True)
         self.assertEqual(r.returncode,0,r.stderr)

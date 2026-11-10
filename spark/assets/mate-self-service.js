@@ -8,21 +8,23 @@ window.MATESelfService = {
     if(form.elements.namedItem("service")?.value==="SPARK"){
       const from=form.elements.namedItem("gradeFrom")?.value||"";
       const to=form.elements.namedItem("gradeTo")?.value||"";
-      const grades=["pre","k3","k4","k5",
+      const grades=["a0","a1","a2","k3","k4","k5",
         "e1","e2","e3","e4","e5","e6",
         "j1","j2","j3","h1","h2","h3"];
-      const lower=[0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
-      const upper=[2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
+      // Age-based infant steps are exact; school grades use approximate age
+      // bands to remain compatible with existing SPARK age search.
+      const lower=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
+      const upper=[0,1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
       const first=grades.indexOf(from),last=grades.indexOf(to);
       if(first<0||last<0||first>last){
-        window.alert("開始学年と終了学年を正しく選択してください。");
+        window.alert("開始年齢・学年と終了年齢・学年を正しく選択してください。");
         return false;
       }
       const category=[];
-      if(first<=3)category.push("幼児");
-      if(first<=9&&last>=4)category.push("小学生");
-      if(first<=12&&last>=10)category.push("中学生");
-      if(last>=13)category.push("高校生");
+      if(first<=5)category.push("幼児");
+      if(first<=11&&last>=6)category.push("小学生");
+      if(first<=14&&last>=12)category.push("中学生");
+      if(last>=15)category.push("高校生");
       form.elements.namedItem("ages").value=category.join(",");
       form.elements.namedItem("ageMin").value=String(lower[first]);
       form.elements.namedItem("ageMax").value=String(upper[last]);
