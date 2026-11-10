@@ -388,8 +388,7 @@ function mateDirectReceive_(d){
     // strictly aligned. Otherwise never send a misleading decision link.
     var reviewTarget=mateDirectReviewLink_(book,apps,aid,insertedRow);
     var sourceTarget="https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
-      "/edit#gid="+(typeof apps.getSheetId==='function'?apps.getSheetId():1771193381)+
-      "&range=A"+insertedRow+":AD"+insertedRow;
+      "/edit#gid=1771193381&range=A"+insertedRow+":AD"+insertedRow;
     // Operator-only receipt notice: includes no applicant personal information.
     // A failed internal notice does not roll back an accepted application.
     try {
