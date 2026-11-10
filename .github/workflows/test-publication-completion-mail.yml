@@ -1,0 +1,27 @@
+name: Validate MATE publication completion notifier (no send)
+on:
+  push:
+    paths:
+      - 'scripts/mate_publication_completion_mail.gs'
+      - 'tests/test_mate_publication_completion_mail.cjs'
+      - '.github/workflows/test-publication-completion-mail.yml'
+  pull_request:
+    paths:
+      - 'scripts/mate_publication_completion_mail.gs'
+      - 'tests/test_mate_publication_completion_mail.cjs'
+      - '.github/workflows/test-publication-completion-mail.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          cp scripts/mate_publication_completion_mail.gs /tmp/mate-publication-mail.js
+          node --check /tmp/mate-publication-mail.js
+          node tests/test_mate_publication_completion_mail.cjs
