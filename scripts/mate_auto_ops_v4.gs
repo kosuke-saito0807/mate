@@ -214,7 +214,19 @@ function mateV4HistoricCampaignRecipients_(){
  */
 function mateV4BalancedQueue_(rows,today){
   const services=['CARE','SPARK','PLAY'],buckets={CARE:[],SPARK:[],PLAY:[]};
-  for(const x of rows)if(buckets[x['サービス']])buckets[x['サービス']].push(x);
+  // If one operator has multiple MATE service matches, use the best-fitting
+  // pitch once, rather than letting the arbitrary service order choose it.
+  const bestByEmail=new Map(),unaddressed=[];
+  for(const x of rows){
+    if(!buckets[x['サービス']])continue;
+    const email=mateV4Email_(x['業務用メール']);
+    if(!email){unaddressed.push(x);continue}
+    const previous=bestByEmail.get(email);
+    if(!previous||mateV4FitScore_(x)>mateV4FitScore_(previous))
+      bestByEmail.set(email,x);
+  }
+  for(const x of [...bestByEmail.values(),...unaddressed])
+    buckets[x['サービス']].push(x);
   for(const service of services)buckets[service].sort((a,b)=>
     mateV4FitScore_(b)-mateV4FitScore_(a)||
     String(b['根拠確認日時']||'').localeCompare(String(a['根拠確認日時']||'')));
@@ -495,7 +507,7 @@ function mateV4SendOutreach(){
   const already=logs.filter(x=>x['送信処理日時'].startsWith(today)).length;
   let sent=0;
   if(MailApp.getRemainingDailyQuota()<1)return 0;
-  for(const x of mateV4BalancedQueue_(leads,today)){
+  for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
     if(sent+already>=cap||sent>=MailApp.getRemainingDailyQuota())break;
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
