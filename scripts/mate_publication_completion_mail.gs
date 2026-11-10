@@ -47,13 +47,14 @@ function matePubExactContract_(rows,service,publicId,company){
   return matePubGet_(r,8)<=now && matePubGet_(r,9)>=now;
 }
 function matePubVerifiedUrl_(url,service){
-  try{
-    var parsed=new URL(url);
-    return parsed.protocol==="https:" &&
-      parsed.hostname===MATE_PUBLISHED_MAIL.allowedHosts[service] &&
-      !parsed.username&&!parsed.password&&!parsed.port && !parsed.search &&
-      !parsed.hash && parsed.pathname.length<=220;
-  }catch(e){return false}
+  // No browser-only URL constructor: first-party literal origin and safe path.
+  var host=MATE_PUBLISHED_MAIL.allowedHosts[service];
+  if(!host || typeof url!=="string" || url.length>270)return false;
+  var prefix="https://"+host;
+  if(url!==prefix && url.indexOf(prefix+"/")!==0)return false;
+  var path=url.slice(prefix.length);
+  return /^[a-zA-Z0-9_./~-]*$/.test(path) && path.indexOf("..")<0 &&
+    path.length<=220;
 }
 function matePubLiveEvidence_(url,company,publicId){
   // No redirects or fetching third-party hosts. A successful public response
