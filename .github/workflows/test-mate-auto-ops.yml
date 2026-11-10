@@ -1,5 +1,10 @@
 name: Validate MATE AutoOps V4 (never send email)
 on:
+  pull_request:
+    paths:
+      - 'scripts/mate_auto_ops_v4.gs'
+      - 'tests/mate_auto_ops_v4_test.cjs'
+      - '.github/workflows/test-mate-auto-ops.yml'
   push:
     paths:
       - 'scripts/mate_auto_ops_v4.gs'
