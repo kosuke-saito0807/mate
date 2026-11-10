@@ -200,6 +200,9 @@ assert.equal(run("mateV4FitScore_({'サービス':'CARE','事業者名':'ベビ�
 assert.equal(run("mateV4FitScore_({'サービス':'PLAY','事業者名':'一般的な会社'})"),1);
 const balanced=run("mateV4BalancedQueue_([{サービス:'CARE',事業者名:'ベビーシッター'}, {サービス:'SPARK',事業者名:'ピアノ教室'}, {サービス:'PLAY',事業者名:'陶芸体験'}],'2026-11-10')");
 assert.equal(new Set([...balanced].map(x=>x['サービス'])).size,3,'three services all represented in balanced list');
+const sameRecipient=run("mateV4BalancedQueue_([{サービス:'CARE',事業者名:'一般会社',業務用メール:'info@multi.example.org'}, {サービス:'SPARK',事業者名:'こどもピアノ教室',業務用メール:'info@multi.example.org'}],'2026-11-10')");
+assert.equal(sameRecipient.length,1,'one email receives one MATE service pitch');
+assert.equal(sameRecipient[0]['サービス'],'SPARK','choose the business-relevant service');
 
 context.GmailApp.search=query=>query.startsWith('in:sent')
   ? [{getMessages:()=>[{
