@@ -181,7 +181,12 @@ assert.equal(run("mateV4AuditOfficialContacts()").checked,0,'unapproved source i
 settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='YES';
 audit=run("mateV4AuditOfficialContacts()");
 assert.equal(audit.checked,1,'recheck held evidence when user explicitly approves exception');
-assert.equal(audit.eligible,1);
+assert.equal(audit.eligible,0,'global exception alone cannot clear a public business email');
+assert.equal(leads.at(-1)[13],'公式公開メール確認済・送信待機');
+assert.equal(run("mateV4PublicMailOperatorReview_({_row:10,備考:'source only'})"),false);
+leads.at(-1)[15]='PUBLIC_EMAIL_REVIEW_OK:2026-10-31';
+audit=run("mateV4AuditOfficialContacts()");
+assert.equal(audit.eligible,1,'dated human review gates eligibility');
 assert.equal(leads.at(-1)[13],'営業可能候補');
 assert.equal(leads.at(-1)[8],'https://licensed.example.org/contact');
 assert.equal(mails,0,'audit does not send to candidate');
