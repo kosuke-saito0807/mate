@@ -434,8 +434,8 @@ function mateV4AuditOfficialContacts(){
       tab.getRange(x._row,9).setValue(publicPage.url);
       tab.getRange(x._row,10).setValue('PUBLIC_BUSINESS_EMAIL');
       tab.getRange(x._row,11).setValue(today);
-      tab.getRange(x._row,14).setValue(autoException?'営業可能候補':'公式公開メール確認済・送信待機');
-      if(autoException)eligible++;
+      tab.getRange(x._row,14).setValue(autoException&&mateV4PublicMailOperatorReview_(x)?'営業可能候補':'公式公開メール確認済・送信待機');
+      if(autoException&&mateV4PublicMailOperatorReview_(x))eligible++;
     }catch(err){
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
@@ -478,7 +478,8 @@ function previewMateOutreachReadinessV4(){
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE'||
        !mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))return;
     if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))return;
-    if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&!output.publicBusinessEmailExceptionReviewed)return;
+    if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
+      (!output.publicBusinessEmailExceptionReviewed||!mateV4PublicMailOperatorReview_(x)))return;
     if(stopped.has(email)||attempted.has(key)||priorRecipients.has(email)||seenEmails.has(email))return;
     seenEmails.add(email);
     output.eligibleByScriptChecks[service]+=1;
@@ -489,6 +490,16 @@ function previewMateOutreachReadinessV4(){
 /** Reject vague labels such as 'MATE運営事務局（東京）'.
  * The operator still must verify the *actual* service address.
  */
+/** Publicly visible business mail alone is not approval to market.
+ * Owner must manually mark each address after checking intended purpose and
+ * no-solicitation/opt-out notices. The dated marker expires after 14 days.
+ * This is in the EXISTING prospect '備考' field and never written by an audit.
+ */
+function mateV4PublicMailOperatorReview_(x){
+  const memo=String(x['備考']||'');
+  const m=memo.match(/(?:^|\s)PUBLIC_EMAIL_REVIEW_OK:(\d{4}-\d{2}-\d{2})(?=\s|$)/);
+  return !!m&&mateV4Fresh_(m[1],14);
+}
 function mateV4SenderAddressLooksComplete_(raw){
   const s=String(raw||'').trim();
   return s.length>=13 && /(?:東京都|北海道|大阪府|京都府|.{2,3}県)/.test(s)
@@ -545,7 +556,8 @@ function mateV4SendOutreach(){
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
     if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
     if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
-       p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES')continue;
+       (p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||
+        !mateV4PublicMailOperatorReview_(x)))continue;
     const email=mateV4Email_(x['業務用メール']);
     const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email)||manualHistory.has(email))continue;
     const service=x['サービス'];
