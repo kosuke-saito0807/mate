@@ -47,13 +47,13 @@ function matePubExactContract_(rows,service,publicId,company){
   return matePubGet_(r,8)<=now && matePubGet_(r,9)>=now;
 }
 function matePubVerifiedUrl_(url,service){
-  try{
-    var parsed=new URL(url);
-    return parsed.protocol==="https:" &&
-      parsed.hostname===MATE_PUBLISHED_MAIL.allowedHosts[service] &&
-      !parsed.username&&!parsed.password&&!parsed.port && !parsed.search &&
-      !parsed.hash && parsed.pathname.length<=220;
-  }catch(e){return false}
+  // Apps Script does not consistently expose the browser URL constructor.
+  // Require a canonical first-party HTTPS URL without ports, userinfo,
+  // query, fragment, encoded slash or redirect to another domain.
+  var host=MATE_PUBLISHED_MAIL.allowedHosts[service];
+  if(!host || typeof url!=="string" || url.length>270)return false;
+  var pattern=new RegExp("^https:\\/\\/"+host.replace(/\\./g,"\\.")+"(?:\\/[a-zA-Z0-9_./~-]*)?$");
+  return pattern.test(url) && url.indexOf("..")<0;
 }
 function matePubLiveEvidence_(url,company,publicId){
   // No redirects or fetching third-party hosts. A successful public response
