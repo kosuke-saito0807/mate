@@ -112,7 +112,20 @@ class SparkFullFeatureTests(unittest.TestCase):
         self.assertIn('type="checkbox" name="agreed"', html)
         config = json.loads((ROOT / "spark/config.json").read_text(encoding="utf-8"))
         self.assertFalse(config["applyEnabled"])
-        self.assertEqual(json.loads((ROOT / "spark/schools.json").read_text(encoding="utf-8")), [])
+        # Real, individually approved free listings may be present. The
+        # trial application flow must remain disabled regardless of listings.
+        schools = json.loads((ROOT / "spark/schools.json").read_text(encoding="utf-8"))
+        self.assertIsInstance(schools, list)
+        self.assertEqual(len({school["id"] for school in schools}), len(schools))
+        for school in schools:
+            self.assertTrue(school["approved"])
+            self.assertFalse(school["acceptsTrial"])
+            self.assertTrue(str(school["id"]).startswith("mate_spark_"))
+            self.assertTrue(str(school["url"]).startswith("https://"))
+            self.assertNotRegex(
+                school["name"] + " " + school["description"],
+                r"(?i)テスト|架空|ダミー|sample|dummy"
+            )
 
     def test_internal_operations_not_deployed_publicly(self):
         config = json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))
