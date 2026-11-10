@@ -71,7 +71,14 @@ class LaunchPreparationTests(unittest.TestCase):
         self.assertIn("新しい出会いを、準備しています。",html)
         self.assertIn('href="partners.html">教室の無料掲載申請はこちら',html)
         self.assertIn("schools=real",html)
-        self.assertEqual(json.loads((SPARK/"schools.json").read_text(encoding="utf-8")),[])
+        # Only real approved listings appear in public data; empty list is no
+        # longer required once the first provider is independently approved.
+        real=json.loads((SPARK/"schools.json").read_text(encoding="utf-8"))
+        self.assertIsInstance(real,list)
+        self.assertTrue(all(x.get("approved") is True and
+                            x.get("acceptsTrial") is False and
+                            str(x.get("id","")).startswith("mate_spark_") for x in real))
+        self.assertFalse(any(x.get("demo") for x in real))
         sample=json.loads((SPARK/"demo-schools.json").read_text(encoding="utf-8"))
         self.assertEqual(len(sample),12)
         self.assertTrue(all(s.get("demo") is True and s.get("acceptsTrial") is False for s in sample))
