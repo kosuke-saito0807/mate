@@ -32,7 +32,7 @@ const book={getSheetByName:n=>tabs[n]};
 const context=vm.createContext({
  Session:{getEffectiveUser:()=>({getEmail:()=> 'kosodatemate@gmail.com'})},
  SpreadsheetApp:{openById:()=>book},
- PropertiesService:{getScriptProperties:()=>({getProperty:k=>settings[k]})},
+ PropertiesService:{getScriptProperties:()=>({getProperty:k=>settings[k],setProperty:(k,v)=>{settings[k]=v}})},
  MailApp:{getRemainingDailyQuota:()=>100},
  GmailApp:{sendEmail(){mails++;throw Error('test must never send')},search:()=>[],
   createDraft(to,subject,body){reviewDrafts.push({to,subject,body});return {getId:()=> 'draft-'+reviewDrafts.length}}},
@@ -192,3 +192,52 @@ context.__testHtml='<html><a href="https://external.example.org/contact/">Contac
 assert.equal(run("mateV4ContactLink_(__testHtml,'https://company.example.org/')"),
   '','external host excluded from first-party email search');
 console.log('PASS: auto-send off by default, legal/identity gates, personal email exclusion, consent-only referral, idempotency, blank-row safety and source-review gates, public-business opt-in audit; NO email sent.');
+
+/* Service classification is only for ranking, never a mail permission. */
+assert.equal(run("mateV4FitScore_({'サービス':'SPARK','事業者名':'こどもピアノ教室'})"),3);
+assert.equal(run("mateV4FitScore_({'サービス':'PLAY','事業者名':'陶芸ワークショップ'})"),3);
+assert.equal(run("mateV4FitScore_({'サービス':'CARE','事業者名':'ベビーシッターサービス'})"),3);
+assert.equal(run("mateV4FitScore_({'サービス':'PLAY','事業者名':'一般的な会社'})"),1);
+const balanced=run("mateV4BalancedQueue_([{サービス:'CARE',事業者名:'ベビーシッター'}, {サービス:'SPARK',事業者名:'ピアノ教室'}, {サービス:'PLAY',事業者名:'陶芸体験'}],'2026-11-10')");
+assert.equal(new Set([...balanced].map(x=>x['サービス'])).size,3,'three services all represented in balanced list');
+
+context.GmailApp.search=query=>query.startsWith('in:sent')
+  ? [{getMessages:()=>[{
+     getSubject:()=> '【MATE CARE】ベビーシッターサービス無料掲載のご相談',
+     getFrom:()=> 'MATE運営事務局 <kosodatemate@gmail.com>',
+     getTo:()=> 'Business <info@prior-example.org>'
+  }]}]:[];
+const prior=run("mateV4HistoricCampaignRecipients_()");
+assert.equal(prior.has('info@prior-example.org'),true,'prior manual sent mails excluded from new campaigns');
+assert.equal(prior.size,1);
+context.GmailApp.search=query=>query.startsWith('in:sent')?Array(400).fill({getMessages:()=>[]}):[];
+assert.throws(()=>run("mateV4HistoricCampaignRecipients_()"),/上限/,'history paging overflow blocks sending');
+context.GmailApp.search=()=>[];
+
+sheet('SPARK営業候補',['ID','企業・教室名','都県・対象','公式・窓口URL'],[
+  ['school-1','登録済み候補と重複しないピアノ教室','東京都','https://new-music.example.org/']
+]);
+sheet('営業管理DB',['ID','事業者名','公式サイト','エリア'],[
+  ['care-1','登録済み候補と重複しないベビーシッター','https://new-care-provider.example.org/','東京都']
+]);
+const extra=run('mateV4SeedSectorDirectories()');
+assert.equal(extra.total,2,'two safe review-only sector candidates added');
+assert.equal(extra.byService.CARE,1);assert.equal(extra.byService.SPARK,1);
+assert.equal(leads.at(-1)[13],'窓口確認待ち');
+assert.equal(leads.at(-1)[9],'UNVERIFIED');
+assert.equal(run('mateV4SeedSectorDirectories()').total,0,'sector-seeding idempotent');
+
+sheet('掲載セルフ申請',['申請ID','サービス','受付日時','審査状態'],[
+  ['MATE-WEB-demo','SPARK','2026-10-31 10:00:00','未審査']
+]);
+let internalDigest=0;
+context.MailApp.sendEmail=({to})=>{
+  assert.equal(to,'kosodatemate@gmail.com');
+  internalDigest++;
+};
+assert.equal(run('mateV4DailyGrowthDigest()').day,'2026-10-31');
+assert.equal(internalDigest,1,'one operator-only digest');
+assert.equal(run('mateV4DailyGrowthDigest()'),'ALREADY_DONE','no repeated operator digest');
+assert.equal(internalDigest,1);
+assert.equal(mails,0,'no external outreach ever sent by growth tests');
+console.log('PASS: service ranking, fair cycling, historic Gmail dedupe, safe sector import, owner-only digest');
