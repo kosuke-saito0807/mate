@@ -203,7 +203,19 @@ async function main() {
     let spark = await checkPage(browser,'/spark/');
     assert.equal(await spark.locator('#faq .mate-help-question').count(),4,'SPARK FAQ should expose four questions');
     assert.equal(await spark.locator('#faq .mate-help-service').count(),3,'SPARK cross-service navigation');
-    assert.equal(await spark.locator('#cards a[href="https://care.kosodatemate.jp/consult.html?service=SPARK"]').count(),1,'SPARK empty results should guide parents to consultation');
+    // Empty state offers consultation; a legitimately published school instead
+    // renders its verified listing. Do not assume schools.json must stay empty.
+    const liveSchools=JSON.parse(fs.readFileSync('spark/schools.json','utf8'))
+      .filter(s=>s&&s.approved===true&&s.id&&s.name);
+    if(liveSchools.length){
+      for(const school of liveSchools){
+        assert.equal(await spark.locator('#cards [data-school-id="'+school.id+'"]').count(),1,
+          'approved SPARK school should appear in search results');
+      }
+    }else{
+      assert.equal(await spark.locator('#cards a[href="https://care.kosodatemate.jp/consult.html?service=SPARK"]').count(),1,
+        'SPARK empty results should guide parents to consultation');
+    }
     await spark.locator('#faq .mate-help-question summary').first().click();
     assert.ok(await spark.locator('#faq .mate-help-question').first().evaluate(el=>el.open),'SPARK FAQ details should open by keyboard/click');
     assert.equal(await spark.locator('#faq a[data-mate-cta="listing"]').count(),1,'SPARK listing CTA');
@@ -268,8 +280,14 @@ async function main() {
       'SPARK photo frame stays within the viewport');
     assert.ok(sparkIdentity.frame.height>=560&&sparkIdentity.frame.height<=720,
       'SPARK full-bleed photograph fills the hero without stretching');
-    await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
-    assert.equal(await spark.locator('#cards article.card').count(),0);
+    if(liveSchools.length){
+      await spark.waitForFunction(n=>document.querySelector('#cards article.card')?.dataset.schoolId===n[0].id,
+        liveSchools);
+      assert.equal(await spark.locator('#cards article.card').count(),liveSchools.length);
+    }else{
+      await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
+      assert.equal(await spark.locator('#cards article.card').count(),0);
+    }
     assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載許諾'));
     assert.equal(await spark.locator('a[href="?demo=1#discover"]').count(),0,
       'No public demo link; QA-only demo still requires explicit query');
@@ -451,8 +469,13 @@ async function main() {
         assert.equal(await page.locator('.privacyComfort').count(),0);
       }
       if(pathname==='/spark/'){
-        await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
-        assert.equal(await page.locator('#cards article.card').count(),0);
+        if(liveSchools.length){
+          await page.waitForFunction(n=>document.querySelectorAll('#cards article.card').length===n,liveSchools.length);
+          assert.equal(await page.locator('#cards article.card').count(),liveSchools.length);
+        }else{
+          await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
+          assert.equal(await page.locator('#cards article.card').count(),0);
+        }
         assert.equal(await page.locator('#trial').isDisabled(),true);
         assert.equal(await page.locator('#selectionBar').isHidden(),true);
         assert.equal(await page.locator('.nav a[href="#mission"]').isVisible(),true);
