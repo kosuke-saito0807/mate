@@ -1,1 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-label="ピアノ・音楽のイメージ"><rect width="960" height="600" fill="#f8e8f5"/><circle cx="105" cy="90" r="125" fill="#a44b94" opacity=".09"/><circle cx="870" cy="550" r="145" fill="#a44b94" opacity=".08"/><rect x="245" y="140" width="470" height="290" rx="26" fill="#643b66"/><rect x="273" y="171" width="415" height="200" rx="12" fill="#fff"/><g fill="#202841"><rect x="299" y="173" width="34" height="121" rx="4"/><rect x="353" y="173" width="34" height="121" rx="4"/><rect x="407" y="173" width="34" height="121" rx="4"/><rect x="461" y="173" width="34" height="121" rx="4"/><rect x="515" y="173" width="34" height="121" rx="4"/><rect x="569" y="173" width="34" height="121" rx="4"/><rect x="623" y="173" width="34" height="121" rx="4"/></g><path d="M300 430h360l32 80H268z" fill="#87538e"/><g stroke="#a44b94" stroke-width="13" fill="none" stroke-linecap="round"><path d="M735 130q40-45 65-15v96"/><path d="M755 240q-40 25-16 60"/></g><g fill="#a44b94"><ellipse cx="805" cy="216" rx="23" ry="15"/><ellipse cx="734" cy="303" rx="22" ry="14"/></g><rect x="16" y="16" width="928" height="568" rx="35" stroke="#a44b94" opacity=".18" stroke-width="5" fill="none"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-label="ピアノ・音楽のカテゴリーイメージ">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4ddf2"/><stop offset="1" stop-color="#ecc3e9"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<linearGradient id="glass" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".66"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient>
+<filter id="shadow" x="-35%" y="-35%" width="170%" height="170%"><feDropShadow dx="0" dy="17" stdDeviation="14" flood-color="#743965" flood-opacity=".19"/></filter>
+<pattern id="dots" width="38" height="38" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.6" fill="#743965" opacity=".11"/></pattern>
+</defs>
+<rect width="960" height="600" rx="0" fill="url(#bg)"/>
+<circle cx="786" cy="105" r="260" fill="url(#glow)" opacity=".85"/>
+<circle cx="130" cy="585" r="290" fill="#fff" opacity=".15"/>
+<rect x="32" y="32" width="896" height="536" rx="42" fill="url(#glass)" stroke="#fff" stroke-opacity=".6" stroke-width="3"/>
+<rect x="40" y="40" width="880" height="520" rx="35" fill="url(#dots)" opacity=".7"/>
+<path d="M-30 435 C 110 345, 195 465, 335 384 S 620 250, 1020 345" stroke="#fff" stroke-opacity=".32" stroke-width="60" fill="none"/>
+<g filter="url(#shadow)" transform="translate(0,-8)"><rect x="245" y="140" width="470" height="290" rx="26" fill="#643b66"/><rect x="273" y="171" width="415" height="200" rx="12" fill="#fff"/><g fill="#202841"><rect x="299" y="173" width="34" height="121" rx="4"/><rect x="353" y="173" width="34" height="121" rx="4"/><rect x="407" y="173" width="34" height="121" rx="4"/><rect x="461" y="173" width="34" height="121" rx="4"/><rect x="515" y="173" width="34" height="121" rx="4"/><rect x="569" y="173" width="34" height="121" rx="4"/><rect x="623" y="173" width="34" height="121" rx="4"/></g><path d="M300 430h360l32 80H268z" fill="#87538e"/><g stroke="#a44b94" stroke-width="13" fill="none" stroke-linecap="round"><path d="M735 130q40-45 65-15v96"/><path d="M755 240q-40 25-16 60"/></g><g fill="#a44b94"><ellipse cx="805" cy="216" rx="23" ry="15"/><ellipse cx="734" cy="303" rx="22" ry="14"/></g></g>
+<rect x="70" y="68" width="154" height="36" rx="18" fill="#fff" opacity=".88"/>
+<text x="147" y="91" text-anchor="middle" fill="#743965" font-family="Arial,sans-serif" font-weight="800" font-size="16" letter-spacing="2.4">MATE SPARK</text>
+<rect x="70" y="493" width="522" height="67" rx="21" fill="#fff" fill-opacity=".92"/>
+<text x="92" y="521" font-size="18" font-weight="800" fill="#743965" font-family="Arial,sans-serif" letter-spacing="1.4">MUSIC &amp; RHYTHM</text>
+<text x="92" y="547" font-size="16" font-weight="600" fill="#743965" opacity=".76" font-family="Arial,sans-serif">音を楽しむレッスン</text>
+<path d="M796 493h65m-15-11 15 11-15 11" fill="none" stroke="#743965" stroke-linecap="round" stroke-linejoin="round" stroke-width="7" opacity=".56"/>
+</svg>

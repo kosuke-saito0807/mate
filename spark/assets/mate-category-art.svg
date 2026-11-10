@@ -1,1 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-label="アート・工作のイメージ"><rect width="960" height="600" fill="#fff1e2"/><circle cx="105" cy="90" r="125" fill="#d07648" opacity=".09"/><circle cx="870" cy="550" r="145" fill="#d07648" opacity=".08"/><rect x="230" y="114" width="500" height="368" rx="16" fill="#e8b981"/><rect x="260" y="144" width="440" height="308" rx="10" fill="#fffdf7"/><path d="M324 371l124-146 96 107 62-55 52 94z" fill="#8cc5aa"/><circle cx="591" cy="214" r="37" fill="#f5ba68"/><path d="M220 500l90-205 26 12-88 207z" fill="#ad6b63"/><path d="M300 308l10-35 23 24z" fill="#313c51"/><g fill="#9e78c7"><circle cx="753" cy="232" r="23"/><circle cx="780" cy="289" r="19"/></g><circle cx="731" cy="342" r="25" fill="#5aadd3"/><rect x="16" y="16" width="928" height="568" rx="35" stroke="#d07648" opacity=".18" stroke-width="5" fill="none"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-label="アート・工作のカテゴリーイメージ">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffedda"/><stop offset="1" stop-color="#f8d1a7"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<linearGradient id="glass" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".66"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient>
+<filter id="shadow" x="-35%" y="-35%" width="170%" height="170%"><feDropShadow dx="0" dy="17" stdDeviation="14" flood-color="#985020" flood-opacity=".19"/></filter>
+<pattern id="dots" width="38" height="38" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.6" fill="#985020" opacity=".11"/></pattern>
+</defs>
+<rect width="960" height="600" rx="0" fill="url(#bg)"/>
+<circle cx="786" cy="105" r="260" fill="url(#glow)" opacity=".85"/>
+<circle cx="130" cy="585" r="290" fill="#fff" opacity=".15"/>
+<rect x="32" y="32" width="896" height="536" rx="42" fill="url(#glass)" stroke="#fff" stroke-opacity=".6" stroke-width="3"/>
+<rect x="40" y="40" width="880" height="520" rx="35" fill="url(#dots)" opacity=".7"/>
+<path d="M-30 435 C 110 345, 195 465, 335 384 S 620 250, 1020 345" stroke="#fff" stroke-opacity=".32" stroke-width="60" fill="none"/>
+<g filter="url(#shadow)" transform="translate(0,-8)"><rect x="230" y="114" width="500" height="368" rx="16" fill="#e8b981"/><rect x="260" y="144" width="440" height="308" rx="10" fill="#fffdf7"/><path d="M324 371l124-146 96 107 62-55 52 94z" fill="#8cc5aa"/><circle cx="591" cy="214" r="37" fill="#f5ba68"/><path d="M220 500l90-205 26 12-88 207z" fill="#ad6b63"/><path d="M300 308l10-35 23 24z" fill="#313c51"/><g fill="#9e78c7"><circle cx="753" cy="232" r="23"/><circle cx="780" cy="289" r="19"/></g><circle cx="731" cy="342" r="25" fill="#5aadd3"/></g>
+<rect x="70" y="68" width="154" height="36" rx="18" fill="#fff" opacity=".88"/>
+<text x="147" y="91" text-anchor="middle" fill="#985020" font-family="Arial,sans-serif" font-weight="800" font-size="16" letter-spacing="2.4">MATE SPARK</text>
+<rect x="70" y="493" width="522" height="67" rx="21" fill="#fff" fill-opacity=".92"/>
+<text x="92" y="521" font-size="18" font-weight="800" fill="#985020" font-family="Arial,sans-serif" letter-spacing="1.4">ART &amp; MAKE</text>
+<text x="92" y="547" font-size="16" font-weight="600" fill="#985020" opacity=".76" font-family="Arial,sans-serif">つくる、描く、ひらめく</text>
+<path d="M796 493h65m-15-11 15 11-15 11" fill="none" stroke="#985020" stroke-linecap="round" stroke-linejoin="round" stroke-width="7" opacity=".56"/>
+</svg>

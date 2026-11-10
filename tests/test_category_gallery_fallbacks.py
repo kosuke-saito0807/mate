@@ -2,6 +2,7 @@
 from pathlib import Path
 import re
 import unittest
+import xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parents[1]
 class GalleryFallbackTests(unittest.TestCase):
@@ -10,6 +11,8 @@ class GalleryFallbackTests(unittest.TestCase):
             art=ROOT/"spark"/"assets"/f"mate-category-{name}.svg"
             self.assertTrue(art.is_file(),name)
             self.assertIn('<svg ',art.read_text(encoding="utf-8"))
+            ET.parse(art)
+            self.assertIn('MATE SPARK',art.read_text(encoding="utf-8"))
     def test_gallery_is_same_on_care_and_spark(self):
         for filename in ("mate-gallery.js","mate-gallery.css"):
             a=(ROOT/"assets"/filename).read_text(encoding="utf-8")
@@ -31,5 +34,5 @@ class GalleryFallbackTests(unittest.TestCase):
         for path in ("index.html","spark/index.html"):
             page=(ROOT/path).read_text(encoding="utf-8")
             for name in ("mate-gallery.js","mate-gallery.css"):
-                self.assertIn(name+"?v=20261110-category-photo",page)
+                self.assertIn(name+"?v=20261110-premium2",page)
 if __name__=="__main__":unittest.main()
