@@ -30,3 +30,28 @@ assert.equal(ctx.matePubLiveEvidence_(approval[13],approval[3],sid,"SPARK"),fals
 ctx.UrlFetchApp={fetch:()=>({getResponseCode:()=>302,getContentText:()=>validFeed})};
 assert.equal(ctx.matePubLiveEvidence_(approval[13],approval[3],sid,"SPARK"),false);
 console.log("PASS: exact source JSON, immutable listing identity, no redirects");
+
+const reviewed=row(17);Object.assign(reviewed,{1:aid,2:"SPARK",3:"Example School",5:"公式確認",6:"OWNER_ATTESTATION",7:"2026-11-10",8:"審査担当",9:"確認済み",10:sid,11:"掲載承認",12:"公開待ち",14:"未送信"});
+let writes=[],deliveries=0;
+function makeSheet(name,rows){
+ return {getLastRow:()=>rows.length+1,getLastColumn:()=>rows[0]?.length||17,
+   getRange:(r,c,h,w)=>({getDisplayValues:()=>rows.slice(r-2,r-2+h).map(x=>x.slice(c-1,c-1+w)),
+     setValues:(v)=>{writes.push({name,r,c,v});if(name==="掲載公開承認V1_運営専用"){rows[r-2][c-1]=v[0][0];rows[r-2][c]=v[0][1];}}})};
+}
+const mockSheets={
+ "掲載公開承認V1_運営専用":makeSheet("掲載公開承認V1_運営専用",[reviewed]),
+ "掲載セルフ申請":makeSheet("掲載セルフ申請",[application]),
+ "掲載契約":makeSheet("掲載契約",[contract])
+};
+ctx.SpreadsheetApp={openById:()=>({getSheetByName:n=>mockSheets[n]})};
+ctx.LockService={getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>{}})};
+ctx.MailApp={sendEmail:()=>{deliveries++}};
+ctx.UrlFetchApp={fetch:()=>({getResponseCode:()=>200,getContentText:()=>validFeed})};
+const preview=ctx.matePubReconcile_(false);
+assert.equal(preview.live,1);assert.equal(writes.length,0);
+const done=ctx.matePubReconcile_(true);
+assert.equal(done.updated,1);assert.equal(reviewed[12],"公開確認済");
+assert.equal(reviewed[13],"https://spark.kosodatemate.jp/#listing-"+sid);
+assert.equal(deliveries,0);
+assert.equal(ctx.matePubReconcile_(true).updated,0);
+console.log("PASS: reconciled actual publication without mail, idempotent on repeat");
