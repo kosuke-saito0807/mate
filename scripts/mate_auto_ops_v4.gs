@@ -139,6 +139,91 @@ function mateV4SeedExistingCRM(){
   }
   return added;
 }
+/** Import extra *existing* sector directories into review-only prospect queue.
+ * These are NOT opt-in records: never place them in the send-ready state.
+ * Dedupe by official HTTPS host+company+service, across the main CRM and queue.
+ */
+function mateV4SeedSectorDirectories(){
+  const b=mateV4Book_(),dest=mateV4Tab_(b,MATE_V4.leads);
+  const queue=mateV4Rows_(dest),seen=new Set(queue.map(x=>x['重複キー']).filter(Boolean));
+  const crm=mateV4Rows_(mateV4Tab_(b,'3サービス営業リスト'));
+  for(const x of crm){
+    try{if(['CARE','SPARK','PLAY'].includes(x['サービス'])&&mateV4Https_(x['公式・窓口URL']))
+      seen.add(mateV4Key_(x['サービス'],x['公式・窓口URL'],x['企業・教室名']));
+    }catch(e){}
+  }
+  const sources=[
+    {tab:'SPARK営業候補',service:'SPARK',name:'企業・教室名',site:'公式・窓口URL',region:'都県・対象'},
+    {tab:'営業管理DB',service:'CARE',name:'事業者名',site:'公式サイト',region:'エリア'}
+  ];
+  let total=0,byService={CARE:0,SPARK:0,PLAY:0};
+  for(const source of sources){
+    const rows=mateV4Rows_(mateV4Tab_(b,source.tab));
+    for(const x of rows){
+      if(total>=MATE_V4.maxNewLeadsPerRun)break;
+      const name=x[source.name],site=x[source.site];
+      if(!name||!mateV4Https_(site)||/テスト|架空|ダミー/.test(name))continue;
+      let key;
+      try{key=mateV4Key_(source.service,site,name)}catch(e){continue}
+      if(seen.has(key))continue;
+      mateV4Append_(dest,[
+        'SECTOR-'+key,mateV4Jst_(),source.service,name,site,x[source.region]||'',
+        '',site,site,'UNVERIFIED','',key,'FALSE','窓口確認待ち',
+        '既存の'+source.tab+'から候補発見。公式窓口用途・営業拒否・送信根拠は未確認。自動送信禁止。',
+        '業界別候補（未検証）。掲載・契約・通知の許諾とは無関係。'
+      ]);
+      seen.add(key);total++;byService[source.service]++;
+    }
+  }
+  return {total,byService};
+}
+/** Business fit is a rank hint only; never implies solicitation consent. */
+function mateV4FitScore_(x){
+  const name=String(x['事業者名']||'').toLowerCase();
+  const tests={
+    CARE:/ベビーシッター|シッター|訪問保育|病児|保育|nanny|sitter|child.?care|送迎/i,
+    SPARK:/ピアノ|音楽|music|英語|english|プログラミング|coding|ロボット|ダンス|体操|バレエ|スクール|教室|school/i,
+    PLAY:/体験|ワークショップ|陶芸|工房|農業|収穫|親子|craft|pottery|museum|ミュージアム|アート|キャンプ/i
+  };
+  return tests[x['サービス']]&&tests[x['サービス']].test(name)?3:1;
+}
+/** Prevent a second pitch to the same email even if a previous campaign
+ * was sent manually (outside the V4 ledger). On history-read failure, do
+ * NOT send. Gmail threads may also contain replies, so check actual sender.
+ */
+function mateV4HistoricCampaignRecipients_(){
+  const threads=GmailApp.search('in:sent newer_than:365d "MATE" "無料掲載"',0,400);
+  if(threads.length>=400)throw Error('過去営業送信の検索結果が上限に達したため送信停止');
+  const recipients=new Set();
+  for(const thread of threads){
+    for(const msg of thread.getMessages()){
+      const subject=String(msg.getSubject()||'');
+      const from=String(msg.getFrom()||'').toLowerCase();
+      if(!/【MATE (CARE|SPARK|PLAY)】/.test(subject)||!/無料掲載/.test(subject)||
+         !from.includes(MATE_V4.account))continue;
+      const to=String(msg.getTo()||'').toLowerCase();
+      for(const match of to.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[]){
+        recipients.add(match);
+      }
+    }
+  }
+  return recipients;
+}
+/** Round-robin across service buckets, with category-fit ordering within each.
+ * One campaign per recipient globally: never prioritize volume over relevance.
+ */
+function mateV4BalancedQueue_(rows,today){
+  const services=['CARE','SPARK','PLAY'],buckets={CARE:[],SPARK:[],PLAY:[]};
+  for(const x of rows)if(buckets[x['サービス']])buckets[x['サービス']].push(x);
+  for(const service of services)buckets[service].sort((a,b)=>
+    mateV4FitScore_(b)-mateV4FitScore_(a)||
+    String(b['根拠確認日時']||'').localeCompare(String(a['根拠確認日時']||'')));
+  const offset=Number(String(today).replace(/-/g,''))%3,order=services.slice(offset).concat(services.slice(0,offset));
+  const result=[];
+  while(order.some(s=>buckets[s].length))for(const service of order)
+    if(buckets[service].length)result.push(buckets[service].shift());
+  return result;
+}
 function mateV4CollectLeads(){
   const b=mateV4Book_(),src=mateV4Tab_(b,MATE_V4.sources),dest=mateV4Tab_(b,MATE_V4.leads);
   const sources=mateV4Rows_(src),existing=mateV4Rows_(dest);
@@ -404,11 +489,13 @@ function mateV4SendOutreach(){
   const blocked=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts)).map(x=>x['メール'].toLowerCase()));
   const attempted=new Set(logs.map(x=>x['候補キー']).filter(Boolean));
   const allRecipients=new Set(logs.map(x=>x['宛先メール'].toLowerCase()).filter(Boolean));
+  // Includes past manual MATE sales messages not recorded in V4.
+  const manualHistory=mateV4HistoricCampaignRecipients_();
   const today=mateV4Jst_().slice(0,10);
   const already=logs.filter(x=>x['送信処理日時'].startsWith(today)).length;
   let sent=0;
   if(MailApp.getRemainingDailyQuota()<1)return 0;
-  for(const x of leads){
+  for(const x of mateV4BalancedQueue_(leads,today)){
     if(sent+already>=cap||sent>=MailApp.getRemainingDailyQuota())break;
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
@@ -416,7 +503,7 @@ function mateV4SendOutreach(){
     if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
        p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES')continue;
     const email=mateV4Email_(x['業務用メール']);
-    const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email))continue;
+    const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email)||manualHistory.has(email))continue;
     const service=x['サービス'];
     if(!['CARE','SPARK','PLAY'].includes(service))continue;
     const link=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
@@ -427,8 +514,10 @@ function mateV4SendOutreach(){
       '',
       '突然のご連絡失礼いたします。子育て家庭向け情報サイト「MATE '+service+'」を運営しております、MATE運営事務局です。',
       '',
-      'このたび、貴社のサービスをご紹介する機会についてご相談したく、ご連絡いたしました。',
-      'MATEでは、子育て中のご家庭が地域のサービスや施設を見つけやすくなるよう、各事業者様の情報をご案内しております。',
+      ({CARE:'ベビーシッター・訪問保育など、ご家庭に必要なサポートを探せるCAREの無料掲載をご案内します。',
+        SPARK:'ピアノ・英語・プログラミング等の習い事を探す家庭に、教室の特色を伝えるSPARKの無料掲載をご案内します。',
+        PLAY:'親子向け体験・ワークショップを探す家庭に、体験内容を届けるPLAYの無料掲載をご案内します。'})[service],
+      '対象サービスに当てはまらない場合は、そのままご放念ください。',
       '',
       '基本情報の掲載は無料で、掲載料・紹介料はかかりません。',
       '掲載をご希望いただける場合は、以下のフォームより事業者情報をご登録いただけますと幸いです。',
@@ -586,7 +675,7 @@ function mateV4SyncReferralLedger(){
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
-    const report={crmSeeded:mateV4SeedExistingCRM(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
+    const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
       referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
       replies:mateV4TrackReplies()};
@@ -599,4 +688,43 @@ function installMateAutoOpsV4(){
     if(tr.getHandlerFunction()==='mateAutoOpsV4Cycle')ScriptApp.deleteTrigger(tr);
   ScriptApp.newTrigger('mateAutoOpsV4Cycle').timeBased().everyHours(1).create();
   return 'MATE AutoOps V4: 1時間おきに収集・拒否記録・紹介台帳を確認。メールはScript PropertiesがそろうまでOFF。';
+}
+
+/** Owner-only aggregate morning report: no prospect identities or PII. */
+function mateV4DailyGrowthDigest(){
+  const book=mateV4Book_(),props=PropertiesService.getScriptProperties();
+  if(props.getProperty('MATE_GROWTH_DIGEST')==='OFF')return 'OFF';
+  const today=mateV4Jst_().slice(0,10),key='MATE_GROWTH_DIGEST_LAST';
+  if(props.getProperty(key)===today)return 'ALREADY_DONE';
+  const leads=mateV4Rows_(mateV4Tab_(book,MATE_V4.leads));
+  const sent=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
+  const application=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
+  const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0};
+  for(const r of leads)if(r['サービス'] in count)count[r['サービス']]++;
+  for(const r of application)if(r['サービス'] in approved &&
+    r['審査状態']==='承認')approved[r['サービス']]++;
+  const messages=[
+    'MATE営業・掲載の日次サマリー '+today,'',
+    '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    '承認済み申請：CARE '+approved.CARE+' / SPARK '+approved.SPARK+' / PLAY '+approved.PLAY,
+    '本日送信試行ログ：'+sent.filter(r=>r['送信処理日時'].startsWith(today)).length,
+    '本日未審査申請：'+application.filter(r=>r['受付日時']&&r['受付日時'].startsWith(today)&&r['審査状態']!=='承認').length,
+    '',
+    '掲載承認・権限・契約は人が確認。未確認の営業宛先には送信しません。',
+    '台帳：https://docs.google.com/spreadsheets/d/'+MATE_V4.bookId+'/edit'
+  ];
+  // Reserve before sending; ambiguous errors never trigger duplicate reports.
+  props.setProperty(key,today);
+  MailApp.sendEmail({to:MATE_V4.account,subject:'【MATE運営】日次営業・承認サマリー '+today,
+    body:messages.join('\n'),name:'MATE運営事務局'});
+  return {day:today,counts:count,approvals:approved};
+}
+/** One daily digest trigger, separate from hourly reconciliation/outreach. */
+function installMateV4DailyDigest(){
+  mateV4Book_();
+  for(const trigger of ScriptApp.getProjectTriggers())
+    if(trigger.getHandlerFunction()==='mateV4DailyGrowthDigest')ScriptApp.deleteTrigger(trigger);
+  ScriptApp.newTrigger('mateV4DailyGrowthDigest').timeBased()
+    .atHour(9).everyDays(1).inTimezone('Asia/Tokyo').create();
+  return 'MATE日次サマリーを午前9時台に運営者本人へ1日1通。外部営業送信スイッチは変更しません。';
 }
