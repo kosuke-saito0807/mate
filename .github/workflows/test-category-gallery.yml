@@ -1,0 +1,41 @@
+name: MATE category gallery no-crop safety (no deploy)
+on:
+  pull_request:
+    paths:
+      - 'assets/mate-gallery.js'
+      - 'spark/assets/mate-gallery.js'
+      - 'assets/mate-gallery.css'
+      - 'spark/assets/mate-gallery.css'
+      - 'spark/assets/mate-category-*.svg'
+      - 'tests/test_category_gallery_fallbacks.py'
+      - '.github/workflows/test-category-gallery.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/mate-gallery.js'
+      - 'spark/assets/mate-gallery.js'
+      - 'assets/mate-gallery.css'
+      - 'spark/assets/mate-gallery.css'
+      - 'spark/assets/mate-category-*.svg'
+      - 'tests/test_category_gallery_fallbacks.py'
+      - '.github/workflows/test-category-gallery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify gallery and category art
+        run: python3 -m unittest discover -s tests -p 'test_category_gallery_fallbacks.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify front-end JavaScript
+        run: |
+          node --check assets/mate-gallery.js
+          node --check spark/assets/mate-gallery.js

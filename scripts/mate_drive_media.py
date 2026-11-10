@@ -18,6 +18,9 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
     folder=Path(destination)
     approved=set(allowed_ids)
     mapping={}
+    expected_photos=0
+    attempted_downloads=0
+    failed_downloads=0
     # Even after all approvals are withdrawn, remove only previously generated
     # photo assets. They must not remain reachable by their old public URLs.
     if not approved:
@@ -33,6 +36,7 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
             continue
         urls=[str(record.get(f"画像URL{i}") or "").strip() for i in range(1,6)]
         if not any(urls):continue
+        expected_photos+=sum(bool(item) for item in urls)
         if len(set(u for u in urls if u))!=len([u for u in urls if u]):continue
         for n,raw in enumerate(urls,1):
             photo=DRIVE_ID.fullmatch(raw)
@@ -41,6 +45,7 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                 from google.auth.transport.requests import AuthorizedSession
                 session=AuthorizedSession(credentials)
             file_id=photo.group(1)
+            attempted_downloads+=1
             try:
                 meta=session.get(
                   "https://www.googleapis.com/drive/v3/files/"+file_id,
@@ -67,9 +72,19 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                     os.replace(tmp,target)
                 mapping[raw]=url_prefix.rstrip("/")+"/"+relative.as_posix()
             except Exception:
-                # A single inaccessible/missing photo may not block the approved
-                # provider from being listed. The public gallery will fall back.
+                # Report only counts; never expose Drive IDs, applicant details,
+                # auth tokens, filenames or sensitive service-account errors.
+                failed_downloads+=1
                 continue
+    if expected_photos:
+        print(f"MATE {service} approved private media: reviewed={expected_photos}, "
+              f"downloads_attempted={attempted_downloads}, public_assets={len(mapping)}, "
+              f"transfer_exceptions={failed_downloads}")
+        if len(mapping)<expected_photos:
+            print("WARNING: approved photos are absent from public assets. "
+                  "Check the publish service account's Drive folder viewer role, "
+                  "the file MIME/size and the media-ledger review status; "
+                  "the listing will use category fallback until fixed.")
     _prune_generated_media(folder, set(mapping.values()), url_prefix)
     return mapping
 
