@@ -67,6 +67,18 @@ assert.equal(operatorReport.dailyLeadCycleInstalled,false);
 assert.equal(operatorReport.ownerGrowthDigestInstalled,false);
 assert.equal(operatorReport.totalCandidateRows,1);
 assert.equal(operatorReport.automationSwitch,'OFF');
+const pilot=run('prepareMatePilotV4()');
+assert.equal(pilot.mode,'PILOT_PREPARED_NO_SEND');
+assert.equal(pilot.autoSend,'OFF');
+assert.equal(pilot.dailyCap,1);
+assert.equal(settings.MATE_AUTO_SEND,'OFF');
+assert.equal(settings.MATE_OUTREACH_PHASE,'PILOT');
+assert.equal(settings.MATE_SENDER_NAME,'NextEdu 代表 斎藤幸輔');
+assert.equal(pilot.verifiedPostalAddress,false);
+assert.equal(run("mateV4SenderAddressLooksComplete_('MATE運営事務局（東京）')"),false);
+assert.equal(run("mateV4SenderAddressLooksComplete_('東京都北区滝野川2-10-3')"),true);
+assert.equal(mails,0,'pilot setup never mails third parties');
+
 
 assert.deepEqual(Object.keys(preview.eligibleByScriptChecks).sort(),['CARE','PLAY','SPARK']);
 assert.equal(mails,0,'preflight must never send external email');
@@ -78,7 +90,7 @@ assert.equal(run("mateV4SendOutreach()"),'OFF','phase defaults to OFF');
 settings.MATE_OUTREACH_PHASE='PILOT';
 assert.throws(()=>run("mateV4SendOutreach()"),/実在する送信者名と所在地/);
 settings.MATE_SENDER_NAME='NextEdu MATE運営';
-settings.MATE_SENDER_ADDRESS='東京都北区 123 正式な営業所在地';
+settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
 assert.equal(run("mateV4SendOutreach()"),0,'without qualified leads, send zero');
 settings.MATE_OUTREACH_PHASE='OFF';
 assert.equal(run("mateV4SendOutreach()"),'OFF','disabled phase blocks all sending');
