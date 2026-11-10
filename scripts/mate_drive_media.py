@@ -87,6 +87,10 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                 hold("transfer_exception")
                 continue
     if expected_photos:
+        # Fingerprint only. Never log service-account email or secret key.
+        reader=str(getattr(credentials,"service_account_email","") or "").strip().lower()
+        reader_fingerprint=hashlib.sha256(reader.encode("utf-8")).hexdigest()[:16] if reader else "unavailable"
+        print("MATE "+service+" publisher reader fingerprint: "+reader_fingerprint)
         print(f"MATE {service} approved private media: reviewed={expected_photos}, "
               f"downloads_attempted={attempted_downloads}, public_assets={len(mapping)}, "
               f"transfer_exceptions={failed_downloads}, failure_reasons={dict(sorted(failed_reasons.items()))}")
