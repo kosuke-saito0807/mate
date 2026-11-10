@@ -238,3 +238,30 @@ function matePubReconcile_(write){
 }
 function previewMatePublicationReconciliation(){return matePubReconcile_(false)}
 function reconcileMatePublicationReconciliation(){return matePubReconcile_(true)}
+
+/**
+ * One-time owner installation. Replaces only this handler's triggers, leaves
+ * other MATE outreach and form triggers unchanged.
+ * Installing never enables outbound mail or sends anything.
+ */
+function installMatePublicationAutomation(){
+  matePubOwner_();
+  var handlers=ScriptApp.getProjectTriggers().filter(function(t){
+    return t.getHandlerFunction()==="matePublicationCycle";
+  });
+  handlers.forEach(function(t){ScriptApp.deleteTrigger(t)});
+  ScriptApp.newTrigger("matePublicationCycle").timeBased().everyHours(1).create();
+  return {handler:"matePublicationCycle",triggerCount:1,
+          publicationMailEnabled:PropertiesService.getScriptProperties()
+            .getProperty("MATE_PUBLICATION_MAIL_ENABLED")==="ON",
+          reminder:"メール送信は別途本人が有効化するまでOFF。営業メール送信とは無関係"};
+}
+/** Hourly: safely mark already-public listings, then optionally notify. */
+function matePublicationCycle(){
+  matePubOwner_();
+  var reconciliation=matePubReconcile_(true);
+  var enabled=PropertiesService.getScriptProperties()
+    .getProperty("MATE_PUBLICATION_MAIL_ENABLED")==="ON";
+  return {reconciliation:reconciliation,
+          notification:enabled?matePubRun_(true):{mode:"DISABLED_NO_SEND"}};
+}
