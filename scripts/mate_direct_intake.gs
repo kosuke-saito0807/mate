@@ -301,10 +301,13 @@ function mateReceiptEmail_(service,to,id,listing){
  * aligned with the immutable source sheet. Never link to an unrelated decision.
  */
 function mateDirectReviewLink_(book,apps,aid,sourceRow){
+  // Notifications are secondary to successful reception. If the reviewer tab
+  // cannot be queried at receipt time, never fail or roll back the submission.
+  try{
   var review=book.getSheetByName('掲載審査_かんたん承認');
   if(!review)return null;
   var base='https://docs.google.com/spreadsheets/d/'+MATE_DIRECT.sheetId+
-    '/edit#gid='+review.getSheetId()+'&range=A';
+    '/edit#gid='+(typeof review.getSheetId==='function'?review.getSheetId():193110041)+'&range=A';
   var last=review.getLastRow();
   if(last<1)return null;
   var ids=last>1?review.getRange(2,31,last-1,1).getDisplayValues():[];
@@ -319,6 +322,7 @@ function mateDirectReviewLink_(book,apps,aid,sourceRow){
     if(!ids[j][0]||ids[j][0]!==sourceIds[j][0])return null;
   }
   return {url:base+sourceRow+':E'+sourceRow,pending:true,row:sourceRow};
+  }catch(_reviewLookupError){return null;}
 }
 function mateDirectReceive_(d){
   mateDirectOwner_();
@@ -384,7 +388,8 @@ function mateDirectReceive_(d){
     // strictly aligned. Otherwise never send a misleading decision link.
     var reviewTarget=mateDirectReviewLink_(book,apps,aid,insertedRow);
     var sourceTarget="https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+
-      "/edit#gid="+apps.getSheetId()+"&range=A"+insertedRow+":AD"+insertedRow;
+      "/edit#gid="+(typeof apps.getSheetId==='function'?apps.getSheetId():1771193381)+
+      "&range=A"+insertedRow+":AD"+insertedRow;
     // Operator-only receipt notice: includes no applicant personal information.
     // A failed internal notice does not roll back an accepted application.
     try {
