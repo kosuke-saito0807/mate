@@ -421,7 +421,8 @@ async function main() {
       await p.locator('#partnerForm [name=region]').selectOption('大阪府');
       await p.locator('#partnerForm [name=city]').fill('大阪市北区');
       await p.locator('#partnerForm [name=category]').selectOption('音楽');
-      await p.locator('#partnerForm [name=ages]').selectOption('小学生');
+      await p.locator('#partnerForm [name=gradeFrom]').selectOption('e1');
+      await p.locator('#partnerForm [name=gradeTo]').selectOption('e6');
       await p.locator('#partnerForm [name=description]').fill('子どもの興味を深めることを目指す、QA専用の架空の教室紹介文です。');
       await p.locator('#partnerForm [name=listing_content_checked_at]').fill('2026-10-23');
       await p.locator('#partnerForm [name=listing_permission]').check();
@@ -431,6 +432,10 @@ async function main() {
       });
       assert.equal(pPayload.ok,true);
       assert.equal(JSON.parse(Buffer.from(pPayload.payload.split('__')[1],'base64').toString('utf8')).region,'大阪府');
+      const gradeData=JSON.parse(Buffer.from(pPayload.payload.split('__')[1],'base64').toString('utf8'));
+      assert.equal(gradeData.ages,'小学生');
+      assert.equal(gradeData.ageMin,'6');
+      assert.equal(gradeData.ageMax,'12');
       // Never submit any form. The mailbox has not been verified.
       await p.close();
     }
