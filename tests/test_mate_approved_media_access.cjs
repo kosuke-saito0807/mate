@@ -24,7 +24,7 @@ const ctx=vm.createContext({
  PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='MATE_MEDIA_READER_EMAILS'?email:k==='MATE_UPLOAD_FOLDER_ID'?'media-folder':''})},
  SpreadsheetApp:{openById:()=>({getSheetByName:n=>data[n]?sheet(n):null})},
  DriveApp:{getFolderById:()=>({getId:()=> 'media-folder'}),
-   getFileById:id=>({getParents:()=>({hasNext:()=>true,next:()=>({getId:()=> 'media-folder'})}),
+   getFileById:id=>({getParents:()=>{let done=false;return {hasNext:()=>!done,next:()=>{done=true;return {getId:()=> 'media-folder'}}}},
       addViewer:mail=>grants.push({id,mail})})},
  Utilities:{formatDate:()=> '2026-11-10',DigestAlgorithm:{SHA_256:'SHA_256'},computeDigest:(_,v)=>[...crypto.createHash('sha256').update(v).digest()]},
  Date,console
