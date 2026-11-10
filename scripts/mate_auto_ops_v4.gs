@@ -461,7 +461,7 @@ function previewMateOutreachReadinessV4(){
     automationSwitch:p.getProperty('MATE_AUTO_SEND')==='ON'?'ON':'OFF',
     phase:p.getProperty('MATE_OUTREACH_PHASE')||'OFF',
     senderNameSet:String(p.getProperty('MATE_SENDER_NAME')||'').trim().length>=2,
-    senderAddressSet:String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim().length>=10,
+    senderAddressSet:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
     dailyCap:Math.min(5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
@@ -486,6 +486,38 @@ function previewMateOutreachReadinessV4(){
   return JSON.stringify(output);
 }
 
+/** Reject vague labels such as 'MATE運営事務局（東京）'.
+ * The operator still must verify the *actual* service address.
+ */
+function mateV4SenderAddressLooksComplete_(raw){
+  const s=String(raw||'').trim();
+  return s.length>=13 && /(?:東京都|北海道|大阪府|京都府|.{2,3}県)/.test(s)
+    && /[市区町村]/.test(s)
+    && /(?:[0-9０-９]+(?:[-－‐ー][0-9０-９]+)*|[一二三四五六七八九十]+丁目)/.test(s)
+    && !/仮|未設定|ダミー|サンプル|正式な営業所在地/.test(s);
+}
+/** Set up one-per-day PILOT only; keep all external emails OFF.
+ * Never assert an unverified postal address, legal review or public-email exception.
+ * This is safe to run again: it only changes the four named settings.
+ */
+function prepareMatePilotV4(){
+  mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  p.setProperty('MATE_AUTO_SEND','OFF');
+  p.setProperty('MATE_OUTREACH_PHASE','PILOT');
+  p.setProperty('MATE_DAILY_CAP','1');
+  if(!String(p.getProperty('MATE_SENDER_NAME')||'').trim())
+    p.setProperty('MATE_SENDER_NAME','NextEdu 代表 斎藤幸輔');
+  const result={
+    mode:'PILOT_PREPARED_NO_SEND',
+    autoSend:'OFF',phase:'PILOT',dailyCap:1,
+    senderNameSet:!!String(p.getProperty('MATE_SENDER_NAME')||'').trim(),
+    verifiedPostalAddress:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
+    legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
+    publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'
+  };
+  console.log(JSON.stringify(result));return result;
+}
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
@@ -493,7 +525,7 @@ function mateV4SendOutreach(){
   if(phase!=='PILOT'&&phase!=='LIVE')return 'OFF';
   const sender=String(p.getProperty('MATE_SENDER_NAME')||'').trim();
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
-  if(sender.length<2||address.length<10||/未設定|\[.+\]/.test(address))throw Error('実在する送信者名と所在地を設定');
+  if(sender.length<2||!mateV4SenderAddressLooksComplete_(address))throw Error('実在する送信者名と所在地を設定');
   const cap=Math.min(phase==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
