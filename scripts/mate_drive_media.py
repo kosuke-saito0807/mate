@@ -21,6 +21,9 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
     expected_photos=0
     attempted_downloads=0
     failed_downloads=0
+    failed_reasons={}
+    def hold(reason):
+        failed_reasons[reason]=failed_reasons.get(reason,0)+1
     # Even after all approvals are withdrawn, remove only previously generated
     # photo assets. They must not remain reachable by their old public URLs.
     if not approved:
@@ -50,14 +53,20 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                 meta=session.get(
                   "https://www.googleapis.com/drive/v3/files/"+file_id,
                   params={"fields":"id,mimeType,size,trashed"},timeout=12)
-                meta.raise_for_status()
+                if meta.status_code!=200:
+                    hold("metadata_http_"+str(meta.status_code));continue
                 info=meta.json()
-                if info.get("trashed") or info.get("mimeType")!="image/jpeg" or int(info.get("size") or 0)>240000:
-                    continue
+                if info.get("trashed"):
+                    hold("trashed");continue
+                if info.get("mimeType")!="image/jpeg":
+                    hold("wrong_mime");continue
+                if int(info.get("size") or 0)>240000:
+                    hold("too_large");continue
                 response=session.get(
                   "https://www.googleapis.com/drive/v3/files/"+file_id,
                   params={"alt":"media"},timeout=20)
-                response.raise_for_status()
+                if response.status_code!=200:
+                    hold("download_http_"+str(response.status_code));continue
                 blob=response.content
                 if not (64<=len(blob)<=240000 and blob[:3]==b"\xff\xd8\xff" and blob[-2:]==b"\xff\xd9"):
                     continue
@@ -75,11 +84,12 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                 # Report only counts; never expose Drive IDs, applicant details,
                 # auth tokens, filenames or sensitive service-account errors.
                 failed_downloads+=1
+                hold("transfer_exception")
                 continue
     if expected_photos:
         print(f"MATE {service} approved private media: reviewed={expected_photos}, "
               f"downloads_attempted={attempted_downloads}, public_assets={len(mapping)}, "
-              f"transfer_exceptions={failed_downloads}")
+              f"transfer_exceptions={failed_downloads}, failure_reasons={dict(sorted(failed_reasons.items()))}")
         if len(mapping)<expected_photos:
             print("WARNING: approved photos are absent from public assets. "
                   "Check the publish service account's Drive folder viewer role, "
