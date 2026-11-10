@@ -3,6 +3,30 @@ window.MATESelfService = {
   populate(form) {
     const target=form.querySelector('input[name="listing_payload_b64"]');
     if(!target)return false;
+    // School-grade choices are the source of truth for SPARK. Retain the
+    // existing age/category fields for backward-compatible Sheets and search.
+    if(form.elements.namedItem("service")?.value==="SPARK"){
+      const from=form.elements.namedItem("gradeFrom")?.value||"";
+      const to=form.elements.namedItem("gradeTo")?.value||"";
+      const grades=["pre","k3","k4","k5",
+        "e1","e2","e3","e4","e5","e6",
+        "j1","j2","j3","h1","h2","h3"];
+      const lower=[0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
+      const upper=[2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
+      const first=grades.indexOf(from),last=grades.indexOf(to);
+      if(first<0||last<0||first>last){
+        window.alert("開始学年と終了学年を正しく選択してください。");
+        return false;
+      }
+      const category=[];
+      if(first<=3)category.push("幼児");
+      if(first<=9&&last>=4)category.push("小学生");
+      if(first<=12&&last>=10)category.push("中学生");
+      if(last>=13)category.push("高校生");
+      form.elements.namedItem("ages").value=category.join(",");
+      form.elements.namedItem("ageMin").value=String(lower[first]);
+      form.elements.namedItem("ageMax").value=String(upper[last]);
+    }
     const keys=["service","company","website","region","city","area","category","ages","description","pricingNotes","openingHours","tags","monthlyPrice","trialPrice","ageMin","ageMax","weekdays","station","nextTrialDate","listing_content_checked_at","listing_permission","trial_referral_consent"];
     const data={};
     for(const key of keys) {
