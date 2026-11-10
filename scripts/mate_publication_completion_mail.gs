@@ -105,7 +105,7 @@ function matePubEvaluate_(app,approvals,contracts,contacts){
   if(matePubGet_(a,25)!=="承認"||matePubGet_(a,26)!=="確認済み"||
      !matePubGet_(a,27)||!matePubGet_(a,21)||!matePubGet_(a,22))
     return "承認・権限・掲載意思の証拠不足";
-  if(matePubGet_(approvals,13)!=="公開確認済" ||
+  if(matePubGet_(approvals,13)!=="公開確認済み" ||
      matePubGet_(approvals,10)!=="確認済み" ||
      !matePubGet_(approvals,6)||!matePubGet_(approvals,7)||
      !matePubGet_(approvals,8)||!matePubGet_(approvals,9))
@@ -205,7 +205,7 @@ function matePubReconcile_(write){
     approvals.values.forEach(function(row,i){
       if(matePubGet_(row,12)!=="掲載承認")return;
       summary.reviewed++;
-      if(!["公開待ち","公開確認済"].includes(matePubGet_(row,13))){summary.held++;return}
+      if(!["公開待ち","公開確認済み"].includes(matePubGet_(row,13))){summary.held++;return}
       var service=matePubGet_(row,3),publicId=matePubGet_(row,11),
         company=matePubGet_(row,4),aid=matePubGet_(row,2);
       var candidates=apps.values.filter(function(a){return matePubGet_(a,1)===aid});
@@ -228,8 +228,8 @@ function matePubReconcile_(write){
       // No changes when conflicting URL/status/previous send evidence exists.
       if(matePubGet_(row,14)&&matePubGet_(row,14)!==url){summary.held++;return}
       if(matePubGet_(row,15)!=="未送信"&&matePubGet_(row,15)!==""){summary.held++;return}
-      if(write && (matePubGet_(row,13)!=="公開確認済" || !matePubGet_(row,14))){
-        approvals.sheet.getRange(i+2,13,1,2).setValues([["公開確認済",url]]);
+      if(write && (matePubGet_(row,13)!=="公開確認済み" || !matePubGet_(row,14))){
+        approvals.sheet.getRange(i+2,13,1,2).setValues([["公開確認済み",url]]);
         summary.updated++;
       }
     });
