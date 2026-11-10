@@ -31,7 +31,9 @@ function mateDirectReaderFingerprint_(email){
 /** Hashes let the operator compare accounts with CI without exposing keys. */
 function previewMateMediaReaderFingerprintsV1(){
   mateDirectOwner_();
-  return mateDirectReaderEmails_().map(mateDirectReaderFingerprint_);
+  var result=mateDirectReaderEmails_().map(mateDirectReaderFingerprint_);
+  console.log(JSON.stringify({readerFingerprints:result}));
+  return result;
 }
 function mateDirectApprovedMediaPermissions_(write){
   mateDirectOwner_();
@@ -98,8 +100,12 @@ function mateDirectApprovedMediaPermissions_(write){
   return summary;
 }
 function previewMateApprovedMediaAccessV1(){
-  return mateDirectApprovedMediaPermissions_(false);
+  var result=mateDirectApprovedMediaPermissions_(false);
+  console.log(JSON.stringify(result));
+  return result;
 }
 function repairMateApprovedMediaAccessV1(){
-  return mateDirectApprovedMediaPermissions_(true);
+  var result=mateDirectApprovedMediaPermissions_(true);
+  console.log(JSON.stringify(result));
+  return result;
 }
