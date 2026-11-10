@@ -497,7 +497,7 @@ function previewMateOutreachReadinessV4(){
  */
 function mateV4PublicMailOperatorReview_(x){
   const memo=String(x['備考']||'');
-  const m=memo.match(/(?:^|\\s)PUBLIC_EMAIL_REVIEW_OK:(\\d{4}-\\d{2}-\\d{2})(?=\\s|$)/);
+  const m=memo.match(/(?:^|\s)PUBLIC_EMAIL_REVIEW_OK:(\d{4}-\d{2}-\d{2})(?=\s|$)/);
   return !!m&&mateV4Fresh_(m[1],14);
 }
 function mateV4SenderAddressLooksComplete_(raw){
