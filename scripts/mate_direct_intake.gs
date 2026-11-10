@@ -408,9 +408,11 @@ function mateDirectReceive_(d){
           sourceTarget,
           "② この申請のかんたん承認行を開く（運営専用）：",
           reviewTarget?reviewTarget.url:
-            "行の位置が確定していません。①で受付番号を確認後、審査画面から検索してください。",
+            "https://docs.google.com/spreadsheets/d/"+MATE_DIRECT.sheetId+"/edit#gid=193110041",
           reviewTarget&&reviewTarget.pending?
-            "※審査行はまだ同期前です。15分間隔の処理で同期後に、この行へ表示されます。":"",
+            "※審査行はまだ同期前です。15分間隔の処理で同期後に、この行へ表示されます。":
+          !reviewTarget?
+            "※審査行が特定できません。審査画面で受付番号："+receipt+" を検索してください。":"",
 
           "",
           "「掲載の判断」で承認か見送りを選択してください。",
