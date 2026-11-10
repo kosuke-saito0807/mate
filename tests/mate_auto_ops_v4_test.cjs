@@ -61,6 +61,13 @@ assert.equal(preview.mode,'READ_ONLY_NO_SEND');
 assert.equal(preview.automationSwitch,'OFF');
 assert.equal(preview.totalCandidateRows,leads.length-1);
 assert.equal(preview.notEvidenceOfLegalPermission,true);
+const operatorReport=run('checkMateAutoOpsV4()');
+assert.equal(operatorReport.mode,'READ_ONLY_NO_SEND');
+assert.equal(operatorReport.dailyLeadCycleInstalled,false);
+assert.equal(operatorReport.ownerGrowthDigestInstalled,false);
+assert.equal(operatorReport.totalCandidateRows,1);
+assert.equal(operatorReport.automationSwitch,'OFF');
+
 assert.deepEqual(Object.keys(preview.eligibleByScriptChecks).sort(),['CARE','PLAY','SPARK']);
 assert.equal(mails,0,'preflight must never send external email');
 
