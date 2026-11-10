@@ -1,1 +1,31 @@
-[]
+[
+  {
+    "id": "mate_spark_48444d9917e44fd9",
+    "name": "CodeCampKIDS 大崎教室",
+    "region": "東京都",
+    "area": "品川区大崎2-1-1 ThinkParkTower9階",
+    "station": "JR山手線 大崎駅より徒歩2分",
+    "category": "プログラミング",
+    "ages": [
+      "小学生",
+      "中学生"
+    ],
+    "description": "CodeCampKIDSは、初めてでも楽しく学べるビジュアルプログラミングから、本格的なゲーム、Webサービスやアプリなどの開発を学ぶことのできる、小学生・中学生のためのプログラミングスクールです。\r\n東証プライム上場のフューチャー株式会社のグループ会社であり、現役エンジニアによるプログラミング家庭教師を展開するコードキャンプ株式会社が運営しています。\r\nプログラミング教育の先端を行き、教育への情熱を持った本物の教育者が、子ども達一人ひとりの個性を伸ばす、最適化された最先端の学びを提供します。",
+    "url": "https://codecampkids.jp/",
+    "tags": [],
+    "weekdays": [
+      "土",
+      "日"
+    ],
+    "approved": true,
+    "acceptsTrial": false,
+    "verifiedAt": "2026-11-10",
+    "monthlyPrice": 11000,
+    "trialPrice": 0,
+    "ageMin": 7,
+    "ageMax": 18,
+    "images": [],
+    "thumbnail": null,
+    "fallbackImageKey": "fallback-spark-プログラミング"
+  }
+]
