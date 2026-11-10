@@ -469,8 +469,13 @@ async function main() {
         assert.equal(await page.locator('.privacyComfort').count(),0);
       }
       if(pathname==='/spark/'){
-        await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
-        assert.equal(await page.locator('#cards article.card').count(),0);
+        if(liveSchools.length){
+          await page.waitForFunction(n=>document.querySelectorAll('#cards article.card').length===n,liveSchools.length);
+          assert.equal(await page.locator('#cards article.card').count(),liveSchools.length);
+        }else{
+          await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
+          assert.equal(await page.locator('#cards article.card').count(),0);
+        }
         assert.equal(await page.locator('#trial').isDisabled(),true);
         assert.equal(await page.locator('#selectionBar').isHidden(),true);
         assert.equal(await page.locator('.nav a[href="#mission"]').isVisible(),true);
