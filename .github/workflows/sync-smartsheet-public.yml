@@ -2,8 +2,19 @@ name: Sync MATE SITTER public data from Google Sheets
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/mate_drive_media.py'
+      - 'scripts/sync_google_sheets_public.py'
+      - 'scripts/sync_spark_public.py'
+      - '.github/workflows/sync-smartsheet-public.yml'
   schedule:
     - cron: "*/30 * * * *"
+
+concurrency:
+  group: mate-approved-publication-data-sync
+  cancel-in-progress: false
 
 permissions:
   contents: write
