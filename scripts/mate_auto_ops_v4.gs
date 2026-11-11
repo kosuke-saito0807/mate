@@ -564,7 +564,7 @@ function mateV4SendOutreach(){
   if(!['PILOT','LIVE','BALANCED_15'].includes(phase))return 'OFF';
   const startDate=p.getProperty('MATE_OUTREACH_START_DATE')||'';
   const today=mateV4Jst_().slice(0,10);
-  if(phase==='BALANCED_15'&&(!/^\\d{4}-\\d{2}-\\d{2}$/.test(startDate)||today<startDate))return 'WAIT_FOR_START_DATE';
+  if(phase==='BALANCED_15'&&(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)||today<startDate))return 'WAIT_FOR_START_DATE';
   const sender='MATE運営事務局'; // Never expose an operator's personal name.
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
   if(!mateV4SenderAddressLooksComplete_(address)||
