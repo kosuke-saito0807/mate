@@ -1,5 +1,17 @@
 # MATE営業V4 本番移行・自動審査ガイド（2026-11-11）
 
+## 2026-11-11追記：個人事業主の正式氏名を表示する方式で開始準備
+- オーナーは正式氏名を営業メールで表示することに同意した。**Gmail差出人表示はMATE運営事務局を維持**。本文末尾の送信責任主体にはGAS Script Propertiesに入力した個人事業主の正式氏名を使う。
+- GitHubには個人氏名を直書きしない。正しい正式氏名は専用Apps Script **MATE_営業自動化V4** の「プロジェクトの設定→スクリプトプロパティ」にのみ登録する。
+- [最新版コード](https://github.com/kosuke-saito0807/mate/blob/main/scripts/mate_auto_ops_v4.gs) で既存 `コード.gs` を全文置換。関数 `prepareMatePersonalNameV4` を**1回実行**すると `MATE_AUTO_SEND=OFF`, `MATE_LEGAL_IDENTITY_MODE=PERSONAL_NAME`, `MATE_SENDER_NAME=MATE運営事務局` にする。以前の `BALANCED_15` / `MATE_DAILY_CAP=15` 設定は維持。ここでは送信しない。
+- `MATE_FORMAL_SENDER_NAME` に自分の正式な氏名（全姓名）、`MATE_FORMAL_SENDER_VERIFIED=YES` を設定（本人の名と同一であることを確認したときのみ）。`MATE_LEGAL_IDENTITY_MODE=PERSONAL_NAME` を保持。
+- `MATE_SENDER_ADDRESS` に実際に正しい住所を登録。公開の `operator.html` に正式所在地と問い合わせ先が表示されていることを確認して `MATE_LEGAL_ADDRESS_PAGE_VERIFIED=YES`。住所は公開されるので自身で確認する。
+- 特定電子メール法の送信者表示、公開業務用メールの例外、配信停止手段を確認し、実際に適合する場合のみ `MATE_AUTO_SEND_LEGAL_REVIEWED=YES`, `MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED=YES`。
+- `checkMateAutoOpsV4` を実行し、`legalIdentityMode=PERSONAL_NAME`, `registeredSenderIdentityReady=true`, `formalSenderVerified=true`, `senderAddressSet=true`, `legalAddressPageVerified=true` を確認。 `phase=BALANCED_15`、`dailyCap=15`、`dailyPerServiceCap=5`、日付・トリガー各1件を確認。
+- さらに `eligibleByScriptChecks` の CARE・SPARK・PLAY 各5件を確認し、二重送信・配信停止や送信者情報の誤りがないかチェック。条件を満たすときに限り最後に `MATE_AUTO_SEND=ON`。テストの成功は実際のGAS設定完了を意味しない。
+- 本体のソースやGitHub Actionsに氏名・非公開プロパティを保存しない。現状のApps Script本番プロパティはChatGPTから直接照会・更新できない。
+
+
 ## 個人名を営業メールに表示しない運用（2026-11-11追記）
 - **NextEdu が現在ただの個人事業の屋号なら、これを正式な氏名・名称として営業送信する設定はできない。** 消費者庁の特定電子メール法ガイドラインでは、サービス名・「○○運営事務局」・屋号だけでは表示義務を満たさない。https://www.caa.go.jp/policies/policy/consumer_transaction/specifed_email/pdf/110831kouhyou_2.pdf
 - 現実的な候補は (a) 個人事業者として「NextEdu」の**商号登記を行う** (b) 法人を設立して実際の法人名を正式な送信主体にする、の2経路。「商業登記された商号」は消費者庁の**特定商取引法**に関する公式Q&Aで、個人事業者の氏名の代替として案内されている。ただし**これは特定電子メール法での個々の広告メールにも自動的に十分と確定した意味ではない**。送信する前に法務局/法律専門家/消費者庁等の専門窓口で該当ルートの適用を確認すること。https://www.no-trouble.caa.go.jp/qa/advertising.html
