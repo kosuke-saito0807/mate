@@ -359,7 +359,7 @@ function mateV4PublishedEmails_(html){
   return [...found];
 }
 /*
- * Visits 4 prospects/hour, at most two pages each, with an HTTP 200,
+ * Visits up to 12 prospects/hour, at most two pages each, with an HTTP 200,
  * exact public business email and no visible rejection signal required.
  * Ambiguous cases remain human-review; no form submissions or new email
  * to the destination occur here.
@@ -372,22 +372,23 @@ function mateV4AuditOfficialContacts(){
   const p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_PUBLIC_SITE_AUDIT')==='OFF')return 'OFF';
   const autoException=p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'&&
-    p.getProperty('MATE_AUTO_SEND')==='ON'&&
     p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES';
   const b=mateV4Book_(),tab=mateV4Tab_(b,MATE_V4.leads);
-  const leads=mateV4Rows_(tab);
+  const leads=mateV4Rows_(tab).sort((a,b)=>
+    Number(b['状態']==='公式公開メール確認済・送信待機')-Number(a['状態']==='公式公開メール確認済・送信待機'));
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
-    if(checked>=4)break;
+    if(checked>=12)break;
     if(!['窓口確認待ち','公式公開メール確認済・送信待機'].includes(x['状態']))continue;
     if(x['営業拒否']==='TRUE'||!x['重複キー']||!mateV4Https_(x['公式URL']))continue;
     const note=x['最終確認結果']||'';
     // When the owner turns on the public-address exception, re-check
     // already held candidates. Otherwise leave a 14-day gap after audit.
-    const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
+    const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機'&&
+      !mateV4PublicMailOperatorReview_(x);
     if(note.startsWith('AUTO_AUDIT '+today)&&!recheckHeld)continue;
     if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
@@ -436,8 +437,15 @@ function mateV4AuditOfficialContacts(){
       tab.getRange(x._row,9).setValue(publicPage.url);
       tab.getRange(x._row,10).setValue('PUBLIC_BUSINESS_EMAIL');
       tab.getRange(x._row,11).setValue(today);
-      tab.getRange(x._row,14).setValue(autoException&&mateV4PublicMailOperatorReview_(x)?'営業可能候補':'公式公開メール確認済・送信待機');
-      if(autoException&&mateV4PublicMailOperatorReview_(x))eligible++;
+      // Read the updated, first-party evidence before evaluating readiness.
+      const audited={...x,
+        '業務用メール':email,'確認元URL':publicPage.url,
+        'メール用途・営業可の根拠':'PUBLIC_BUSINESS_EMAIL',
+        '根拠確認日時':today,
+        '最終確認結果':evidence.slice(0,520)};
+      const accepted=autoException&&mateV4PublicMailOperatorReview_(audited);
+      tab.getRange(x._row,14).setValue(accepted?'営業可能候補':'公式公開メール確認済・送信待機');
+      if(accepted)eligible++;
     }catch(err){
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
@@ -503,7 +511,17 @@ function previewMateOutreachReadinessV4(){
 function mateV4PublicMailOperatorReview_(x){
   const memo=String(x['備考']||'');
   const m=memo.match(/(?:^|\s)PUBLIC_EMAIL_REVIEW_OK:(\d{4}-\d{2}-\d{2})(?=\s|$)/);
-  return !!m&&mateV4Fresh_(m[1],14);
+  if(m&&mateV4Fresh_(m[1],14))return true;
+  // For business self-published, public role addresses only: no per-lead
+  // human clicks are needed after the operator approves the legal exception.
+  // Reuse ONLY the verified output of the first-party HTTPS site auditor.
+  const result=String(x['最終確認結果']||'');
+  const audit=result.match(/^AUTO_AUDIT (\d{4}-\d{2}-\d{2}) 公式事業者サイトで業務用メール掲載確認 (https:\/\/\S+)/);
+  if(!audit||!mateV4Fresh_(audit[1],7)||audit[1]!==x['根拠確認日時'])return false;
+  if(x['メール用途・営業可の根拠']!=='PUBLIC_BUSINESS_EMAIL')return false;
+  if(!mateV4RoleEmail_(x['業務用メール']))return false;
+  if(!mateV4Https_(x['確認元URL'])||audit[2]!==x['確認元URL'])return false;
+  return mateV4Host_(x['公式URL'])===mateV4Host_(x['確認元URL']);
 }
 function mateV4SenderAddressLooksComplete_(raw){
   const s=String(raw||'').trim();
