@@ -251,7 +251,8 @@ context.UrlFetchApp.fetch=url=>({
 });
 audit=run("mateV4AuditOfficialContacts()");
 assert.equal(audit.eligible,0,'explicit solicitation refusal blocks auto qualification');
-assert.equal(leads.at(-1)[13],'窓口確認待ち','prohibited lead stays out of queue');
+assert.equal(leads.at(-1)[13],'配信禁止','explicit no-solicitation instructions must permanently block sending');
+assert.equal(leads.at(-1)[12],'TRUE');
 settings.MATE_PUBLIC_SITE_AUDIT='OFF';
 assert.equal(run("mateV4AuditOfficialContacts()"),'OFF');
 assert.equal(mails,0,'no live third-party sending in any test');
