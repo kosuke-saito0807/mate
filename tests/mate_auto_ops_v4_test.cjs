@@ -90,6 +90,16 @@ assert.equal(run('mateV4SendOutreach()'),'OFF','15/day setup cannot send');
 settings.MATE_AUTO_SEND='ON';
 settings.MATE_AUTO_SEND_LEGAL_REVIEWED='YES';
 assert.equal(run('mateV4SendOutreach()'),'WAIT_FOR_START_DATE','15/day cannot start before 2026-11-12 JST');
+context.Utilities.formatDate=()=> '2026-11-12 10:00:00';
+settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
+settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='YES';
+assert.equal(run('mateV4SendOutreach()'),'BALANCED_15_NOT_READY_NO_SEND',
+  'do not send subset if 5 vetted recipients per service are not available');
+assert.equal(mails,0,'not-ready bulk mode never contacts third parties');
+context.Utilities.formatDate=()=> '2026-10-31 15:00:00';
+settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='NO';
+delete settings.MATE_SENDER_ADDRESS;
+
 settings.MATE_AUTO_SEND='OFF';
 settings.MATE_AUTO_SEND_LEGAL_REVIEWED='NO';
 settings.MATE_OUTREACH_PHASE='PILOT';
