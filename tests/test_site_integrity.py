@@ -122,12 +122,18 @@ class SiteIntegrity(unittest.TestCase):
         self.assertIn("eligible&&safeHost&&trialIntakeEnabled",page)
         self.assertIn("!eligible||!safeHost||!trialIntakeEnabled",page)
 
-    def test_no_public_operator_name_or_portrait(self):
-        html=list(ROOT.glob("*.html"))+list((ROOT / "spark").glob("*.html"))
-        for page in html:
+    def test_full_operator_biography_and_photo_while_protecting_other_pages(self):
+        operator=(ROOT / "operator.html").read_text(encoding="utf-8")
+        self.assertIn("斎藤 幸輔",operator)
+        self.assertIn("NextEdu代表",operator)
+        self.assertIn("監修に携わった書籍",operator)
+        self.assertIn("nextedu-saito-portrait.png",operator)
+        self.assertTrue((ROOT / "assets/nextedu-saito-portrait.png").is_file())
+        for page in [*ROOT.glob("*.html"),*(ROOT / "spark").glob("*.html")]:
+            if page.name=="operator.html" and page.parent==ROOT:
+                continue
             body=page.read_text(encoding="utf-8")
             self.assertNotIn("斎藤幸輔",body,str(page))
-        self.assertFalse((ROOT / "assets/nextedu-saito-portrait.png").exists())
         spark=(ROOT / "spark/index.html").read_text(encoding="utf-8")
         self.assertNotIn("formsubmit.co",spark)
         self.assertIn("trialIntakeEnabled=false;",spark)
