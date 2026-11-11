@@ -126,7 +126,10 @@ class SiteIntegrity(unittest.TestCase):
         operator=(ROOT / "operator.html").read_text(encoding="utf-8")
         self.assertIn("斎藤 幸輔",operator)
         self.assertIn("NextEdu代表",operator)
-        self.assertIn("監修に携わった書籍",operator)
+        self.assertIn("監修書籍",operator)
+        self.assertIn("明治大学商学部卒業。在学中に教員免許を取得。",operator)
+        self.assertIn("https://www.amazon.co.jp/dp/4297106132",operator)
+        self.assertIn("https://www.amazon.co.jp/dp/4791630289",operator)
         self.assertIn("nextedu-saito-portrait.png",operator)
         self.assertTrue((ROOT / "assets/nextedu-saito-portrait.png").is_file())
         for page in [*ROOT.glob("*.html"),*(ROOT / "spark").glob("*.html")]:
