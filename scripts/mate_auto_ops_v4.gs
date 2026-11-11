@@ -467,7 +467,9 @@ function previewMateOutreachReadinessV4(){
     legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
-    dailyCap:Math.min(5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
+    dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
+    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:null,
+    outreachStartDate:p.getProperty('MATE_OUTREACH_START_DATE')||'',
     totalCandidateRows:leads.length,
     activeSuppressions:stopped.size,
     outreachLogRows:logs.length,
@@ -532,17 +534,44 @@ function prepareMatePilotV4(){
   };
   console.log(JSON.stringify(result));return result;
 }
+
+/**
+ * Setup ONLY: 15/day (5 CARE, 5 SPARK, 5 PLAY) no earlier than 2026-11-12 JST.
+ * The external-mail switch is intentionally kept OFF. All other existing
+ * legal, address, and per-recipient evidence gates remain unchanged.
+ */
+function prepareMateBalanced15V4(){
+  mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  p.setProperty('MATE_AUTO_SEND','OFF');
+  p.setProperty('MATE_OUTREACH_PHASE','BALANCED_15');
+  p.setProperty('MATE_DAILY_CAP','15');
+  p.setProperty('MATE_OUTREACH_START_DATE','2026-11-12');
+  p.setProperty('MATE_SENDER_NAME','MATE運営事務局');
+  const state={
+    mode:'BALANCED_15_PREPARED_NO_SEND',
+    autoSend:'OFF',phase:'BALANCED_15',startDate:'2026-11-12',
+    dailyCap:15,perServiceCap:5
+  };
+  console.log(JSON.stringify(state));
+  return state;
+}
+
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
   const phase=p.getProperty('MATE_OUTREACH_PHASE')||'OFF';
-  if(phase!=='PILOT'&&phase!=='LIVE')return 'OFF';
+  if(!['PILOT','LIVE','BALANCED_15'].includes(phase))return 'OFF';
+  const startDate=p.getProperty('MATE_OUTREACH_START_DATE')||'';
+  const today=mateV4Jst_().slice(0,10);
+  if(phase==='BALANCED_15'&&(!/^\\d{4}-\\d{2}-\\d{2}$/.test(startDate)||today<startDate))return 'WAIT_FOR_START_DATE';
   const sender='MATE運営事務局'; // Never expose an operator's personal name.
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
   if(!mateV4SenderAddressLooksComplete_(address)||
      p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')!=='YES')
     throw Error('確認済みの事業所在地と適法な運営者情報URLが必要です');
-  const cap=Math.min(phase==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
+  const cap=Math.min(phase==='PILOT'?1:phase==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
+  const perServiceCap=phase==='BALANCED_15'?5:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
   const logs=mateV4Rows_(sheet);
@@ -551,8 +580,10 @@ function mateV4SendOutreach(){
   const allRecipients=new Set(logs.map(x=>x['宛先メール'].toLowerCase()).filter(Boolean));
   // Includes past manual MATE sales messages not recorded in V4.
   const manualHistory=mateV4HistoricCampaignRecipients_();
-  const today=mateV4Jst_().slice(0,10);
-  const already=logs.filter(x=>x['送信処理日時'].startsWith(today)).length;
+  const todays=logs.filter(x=>x['送信処理日時'].startsWith(today));
+  const already=todays.length;
+  const serviceToday={CARE:0,SPARK:0,PLAY:0};
+  for(const log of todays)if(Object.prototype.hasOwnProperty.call(serviceToday,log['サービス']))serviceToday[log['サービス']]++;
   let sent=0;
   if(MailApp.getRemainingDailyQuota()<1)return 0;
   for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
@@ -566,7 +597,7 @@ function mateV4SendOutreach(){
     const email=mateV4Email_(x['業務用メール']);
     const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email)||manualHistory.has(email))continue;
     const service=x['サービス'];
-    if(!['CARE','SPARK','PLAY'].includes(service))continue;
+    if(!['CARE','SPARK','PLAY'].includes(service)||serviceToday[service]>=perServiceCap)continue;
     const link=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
       service==='SPARK'?'https://spark.kosodatemate.jp/partners.html':'https://care.kosodatemate.jp/contact.html';
     const subject='【MATE '+service+'】無料掲載のご案内｜'+x['事業者名'].slice(0,70);
@@ -598,7 +629,7 @@ function mateV4SendOutreach(){
     // Reserve before external send: ambiguous failures are held, never retried automatically.
     const targetRow=sheet.getLastRow()+1;
     mateV4Append_(sheet,[key,mateV4Jst_(),service,email,subject,'送信結果要確認',x['確認元URL'],x['メール用途・営業可の根拠'],'二重送信防止:実行前に予約']);
-    attempted.add(key);allRecipients.add(email);
+    attempted.add(key);allRecipients.add(email);serviceToday[service]++;
     try{
       GmailApp.sendEmail(email,subject,body,{name:sender,replyTo:MATE_V4.account});
       sheet.getRange(targetRow,6).setValue('送信済');sent++;
