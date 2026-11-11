@@ -388,8 +388,7 @@ function mateV4AuditOfficialContacts(){
     const note=x['最終確認結果']||'';
     // When the owner turns on the public-address exception, re-check
     // already held candidates. Otherwise leave a 14-day gap after audit.
-    const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機'&&
-      !mateV4PublicMailOperatorReview_(x);
+    const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
     if(note.startsWith('AUTO_AUDIT '+today)&&!recheckHeld)continue;
     if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
