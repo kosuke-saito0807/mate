@@ -387,6 +387,11 @@ function mateV4AuditOfficialContacts(){
     if(checked>=12)break;
     if(!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
     if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
+    // Explicitly designated sales email on the company's official page is
+    // distinct from a customer-only web form. Preserve recently reviewed
+    // SOLICITATIONS_WELCOME rows; do not infer permission from form text.
+    if(x['状態']==='営業可能候補'&&x['メール用途・営業可の根拠']==='SOLICITATIONS_WELCOME'&&
+       mateV4Fresh_(x['根拠確認日時'],14)&&mateV4Https_(x['確認元URL']))continue;
     if(x['営業拒否']==='TRUE'||!x['重複キー']||!mateV4Https_(x['公式URL']))continue;
     const note=x['最終確認結果']||'';
     // Reuse an already recent, first-party audit when the operator later
