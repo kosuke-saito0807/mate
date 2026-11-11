@@ -77,6 +77,8 @@ function mateV4Email_(s){
   const x=String(s||'').trim().toLowerCase();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(x)||x.length>250)return '';
   // Avoid mistakenly marketing to private personal inboxes.
+  // Block reserved example domains; these are not real business recipients.
+  if(/@(example\.(?:com|net|org|jp)|example\.co\.jp)$/i.test(x))return '';
   if(/@(gmail\.com|yahoo\.co\.jp|yahoo\.com|icloud\.com|outlook\.com|hotmail\.com)$/i.test(x))return '';
   return x;
 }
