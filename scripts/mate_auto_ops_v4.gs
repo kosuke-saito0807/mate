@@ -891,6 +891,56 @@ function mateV4SyncReferralLedger(){
   }
   return count;
 }
+/**
+ * Operator-only, read-only health report: no emails and no sheet mutations.
+ * Counts all rows, remaining sendable candidates and CSV source outcomes.
+ * Run in Apps Script before increasing outreach volume.
+ */
+function diagnoseMateV4Health(){
+  const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
+  const pre=JSON.parse(previewMateOutreachReadinessV4());
+  const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
+  const sent=mateV4Rows_(mateV4Tab_(b,MATE_V4.sent));
+  const sources=mateV4Rows_(mateV4Tab_(b,MATE_V4.sources));
+  const today=mateV4Jst_().slice(0,10);
+  const counts={CARE:{all:0,ready:0},SPARK:{all:0,ready:0},PLAY:{all:0,ready:0}};
+  for(const x of leads){
+    if(!Object.prototype.hasOwnProperty.call(counts,x['サービス']))continue;
+    counts[x['サービス']].all++;
+    if(x['状態']==='営業可能候補')counts[x['サービス']].ready++;
+  }
+  const sentToday=sent.filter(x=>x['送信処理日時'].startsWith(today));
+  const failures=sent.filter(x=>x['状態']!=='送信済').length;
+  const eligible=pre.eligibleByScriptChecks;
+  const checks={
+    active:pre.automationSwitch==='ON',
+    phase:pre.phase,
+    legalReviewed:pre.legalReviewFlag,
+    registeredIdentityReady:pre.registeredSenderIdentityReady,
+    senderAddressReady:pre.senderAddressSet&&pre.legalAddressPageVerified,
+    bccOwnerConfigured:/^[a-z0-9._%+-]+@gmail\\.com$/i.test(
+      String(p.getProperty('MATE_OWNER_COPY_EMAIL')||'').trim()),
+    pilotDailyCap:pre.phase==='PILOT'?1:pre.dailyCap,
+    configuredStartDate:pre.outreachStartDate,
+    currentDate:today,
+    startDateReached:!pre.outreachStartDate||today>=pre.outreachStartDate,
+    activeSourceCount:sources.filter(x=>x['有効']==='TRUE'&&x['再利用許諾確認']==='確認済み').length,
+    sourceResults:sources.filter(x=>x['有効']==='TRUE').map(x=>({
+      service:x['サービス'],name:x['ソース名'],
+      lastResult:x['前回結果']||'未実行',lastImportedAt:x['最終取込日時']||''
+    })),
+    candidateCounts:counts,scriptEligible:eligible,
+    sentToday:sentToday.length,
+    sentTodayByService:Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[
+      s,sentToday.filter(x=>x['サービス']===s&&x['状態']==='送信済').length
+    ])),
+    ambiguousOrFailedSendLogRows:failures,
+    totalConfirmedSends:sent.filter(x=>x['状態']==='送信済').length,
+    notProofOfLegalPermission:true
+  };
+  console.log(JSON.stringify(checks));return checks;
+}
+
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
