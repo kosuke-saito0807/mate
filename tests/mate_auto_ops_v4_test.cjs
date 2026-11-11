@@ -76,6 +76,10 @@ assert.equal(settings.MATE_OUTREACH_PHASE,'PILOT');
 assert.equal(settings.MATE_SENDER_NAME,'MATE運営事務局');
 assert.equal(pilot.verifiedPostalAddress,false);
 assert.equal(pilot.legalAddressPageVerified,false);
+assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'NextEdu',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'REGISTERED_TRADE_NAME',MATE_TRADE_NAME_REGISTRATION_VERIFIED:'NO'}[k])})`).ready,false);
+assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'NextEdu',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'REGISTERED_TRADE_NAME',MATE_TRADE_NAME_REGISTRATION_VERIFIED:'YES'}[k])})`).ready,true);
+assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'MATE運営事務局',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'REGISTERED_TRADE_NAME',MATE_TRADE_NAME_REGISTRATION_VERIFIED:'YES'}[k])})`).ready,false);
+
 assert.equal(run("mateV4SenderAddressLooksComplete_('MATE運営事務局（東京）')"),false);
 assert.equal(run("mateV4SenderAddressLooksComplete_('東京都北区滝野川2-10-3')"),true);
 assert.equal(mails,0,'pilot setup never mails third parties');
@@ -93,10 +97,12 @@ assert.equal(run('mateV4SendOutreach()'),'WAIT_FOR_START_DATE','15/day cannot st
 context.Utilities.formatDate=()=> '2026-11-12 10:00:00';
 settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
 settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='YES';
-assert.throws(()=>run('mateV4SendOutreach()'),/正式な送信者の氏名又は法人名/,
+assert.throws(()=>run('mateV4SendOutreach()'),/正式な送信主体の登記・確認/,
   'no branded service name alone can satisfy official sender identification');
 settings.MATE_FORMAL_SENDER_NAME='株式会社TEST MATE（テスト用）';
 settings.MATE_FORMAL_SENDER_VERIFIED='YES';
+settings.MATE_LEGAL_IDENTITY_MODE='REGISTERED_COMPANY';
+settings.MATE_COMPANY_REGISTRATION_VERIFIED='YES';
 assert.equal(run('mateV4SendOutreach()'),'BALANCED_15_NOT_READY_NO_SEND',
   'do not send subset if 5 vetted recipients per service are not available');
 assert.equal(mails,0,'not-ready bulk mode never contacts third parties');
@@ -129,6 +135,8 @@ assert.throws(()=>run("mateV4SendOutreach()"),/適法な運営者情報URL/,'an 
 settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='YES';
 settings.MATE_FORMAL_SENDER_NAME='株式会社TEST MATE（テスト用）';
 settings.MATE_FORMAL_SENDER_VERIFIED='YES';
+settings.MATE_LEGAL_IDENTITY_MODE='REGISTERED_COMPANY';
+settings.MATE_COMPANY_REGISTRATION_VERIFIED='YES';
 assert.equal(run("mateV4SendOutreach()"),0,'without qualified leads, send zero');
 settings.MATE_OUTREACH_PHASE='OFF';
 assert.equal(run("mateV4SendOutreach()"),'OFF','disabled phase blocks all sending');

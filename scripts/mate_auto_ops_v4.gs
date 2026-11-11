@@ -490,6 +490,8 @@ function previewMateOutreachReadinessV4(){
     legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     formalSenderNameSet:!!String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim(),
     formalSenderVerified:p.getProperty('MATE_FORMAL_SENDER_VERIFIED')==='YES',
+    legalIdentityMode:p.getProperty('MATE_LEGAL_IDENTITY_MODE')||'UNSET',
+    registeredSenderIdentityReady:mateV4FormalSenderIdentity_(p).ready,
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
     dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
@@ -592,6 +594,27 @@ function prepareMateBalanced15V4(){
   return state;
 }
 
+/**
+ * Sender identity mode is an evidence gate, not proof of legal compliance.
+ * For an owner who does not want to display a personal name, only a formally
+ * registered trade name or an actual company name may be selected.
+ * The operator must independently confirm applicability to the planned
+ * marketing emails, and may not assert registration without proof.
+ */
+function mateV4FormalSenderIdentity_(p){
+  const name=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
+  const mode=String(p.getProperty('MATE_LEGAL_IDENTITY_MODE')||'').trim();
+  const globallyVerified=p.getProperty('MATE_FORMAL_SENDER_VERIFIED')==='YES';
+  if(name.length<2||!globallyVerified)return {ready:false,mode};
+  if(mode==='REGISTERED_TRADE_NAME')
+    return {ready:p.getProperty('MATE_TRADE_NAME_REGISTRATION_VERIFIED')==='YES'&&
+      !/^(?:MATE運営事務局|NextEdu運営事務局)$/.test(name),mode};
+  if(mode==='REGISTERED_COMPANY')
+    return {ready:p.getProperty('MATE_COMPANY_REGISTRATION_VERIFIED')==='YES',mode};
+  if(mode==='PERSONAL_NAME')return {ready:true,mode};
+  return {ready:false,mode};
+}
+
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
@@ -606,10 +629,10 @@ function mateV4SendOutreach(){
   if(!mateV4SenderAddressLooksComplete_(address)||
      p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')!=='YES')
     throw Error('確認済みの事業所在地と適法な運営者情報URLが必要です');
-  // Japanese specified email law requires the legal person's/individual's
-  // real name: trade names and generic "運営事務局" alone are not sufficient.
-  if(formalSender.length<2||p.getProperty('MATE_FORMAL_SENDER_VERIFIED')!=='YES')
-    throw Error('正式な送信者の氏名又は法人名の確認・表示が必要です');
+  // Never silently treat a tax-only trade name as a registered legal name.
+  const identity=mateV4FormalSenderIdentity_(p);
+  if(!identity.ready)
+    throw Error('正式な送信主体の登記・確認が必要です。屋号のみで送信を開始できません。');
   const cap=Math.min(phase==='PILOT'?1:phase==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const perServiceCap=phase==='BALANCED_15'?5:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
