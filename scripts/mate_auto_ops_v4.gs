@@ -386,10 +386,17 @@ function mateV4AuditOfficialContacts(){
     if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
     if(x['営業拒否']==='TRUE'||!x['重複キー']||!mateV4Https_(x['公式URL']))continue;
     const note=x['最終確認結果']||'';
-    // When the owner turns on the public-address exception, re-check
-    // already held candidates. Otherwise leave a 14-day gap after audit.
+    // Reuse an already recent, first-party audit when the operator later
+    // enables the public-address legal exception. No re-fetch required.
+    if(autoException&&x['状態']==='公式公開メール確認済・送信待機'&&
+       mateV4PublicMailOperatorReview_(x)){
+      tab.getRange(x._row,14).setValue('営業可能候補');
+      checked++;eligible++;continue;
+    }
+    // Never repeat a failed/ambiguous audit every hour: advance through the
+    // queue of candidates rather than starving all but the first 12.
+    if(note.startsWith('AUTO_AUDIT '+today))continue;
     const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
-    if(note.startsWith('AUTO_AUDIT '+today)&&!recheckHeld)continue;
     if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
       if(mateV4Fresh_(last,14))continue;
