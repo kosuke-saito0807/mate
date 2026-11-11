@@ -90,32 +90,42 @@ function mateV4Key_(service,website,name){
 }
 function mateV4SourceCsv_(url){
   if(!mateV4Https_(url))throw Error('CSVは公開HTTPS URLのみ');
-  const resp=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:false,timeout:15000});
+  const resp=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:true,timeout:15000});
   if(resp.getResponseCode()!==200)throw Error('CSV HTTP '+resp.getResponseCode());
-  if(resp.getBlob().getBytes().length>MATE_V4.maxCSVBytes)throw Error('CSV exceeds size limit');
-  const rows=Utilities.parseCsv(resp.getContentText('UTF-8'));
-  const keys=(rows.shift()||[]).map(s=>String(s).trim().toLowerCase());
+  const blob=resp.getBlob();
+  if(blob.getBytes().length>MATE_V4.maxCSVBytes)throw Error('CSV exceeds size limit');
+  // Japanese municipality CSVs may be UTF-8 with BOM or Windows Shift_JIS.
+  // Only decode for discovery; never use CSV assertions as sales permission.
+  const parse=encoding=>{
+    const rows=Utilities.parseCsv(blob.getDataAsString(encoding).replace(/^\uFEFF/,''));
+    const keys=(rows.shift()||[]).map(x=>String(x).replace(/^\uFEFF/,'').trim().toLowerCase().replace(/\s+/g,''));
+    return {keys,rows};
+  };
+  let parsed=parse('UTF-8');
+  if(parsed.keys.some(k=>k.includes('\uFFFD')))parsed=parse('Shift_JIS');
+  const keys=parsed.keys,rows=parsed.rows;
   const required=['service','name','website','region','email','contact_url','source_url','mail_basis','checked_at','solicitation_prohibited'];
   if(required.every(k=>keys.includes(k)))
     return rows.map(row=>{const o={};keys.forEach((k,i)=>o[k]=String(row[i]||'').trim());return o});
-  // Also accept common official Japanese open-data CSV headers for prospect discovery.
-  // Public facility listings are not proof that mail contact is permitted.
   const columns={
-    name:['事業者名','法人名','企業名','教室名','施設名','名称','事業所名'],
-    website:['公式url','ホームページ','ホームページurl','ウェブサイト','webサイト','url','公式サイト'],
-    region:['都道府県','住所','所在地','地域','エリア'],
-    email:['メール','メールアドレス','公開メール'],
+    name:['事業者名','法人名','企業名','教室名','施設名','施設名称','名称','事業所名','観光施設名','施設・スポット名'],
+    website:['公式url','ホームページ','ホームページurl','ウェブサイト','ウェブサイトurl','webサイト','webサイトurl','url','公式サイト','公式サイトurl','関連url','リンク先url','施設url','施設ホームページ','サイトurl'],
+    region:['都道府県','住所','所在地','地域','エリア','所在地_連結表記','所在地(住所)'],
+    email:['メール','メールアドレス','公開メール','e-mail','email'],
     contact_url:['問い合わせurl','問合せurl','お問い合わせurl'],
   };
   const at=k=>{for(const alias of columns[k]){const i=keys.indexOf(alias);if(i>=0)return i}return -1};
   const indexes={};for(const key of Object.keys(columns))indexes[key]=at(key);
-  if(indexes.name<0||indexes.website<0)throw Error('公開CSVに事業者名/公式サイトURLがないため取込停止');
+  if(indexes.name<0||indexes.website<0){
+    const missing=[indexes.name<0?'名称':'公式URL'].filter(Boolean).join('・');
+    throw Error('CSV列不足 ('+missing+') / 見出し: '+keys.slice(0,12).join(',').slice(0,125));
+  }
   return rows.map(row=>{
     const get=k=>indexes[k]<0?'':String(row[indexes[k]]||'').trim();
     return {name:get('name'),website:get('website'),region:get('region'),
       email:get('email'),contact_url:get('contact_url'),service:'',
-      source_url:url,mail_basis:'UNVERIFIED',
-      checked_at:mateV4Jst_().slice(0,10),solicitation_prohibited:'FALSE'};
+      source_url:url,mail_basis:'UNVERIFIED',checked_at:'',
+      solicitation_prohibited:'FALSE'};
   });
 }
 /**
@@ -255,12 +265,13 @@ function mateV4CollectLeads(){
     let rows;
     try{rows=mateV4SourceCsv_(source['取得元CSV HTTPS URL'])}
     catch(e){src.getRange(source._row,7).setValue('取得失敗: '+String(e).slice(0,180));continue}
-    let imported=0;
+    let imported=0,missingWebsite=0,skippedDuplicate=0,invalidRows=0;
     for(const x of rows){
       if(count>=MATE_V4.maxNewLeadsPerRun)break;
-      if((x.service&&x.service!==service)||!x.name||!mateV4Https_(x.website)||!mateV4Https_(x.source_url))continue;
+      if(!x.name||!mateV4Https_(x.website)){missingWebsite++;continue}
+      if((x.service&&x.service!==service)||!mateV4Https_(x.source_url)){invalidRows++;continue}
       const id=mateV4Key_(service,x.website,x.name);
-      if(seen.has(id)||known.has(id))continue;
+      if(seen.has(id)||known.has(id)){skippedDuplicate++;continue}
       const deny=/^(true|yes|1|禁止)$/i.test(x.solicitation_prohibited);
       const mail=mateV4Email_(x.email);
       const checked=mateV4Fresh_(x.checked_at,14);
@@ -276,7 +287,9 @@ function mateV4CollectLeads(){
       ]);
       seen.add(id);count++;imported++;
     }
-    src.getRange(source._row,6,1,2).setValues([[mateV4Jst_(),String(imported)+' 件取込']]);
+    const summary=String(imported)+' 件取込 / CSV '+rows.length+' 行 / URL・名称不足 '+missingWebsite+
+      ' / 重複 '+skippedDuplicate+' / その他不備 '+invalidRows;
+    src.getRange(source._row,6,1,2).setValues([[mateV4Jst_(),summary.slice(0,250)]]);
   }
   return count;
 }
