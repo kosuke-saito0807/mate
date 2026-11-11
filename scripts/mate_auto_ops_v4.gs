@@ -601,6 +601,29 @@ function prepareMateBalanced15V4(){
  * The operator must independently confirm applicability to the planned
  * marketing emails, and may not assert registration without proof.
  */
+/** Prepare a sole-proprietor legal-name sender while keeping MATE brand display.
+ * Never send, never hard-code personal legal names in public source control.
+ * Operator sets MATE_FORMAL_SENDER_NAME privately in Apps Script properties.
+ */
+function prepareMatePersonalNameV4(){
+  mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  p.setProperty('MATE_AUTO_SEND','OFF');
+  p.setProperty('MATE_LEGAL_IDENTITY_MODE','PERSONAL_NAME');
+  p.setProperty('MATE_SENDER_NAME','MATE運営事務局');
+  const snapshot={
+    mode:'PERSONAL_NAME_PREPARED_NO_SEND',
+    autoSend:'OFF',
+    identityMode:'PERSONAL_NAME',
+    brandSender:'MATE運営事務局',
+    formalSenderNameSet:!!String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim(),
+    verified:mateV4FormalSenderIdentity_(p).ready,
+    phase:p.getProperty('MATE_OUTREACH_PHASE')||'OFF',
+    dailyCap:p.getProperty('MATE_DAILY_CAP')||''
+  };
+  console.log(JSON.stringify(snapshot));return snapshot;
+}
+
 function mateV4FormalSenderIdentity_(p){
   const name=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
   const mode=String(p.getProperty('MATE_LEGAL_IDENTITY_MODE')||'').trim();
@@ -611,7 +634,13 @@ function mateV4FormalSenderIdentity_(p){
       !/^(?:MATE運営事務局|NextEdu運営事務局)$/.test(name),mode};
   if(mode==='REGISTERED_COMPANY')
     return {ready:p.getProperty('MATE_COMPANY_REGISTRATION_VERIFIED')==='YES',mode};
-  if(mode==='PERSONAL_NAME')return {ready:true,mode};
+  if(mode==='PERSONAL_NAME'){
+    // The branded display-name is not a person's legal name.
+    const looksLikeBusinessOnly=/^(?:NextEdu|MATE運営事務局|NextEdu運営事務局|MATE|MATE CARE|MATE SPARK|MATE PLAY)$/i.test(name);
+    const hasLegalNameShape=/^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\s・ー]+$/u.test(name)&&
+      name.replace(/\s/g,'').length>=3;
+    return {ready:!looksLikeBusinessOnly&&hasLegalNameShape,mode};
+  }
   return {ready:false,mode};
 }
 

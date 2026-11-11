@@ -76,6 +76,16 @@ assert.equal(settings.MATE_OUTREACH_PHASE,'PILOT');
 assert.equal(settings.MATE_SENDER_NAME,'MATE運営事務局');
 assert.equal(pilot.verifiedPostalAddress,false);
 assert.equal(pilot.legalAddressPageVerified,false);
+const soleProp=run('prepareMatePersonalNameV4()');
+assert.equal(soleProp.mode,'PERSONAL_NAME_PREPARED_NO_SEND');
+assert.equal(soleProp.autoSend,'OFF');
+assert.equal(settings.MATE_AUTO_SEND,'OFF');
+assert.equal(settings.MATE_LEGAL_IDENTITY_MODE,'PERSONAL_NAME');
+assert.equal(settings.MATE_SENDER_NAME,'MATE運営事務局');
+assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'NextEdu',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'PERSONAL_NAME'}[k])})`).ready,false,'brand-only must not pass PERSONAL_NAME gate');
+assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'斎藤 幸輔',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'PERSONAL_NAME'}[k])})`).ready,true,'full legal name qualifies personal name shape');
+assert.equal(mails,0,'sole proprietor setup must not send');
+
 assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'NextEdu',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'REGISTERED_TRADE_NAME',MATE_TRADE_NAME_REGISTRATION_VERIFIED:'NO'}[k])})`).ready,false);
 assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'NextEdu',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'REGISTERED_TRADE_NAME',MATE_TRADE_NAME_REGISTRATION_VERIFIED:'YES'}[k])})`).ready,true);
 assert.equal(run(`mateV4FormalSenderIdentity_({getProperty:k=>({MATE_FORMAL_SENDER_NAME:'MATE運営事務局',MATE_FORMAL_SENDER_VERIFIED:'YES',MATE_LEGAL_IDENTITY_MODE:'REGISTERED_TRADE_NAME',MATE_TRADE_NAME_REGISTRATION_VERIFIED:'YES'}[k])})`).ready,false);
