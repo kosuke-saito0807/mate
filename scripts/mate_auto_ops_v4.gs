@@ -466,7 +466,6 @@ function previewMateOutreachReadinessV4(){
     senderAddressSet:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
     legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
-    legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
     dailyCap:Math.min(5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
     totalCandidateRows:leads.length,
@@ -527,6 +526,7 @@ function prepareMatePilotV4(){
     autoSend:'OFF',phase:'PILOT',dailyCap:1,
     senderNameSet:!!String(p.getProperty('MATE_SENDER_NAME')||'').trim(),
     verifiedPostalAddress:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
+    legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'
   };
