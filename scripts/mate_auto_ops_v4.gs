@@ -528,7 +528,7 @@ function mateV4PublicMailOperatorReview_(x){
   // Reuse ONLY the verified output of the first-party HTTPS site auditor.
   const result=String(x['最終確認結果']||'');
   const audit=result.match(/^AUTO_AUDIT (\d{4}-\d{2}-\d{2}) 公式事業者サイトで業務用メール掲載確認 (https:\/\/\S+)/);
-  if(!audit||!mateV4Fresh_(audit[1],7)||audit[1]!==x['根拠確認日時'])return false;
+  if(!audit||!mateV4Fresh_(audit[1],14)||audit[1]!==x['根拠確認日時'])return false;
   if(x['メール用途・営業可の根拠']!=='PUBLIC_BUSINESS_EMAIL')return false;
   if(!mateV4RoleEmail_(x['業務用メール']))return false;
   if(!mateV4Https_(x['確認元URL'])||audit[2]!==x['確認元URL'])return false;
