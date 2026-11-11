@@ -13,8 +13,10 @@
  *   MATE_AUTO_SEND = ON
  *   MATE_OUTREACH_PHASE = PILOT (max 1/day), then LIVE (max 5/day)
  *   Phase OFF or unset forbids all external sending even if other toggles are ON.
- *   MATE_SENDER_NAME = accurate sender name / operator
- *   MATE_SENDER_ADDRESS = sender location or address, subject to legal review
+ *   MATE_SENDER_NAME = MATE運営事務局 (brand-only; never disclose personal name)
+ *   MATE_SENDER_ADDRESS = verified full business address, stored privately in GAS properties
+ *   MATE_LEGAL_ADDRESS_PAGE_VERIFIED = YES only once the public operator page
+ *     shows legally sufficient sender name, actual address and contact details
  *   MATE_AUTO_SEND_LEGAL_REVIEWED = YES
  *   (optional) MATE_DAILY_CAP = 5, maximum 5
  *   MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED = YES, opt-in to vetted publicly posted business addresses
@@ -462,6 +464,7 @@ function previewMateOutreachReadinessV4(){
     phase:p.getProperty('MATE_OUTREACH_PHASE')||'OFF',
     senderNameSet:String(p.getProperty('MATE_SENDER_NAME')||'').trim().length>=2,
     senderAddressSet:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
+    legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
     dailyCap:Math.min(5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
@@ -517,13 +520,13 @@ function prepareMatePilotV4(){
   p.setProperty('MATE_AUTO_SEND','OFF');
   p.setProperty('MATE_OUTREACH_PHASE','PILOT');
   p.setProperty('MATE_DAILY_CAP','1');
-  if(!String(p.getProperty('MATE_SENDER_NAME')||'').trim())
-    p.setProperty('MATE_SENDER_NAME','NextEdu 代表 斎藤幸輔');
+  p.setProperty('MATE_SENDER_NAME','MATE運営事務局');
   const result={
     mode:'PILOT_PREPARED_NO_SEND',
     autoSend:'OFF',phase:'PILOT',dailyCap:1,
     senderNameSet:!!String(p.getProperty('MATE_SENDER_NAME')||'').trim(),
     verifiedPostalAddress:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
+    legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'
   };
@@ -534,9 +537,11 @@ function mateV4SendOutreach(){
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
   const phase=p.getProperty('MATE_OUTREACH_PHASE')||'OFF';
   if(phase!=='PILOT'&&phase!=='LIVE')return 'OFF';
-  const sender=String(p.getProperty('MATE_SENDER_NAME')||'').trim();
+  const sender='MATE運営事務局'; // Never expose an operator's personal name.
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
-  if(sender.length<2||!mateV4SenderAddressLooksComplete_(address))throw Error('実在する送信者名と所在地を設定');
+  if(!mateV4SenderAddressLooksComplete_(address)||
+     p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')!=='YES')
+    throw Error('確認済みの事業所在地と適法な運営者情報URLが必要です');
   const cap=Math.min(phase==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
@@ -585,10 +590,10 @@ function mateV4SendOutreach(){
       'ご不明な点がございましたら、お気軽に本メールへご返信ください。',
       'また、今後このようなご案内が不要な場合は「配信停止」とご返信ください。以後の送信を停止いたします。',
       '',
-      'MATE運営事務局（'+sender+'）',
-      '所在地：'+address,
-      'お問い合わせ：'+MATE_V4.account,
-      '運営者情報：https://care.kosodatemate.jp/operator.html'
+      sender,
+      '所在地：東京都（詳細は下記の運営者情報に掲載）',
+      'お問い合わせ・配信停止：'+MATE_V4.account,
+      '送信者の正式名称・所在地・お問い合わせ先：https://care.kosodatemate.jp/operator.html'
     ].join('\n');
     // Reserve before external send: ambiguous failures are held, never retried automatically.
     const targetRow=sheet.getLastRow()+1;
