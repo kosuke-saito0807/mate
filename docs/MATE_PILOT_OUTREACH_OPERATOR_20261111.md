@@ -1,5 +1,20 @@
 # MATE営業V4 本番移行・自動審査ガイド（2026-11-11）
 
+## 個人名を営業メールに表示しない運用（2026-11-11追記）
+- **NextEdu が現在ただの個人事業の屋号なら、これを正式な氏名・名称として営業送信する設定はできない。** 消費者庁の特定電子メール法ガイドラインでは、サービス名・「○○運営事務局」・屋号だけでは表示義務を満たさない。https://www.caa.go.jp/policies/policy/consumer_transaction/specifed_email/pdf/110831kouhyou_2.pdf
+- 現実的な候補は (a) 個人事業者として「NextEdu」の**商号登記を行う** (b) 法人を設立して実際の法人名を正式な送信主体にする、の2経路。「商業登記された商号」は消費者庁の**特定商取引法**に関する公式Q&Aで、個人事業者の氏名の代替として案内されている。ただし**これは特定電子メール法での個々の広告メールにも自動的に十分と確定した意味ではない**。送信する前に法務局/法律専門家/消費者庁等の専門窓口で該当ルートの適用を確認すること。https://www.no-trouble.caa.go.jp/qa/advertising.html
+- 商号登記も、氏名と商号の関係を法務局の公開記録から一切たどれなくする仕組みではない。**メール・MATEサイトに個人名を表示しない**ことと、行政・登記情報を含め一切外部に出ないことは別の要件。
+- 登記前にGASのスクリプトプロパティへ `MATE_LEGAL_IDENTITY_MODE=REGISTERED_TRADE_NAME` や `MATE_TRADE_NAME_REGISTRATION_VERIFIED=YES` を虚偽設定しないこと。
+- 正式に「NextEdu」が商業登記され、用途に応じた表示適法性が確認できた後に、以下の値を設定：
+  `MATE_LEGAL_IDENTITY_MODE=REGISTERED_TRADE_NAME`、
+  `MATE_FORMAL_SENDER_NAME=NextEdu`（登記事項に記載された商号が正確に一致する場合のみ）、
+  `MATE_TRADE_NAME_REGISTRATION_VERIFIED=YES`、
+  `MATE_FORMAL_SENDER_VERIFIED=YES`。
+- 法人設立ルートなら `MATE_LEGAL_IDENTITY_MODE=REGISTERED_COMPANY`、`MATE_FORMAL_SENDER_NAME` は実在する法人の登記名、`MATE_COMPANY_REGISTRATION_VERIFIED=YES`、`MATE_FORMAL_SENDER_VERIFIED=YES`。法人の商号を「NextEdu」と同一視することはできない。
+- いずれもブランド表示 `MATE運営事務局` は Gmail差出人表示として維持。法律上必要な正式名称はメール本文に付記する。住所、広告メールの送信根拠、受信拒否の適切な案内も必要。
+- 全て整うまで `MATE_AUTO_SEND=OFF`。現状の台帳には営業の送信ログは0件。GitHubで実装済みでも、GASへの更新と登記・法令確認・送信設定はオーナーによる実作業が必要。
+
+
 ## 何ができるか
 - CARE・SPARK・PLAY合計15通／日、**各サービス5通**を上限にする `BALANCED_15`。
 - 公式HTTPSサイトで**一般業務用メール**が実際に公開されていることを確認して、既存の同意不要の法定例外の適用対象となり得る候補を**人手を挟まず技術的に審査**。公式メールの所在確認、営業拒否表示、重複、配信停止、根拠の鮮度14日を判定する。
