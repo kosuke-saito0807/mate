@@ -710,8 +710,11 @@ function mateV4SendOutreach(){
     const link=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
       service==='SPARK'?'https://spark.kosodatemate.jp/partners.html':'https://care.kosodatemate.jp/contact.html';
     const subject='【MATE '+service+'】無料掲載のご案内｜'+x['事業者名'].slice(0,70);
+    // Production copy follows the approved service-specific template. Never append
+    // the owner-only test disclaimer to an external campaign message.
+    // The sender's legal name must remain in the commercial email itself.
     const body=[
-      x['事業者名']+' ご担当者様',
+      'ご担当者様',
       '',
       '突然のご連絡失礼いたします。子育て家庭向け情報サイト「MATE '+service+'」を運営しております、MATE運営事務局です。',
       '',
