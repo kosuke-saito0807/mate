@@ -656,7 +656,7 @@ function mateV4SendOutreach(){
   if(startDate&&(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)||today<startDate))return 'WAIT_FOR_START_DATE';
   const ownerCopy=String(p.getProperty('MATE_OWNER_COPY_EMAIL')||'').trim().toLowerCase();
   // Fail closed: never send a third-party campaign without the requested exact BCC copy.
-  if(!mateV4Email_(ownerCopy)||ownerCopy===MATE_V4.account)return 'OWNER_COPY_EMAIL_NOT_CONFIGURED';
+  if(!/^[a-z0-9._%+-]+@gmail\.com$/i.test(ownerCopy)||ownerCopy===MATE_V4.account)return 'OWNER_COPY_EMAIL_NOT_CONFIGURED';
   const sender='MATE運営事務局'; // Branding in Gmail's display-name only.
   const formalSender=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
