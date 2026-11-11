@@ -382,7 +382,8 @@ function mateV4AuditOfficialContacts(){
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
     if(checked>=12)break;
-    if(!['窓口確認待ち','公式公開メール確認済・送信待機'].includes(x['状態']))continue;
+    if(!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
+    if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
     if(x['営業拒否']==='TRUE'||!x['重複キー']||!mateV4Https_(x['公式URL']))continue;
     const note=x['最終確認結果']||'';
     // When the owner turns on the public-address exception, re-check
@@ -424,7 +425,15 @@ function mateV4AuditOfficialContacts(){
       const evidence='AUTO_AUDIT '+today+' '+detail+
         (publicPage?' '+publicPage.url:'');
       tab.getRange(x._row,15).setValue(evidence.slice(0,520));
-      if(!publicPage)continue;
+      if(refused){
+        tab.getRange(x._row,13).setValue('TRUE');
+        tab.getRange(x._row,14).setValue('配信禁止');
+        continue;
+      }
+      if(!publicPage){
+        if(x['状態']==='営業可能候補')tab.getRange(x._row,14).setValue('窓口確認待ち');
+        continue;
+      }
       if(stopped.has(email)){
         tab.getRange(x._row,13).setValue('TRUE');
         tab.getRange(x._row,14).setValue('配信禁止');
@@ -473,6 +482,8 @@ function previewMateOutreachReadinessV4(){
     senderNameSet:String(p.getProperty('MATE_SENDER_NAME')||'').trim().length>=2,
     senderAddressSet:mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')),
     legalAddressPageVerified:p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')==='YES',
+    formalSenderNameSet:!!String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim(),
+    formalSenderVerified:p.getProperty('MATE_FORMAL_SENDER_VERIFIED')==='YES',
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
     dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
@@ -583,11 +594,16 @@ function mateV4SendOutreach(){
   const startDate=p.getProperty('MATE_OUTREACH_START_DATE')||'';
   const today=mateV4Jst_().slice(0,10);
   if(phase==='BALANCED_15'&&(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)||today<startDate))return 'WAIT_FOR_START_DATE';
-  const sender='MATE運営事務局'; // Never expose an operator's personal name.
+  const sender='MATE運営事務局'; // Branding in Gmail's display-name only.
+  const formalSender=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
   if(!mateV4SenderAddressLooksComplete_(address)||
      p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')!=='YES')
     throw Error('確認済みの事業所在地と適法な運営者情報URLが必要です');
+  // Japanese specified email law requires the legal person's/individual's
+  // real name: trade names and generic "運営事務局" alone are not sufficient.
+  if(formalSender.length<2||p.getProperty('MATE_FORMAL_SENDER_VERIFIED')!=='YES')
+    throw Error('正式な送信者の氏名又は法人名の確認・表示が必要です');
   const cap=Math.min(phase==='PILOT'?1:phase==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const perServiceCap=phase==='BALANCED_15'?5:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
@@ -657,6 +673,7 @@ function mateV4SendOutreach(){
       'また、今後このようなご案内が不要な場合は「配信停止」とご返信ください。以後の送信を停止いたします。',
       '',
       sender,
+      '送信責任主体（正式名称）：'+formalSender,
       '所在地：東京都（詳細は下記の運営者情報に掲載）',
       'お問い合わせ・配信停止：'+MATE_V4.account,
       '送信者の正式名称・所在地・お問い合わせ先：https://care.kosodatemate.jp/operator.html'
