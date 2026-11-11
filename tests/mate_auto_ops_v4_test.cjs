@@ -93,11 +93,16 @@ assert.equal(run('mateV4SendOutreach()'),'WAIT_FOR_START_DATE','15/day cannot st
 context.Utilities.formatDate=()=> '2026-11-12 10:00:00';
 settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
 settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='YES';
+assert.throws(()=>run('mateV4SendOutreach()'),/正式な送信者の氏名又は法人名/,
+  'no branded service name alone can satisfy official sender identification');
+settings.MATE_FORMAL_SENDER_NAME='株式会社TEST MATE（テスト用）';
+settings.MATE_FORMAL_SENDER_VERIFIED='YES';
 assert.equal(run('mateV4SendOutreach()'),'BALANCED_15_NOT_READY_NO_SEND',
   'do not send subset if 5 vetted recipients per service are not available');
 assert.equal(mails,0,'not-ready bulk mode never contacts third parties');
 context.Utilities.formatDate=()=> '2026-10-31 15:00:00';
 settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='NO';
+settings.MATE_FORMAL_SENDER_VERIFIED='NO';
 delete settings.MATE_SENDER_ADDRESS;
 
 settings.MATE_AUTO_SEND='OFF';
@@ -122,6 +127,8 @@ settings.MATE_SENDER_NAME='NextEdu MATE運営';
 settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
 assert.throws(()=>run("mateV4SendOutreach()"),/適法な運営者情報URL/,'an unverified operator page is not sufficient');
 settings.MATE_LEGAL_ADDRESS_PAGE_VERIFIED='YES';
+settings.MATE_FORMAL_SENDER_NAME='株式会社TEST MATE（テスト用）';
+settings.MATE_FORMAL_SENDER_VERIFIED='YES';
 assert.equal(run("mateV4SendOutreach()"),0,'without qualified leads, send zero');
 settings.MATE_OUTREACH_PHASE='OFF';
 assert.equal(run("mateV4SendOutreach()"),'OFF','disabled phase blocks all sending');
@@ -211,12 +218,21 @@ assert.equal(run("mateV4AuditOfficialContacts()").checked,0,'unapproved source i
 settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='YES';
 audit=run("mateV4AuditOfficialContacts()");
 assert.equal(audit.checked,1,'recheck held evidence when user explicitly approves exception');
-assert.equal(audit.eligible,0,'global exception alone cannot clear a public business email');
-assert.equal(leads.at(-1)[13],'公式公開メール確認済・送信待機');
+assert.equal(audit.eligible,1,'self-published role-address evidence can be auto-qualified under owner-reviewed public-email exception');
+assert.equal(leads.at(-1)[13],'営業可能候補');
 assert.equal(run("mateV4PublicMailOperatorReview_({_row:10,備考:'source only'})"),false);
-leads.at(-1)[15]='PUBLIC_EMAIL_REVIEW_OK:2026-10-31';
+const autoApproved={
+  '公式URL':leads.at(-1)[4],
+  '業務用メール':leads.at(-1)[6],
+  '確認元URL':leads.at(-1)[8],
+  'メール用途・営業可の根拠':leads.at(-1)[9],
+  '根拠確認日時':leads.at(-1)[10],
+  '最終確認結果':leads.at(-1)[14],
+  '備考':leads.at(-1)[15]
+};
+assert.equal(run('mateV4PublicMailOperatorReview_('+JSON.stringify(autoApproved)+')'),true);
 audit=run("mateV4AuditOfficialContacts()");
-assert.equal(audit.eligible,1,'dated human review gates eligibility');
+assert.equal(audit.eligible,0,'verified candidate does not need re-audit every hour');
 assert.equal(leads.at(-1)[13],'営業可能候補');
 assert.equal(leads.at(-1)[8],'https://licensed.example.org/contact');
 assert.equal(mails,0,'audit does not send to candidate');
