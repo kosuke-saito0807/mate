@@ -918,7 +918,7 @@ function diagnoseMateV4Health(){
     legalReviewed:pre.legalReviewFlag,
     registeredIdentityReady:pre.registeredSenderIdentityReady,
     senderAddressReady:pre.senderAddressSet&&pre.legalAddressPageVerified,
-    bccOwnerConfigured:/^[a-z0-9._%+-]+@gmail\\.com$/i.test(
+    bccOwnerConfigured:/^[a-z0-9._%+-]+@gmail\.com$/i.test(
       String(p.getProperty('MATE_OWNER_COPY_EMAIL')||'').trim()),
     pilotDailyCap:pre.phase==='PILOT'?1:pre.dailyCap,
     configuredStartDate:pre.outreachStartDate,
