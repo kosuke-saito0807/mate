@@ -580,6 +580,23 @@ function mateV4SendOutreach(){
   const allRecipients=new Set(logs.map(x=>x['宛先メール'].toLowerCase()).filter(Boolean));
   // Includes past manual MATE sales messages not recorded in V4.
   const manualHistory=mateV4HistoricCampaignRecipients_();
+  if(phase==='BALANCED_15'){
+    const perServiceReady={CARE:0,SPARK:0,PLAY:0};
+    for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
+      const service=x['サービス'],email=mateV4Email_(x['業務用メール']),key=x['重複キー'];
+      if(!(service in perServiceReady)||!email||!key||x['営業拒否']!=='FALSE')continue;
+      if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
+      if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
+      if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
+        (p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||!mateV4PublicMailOperatorReview_(x)))continue;
+      if(blocked.has(email)||attempted.has(key)||allRecipients.has(email)||manualHistory.has(email))continue;
+      perServiceReady[service]++;
+    }
+    if(Object.keys(perServiceReady).some(service=>perServiceReady[service]<5)){
+      console.log(JSON.stringify({mode:'BALANCED_15_NOT_READY_NO_SEND',ready:perServiceReady,requiredPerService:5}));
+      return 'BALANCED_15_NOT_READY_NO_SEND';
+    }
+  }
   const todays=logs.filter(x=>x['送信処理日時'].startsWith(today));
   const already=todays.length;
   const serviceToday={CARE:0,SPARK:0,PLAY:0};
