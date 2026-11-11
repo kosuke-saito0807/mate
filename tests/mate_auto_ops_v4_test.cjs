@@ -216,6 +216,7 @@ assert.equal(leads.at(-1)[13],'公式公開メール確認済・送信待機');
 assert.equal(leads.at(-1)[9],'PUBLIC_BUSINESS_EMAIL');
 assert.equal(run("mateV4AuditOfficialContacts()").checked,0,'unapproved source is not scanned repeatedly');
 settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='YES';
+settings.MATE_AUTO_SEND_LEGAL_REVIEWED='YES';
 audit=run("mateV4AuditOfficialContacts()");
 assert.equal(audit.checked,1,'recheck held evidence when user explicitly approves exception');
 assert.equal(audit.eligible,1,'self-published role-address evidence can be auto-qualified under owner-reviewed public-email exception');
