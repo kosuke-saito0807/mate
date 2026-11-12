@@ -28,6 +28,12 @@ class OutreachNoBccTests(unittest.TestCase):
         self.assertIn("mateV4OwnerBlocked_(x)",audit)
         self.assertIn("mateV4PublicMailOperatorReview_(audited)",audit)
         self.assertNotIn("GmailApp.sendEmail(",audit)
+        self.assertIn("possible.includes(old)",audit)
+        self.assertIn("possible.length===1?possible[0]",audit)
+        self.assertIn("x['営業拒否']==='未確認'",audit)
+        self.assertIn("tab.getRange(x._row,13).setValue('FALSE')",audit)
+        self.assertIn("if(x['営業拒否']==='TRUE'",audit)
+        self.assertIn("if(refused)",audit)
 
 
 if __name__ == "__main__":
