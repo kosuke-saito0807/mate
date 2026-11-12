@@ -12,6 +12,8 @@
 - [プライバシーポリシー](https://spark.kosodatemate.jp/privacy.html)
 - [サイトマップ](https://spark.kosodatemate.jp/sitemap.xml)
 
+- [CARE・SPARK・PLAYの事業者向け無料掲載案内](https://care.kosodatemate.jp/business.html): どのサービスが掲載対象かを選び、直接申請へ進む
+
 ## 関連サービス
 - [MATE CARE](https://care.kosodatemate.jp/): シッター・訪問保育
 - [MATE PLAY](https://play.kosodatemate.jp/): 親子体験
