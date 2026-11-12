@@ -518,9 +518,12 @@ function previewMateOutreachReadinessV4(){
     registeredSenderIdentityReady:mateV4FormalSenderIdentity_(p).ready,
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
-    dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
-    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:null,
+    dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?90:p.getProperty('MATE_OUTREACH_PHASE')==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
+    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?30:null,
     outreachStartDate:p.getProperty('MATE_OUTREACH_START_DATE')||'',
+    remainingRecipientQuota:MailApp.getRemainingDailyQuota(),
+    maximumExternalMessagesByQuota:Math.floor(MailApp.getRemainingDailyQuota()/2),
+    actualDailySendLimitMayBeLowerThanRequested:true,
     totalCandidateRows:leads.length,
     activeSuppressions:stopped.size,
     outreachLogRows:logs.length,
@@ -672,7 +675,7 @@ function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
   const phase=p.getProperty('MATE_OUTREACH_PHASE')||'OFF';
-  if(!['PILOT','LIVE','BALANCED_15'].includes(phase))return 'OFF';
+  if(!['PILOT','LIVE','BALANCED_15','PER_SERVICE_30'].includes(phase))return 'OFF';
   const startDate=p.getProperty('MATE_OUTREACH_START_DATE')||'';
   const today=mateV4Jst_().slice(0,10);
   // Respect the configured start date in every mode, including PILOT and LIVE.
@@ -690,8 +693,13 @@ function mateV4SendOutreach(){
   const identity=mateV4FormalSenderIdentity_(p);
   if(!identity.ready)
     throw Error('正式な送信主体の登記・確認が必要です。屋号のみで送信を開始できません。');
-  const cap=Math.min(phase==='PILOT'?1:phase==='BALANCED_15'?15:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
-  const perServiceCap=phase==='BALANCED_15'?5:cap;
+  // Requested target is 30 business recipients per service (90 total), but
+  // every message still consumes 2 recipient-quota units because of owner BCC.
+  // MailApp's live quota remains authoritative; never bypass it.
+  const maxCap=phase==='PILOT'?1:phase==='BALANCED_15'?15:phase==='PER_SERVICE_30'?90:5;
+  const cap=Math.min(maxCap,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
+  const perServiceCap=phase==='BALANCED_15'?5:phase==='PER_SERVICE_30'?30:cap;
+  const maxPerExecution=phase==='PER_SERVICE_30'?6:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
   const logs=mateV4Rows_(sheet);
@@ -725,7 +733,7 @@ function mateV4SendOutreach(){
   // Each outreach consumes two recipients: external prospect and owner BCC.
   if(MailApp.getRemainingDailyQuota()<2)return 0;
   for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
-    if(sent+already>=cap||MailApp.getRemainingDailyQuota()<2)break;
+    if(sent+already>=cap||sent>=maxPerExecution||MailApp.getRemainingDailyQuota()<2)break;
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
     if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
