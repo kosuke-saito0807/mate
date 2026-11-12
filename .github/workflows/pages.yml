@@ -69,10 +69,16 @@ jobs:
           output={"service":"CARE","source_commit":sha,"deployed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"repository":"kosuke-saito0807/mate"}
           pathlib.Path("_site/release.json").write_text(json.dumps(output,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
           PY
+      # Each workflow attempt must have a unique artifact name. Otherwise
+      # Re-run failed jobs accumulates duplicate "github-pages" artifacts in
+      # the same run and deploy-pages cannot select a single artifact.
       - uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: "_site"
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Verify CARE public release, intake and SEO assets
         run: python3 scripts/check_live_release.py CARE "$(git rev-parse HEAD)"
