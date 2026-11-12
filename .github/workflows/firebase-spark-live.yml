@@ -71,3 +71,5 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MATE_SPARK }}
           projectId: mate-spark
           channelId: live
+      - name: Verify SPARK public release, intake and SEO assets
+        run: python3 scripts/check_live_release.py SPARK "$(git rev-parse HEAD)"
