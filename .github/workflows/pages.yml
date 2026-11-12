@@ -74,3 +74,5 @@ jobs:
           path: "_site"
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify CARE public release, intake and SEO assets
+        run: python3 scripts/check_live_release.py CARE "$(git rev-parse HEAD)"
