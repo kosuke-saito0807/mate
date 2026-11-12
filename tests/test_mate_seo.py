@@ -9,6 +9,25 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 
 class SeoLaunchTests(unittest.TestCase):
+    def test_founder_search_identity_and_cross_service_links(self):
+        operator=(ROOT/"operator.html").read_text(encoding="utf-8")
+        self.assertIn("斎藤幸輔",operator)
+        self.assertIn("Kosuke Saito",operator)
+        self.assertIn("<title>斎藤幸輔",operator)
+        self.assertIn('<link rel="canonical" href="https://care.kosodatemate.jp/operator.html">',operator)
+        blocks=re.findall(r'<script type="application/ld\\+json">(.*?)</script>',operator,re.S)
+        self.assertEqual(len(blocks),1)
+        data=json.loads(blocks[0])
+        self.assertEqual(data["@type"],"ProfilePage")
+        self.assertEqual(data["mainEntity"]["name"],"斎藤幸輔")
+        self.assertEqual(data["mainEntity"]["url"],"https://care.kosodatemate.jp/operator.html")
+        for path in ("index.html","spark/index.html","spark/operator.html"):
+            html=(ROOT/path).read_text(encoding="utf-8")
+            self.assertIn("斎藤幸輔",html,path)
+            self.assertIn("operator.html",html,path)
+        llms=(ROOT/"llms.txt").read_text(encoding="utf-8")
+        self.assertIn("斎藤幸輔",llms)
+
     def test_home_canonicals_and_structured_data(self):
         for rel, url in [
             ("index.html", "https://care.kosodatemate.jp/"),
