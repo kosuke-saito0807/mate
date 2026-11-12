@@ -47,6 +47,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_owner_publication_rehearsal.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_sales_quality.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_outreach_no_bcc.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_codecamp_suppression.py' -v
           python3 -m unittest discover -s tests -p 'test_listing_terms_gate.py' -v
           python3 -m json.tool spark/schools.json >/dev/null
           python3 -m json.tool spark/config.json >/dev/null
