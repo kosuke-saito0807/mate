@@ -1,0 +1,20 @@
+# MATE SPARK — 子どもの習い事・教室探し
+> MATE SPARKは、子どもの習い事や教室を探す家庭向けの情報サイトです。対象年齢、費用、曜日などを比較するときは教室の公式情報も確認してください。
+
+## 公式情報
+- [MATE SPARK](https://spark.kosodatemate.jp/): 習い事・教室を探す
+- [教室の無料掲載申請](https://spark.kosodatemate.jp/partners.html): 事業者が直接申請、内容と権限を確認してから掲載判断
+- [習い事の選び方](https://spark.kosodatemate.jp/guide-lessons-choice.html): 選ぶときの確認ポイント
+- [体験レッスンの確認事項](https://spark.kosodatemate.jp/guide-lesson-trial-review.html)
+- [年齢に合う習い事](https://spark.kosodatemate.jp/guide-lesson-age-fit.html)
+- [家庭向け相談](https://care.kosodatemate.jp/consult.html?service=SPARK)
+- [運営者情報](https://spark.kosodatemate.jp/operator.html)
+- [プライバシーポリシー](https://spark.kosodatemate.jp/privacy.html)
+- [サイトマップ](https://spark.kosodatemate.jp/sitemap.xml)
+
+## 関連サービス
+- [MATE CARE](https://care.kosodatemate.jp/): シッター・訪問保育
+- [MATE PLAY](https://play.kosodatemate.jp/): 親子体験
+
+## 利用上の注意
+教室の募集状況、料金、体験参加条件は各教室の最新の公式情報で確認してください。掲載申請は自動承認ではありません。
