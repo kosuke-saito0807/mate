@@ -940,6 +940,8 @@ function diagnoseMateV4Health(){
     registeredIdentityReady:pre.registeredSenderIdentityReady,
     senderAddressReady:pre.senderAddressSet&&pre.legalAddressPageVerified,
     bccEnabled:false,
+    bccCodePolicy:'DISABLED_IN_THIS_SOURCE_ONLY',
+    otherProjectsNotInspected:true,
     pilotDailyCap:pre.phase==='PILOT'?1:pre.dailyCap,
     configuredStartDate:pre.outreachStartDate,
     currentDate:today,
