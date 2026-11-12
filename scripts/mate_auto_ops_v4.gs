@@ -82,6 +82,19 @@ function mateV4Email_(s){
   if(/@(gmail\.com|yahoo\.co\.jp|yahoo\.com|icloud\.com|outlook\.com|hotmail\.com)$/i.test(x))return '';
   return x;
 }
+/**
+ * Owner-requested permanent exclusion: never solicit CodeCamp or CodeCampKIDS,
+ * including group-branded classrooms and domain mailboxes. This is a hard
+ * outbound gate independent of mutable lead statuses or stale GAS properties.
+ */
+function mateV4OwnerBlocked_(lead){
+  const fields=typeof lead==='string'?[lead]:[
+    lead['事業者名'],lead['公式URL'],lead['窓口URL'],
+    lead['確認元URL'],lead['業務用メール']];
+  const combined=fields.map(v=>String(v||'').normalize('NFKC').toLowerCase()).join(' ');
+  return /code[\s._-]*camp|コード[\s　]*キャンプ/i.test(combined)||
+    /@(?:[a-z0-9-]+\.)*codecamp(?:kids)?\.(?:jp|co\.jp|com)\b/i.test(combined);
+}
 function mateV4Key_(service,website,name){
   const host=mateV4Host_(website);if(!host)throw Error('Invalid HTTPS website');
   const input=service+'|'+host+'|'+String(name||'').trim().toLowerCase();
@@ -141,6 +154,7 @@ function mateV4SeedExistingCRM(){
   for(const x of rows){
     if(added>=MATE_V4.maxNewLeadsPerRun)break;
     const svc=x['サービス'],name=x['企業・教室名'],url=x['公式・窓口URL'];
+    if(mateV4OwnerBlocked_({'事業者名':name,'公式URL':url,'業務用メール':x['メール（未再確認）']}))continue;
     if(!['CARE','SPARK','PLAY'].includes(svc)||!name||!mateV4Https_(url))continue;
     const key=mateV4Key_(svc,url,name);
     if(existing.has(key))continue;
@@ -177,7 +191,8 @@ function mateV4SeedSectorDirectories(){
     for(const x of rows){
       if(total>=MATE_V4.maxNewLeadsPerRun)break;
       const name=x[source.name],site=x[source.site];
-      if(!name||!mateV4Https_(site)||/テスト|架空|ダミー/.test(name))continue;
+      if(!name||!mateV4Https_(site)||/テスト|架空|ダミー/.test(name)||
+         mateV4OwnerBlocked_({'事業者名':name,'公式URL':site}))continue;
       let key;
       try{key=mateV4Key_(source.service,site,name)}catch(e){continue}
       if(seen.has(key))continue;
@@ -233,7 +248,7 @@ function mateV4BalancedQueue_(rows,today){
   // pitch once, rather than letting the arbitrary service order choose it.
   const bestByEmail=new Map(),unaddressed=[];
   for(const x of rows){
-    if(!buckets[x['サービス']])continue;
+    if(!buckets[x['サービス']]||mateV4OwnerBlocked_(x))continue;
     const email=mateV4Email_(x['業務用メール']);
     if(!email){unaddressed.push(x);continue}
     const previous=bestByEmail.get(email);
@@ -401,7 +416,7 @@ function mateV4AuditOfficialContacts(){
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
     if(checked>=12)break;
-    if(!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
+    if(mateV4OwnerBlocked_(x)||!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
     if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
     // Explicitly designated sales email on the company's official page is
     // distinct from a customer-only web form. Preserve recently reviewed
@@ -533,7 +548,7 @@ function previewMateOutreachReadinessV4(){
   const seenEmails=new Set();
   leads.forEach(function(x){
     const service=x['サービス'],email=mateV4Email_(x['業務用メール']),key=x['重複キー'];
-    if(!['CARE','SPARK','PLAY'].includes(service)||!email||!key)return;
+    if(mateV4OwnerBlocked_(x)||!['CARE','SPARK','PLAY'].includes(service)||!email||!key)return;
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE'||
        !mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))return;
     if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))return;
@@ -709,7 +724,7 @@ function mateV4SendOutreach(){
     const perServiceReady={CARE:0,SPARK:0,PLAY:0};
     for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
       const service=x['サービス'],email=mateV4Email_(x['業務用メール']),key=x['重複キー'];
-      if(!(service in perServiceReady)||!email||!key||x['営業拒否']!=='FALSE')continue;
+      if(mateV4OwnerBlocked_(x)||!(service in perServiceReady)||!email||!key||x['営業拒否']!=='FALSE')continue;
       if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
       if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
       if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
@@ -731,7 +746,7 @@ function mateV4SendOutreach(){
   if(MailApp.getRemainingDailyQuota()<1)return 0;
   for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
     if(sent+already>=cap||sent>=maxPerExecution||MailApp.getRemainingDailyQuota()<1)break;
-    if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
+    if(mateV4OwnerBlocked_(x)||x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
     if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
     if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
@@ -810,6 +825,7 @@ function mateV4PrepareReviewDrafts(){
     if(created+todayCount>=3)break;
     const x=leads.find(v=>v['サービス']===service&&
       v['状態']==='窓口確認待ち'&&v['営業拒否']!=='TRUE'&&
+      !mateV4OwnerBlocked_(v)&&
       v['重複キー']&&!done.has(v['重複キー'])&&
       mateV4Https_(v['公式URL'])&&
       !blocked.has(mateV4Email_(v['業務用メール'])));
