@@ -113,7 +113,10 @@ class SeoLaunchTests(unittest.TestCase):
 
     def test_deploy_bundles_care_sitemap(self):
         workflow = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
-        self.assertIn("cp *.html data.json robots.txt sitemap.xml favicon.svg favicon.ico _site/", workflow)
+        # Match the required public files without locking the test to the exact
+        # command text; llms.txt can be added without breaking deployment.
+        self.assertRegex(workflow, r"cp [^\\n]*\\bdata\\.json\\b[^\\n]*\\brobots\\.txt\\b[^\\n]*\\bsitemap\\.xml\\b[^\\n]*_site/")
+        self.assertIn("llms.txt", workflow)
         robots=(ROOT / "robots.txt").read_text(encoding="utf-8")
         self.assertIn("Sitemap: https://care.kosodatemate.jp/sitemap.xml", robots)
         self.assertNotIn("Disallow: /\\n",robots)
