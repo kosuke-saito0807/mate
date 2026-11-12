@@ -1,0 +1,19 @@
+# MATE CARE — 子育て家庭向けシッター情報
+> MATE CAREは、ベビーシッター・訪問保育を探す家庭向けの情報サイトです。利用条件や資格、サービス内容は各事業者の公式情報で確認してください。
+
+## 公式情報
+- [MATE CARE](https://care.kosodatemate.jp/): シッター・訪問保育を探す
+- [事業者の無料掲載申請](https://care.kosodatemate.jp/contact.html): 掲載は申請後に審査。自動公開ではありません
+- [家庭向け相談](https://care.kosodatemate.jp/consult.html): CARE、SPARK、PLAYの相談窓口
+- [利用ガイド](https://care.kosodatemate.jp/guides.html): 子育て・外出に関するガイド
+- [シッターの選び方](https://care.kosodatemate.jp/guide-sitter-choice.html): 比較の基本事項
+- [運営者情報](https://care.kosodatemate.jp/operator.html): 運営者・問い合わせ先
+- [プライバシーポリシー](https://care.kosodatemate.jp/privacy.html)
+- [サイトマップ](https://care.kosodatemate.jp/sitemap.xml)
+
+## 関連サービス
+- [MATE SPARK](https://spark.kosodatemate.jp/): 子どもの習い事・教室
+- [MATE PLAY](https://play.kosodatemate.jp/): 親子向け体験・お出かけ
+
+## 利用上の注意
+事業者情報・料金・予約の可否は変更されることがあります。掲載申請は掲載決定や資格の保証を意味しません。
