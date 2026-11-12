@@ -28,6 +28,14 @@ class BusinessAcquisitionTests(unittest.TestCase):
         obj=json.loads(schemas[0])
         self.assertEqual(obj["url"],HUB)
         self.assertEqual(obj["@type"],"WebPage")
+        questions=obj.get("mainEntity",[])
+        self.assertEqual(len(questions),4)
+        for qa in questions:
+            self.assertEqual(qa["@type"],"Question")
+            self.assertIn(qa["name"],html)
+            self.assertIn(qa["acceptedAnswer"]["text"],html)
+        self.assertIn('data-business-contact="true"',html)
+        self.assertIn("mate_business_contact_click",html)
         for service,link in TARGETS.items():
             self.assertIn('data-business-cta="'+service+'" href="'+link+'"',html)
         self.assertIn("mate_business_cta_click",html)
