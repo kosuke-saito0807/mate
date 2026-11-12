@@ -262,6 +262,9 @@ function mateV4CollectLeads(){
   for(const source of sources){
     if(source['有効']!=='TRUE'||source['再利用許諾確認']!=='確認済み'||!mateV4Https_(source['取得元CSV HTTPS URL']))continue;
     const service=source['サービス'];if(!['CARE','SPARK','PLAY'].includes(service))continue;
+    // Public municipal datasets rarely update hourly; check each once per JST day.
+    // Keep this after validation so a newly added source is processed immediately.
+    if(String(source['最終取込日時']||'').slice(0,10)===mateV4Jst_().slice(0,10))continue;
     let rows;
     try{rows=mateV4SourceCsv_(source['取得元CSV HTTPS URL'])}
     catch(e){src.getRange(source._row,7).setValue('取得失敗: '+String(e).slice(0,180));continue}
