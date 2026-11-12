@@ -265,3 +265,53 @@ function matePublicationCycle(){
   return {reconciliation:reconciliation,
           notification:enabled?matePubRun_(true):{mode:"DISABLED_NO_SEND"}};
 }
+
+
+/**
+ * READ-ONLY pipeline health report for all three services.
+ * Never submits an application, publishes data, modifies Sheets, or emails anyone.
+ * Suppresses individual IDs, contact information, and business names in output.
+ * The ready-to-publish count is not evidence of consent; human review remains required.
+ */
+function auditMateListingPipelineV1(){
+  matePubOwner_();
+  var book=SpreadsheetApp.openById(MATE_PUBLISHED_MAIL.spreadsheetId);
+  var apps=matePubRows_(book,MATE_PUBLISHED_MAIL.applicationTab).values;
+  var reviews=matePubRows_(book,MATE_PUBLISHED_MAIL.approvalTab).values;
+  var counts={CARE:{applications:0,approvedApplications:0,pendingReview:0,
+    publicationConfirmed:0,completionMailMarkedSent:0},
+    SPARK:{applications:0,approvedApplications:0,pendingReview:0,
+    publicationConfirmed:0,completionMailMarkedSent:0},
+    PLAY:{applications:0,approvedApplications:0,pendingReview:0,
+    publicationConfirmed:0,completionMailMarkedSent:0}};
+  apps.forEach(function(row){
+    var svc=matePubGet_(row,3);
+    if(!counts[svc])return;
+    counts[svc].applications++;
+    if(matePubGet_(row,25)==="承認")counts[svc].approvedApplications++;
+  });
+  reviews.forEach(function(row){
+    var svc=matePubGet_(row,3);
+    if(!counts[svc])return;
+    if(matePubGet_(row,13)==="公開確認済み")counts[svc].publicationConfirmed++;
+    else counts[svc].pendingReview++;
+    if(matePubGet_(row,15)==="送信済み")counts[svc].completionMailMarkedSent++;
+  });
+  var handlers={};
+  ScriptApp.getProjectTriggers().forEach(function(t){
+    var handler=t.getHandlerFunction();
+    handlers[handler]=(handlers[handler]||0)+1;
+  });
+  var props=PropertiesService.getScriptProperties();
+  var report={
+    mode:"READ_ONLY_NO_SEND_NO_PUBLISH",
+    services:counts,
+    listingReviewRows:reviews.length,
+    publicationCycleTriggers:handlers.matePublicationCycle||0,
+    publicationMailEnabled:props.getProperty("MATE_PUBLICATION_MAIL_ENABLED")==="ON",
+    existingReviewAndApplicationEvidenceOnly:true,
+    verifiedEndToEndByThisReport:false
+  };
+  console.log(JSON.stringify(report));
+  return report;
+}
