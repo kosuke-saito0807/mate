@@ -438,7 +438,10 @@ function mateV4AuditOfficialContacts(){
     const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
     if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
-      if(mateV4Fresh_(last,14))continue;
+      // Transient failures are retried sooner, while the sending evidence
+      // requirements remain unchanged.
+      const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:14;
+      if(mateV4Fresh_(last,retryDays))continue;
     }
     const host=mateV4Host_(x['公式URL']),pages=[];
     for(const url of [x['窓口URL'],x['公式URL']]){
@@ -449,10 +452,14 @@ function mateV4AuditOfficialContacts(){
     checked++;
     try{
       const loaded=pages.map(url=>({url,html:mateV4PublicHtml_(url)}));
-      // If the CRM only has the homepage, find its same-host contact page.
-      if(loaded.length===1&&loaded[0].html){
-        const contact=mateV4ContactLink_(loaded[0].html,loaded[0].url);
-        if(contact)loaded.push({url:contact,html:mateV4PublicHtml_(contact)});
+      // CRM contact URLs may be stale. Prefer the current same-origin
+      // contact link found from the working homepage, even if a saved URL
+      // was present but no longer works. Never submit forms.
+      const home=loaded.find(z=>z.url===x['公式URL']&&z.html);
+      if(home){
+        const contact=mateV4ContactLink_(home.html,home.url);
+        if(contact&&!loaded.some(z=>z.url===contact)&&loaded.length<3)
+          loaded.push({url:contact,html:mateV4PublicHtml_(contact)});
       }
       const valid=loaded.filter(z=>z.html);
       const refused=valid.some(z=>mateV4SalesRefusal_(z.html));
