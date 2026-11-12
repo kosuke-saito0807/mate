@@ -15,7 +15,7 @@ class SeoLaunchTests(unittest.TestCase):
         self.assertIn("Kosuke Saito",operator)
         self.assertIn("<title>斎藤幸輔",operator)
         self.assertIn('<link rel="canonical" href="https://care.kosodatemate.jp/operator.html">',operator)
-        blocks=re.findall(r'<script type="application/ld\\+json">(.*?)</script>',operator,re.S)
+        blocks=re.findall(r'<script type="application/ld\+json">(.*?)</script>',operator,re.S)
         self.assertEqual(len(blocks),1)
         data=json.loads(blocks[0])
         self.assertEqual(data["@type"],"ProfilePage")
