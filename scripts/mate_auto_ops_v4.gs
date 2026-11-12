@@ -19,7 +19,7 @@
  *     shows legally sufficient sender name, actual address and contact details
  *   MATE_AUTO_SEND_LEGAL_REVIEWED = YES
  *   (optional) MATE_DAILY_CAP = 5, maximum 5
- *   MATE_OWNER_COPY_EMAIL = owner's personal Gmail for exact BCC of every real outreach
+ *   Monitoring BCC intentionally disabled. MATE_OWNER_COPY_EMAIL is ignored.
  *   MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED = YES, opt-in to vetted publicly posted business addresses
  *   (optional) MATE_PUBLIC_SITE_AUDIT = OFF, disables safe automatic public-site review
  */
@@ -522,7 +522,7 @@ function previewMateOutreachReadinessV4(){
     dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?30:null,
     outreachStartDate:p.getProperty('MATE_OUTREACH_START_DATE')||'',
     remainingRecipientQuota:MailApp.getRemainingDailyQuota(),
-    maximumExternalMessagesByQuota:Math.floor(MailApp.getRemainingDailyQuota()/2),
+    maximumExternalMessagesByQuota:MailApp.getRemainingDailyQuota(),
     actualDailySendLimitMayBeLowerThanRequested:true,
     totalCandidateRows:leads.length,
     activeSuppressions:stopped.size,
@@ -680,9 +680,6 @@ function mateV4SendOutreach(){
   const today=mateV4Jst_().slice(0,10);
   // Respect the configured start date in every mode, including PILOT and LIVE.
   if(startDate&&(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)||today<startDate))return 'WAIT_FOR_START_DATE';
-  const ownerCopy=String(p.getProperty('MATE_OWNER_COPY_EMAIL')||'').trim().toLowerCase();
-  // Fail closed: never send a third-party campaign without the requested exact BCC copy.
-  if(!/^[a-z0-9._%+-]+@gmail\.com$/i.test(ownerCopy)||ownerCopy===MATE_V4.account)return 'OWNER_COPY_EMAIL_NOT_CONFIGURED';
   const sender='MATE運営事務局'; // Branding in Gmail's display-name only.
   const formalSender=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
   const address=String(p.getProperty('MATE_SENDER_ADDRESS')||'').trim();
@@ -693,9 +690,9 @@ function mateV4SendOutreach(){
   const identity=mateV4FormalSenderIdentity_(p);
   if(!identity.ready)
     throw Error('正式な送信主体の登記・確認が必要です。屋号のみで送信を開始できません。');
-  // Requested target is 30 business recipients per service (90 total), but
-  // every message still consumes 2 recipient-quota units because of owner BCC.
-  // MailApp's live quota remains authoritative; never bypass it.
+  // Requested target: 30 per service, 90 total, with NO owner BCC.
+  // Each message consumes one recipient-quota unit. Live Gmail quota controls
+  // the actual maximum, shared with other sends by this account.
   const maxCap=phase==='PILOT'?1:phase==='BALANCED_15'?15:phase==='PER_SERVICE_30'?90:5;
   const cap=Math.min(maxCap,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const perServiceCap=phase==='BALANCED_15'?5:phase==='PER_SERVICE_30'?30:cap;
@@ -730,10 +727,10 @@ function mateV4SendOutreach(){
   const serviceToday={CARE:0,SPARK:0,PLAY:0};
   for(const log of todays)if(Object.prototype.hasOwnProperty.call(serviceToday,log['サービス']))serviceToday[log['サービス']]++;
   let sent=0;
-  // Each outreach consumes two recipients: external prospect and owner BCC.
-  if(MailApp.getRemainingDailyQuota()<2)return 0;
+  // No monitoring BCC; keep delivery evidence in the sent folder and send log.
+  if(MailApp.getRemainingDailyQuota()<1)return 0;
   for(const x of mateV4BalancedQueue_(leads.filter(x=>x['状態']==='営業可能候補'),today)){
-    if(sent+already>=cap||sent>=maxPerExecution||MailApp.getRemainingDailyQuota()<2)break;
+    if(sent+already>=cap||sent>=maxPerExecution||MailApp.getRemainingDailyQuota()<1)break;
     if(x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE')continue;
     if(!mateV4Fresh_(x['根拠確認日時'],14)||!mateV4Https_(x['確認元URL']))continue;
     if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
@@ -781,8 +778,8 @@ function mateV4SendOutreach(){
     mateV4Append_(sheet,[key,mateV4Jst_(),service,email,subject,'送信結果要確認',x['確認元URL'],x['メール用途・営業可の根拠'],'二重送信防止:実行前に予約']);
     attempted.add(key);allRecipients.add(email);serviceToday[service]++;
     try{
-      // BCC delivers the exact same subject/body for CARE, SPARK, and PLAY, only on real sends.
-      GmailApp.sendEmail(email,subject,body,{name:sender,replyTo:MATE_V4.account,bcc:ownerCopy});
+      // Monitoring BCC is intentionally disabled at the owner's request.
+      GmailApp.sendEmail(email,subject,body,{name:sender,replyTo:MATE_V4.account});
       sheet.getRange(targetRow,6).setValue('送信済');sent++;
     }catch(err){
       sheet.getRange(targetRow,9).setValue('送信状態はGmail送信済みフォルダで確認: '+String(err).slice(0,150));
@@ -942,8 +939,7 @@ function diagnoseMateV4Health(){
     legalReviewed:pre.legalReviewFlag,
     registeredIdentityReady:pre.registeredSenderIdentityReady,
     senderAddressReady:pre.senderAddressSet&&pre.legalAddressPageVerified,
-    bccOwnerConfigured:/^[a-z0-9._%+-]+@gmail\.com$/i.test(
-      String(p.getProperty('MATE_OWNER_COPY_EMAIL')||'').trim()),
+    bccEnabled:false,
     pilotDailyCap:pre.phase==='PILOT'?1:pre.dailyCap,
     configuredStartDate:pre.outreachStartDate,
     currentDate:today,
