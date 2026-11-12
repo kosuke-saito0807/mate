@@ -38,6 +38,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_seo.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_ai_release.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_organic_consultation.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_intake_notification_safety.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_listing_pipeline_health.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_ga4.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_social.py' -v
