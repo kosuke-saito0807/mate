@@ -467,7 +467,10 @@ function mateV4AuditOfficialContacts(){
       const old=mateV4RoleEmail_(x['業務用メール']);
       // If no email was previously listed, avoid selecting an arbitrary
       // third-party address among several generic addresses.
-      const email=old||(!x['業務用メール']&&possible.length===1?possible[0]:'');
+      // An old CRM address is not evidence if it no longer appears on the
+      // company's verified current pages. Prefer the exact existing match;
+      // otherwise use a single unambiguous published business role address.
+      const email=old&&possible.includes(old)?old:(possible.length===1?possible[0]:'');
       const publicPage=email&&!refused?valid.find(z=>mateV4PublishedEmails_(z.html).includes(email)):null;
       const detail=!valid.length?'公式HTTPSページ取得不可':
         refused?'営業・勧誘の拒否表示を検出':
@@ -491,10 +494,14 @@ function mateV4AuditOfficialContacts(){
         tab.getRange(x._row,14).setValue('配信禁止');
         continue;
       }
-      if(!old){
+      if(email!==old){
         tab.getRange(x._row,7).setValue(email);
         discovered++;
       }
+      // "未確認" is a review status, NOT an express refusal. It can be
+      // resolved only after official first-party verification, no refusal
+      // signals and opt-out checking. Never override TRUE/explicit refusals.
+      if(x['営業拒否']==='未確認')tab.getRange(x._row,13).setValue('FALSE');
       tab.getRange(x._row,9).setValue(publicPage.url);
       tab.getRange(x._row,10).setValue('PUBLIC_BUSINESS_EMAIL');
       tab.getRange(x._row,11).setValue(today);
