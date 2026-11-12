@@ -13,6 +13,7 @@ on:
       - "scripts/sync_spark_public.py"
       # Revalidate + deploy when source deployment checks or workflow behavior change.
       - "tests/test_mate_seo.py"
+      - "scripts/audit_all_public_seo.py"
       - "tests/test_mate_ai_release.py"
       - "tests/test_mate_organic_consultation.py"
       - "tests/test_mate_business_acquisition.py"
@@ -38,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Audit all CARE and SPARK indexable URLs (source only)
+        run: python3 scripts/audit_all_public_seo.py
       - name: Test Firebase publication rules
         run: |
           python3 -m unittest discover -s tests -p 'test_spark*.py' -v
