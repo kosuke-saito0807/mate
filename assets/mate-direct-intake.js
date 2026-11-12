@@ -133,6 +133,16 @@
           status.textContent="公開情報に未入力または不正な項目があります。確認してください。";return;
         }
         var token=form.querySelector('[name="cf-turnstile-response"]');
+        // Check Turnstile expiry before navigation, preserving input/photos.
+        if(window.turnstile && typeof window.turnstile.isExpired==="function"){
+          try{
+            if(window.turnstile.isExpired()){
+              if(typeof window.turnstile.reset==="function")window.turnstile.reset();
+              status.textContent="セキュリティ認証の有効期限が切れました。更新後にもう一度送信してください。";
+              return;
+            }
+          }catch(_ignored){}
+        }
         if(!token||!token.value){status.textContent="セキュリティ認証の完了後に送信してください。";return}
         pending=true;
         if(button){button.disabled=true;button.textContent="送信しています…"}
