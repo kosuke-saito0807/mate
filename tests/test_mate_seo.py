@@ -28,6 +28,28 @@ class SeoLaunchTests(unittest.TestCase):
         llms=(ROOT/"llms.txt").read_text(encoding="utf-8")
         self.assertIn("斎藤幸輔",llms)
 
+    def test_all_guide_publishers_have_official_operator_identity(self):
+        paths=(
+            "guides.html", "guide-sitter-choice.html",
+            "guide-family-outing.html", "guide-sitter-first-visit.html",
+            "guide-baby-outing-prep.html", "guide-sitter-fees-check.html",
+            "guide-weekend-family-event.html",
+            "spark/guide-lessons-choice.html",
+            "spark/guide-lesson-trial-review.html",
+            "spark/guide-lesson-age-fit.html",
+        )
+        for path in paths:
+            with self.subTest(path=path):
+                html=(ROOT/path).read_text(encoding="utf-8")
+                match=re.search(r'<script type="application/ld\\+json">(.*?)</script>',html,re.S)
+                self.assertIsNotNone(match)
+                data=json.loads(match.group(1))
+                nodes=data if isinstance(data,list) else [data]
+                primary=next((node for node in nodes if node.get("publisher",{}).get("name")=="NextEdu"),None)
+                self.assertIsNotNone(primary)
+                self.assertEqual(primary["publisher"]["url"],"https://care.kosodatemate.jp/operator.html")
+                self.assertEqual(primary["publisher"]["founder"]["name"],"斎藤幸輔")
+
     def test_home_canonicals_and_structured_data(self):
         for rel, url in [
             ("index.html", "https://care.kosodatemate.jp/"),
