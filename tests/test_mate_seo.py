@@ -41,7 +41,7 @@ class SeoLaunchTests(unittest.TestCase):
         for path in paths:
             with self.subTest(path=path):
                 html=(ROOT/path).read_text(encoding="utf-8")
-                match=re.search(r'<script type="application/ld\\+json">(.*?)</script>',html,re.S)
+                match=re.search(r'<script type="application/ld\+json">(.*?)</script>',html,re.S)
                 self.assertIsNotNone(match)
                 data=json.loads(match.group(1))
                 nodes=data if isinstance(data,list) else [data]
