@@ -136,7 +136,10 @@ class SiteIntegrity(unittest.TestCase):
             if page.name=="operator.html" and page.parent==ROOT:
                 continue
             body=page.read_text(encoding="utf-8")
-            self.assertNotIn("斎藤幸輔",body,str(page))
+            # Founder identity in cross-page SEO metadata and footer is intentional.
+            # Keep full personal biography and book details on the operator page only.
+            self.assertNotIn("明治大学商学部卒業。在学中に教員免許を取得。",body,str(page))
+            self.assertNotIn("監修書籍",body,str(page))
         spark=(ROOT / "spark/index.html").read_text(encoding="utf-8")
         self.assertNotIn("formsubmit.co",spark)
         self.assertIn("trialIntakeEnabled=false;",spark)

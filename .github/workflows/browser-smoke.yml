@@ -29,7 +29,8 @@ permissions:
 
 jobs:
   local-browser-audit:
-    runs-on: ubuntu-latest
+    # Pin a Playwright-supported Ubuntu runner for browser QA.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6

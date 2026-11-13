@@ -144,6 +144,7 @@ settings.MATE_AUTO_SEND_LEGAL_REVIEWED='YES';
 settings.MATE_OUTREACH_PHASE='OFF';
 assert.equal(run("mateV4SendOutreach()"),'OFF','phase OFF blocks sending even after PILOT preparation');
 settings.MATE_OUTREACH_PHASE='PILOT';
+delete settings.MATE_OUTREACH_START_DATE; // Reset the earlier future start date to exercise the sender-address gate.
 assert.throws(()=>run("mateV4SendOutreach()"),/確認済みの事業所在地/);
 settings.MATE_SENDER_NAME='NextEdu MATE運営';
 settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
@@ -159,7 +160,7 @@ assert.equal(run("mateV4SendOutreach()"),'OFF','disabled phase blocks all sendin
 settings.MATE_OUTREACH_PHASE='PILOT';
 assert.equal(mails,0);
 assert.equal(run("mateV4Email_('personal@gmail.com')"),'','exclude personal email');
-assert.equal(run("mateV4Email_('partner@example.org')"),'partner@example.org');
+assert.equal(run("mateV4Email_('partner@example.org')"),'','reserved example domains must never enter outbound queue');
 assert.equal(run("mateV4SyncReferralLedger()"),1,'only fully consented referral is logged');
 assert.equal(referrals.length,2);
 assert.equal(referrals[1][2],'PLAY');
@@ -178,11 +179,11 @@ assert.equal(run("mateV4PrepareReviewDrafts()"),0,'never duplicate a review draf
 
 // A reply to an actually sent campaign is attributed without auto-answering.
 leads[1][13]='営業可能候補';
-log.push([leads[1][11],'2026-10-31 15:00:00','CARE','info@example.org',
+log.push([leads[1][11],'2026-10-31 15:00:00','CARE','info@vendor.invalid',
   '【MATE CARE】無料掲載のご案内','送信済','https://www.example.org/contact','OPT_IN','']);
-context.GmailApp.search=query=>query.includes('in:inbox newer_than:45d from:info@example.org')
+context.GmailApp.search=query=>query.includes('in:inbox newer_than:45d from:info@vendor.invalid')
   ?[{getMessages:()=>[{
-      getFrom:()=> 'Company <info@example.org>',
+      getFrom:()=> 'Company <info@vendor.invalid>',
       getSubject:()=> 'Re: 【MATE CARE】無料掲載のご案内',
       getDate:()=>new Date('2026-10-31T15:10:00+09:00'),
       getId:()=> 'reply-example-1'
@@ -205,13 +206,14 @@ assert.equal(gapRows[1]._row,4,'physical row preserved after blank row');
 sheet('収集元設定V1',['サービス','ソース名','取得元CSV HTTPS URL','再利用許諾確認','有効','最終取込日時','前回結果'],[
  ['SPARK','Source with unreviewed opt-in claim','https://licensed.example.org/data.csv','確認済み','TRUE','','']
 ]);
+const licensedCsv=[
+  'service,name,website,region,email,contact_url,source_url,mail_basis,checked_at,solicitation_prohibited',
+  'SPARK,Licensed Studio,https://licensed.example.org/,Tokyo,partners@licensed.example.org,https://licensed.example.org/contact,https://licensed.example.org/contact,OPT_IN,2026-11-01,FALSE'
+].join(String.fromCharCode(10));
 context.UrlFetchApp={fetch:()=>({
- getResponseCode:()=>200,
- getBlob:()=>({getBytes:()=>Array(300).fill(65)}),
- getContentText:()=>[
- 'service,name,website,region,email,contact_url,source_url,mail_basis,checked_at,solicitation_prohibited',
- 'SPARK,Licensed Studio,https://licensed.example.org/,Tokyo,partners@licensed.example.org,https://licensed.example.org/contact,https://licensed.example.org/contact,OPT_IN,2026-11-01,FALSE'
- ].join('\n')
+  getResponseCode:()=>200,
+  getBlob:()=>({getBytes:()=>Array(300).fill(65),getDataAsString:()=>licensedCsv}),
+  getContentText:()=>licensedCsv
 })};
 context.Utilities.parseCsv=text=>text.trim().split(/\r?\n/).map(line=>line.split(','));
 context.Utilities.computeDigest=(algo,input)=>Array.from({length:32},(_,i)=>(input.length+i*7)%256);
@@ -227,12 +229,13 @@ context.UrlFetchApp.fetch=url=>{
   return {
     getResponseCode:()=>200,
     getBlob:()=>({getBytes:()=>Array(200).fill(65)}),
+  getHeaders:()=>({'Content-Type':'text/html'}),
     getContentText:()=>'<html><body><h1>Licensed Studio</h1><a href="mailto:partners@licensed.example.org">お問い合わせ</a></body></html>'
   };
 };
 settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='NO';
-assert.equal(run("mateV4RoleEmail_('ceo@example.org')"),'','personal employee email not for bulk marketing');
-assert.equal(run("mateV4RoleEmail_('info@example.org')"),'info@example.org');
+assert.equal(run("mateV4RoleEmail_('ceo@licensed.example.org')"),'','personal employee email not for bulk marketing');
+assert.equal(run("mateV4RoleEmail_('info@licensed.example.org')"),'info@licensed.example.org');
 let audit=run("mateV4AuditOfficialContacts()");
 assert.equal(audit.checked,1);
 assert.equal(audit.eligible,0,'public page alone does not enable unsolicited sending');
@@ -271,6 +274,7 @@ leads.push(publishDone);
 context.UrlFetchApp.fetch=url=>({
  getResponseCode:()=>200,
  getBlob:()=>({getBytes:()=>Array(400).fill(65)}),
+  getHeaders:()=>({'Content-Type':'text/html'}),
  getContentText:()=>'<html><body><p>営業メールはお断りしております</p><a href="mailto:partners@licensed.example.org">contact</a></body></html>'
 });
 audit=run("mateV4AuditOfficialContacts()");
@@ -320,6 +324,9 @@ sheet('SPARK営業候補',['ID','企業・教室名','都県・対象','公式�
 sheet('営業管理DB',['ID','事業者名','公式サイト','エリア'],[
   ['care-1','登録済み候補と重複しないベビーシッター','https://new-care-provider.example.org/','東京都']
 ]);
+// Additional registered directory tabs may be empty, but must exist in the test workbook.
+sheet('東京都認定_営業優先',['事業所名','公式サイト','エリア']);
+sheet('今すぐ営業リスト',['統合営業先名','公式サイト','届出元・エリア']);
 const extra=run('mateV4SeedSectorDirectories()');
 assert.equal(extra.total,2,'two safe review-only sector candidates added');
 assert.equal(extra.byService.CARE,1);assert.equal(extra.byService.SPARK,1);

@@ -458,8 +458,14 @@ function mateV4AuditOfficialContacts(){
   const autoException=p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'&&
     p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES';
   const b=mateV4Book_(),tab=mateV4Tab_(b,MATE_V4.leads);
-  const leads=mateV4Rows_(tab).sort((a,b)=>
-    Number(b['状態']==='公式公開メール確認済・送信待機')-Number(a['状態']==='公式公開メール確認済・送信待機'));
+  // Audit prospects most likely to produce a legitimate first contact first:
+  //   1. verified and held businesses, 2. pending businesses with an existing
+  //   role mailbox to recheck, 3. no-mailbox prospects needing discovery.
+  // No state, rejection or quota gate is changed by this ordering.
+  const auditPriority=x=>x['状態']==='公式公開メール確認済・送信待機'?0:
+    x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(x['業務用メール'])?1:
+    x['状態']==='窓口確認待ち'?2:3;
+  const leads=mateV4Rows_(tab).sort((a,b)=>auditPriority(a)-auditPriority(b));
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
@@ -520,7 +526,13 @@ function mateV4AuditOfficialContacts(){
       // An old CRM address is not evidence if it no longer appears on the
       // company's verified current pages. Prefer the exact existing match;
       // otherwise use a single unambiguous published business role address.
-      const email=old&&possible.includes(old)?old:(possible.length===1?possible[0]:'');
+      // If several public role mailboxes exist, prefer a uniquely identified
+      // business/partnership/sales channel over customer-support addresses.
+      // Do not guess between two sales channels or harvest personal emails.
+      const businessRoles=possible.filter(v=>/^(?:business|partner|partners|partnerships|sales)(?:[._+-][a-z0-9]+)?@/i.test(v));
+      const email=old&&possible.includes(old)?old:
+        businessRoles.length===1?businessRoles[0]:
+        possible.length===1?possible[0]:'';
       const publicPage=email&&!refused?valid.find(z=>mateV4PublishedEmails_(z.html).includes(email)):null;
       const detail=!valid.length?'公式HTTPSページ取得不可':
         refused?'営業・勧誘の拒否表示を検出':
