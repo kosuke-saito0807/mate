@@ -18,6 +18,15 @@ class OutreachNoBccTests(unittest.TestCase):
         self.assertIn("MATE_AUTO_SEND_LEGAL_REVIEWED",send)
         self.assertIn("bccCodePolicy:'DISABLED_IN_THIS_SOURCE_ONLY'",SRC)
         self.assertIn("otherProjectsNotInspected:true",SRC)
+    def test_readiness_surfaces_aggregated_contact_failures_without_send(self):
+        preview=SRC.split("function previewMateOutreachReadinessV4(){",1)[1].split("function mateV4PublicMailOperatorReview_",1)[0]
+        self.assertIn("pendingByService",preview)
+        self.assertIn("missingEmailByService",preview)
+        self.assertIn("noUniqueOfficialEmail",preview)
+        self.assertIn("httpsUnavailable",preview)
+        self.assertIn("fetchFailed",preview)
+        self.assertNotIn("GmailApp.sendEmail(",preview)
+
     def test_official_contact_discovery_retries_without_relaxing_send_checks(self):
         audit = SRC.split("function mateV4AuditOfficialContacts(){",1)[1].split("function previewMateOutreachReadinessV4(){",1)[0]
         self.assertIn("const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:14",audit)
