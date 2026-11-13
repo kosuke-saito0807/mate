@@ -1111,13 +1111,24 @@ function mateV4DailyGrowthDigest(){
   const leads=mateV4Rows_(mateV4Tab_(book,MATE_V4.leads));
   const sent=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
   const application=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
-  const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0};
-  for(const r of leads)if(r['サービス'] in count)count[r['サービス']]++;
+  const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0},pending={CARE:0,SPARK:0,PLAY:0},mailMissing={CARE:0,SPARK:0,PLAY:0};
+  let auditedToday=0;
+  for(const r of leads){
+    const service=r['サービス'];
+    if(!(service in count))continue;
+    count[service]++;
+    if(r['状態']==='窓口確認待ち')pending[service]++;
+    if(!mateV4RoleEmail_(r['業務用メール']))mailMissing[service]++;
+    if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+today))auditedToday++;
+  }
   for(const r of application)if(r['サービス'] in approved &&
     r['審査状態']==='承認')approved[r['サービス']]++;
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    '窓口確認待ち：CARE '+pending.CARE+' / SPARK '+pending.SPARK+' / PLAY '+pending.PLAY,
+    '公式業務メール未取得・不適合：CARE '+mailMissing.CARE+' / SPARK '+mailMissing.SPARK+' / PLAY '+mailMissing.PLAY,
+    '本日公式窓口監査済み：'+auditedToday,
     '承認済み申請：CARE '+approved.CARE+' / SPARK '+approved.SPARK+' / PLAY '+approved.PLAY,
     '本日送信試行ログ：'+sent.filter(r=>r['送信処理日時'].startsWith(today)).length,
     '本日未審査申請：'+application.filter(r=>r['受信日時']&&r['受信日時'].startsWith(today)&&r['審査状態']!=='承認').length,
