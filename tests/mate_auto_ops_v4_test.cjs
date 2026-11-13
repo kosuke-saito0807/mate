@@ -35,6 +35,9 @@ const crm=sheet('3サービス営業リスト',['ID','サービス','企業・�
  ['CARE-DEMO','CARE','掲載未許諾のテスト会社','https://www.example.org/contact','東京都','info@example.org','2026-10-31']
 ]);
 const book={getSheetByName:n=>tabs[n]};
+// Stable simulated clock: audit freshness must not depend on today's real date.
+// The scenario checks the 2026-10-31 / 2026-11-12 operator workflow.
+class TestDate extends Date { static now(){return Date.parse('2026-11-12T12:00:00+09:00')} }
 const context=vm.createContext({
  Session:{getEffectiveUser:()=>({getEmail:()=> 'kosodatemate@gmail.com'})},
  SpreadsheetApp:{openById:()=>book},
@@ -49,7 +52,7 @@ const context=vm.createContext({
   computeDigest:()=>Array.from({length:32},(_,i)=>i+1),
   DigestAlgorithm:{SHA_256:'SHA_256'},
  },
- URL:undefined,Date,console
+ URL:undefined,Date:TestDate,console
 });
 vm.runInContext(source,context,{filename:'mate_auto_ops_v4.gs'});
 const run=(expr)=>vm.runInContext(expr,context);
