@@ -324,6 +324,9 @@ sheet('SPARK営業候補',['ID','企業・教室名','都県・対象','公式�
 sheet('営業管理DB',['ID','事業者名','公式サイト','エリア'],[
   ['care-1','登録済み候補と重複しないベビーシッター','https://new-care-provider.example.org/','東京都']
 ]);
+// Additional registered directory tabs may be empty, but must exist in the test workbook.
+sheet('東京都認定_営業優先',['事業所名','公式サイト','エリア']);
+sheet('今すぐ営業リスト',['統合営業先名','公式サイト','届出元・エリア']);
 const extra=run('mateV4SeedSectorDirectories()');
 assert.equal(extra.total,2,'two safe review-only sector candidates added');
 assert.equal(extra.byService.CARE,1);assert.equal(extra.byService.SPARK,1);
