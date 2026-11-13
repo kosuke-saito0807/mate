@@ -604,12 +604,29 @@ function previewMateOutreachReadinessV4(){
     maximumExternalMessagesByQuota:MailApp.getRemainingDailyQuota(),
     actualDailySendLimitMayBeLowerThanRequested:true,
     totalCandidateRows:leads.length,
+    // Status and failure reasons are internal aggregates, never recipient data.
+    pendingByService:{CARE:0,SPARK:0,PLAY:0},
+    missingEmailByService:{CARE:0,SPARK:0,PLAY:0},
+    auditIssues:{noUniqueOfficialEmail:0,httpsUnavailable:0,fetchFailed:0,officialAddressNoLongerVerified:0,other:0},
     activeSuppressions:stopped.size,
     outreachLogRows:logs.length,
     eligibleByScriptChecks:{CARE:0,SPARK:0,PLAY:0},
     notEvidenceOfLegalPermission:true
   };
   const seenEmails=new Set();
+  for(const x of leads){
+    const service=x['サービス'];
+    if(!Object.prototype.hasOwnProperty.call(output.pendingByService,service)||
+       x['状態']!=='窓口確認待ち')continue;
+    output.pendingByService[service]++;
+    if(!mateV4Email_(x['業務用メール']))output.missingEmailByService[service]++;
+    const note=String(x['最終確認結果']||'');
+    const reason=/企業の公開窓口メールを一意に確認できず/.test(note)?'noUniqueOfficialEmail':
+      /公式HTTPSページ取得不可/.test(note)?'httpsUnavailable':
+      /取得失敗/.test(note)?'fetchFailed':
+      /既存メールは公式ページで確認できず/.test(note)?'officialAddressNoLongerVerified':'other';
+    output.auditIssues[reason]++;
+  }
   leads.forEach(function(x){
     const service=x['サービス'],email=mateV4Email_(x['業務用メール']),key=x['重複キー'];
     if(mateV4OwnerBlocked_(x)||!['CARE','SPARK','PLAY'].includes(service)||!email||!key)return;
