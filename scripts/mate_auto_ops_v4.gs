@@ -179,7 +179,7 @@ function mateV4SeedSectorDirectories(){
     .map(x=>x['サービス']+'|'+mateV4Host_(x['公式URL'])).filter(x=>!x.endsWith('|')));
   // Same company may have a dedicated booking subdomain and a separate
   // corporate domain. Dedupe verified entity names too, not just URLs.
-  const companyKey=name=>String(name||'').replace(/\\s|　/g,'')
+  const companyKey=name=>String(name||'').replace(/\s|　/g,'')
     .replace(/(?:特定非営利活動法人|認定NPO法人|NPO法人|株式会社|合同会社|有限会社|一般社団法人|社会福祉法人)/g,'')
     .toLowerCase();
   const seenCompanies=new Set(queue.filter(x=>['CARE','SPARK','PLAY'].includes(x['サービス']))
