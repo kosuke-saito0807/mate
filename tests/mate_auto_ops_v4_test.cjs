@@ -179,11 +179,11 @@ assert.equal(run("mateV4PrepareReviewDrafts()"),0,'never duplicate a review draf
 
 // A reply to an actually sent campaign is attributed without auto-answering.
 leads[1][13]='営業可能候補';
-log.push([leads[1][11],'2026-10-31 15:00:00','CARE','info@example.org',
+log.push([leads[1][11],'2026-10-31 15:00:00','CARE','info@vendor.invalid',
   '【MATE CARE】無料掲載のご案内','送信済','https://www.example.org/contact','OPT_IN','']);
-context.GmailApp.search=query=>query.includes('in:inbox newer_than:45d from:info@example.org')
+context.GmailApp.search=query=>query.includes('in:inbox newer_than:45d from:info@vendor.invalid')
   ?[{getMessages:()=>[{
-      getFrom:()=> 'Company <info@example.org>',
+      getFrom:()=> 'Company <info@vendor.invalid>',
       getSubject:()=> 'Re: 【MATE CARE】無料掲載のご案内',
       getDate:()=>new Date('2026-10-31T15:10:00+09:00'),
       getId:()=> 'reply-example-1'
