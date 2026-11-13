@@ -44,6 +44,17 @@ class OutreachNoBccTests(unittest.TestCase):
         self.assertIn("if(x['営業拒否']==='TRUE'",audit)
         self.assertIn("if(refused)",audit)
 
+    def test_first_party_audit_prioritizes_known_role_mailboxes(self):
+        audit=SRC.split("function mateV4AuditOfficialContacts(){",1)[1].split("function previewMateOutreachReadinessV4(){",1)[0]
+        self.assertIn("const auditPriority=x=>",audit)
+        self.assertIn("mateV4RoleEmail_(x['業務用メール'])",audit)
+        self.assertIn("auditPriority(a)-auditPriority(b)",audit)
+        self.assertIn("businessRoles.length===1?businessRoles[0]",audit)
+        self.assertIn("possible.length===1?possible[0]",audit)
+        self.assertIn("mateV4SalesRefusal_(z.html)",audit)
+        self.assertIn("stopped.has(email)",audit)
+        self.assertNotIn("GmailApp.sendEmail(",audit)
+
     def test_business_site_redirects_do_not_follow_third_parties(self):
         getter=SRC.split("function mateV4PublicHtml_(url){",1)[1].split("function mateV4ContactLink_",1)[0]
         self.assertIn("followRedirects:false",getter)
