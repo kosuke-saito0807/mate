@@ -462,9 +462,10 @@ function mateV4AuditOfficialContacts(){
   //   1. verified and held businesses, 2. pending businesses with an existing
   //   role mailbox to recheck, 3. no-mailbox prospects needing discovery.
   // No state, rejection or quota gate is changed by this ordering.
-  const auditPriority=x=>x['状態']==='公式公開メール確認済・送信待機'?0:
-    x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(x['業務用メール'])?1:
-    x['状態']==='窓口確認待ち'?2:3;
+  const auditPriority=x=>x['状態']==='営業可能候補'&&x['営業拒否']==='未確認'?0:
+    x['状態']==='公式公開メール確認済・送信待機'?1:
+    x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(x['業務用メール'])?2:
+    x['状態']==='窓口確認待ち'?3:4;
   const leads=mateV4Rows_(tab).sort((a,b)=>auditPriority(a)-auditPriority(b));
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
@@ -478,7 +479,10 @@ function mateV4AuditOfficialContacts(){
   for(const x of leads){
     if(checked>=batchSize)break;
     if(mateV4OwnerBlocked_(x)||!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
-    if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
+    // A previously verified address is not sendable when refusal remains
+    // '未確認'. Recheck the first-party page, then resolve that status only
+    // when no solicitation refusal is observed in this fresh audit.
+    if(x['状態']==='営業可能候補'&&x['営業拒否']==='FALSE'&&mateV4PublicMailOperatorReview_(x))continue;
     // Explicitly designated sales email on the company's official page is
     // distinct from a customer-only web form. Preserve recently reviewed
     // SOLICITATIONS_WELCOME rows; do not infer permission from form text.
@@ -495,9 +499,9 @@ function mateV4AuditOfficialContacts(){
     }
     // Never repeat a failed/ambiguous audit every hour: advance through the
     // queue of candidates rather than starving all but the first 12.
-    if(note.startsWith('AUTO_AUDIT '+today))continue;
+    if(note.startsWith('AUTO_AUDIT '+today)&&x['営業拒否']!=='未確認')continue;
     const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
-    if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
+    if(x['営業拒否']!=='未確認'&&!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
       // Transient failures are retried sooner, while the sending evidence
       // requirements remain unchanged.
