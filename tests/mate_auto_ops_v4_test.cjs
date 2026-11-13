@@ -233,8 +233,8 @@ context.UrlFetchApp.fetch=url=>{
   };
 };
 settings.MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED='NO';
-assert.equal(run("mateV4RoleEmail_('ceo@example.org')"),'','personal employee email not for bulk marketing');
-assert.equal(run("mateV4RoleEmail_('info@example.org')"),'info@example.org');
+assert.equal(run("mateV4RoleEmail_('ceo@licensed.example.org')"),'','personal employee email not for bulk marketing');
+assert.equal(run("mateV4RoleEmail_('info@licensed.example.org')"),'info@licensed.example.org');
 let audit=run("mateV4AuditOfficialContacts()");
 assert.equal(audit.checked,1);
 assert.equal(audit.eligible,0,'public page alone does not enable unsolicited sending');
