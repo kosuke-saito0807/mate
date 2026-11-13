@@ -499,7 +499,9 @@ function mateV4AuditOfficialContacts(){
     }
     // Never repeat a failed/ambiguous audit every hour: advance through the
     // queue of candidates rather than starving all but the first 12.
-    if(note.startsWith('AUTO_AUDIT '+today)&&x['営業拒否']!=='未確認')continue;
+    // Even unresolved candidates get at most one first-party fetch per day.
+    // This prevents a failed address lookup starving the rest of the queue.
+    if(note.startsWith('AUTO_AUDIT '+today))continue;
     const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
     if(x['営業拒否']!=='未確認'&&!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
