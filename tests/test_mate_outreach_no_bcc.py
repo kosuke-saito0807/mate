@@ -35,6 +35,24 @@ class OutreachNoBccTests(unittest.TestCase):
         self.assertIn("if(x['営業拒否']==='TRUE'",audit)
         self.assertIn("if(refused)",audit)
 
+    def test_business_site_redirects_do_not_follow_third_parties(self):
+        getter=SRC.split("function mateV4PublicHtml_(url){",1)[1].split("function mateV4ContactLink_",1)[0]
+        self.assertIn("followRedirects:false",getter)
+        self.assertIn("mateV4Host_(target)!==originalHost",getter)
+        self.assertIn("mateV4Https_(target)",getter)
+        self.assertIn("if(status!==200)return ''",getter)
+        self.assertIn("bytes.length>250000",getter)
+        self.assertIn("hop<2",getter)
+    def test_curated_registry_reuses_prospects_without_unverified_sends(self):
+        seed=SRC.split("function mateV4SeedSectorDirectories(){",1)[1].split("/** Business fit is a rank hint",1)[0]
+        self.assertIn("東京都認定_営業優先",seed)
+        self.assertIn("今すぐ営業リスト",seed)
+        self.assertIn("seenBusinessHosts",seed)
+        self.assertIn("mateV4OwnerBlocked_",seed)
+        self.assertIn("'UNVERIFIED'",seed)
+        self.assertIn("'窓口確認待ち'",seed)
+        self.assertNotIn("GmailApp.sendEmail(",seed)
+
 
 if __name__ == "__main__":
     unittest.main()
