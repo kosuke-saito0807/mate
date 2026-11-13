@@ -7,6 +7,7 @@
 - [家庭向け相談](https://care.kosodatemate.jp/consult.html): CARE、SPARK、PLAYの相談窓口
 - [利用ガイド](https://care.kosodatemate.jp/guides.html): 子育て・外出に関するガイド
 - [シッターの選び方](https://care.kosodatemate.jp/guide-sitter-choice.html): 比較の基本事項
+- [ベビーシッターは何時間から？料金総額の確認](https://care.kosodatemate.jp/guide-sitter-hourly-cost.html): 最低利用時間・交通費・延長・キャンセル料金の比較
 - [斎藤幸輔（Kosuke Saito）・MATE運営者プロフィール](https://care.kosodatemate.jp/operator.html): NextEdu代表、CARE・SPARK・PLAYの運営者情報とお問い合わせ先
 - [プライバシーポリシー](https://care.kosodatemate.jp/privacy.html)
 - [サイトマップ](https://care.kosodatemate.jp/sitemap.xml)
