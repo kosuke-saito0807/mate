@@ -339,17 +339,44 @@ function mateV4OptoutInbox(){
  * The sender must explicitly opt into the legal exception as a SCRIPT PROPERTY.
  */
 function mateV4PublicHtml_(url){
+  // Follow short HTTPS redirects only to the exact same business host
+  // (optional www prefix). A 301 http->https downgrade and third-party
+  // redirects are never followed, nor are IP/private/intranet hosts fetched.
   if(!mateV4Https_(url))return '';
-  const host=mateV4Host_(url);
-  if(/^\d+(?:\.\d+){3}$/.test(host)||/\.(?:local|internal|test|example)$/.test(host))return '';
-  const r=UrlFetchApp.fetch(url,{
-    muteHttpExceptions:true,followRedirects:false,timeout:10000
-  });
-  if(r.getResponseCode()!==200)return '';
-  const bytes=r.getBlob().getBytes();
-  if(bytes.length>250000)return '';
-  const html=r.getContentText('UTF-8');
-  return /<(?:html|body|main|a|div|p)\b/i.test(html)?html.slice(0,250000):'';
+  const originalHost=mateV4Host_(url);
+  if(/^\\d+(?:\\.\\d+){3}$/.test(originalHost)||/\\.(?:local|internal|test|example)$/.test(originalHost))return '';
+  let current=url;
+  for(let hop=0;hop<3;hop++){
+    const r=UrlFetchApp.fetch(current,{
+      muteHttpExceptions:true,followRedirects:false,timeout:10000
+    });
+    const status=r.getResponseCode();
+    if([301,302,303,307,308].includes(status)&&hop<2){
+      const headers=r.getAllHeaders();
+      const location=String(headers.Location||headers.location||'').trim();
+      if(!location||location.length>500)return '';
+      let target='';
+      if(/^https:\/\//i.test(location))target=location;
+      else if(location.startsWith('/')&&!location.startsWith('//')){
+        const m=current.match(/^https:\/\/[^\/]+/i);
+        if(m)target=m[0]+location;
+      }else if(!/^[a-z][a-z0-9+.-]*:/i.test(location)&&!location.startsWith('//')){
+        const clean=current.replace(/[?#].*$/,'');
+        target=clean.slice(0,clean.lastIndexOf('/')+1)+location;
+      }
+      if(!mateV4Https_(target)||mateV4Host_(target)!==originalHost||target===current)return '';
+      current=target;
+      continue;
+    }
+    if(status!==200)return '';
+    const contentType=String(r.getHeaders()['Content-Type']||r.getHeaders()['content-type']||'');
+    if(contentType&&!/text\/html|application\/xhtml\+xml/i.test(contentType))return '';
+    const bytes=r.getBlob().getBytes();
+    if(bytes.length>250000)return '';
+    const html=r.getContentText('UTF-8');
+    return /<(?:html|body|main|a|div|p)\b/i.test(html)?html.slice(0,250000):'';
+  }
+  return '';
 }
 function mateV4ContactLink_(html,baseUrl){
   const host=mateV4Host_(baseUrl),root='https://'+host;
