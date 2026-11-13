@@ -469,9 +469,14 @@ function mateV4AuditOfficialContacts(){
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
+  // Audit more companies without overwhelming Apps Script's execution limit.
+  // Can tune between 8 and 24 without another code deployment.
+  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||18);
+  const batchSize=Number.isFinite(requested)?
+    Math.min(24,Math.max(8,Math.floor(requested))):18;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
-    if(checked>=12)break;
+    if(checked>=batchSize)break;
     if(mateV4OwnerBlocked_(x)||!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
     if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
     // Explicitly designated sales email on the company's official page is
@@ -496,7 +501,8 @@ function mateV4AuditOfficialContacts(){
       const last=note.slice(11,21);
       // Transient failures are retried sooner, while the sending evidence
       // requirements remain unchanged.
-      const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:14;
+      const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:
+        /企業の公開窓口メールを一意に確認できず|既存メールは公式ページで確認できず/.test(note)?3:14;
       if(mateV4Fresh_(last,retryDays))continue;
     }
     const host=mateV4Host_(x['公式URL']),pages=[];
@@ -580,7 +586,7 @@ function mateV4AuditOfficialContacts(){
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
   }
-  return {checked,eligible,discovered};
+  return {checked,eligible,discovered,batchSize};
 }
 
 /**
