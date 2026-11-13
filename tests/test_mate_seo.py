@@ -9,6 +9,19 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 
 class SeoLaunchTests(unittest.TestCase):
+    def test_two_year_old_lesson_guide_is_discoverable(self):
+        url="https://spark.kosodatemate.jp/guide-lessons-age-two.html"
+        page=(ROOT/"spark/guide-lessons-age-two.html").read_text(encoding="utf-8")
+        self.assertIn('<link rel="canonical" href="'+url+'">',page)
+        self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">',page)
+        self.assertIn('application/ld+json',page)
+        self.assertIn('2歳',page)
+        self.assertIn(url,(ROOT/"spark/sitemap.xml").read_text(encoding="utf-8"))
+        self.assertIn("guide-lessons-age-two.html",(ROOT/"spark/index.html").read_text(encoding="utf-8"))
+        self.assertIn(url,(ROOT/"guides.html").read_text(encoding="utf-8"))
+        self.assertIn(url,(ROOT/"spark/llms.txt").read_text(encoding="utf-8"))
+        self.assertIn("MATE SPARKで習い事を探す",page)
+
     def test_new_cost_guides_are_indexable_and_connected(self):
         cases = [
             ("guide-sitter-hourly-cost.html", "https://care.kosodatemate.jp/guide-sitter-hourly-cost.html", "index.html", "sitemap.xml"),
