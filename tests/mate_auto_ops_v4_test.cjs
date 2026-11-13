@@ -229,6 +229,7 @@ context.UrlFetchApp.fetch=url=>{
   return {
     getResponseCode:()=>200,
     getBlob:()=>({getBytes:()=>Array(200).fill(65)}),
+  getHeaders:()=>({'Content-Type':'text/html'}),
     getContentText:()=>'<html><body><h1>Licensed Studio</h1><a href="mailto:partners@licensed.example.org">お問い合わせ</a></body></html>'
   };
 };
@@ -273,6 +274,7 @@ leads.push(publishDone);
 context.UrlFetchApp.fetch=url=>({
  getResponseCode:()=>200,
  getBlob:()=>({getBytes:()=>Array(400).fill(65)}),
+  getHeaders:()=>({'Content-Type':'text/html'}),
  getContentText:()=>'<html><body><p>営業メールはお断りしております</p><a href="mailto:partners@licensed.example.org">contact</a></body></html>'
 });
 audit=run("mateV4AuditOfficialContacts()");
