@@ -29,7 +29,14 @@ class OutreachNoBccTests(unittest.TestCase):
 
     def test_official_contact_discovery_retries_without_relaxing_send_checks(self):
         audit = SRC.split("function mateV4AuditOfficialContacts(){",1)[1].split("function previewMateOutreachReadinessV4(){",1)[0]
-        self.assertIn("const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:14",audit)
+        self.assertIn("const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:",audit)
+        self.assertIn("MATE_PUBLIC_AUDIT_BATCH",audit)
+        self.assertIn("Math.min(24,Math.max(8,Math.floor(requested)))",audit)
+        self.assertIn("batchSize",audit)
+        self.assertIn("x['状態']==='営業可能候補'&&x['営業拒否']==='未確認'?0",audit)
+        self.assertIn("x['営業拒否']==='FALSE'&&mateV4PublicMailOperatorReview_(x)",audit)
+        self.assertIn("if(x['営業拒否']!=='未確認'&&!recheckHeld",audit)
+        self.assertIn("if(x['営業拒否']==='未確認')tab.getRange(x._row,13).setValue('FALSE')",audit)
         self.assertIn("mateV4ContactLink_(home.html,home.url)",audit)
         self.assertIn("mateV4PublicHtml_(contact)",audit)
         self.assertIn("mateV4SalesRefusal_(z.html)",audit)

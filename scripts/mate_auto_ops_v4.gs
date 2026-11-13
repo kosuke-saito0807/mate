@@ -462,18 +462,27 @@ function mateV4AuditOfficialContacts(){
   //   1. verified and held businesses, 2. pending businesses with an existing
   //   role mailbox to recheck, 3. no-mailbox prospects needing discovery.
   // No state, rejection or quota gate is changed by this ordering.
-  const auditPriority=x=>x['状態']==='公式公開メール確認済・送信待機'?0:
-    x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(x['業務用メール'])?1:
-    x['状態']==='窓口確認待ち'?2:3;
+  const auditPriority=x=>x['状態']==='営業可能候補'&&x['営業拒否']==='未確認'?0:
+    x['状態']==='公式公開メール確認済・送信待機'?1:
+    x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(x['業務用メール'])?2:
+    x['状態']==='窓口確認待ち'?3:4;
   const leads=mateV4Rows_(tab).sort((a,b)=>auditPriority(a)-auditPriority(b));
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
+  // Audit more companies without overwhelming Apps Script's execution limit.
+  // Can tune between 8 and 24 without another code deployment.
+  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||18);
+  const batchSize=Number.isFinite(requested)?
+    Math.min(24,Math.max(8,Math.floor(requested))):18;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
-    if(checked>=12)break;
+    if(checked>=batchSize)break;
     if(mateV4OwnerBlocked_(x)||!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
-    if(x['状態']==='営業可能候補'&&mateV4PublicMailOperatorReview_(x))continue;
+    // A previously verified address is not sendable when refusal remains
+    // '未確認'. Recheck the first-party page, then resolve that status only
+    // when no solicitation refusal is observed in this fresh audit.
+    if(x['状態']==='営業可能候補'&&x['営業拒否']==='FALSE'&&mateV4PublicMailOperatorReview_(x))continue;
     // Explicitly designated sales email on the company's official page is
     // distinct from a customer-only web form. Preserve recently reviewed
     // SOLICITATIONS_WELCOME rows; do not infer permission from form text.
@@ -490,13 +499,16 @@ function mateV4AuditOfficialContacts(){
     }
     // Never repeat a failed/ambiguous audit every hour: advance through the
     // queue of candidates rather than starving all but the first 12.
+    // Even unresolved candidates get at most one first-party fetch per day.
+    // This prevents a failed address lookup starving the rest of the queue.
     if(note.startsWith('AUTO_AUDIT '+today))continue;
     const recheckHeld=autoException&&x['状態']==='公式公開メール確認済・送信待機';
-    if(!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
+    if(x['営業拒否']!=='未確認'&&!recheckHeld&&/^AUTO_AUDIT \d{4}-\d{2}-\d{2}/.test(note)){
       const last=note.slice(11,21);
       // Transient failures are retried sooner, while the sending evidence
       // requirements remain unchanged.
-      const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:14;
+      const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:
+        /企業の公開窓口メールを一意に確認できず|既存メールは公式ページで確認できず/.test(note)?3:14;
       if(mateV4Fresh_(last,retryDays))continue;
     }
     const host=mateV4Host_(x['公式URL']),pages=[];
@@ -580,7 +592,7 @@ function mateV4AuditOfficialContacts(){
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
   }
-  return {checked,eligible,discovered};
+  return {checked,eligible,discovered,batchSize};
 }
 
 /**
@@ -1099,13 +1111,24 @@ function mateV4DailyGrowthDigest(){
   const leads=mateV4Rows_(mateV4Tab_(book,MATE_V4.leads));
   const sent=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
   const application=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
-  const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0};
-  for(const r of leads)if(r['サービス'] in count)count[r['サービス']]++;
+  const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0},pending={CARE:0,SPARK:0,PLAY:0},mailMissing={CARE:0,SPARK:0,PLAY:0};
+  let auditedToday=0;
+  for(const r of leads){
+    const service=r['サービス'];
+    if(!(service in count))continue;
+    count[service]++;
+    if(r['状態']==='窓口確認待ち')pending[service]++;
+    if(!mateV4RoleEmail_(r['業務用メール']))mailMissing[service]++;
+    if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+today))auditedToday++;
+  }
   for(const r of application)if(r['サービス'] in approved &&
     r['審査状態']==='承認')approved[r['サービス']]++;
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    '窓口確認待ち：CARE '+pending.CARE+' / SPARK '+pending.SPARK+' / PLAY '+pending.PLAY,
+    '公式業務メール未取得・不適合：CARE '+mailMissing.CARE+' / SPARK '+mailMissing.SPARK+' / PLAY '+mailMissing.PLAY,
+    '本日公式窓口監査済み：'+auditedToday,
     '承認済み申請：CARE '+approved.CARE+' / SPARK '+approved.SPARK+' / PLAY '+approved.PLAY,
     '本日送信試行ログ：'+sent.filter(r=>r['送信処理日時'].startsWith(today)).length,
     '本日未審査申請：'+application.filter(r=>r['受信日時']&&r['受信日時'].startsWith(today)&&r['審査状態']!=='承認').length,
