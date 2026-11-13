@@ -48,6 +48,8 @@ class OutreachNoBccTests(unittest.TestCase):
         self.assertIn("東京都認定_営業優先",seed)
         self.assertIn("今すぐ営業リスト",seed)
         self.assertIn("seenBusinessHosts",seed)
+        self.assertIn("seenCompanies",seed)
+        self.assertIn("seenCompanies.has(company)",seed)
         self.assertIn("mateV4OwnerBlocked_",seed)
         self.assertIn("'UNVERIFIED'",seed)
         self.assertIn("'窓口確認待ち'",seed)
