@@ -160,7 +160,7 @@ assert.equal(run("mateV4SendOutreach()"),'OFF','disabled phase blocks all sendin
 settings.MATE_OUTREACH_PHASE='PILOT';
 assert.equal(mails,0);
 assert.equal(run("mateV4Email_('personal@gmail.com')"),'','exclude personal email');
-assert.equal(run("mateV4Email_('partner@example.org')"),'partner@example.org');
+assert.equal(run("mateV4Email_('partner@example.org')"),'','reserved example domains must never enter outbound queue');
 assert.equal(run("mateV4SyncReferralLedger()"),1,'only fully consented referral is logged');
 assert.equal(referrals.length,2);
 assert.equal(referrals[1][2],'PLAY');
