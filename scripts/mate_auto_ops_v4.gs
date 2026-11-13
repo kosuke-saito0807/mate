@@ -175,34 +175,48 @@ function mateV4SeedExistingCRM(){
 function mateV4SeedSectorDirectories(){
   const b=mateV4Book_(),dest=mateV4Tab_(b,MATE_V4.leads);
   const queue=mateV4Rows_(dest),seen=new Set(queue.map(x=>x['重複キー']).filter(Boolean));
+  const seenBusinessHosts=new Set(queue.filter(x=>['CARE','SPARK','PLAY'].includes(x['サービス']))
+    .map(x=>x['サービス']+'|'+mateV4Host_(x['公式URL'])).filter(x=>!x.endsWith('|')));
   const crm=mateV4Rows_(mateV4Tab_(b,'3サービス営業リスト'));
   for(const x of crm){
     try{if(['CARE','SPARK','PLAY'].includes(x['サービス'])&&mateV4Https_(x['公式・窓口URL']))
       seen.add(mateV4Key_(x['サービス'],x['公式・窓口URL'],x['企業・教室名']));
     }catch(e){}
   }
+  // Reuse already curated operator sheets. Do NOT import private mailbox
+  // addresses, approval claims or stale previous review flags from them.
+  // They are discovery leads only, never a permission to email.
   const sources=[
     {tab:'SPARK営業候補',service:'SPARK',name:'企業・教室名',site:'公式・窓口URL',region:'都県・対象'},
-    {tab:'営業管理DB',service:'CARE',name:'事業者名',site:'公式サイト',region:'エリア'}
+    {tab:'営業管理DB',service:'CARE',name:'事業者名',site:'公式サイト',region:'エリア'},
+    {tab:'東京都認定_営業優先',service:'CARE',name:'事業所名',site:'公式サイト',region:'エリア'},
+    {tab:'今すぐ営業リスト',service:'CARE',name:'統合営業先名',site:'公式サイト',region:'届出元・エリア'}
   ];
   let total=0,byService={CARE:0,SPARK:0,PLAY:0};
   for(const source of sources){
     const rows=mateV4Rows_(mateV4Tab_(b,source.tab));
     for(const x of rows){
       if(total>=MATE_V4.maxNewLeadsPerRun)break;
-      const name=x[source.name],site=x[source.site];
+      const name=String(x[source.name]||'').trim(),site=x[source.site];
       if(!name||!mateV4Https_(site)||/テスト|架空|ダミー/.test(name)||
          mateV4OwnerBlocked_({'事業者名':name,'公式URL':site}))continue;
+      const host=mateV4Host_(site),hostKey=source.service+'|'+host;
+      if(!host||seenBusinessHosts.has(hostKey))continue;
+      // Do not solicit natural persons, generic institutions, or personal
+      // Gmail accounts solely because they appear in government directories.
+      if(source.tab==='東京都認定_営業優先'&&
+         !/(株式会社|有限会社|合同会社|一般社団法人|特定非営利活動法人|NPO法人|社会福祉法人)/.test(name)&&
+         !/^(?:ベビーシッターのHAS|Humanity Sitter|マザーズシッター)$/.test(name))continue;
       let key;
       try{key=mateV4Key_(source.service,site,name)}catch(e){continue}
       if(seen.has(key))continue;
       mateV4Append_(dest,[
         'SECTOR-'+key,mateV4Jst_(),source.service,name,site,x[source.region]||'',
-        '',site,site,'UNVERIFIED','',key,'FALSE','窓口確認待ち',
-        '既存の'+source.tab+'から候補発見。公式窓口用途・営業拒否・送信根拠は未確認。自動送信禁止。',
-        '業界別候補（未検証）。掲載・契約・通知の許諾とは無関係。'
+        '',site,site,'UNVERIFIED','',key,'未確認','窓口確認待ち',
+        '既存の'+source.tab+'から候補発見。公式の業務用メール・営業拒否表示・最新根拠は自動監査まで未確認。送信不可。',
+        '公式企業サイトで確認できた場合のみ候補昇格。掲載・契約許諾とは無関係。'
       ]);
-      seen.add(key);total++;byService[source.service]++;
+      seen.add(key);seenBusinessHosts.add(hostKey);total++;byService[source.service]++;
     }
   }
   return {total,byService};
