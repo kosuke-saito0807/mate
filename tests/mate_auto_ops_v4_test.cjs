@@ -144,6 +144,7 @@ settings.MATE_AUTO_SEND_LEGAL_REVIEWED='YES';
 settings.MATE_OUTREACH_PHASE='OFF';
 assert.equal(run("mateV4SendOutreach()"),'OFF','phase OFF blocks sending even after PILOT preparation');
 settings.MATE_OUTREACH_PHASE='PILOT';
+delete settings.MATE_OUTREACH_START_DATE; // Reset the earlier future start date to exercise the sender-address gate.
 assert.throws(()=>run("mateV4SendOutreach()"),/確認済みの事業所在地/);
 settings.MATE_SENDER_NAME='NextEdu MATE運営';
 settings.MATE_SENDER_ADDRESS='東京都北区滝野川2-10-3';
