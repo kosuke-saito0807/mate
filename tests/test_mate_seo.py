@@ -9,6 +9,25 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 
 class SeoLaunchTests(unittest.TestCase):
+    def test_new_cost_guides_are_indexable_and_connected(self):
+        cases = [
+            ("guide-sitter-hourly-cost.html", "https://care.kosodatemate.jp/guide-sitter-hourly-cost.html", "index.html", "sitemap.xml"),
+            ("spark/guide-lesson-total-cost.html", "https://spark.kosodatemate.jp/guide-lesson-total-cost.html", "spark/index.html", "spark/sitemap.xml"),
+        ]
+        hub = (ROOT / "guides.html").read_text(encoding="utf-8")
+        for path, url, homepage, sitemap in cases:
+            with self.subTest(path=path):
+                html = (ROOT / path).read_text(encoding="utf-8")
+                self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">', html)
+                self.assertIn('<link rel="canonical" href="' + url + '">', html)
+                self.assertIn('<meta name="description"', html)
+                self.assertIn('application/ld+json', html)
+                self.assertIn('https://care.kosodatemate.jp/operator.html', html)
+                self.assertIn(path.split("/")[-1], (ROOT / homepage).read_text(encoding="utf-8"))
+                self.assertIn(url, (ROOT / sitemap).read_text(encoding="utf-8"))
+                self.assertIn(url, hub if path.startswith("spark/") else hub.replace('href="guide-sitter-hourly-cost.html"', 'href="'+url+'"'))
+                self.assertNotIn("空きがある",html)
+
     def test_founder_search_identity_and_cross_service_links(self):
         operator=(ROOT/"operator.html").read_text(encoding="utf-8")
         self.assertIn("斎藤幸輔",operator)
