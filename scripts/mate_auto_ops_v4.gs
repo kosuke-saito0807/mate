@@ -11,14 +11,14 @@
  *
  * Required Script Properties to enable actual mail:
  *   MATE_AUTO_SEND = ON
- *   MATE_OUTREACH_PHASE = PILOT (max 1/day), then LIVE (max 5/day)
+ *   MATE_OUTREACH_PHASE = PILOT (1/day), DAILY_30 (30 total/day), or the legacy phases
  *   Phase OFF or unset forbids all external sending even if other toggles are ON.
  *   MATE_SENDER_NAME = MATE運営事務局 (brand-only; never disclose personal name)
  *   MATE_SENDER_ADDRESS = verified full business address, stored privately in GAS properties
  *   MATE_LEGAL_ADDRESS_PAGE_VERIFIED = YES only once the public operator page
  *     shows legally sufficient sender name, actual address and contact details
  *   MATE_AUTO_SEND_LEGAL_REVIEWED = YES
- *   (optional) MATE_DAILY_CAP = 5, maximum 5
+ *   (optional) MATE_DAILY_CAP = 30 in DAILY_30 (10 per service/day)
  *   Monitoring BCC intentionally disabled. MATE_OWNER_COPY_EMAIL is ignored.
  *   MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED = YES, opt-in to vetted publicly posted business addresses
  *   (optional) MATE_PUBLIC_SITE_AUDIT = OFF, disables safe automatic public-site review
@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:100,version:'2026-11-01-public-email-audit'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-14-daily-30-and-reply-coverage'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -621,8 +621,8 @@ function previewMateOutreachReadinessV4(){
     registeredSenderIdentityReady:mateV4FormalSenderIdentity_(p).ready,
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
-    dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?90:p.getProperty('MATE_OUTREACH_PHASE')==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
-    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?30:null,
+    dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?90:p.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'?30:p.getProperty('MATE_OUTREACH_PHASE')==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
+    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:p.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'?10:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?30:null,
     outreachStartDate:p.getProperty('MATE_OUTREACH_START_DATE')||'',
     remainingRecipientQuota:MailApp.getRemainingDailyQuota(),
     maximumExternalMessagesByQuota:MailApp.getRemainingDailyQuota(),
@@ -771,6 +771,21 @@ function prepareMatePersonalNameV4(){
   console.log(JSON.stringify(snapshot));return snapshot;
 }
 
+/** Setup 30 total sends per JST day: 10 CARE, 10 SPARK, 10 PLAY.
+ * This preparation never turns on outbound delivery. Existing opt-out,
+ * verified business contact, duplicate, and legal identity gates remain.
+ * Re-running is idempotent and intentionally does not alter legal attestations.
+ */
+function prepareMateDaily30V4(){
+  mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  p.setProperty('MATE_AUTO_SEND','OFF');
+  p.setProperty('MATE_OUTREACH_PHASE','DAILY_30');
+  p.setProperty('MATE_DAILY_CAP','30');
+  p.setProperty('MATE_SENDER_NAME','MATE運営事務局');
+  return {mode:'DAILY_30_PREPARED_NO_SEND',dailyCap:30,perServiceCap:10,
+    sendEnabled:false,sourceVersion:MATE_V4.version};
+}
 function mateV4FormalSenderIdentity_(p){
   const name=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
   const mode=String(p.getProperty('MATE_LEGAL_IDENTITY_MODE')||'').trim();
@@ -795,7 +810,7 @@ function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
   const phase=p.getProperty('MATE_OUTREACH_PHASE')||'OFF';
-  if(!['PILOT','LIVE','BALANCED_15','PER_SERVICE_30'].includes(phase))return 'OFF';
+  if(!['PILOT','LIVE','BALANCED_15','DAILY_30','PER_SERVICE_30'].includes(phase))return 'OFF';
   const startDate=p.getProperty('MATE_OUTREACH_START_DATE')||'';
   const today=mateV4Jst_().slice(0,10);
   // Respect the configured start date in every mode, including PILOT and LIVE.
@@ -810,13 +825,13 @@ function mateV4SendOutreach(){
   const identity=mateV4FormalSenderIdentity_(p);
   if(!identity.ready)
     throw Error('正式な送信主体の登記・確認が必要です。屋号のみで送信を開始できません。');
-  // Requested target: 30 per service, 90 total, with NO owner BCC.
+  // DAILY_30 limits the entire account to 30/day, max 10 per service. No owner BCC.
   // Each message consumes one recipient-quota unit. Live Gmail quota controls
   // the actual maximum, shared with other sends by this account.
-  const maxCap=phase==='PILOT'?1:phase==='BALANCED_15'?15:phase==='PER_SERVICE_30'?90:5;
+  const maxCap=phase==='PILOT'?1:phase==='BALANCED_15'?15:phase==='DAILY_30'?30:phase==='PER_SERVICE_30'?90:5;
   const cap=Math.min(maxCap,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
-  const perServiceCap=phase==='BALANCED_15'?5:phase==='PER_SERVICE_30'?30:cap;
-  const maxPerExecution=phase==='PER_SERVICE_30'?6:cap;
+  const perServiceCap=phase==='BALANCED_15'?5:phase==='DAILY_30'?10:phase==='PER_SERVICE_30'?30:cap;
+  const maxPerExecution=phase==='DAILY_30'?5:phase==='PER_SERVICE_30'?6:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
   const logs=mateV4Rows_(sheet);
@@ -971,7 +986,7 @@ function mateV4TrackReplies(){
   const leads=mateV4Rows_(candidates);
   const blocked=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
-  const logs=mateV4Rows_(sent).filter(x=>x['状態']==='送信済').slice(-15);
+  const logs=mateV4Rows_(sent).filter(x=>x['状態']==='送信済').slice(-90);
   let replies=0;
   for(const entry of logs){
     const email=mateV4Email_(entry['宛先メール']),svc=entry['サービス'];
@@ -1074,6 +1089,9 @@ function diagnoseMateV4Health(){
     })),
     candidateCounts:counts,scriptEligible:eligible,
     sentToday:sentToday.length,
+    dailyRemainingCapacity:Math.max(0,pre.dailyCap-sentToday.length),
+    confirmedSentToday:sentToday.filter(x=>x['状態']==='送信済').length,
+    respondedOrStoppedTotal:sent.filter(x=>['返信あり','配信停止'].includes(x['状態'])).length,
     sentTodayByService:Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[
       s,sentToday.filter(x=>x['サービス']===s&&x['状態']==='送信済').length
     ])),
