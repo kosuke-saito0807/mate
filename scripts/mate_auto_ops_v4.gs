@@ -1185,6 +1185,53 @@ function diagnoseMateOutreachApplicationsV4(){
     caveat:'Name match is not causal attribution. Internal tests and rejected requests excluded.',
     byService};
 }
+/**
+ * Diagnostic funnel with mutually exclusive reasons for every lead.
+ * This is a snapshot; eligibility depends on future Gmail and quota checks.
+ * No external email, website request, or sheet write occurs.
+ */
+function diagnoseMateV4Backlog(){
+  const b=mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
+  const attempts=mateV4Rows_(mateV4Tab_(b,MATE_V4.sent));
+  const blocked=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
+    .map(x=>mateV4Email_(x['メール'])).filter(Boolean));
+  const attemptedKeys=new Set(attempts.map(x=>x['候補キー']).filter(Boolean));
+  const attemptedEmails=new Set(attempts.map(x=>mateV4Email_(x['宛先メール'])).filter(Boolean));
+  const categories=['alreadyAttempted','expressRefusalOrOptout','invalidOrMissingEmail',
+    'notReadyStatus','expiredEvidence','badSourceEvidence','publicEmailReview',
+    'validWithoutGmailHistoryCheck'];
+  const make=()=>Object.fromEntries(categories.map(k=>[k,0]));
+  const counts={CARE:make(),SPARK:make(),PLAY:make()};
+  for(const x of leads){
+    const svc=x['サービス'];
+    if(!counts[svc])continue;
+    const email=mateV4Email_(x['業務用メール']);
+    const key=x['重複キー'];
+    const reason=!key||attemptedKeys.has(key)||(email&&attemptedEmails.has(email))?
+      'alreadyAttempted':
+      mateV4OwnerBlocked_(x)||x['営業拒否']==='TRUE'||blocked.has(email)?
+      'expressRefusalOrOptout':
+      !email?'invalidOrMissingEmail':
+      x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE'?
+      'notReadyStatus':
+      !mateV4Fresh_(x['根拠確認日時'],14)?
+      'expiredEvidence':
+      !mateV4Https_(x['確認元URL'])||
+        !['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠'])?
+      'badSourceEvidence':
+      x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
+        (p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||
+         !mateV4PublicMailOperatorReview_(x))?
+      'publicEmailReview':'validWithoutGmailHistoryCheck';
+    counts[svc][reason]++;
+  }
+  return {total:leads.length,counts,notes:{
+    alreadyAttempted:'includes ambiguous reservations; never auto-retry',
+    validWithoutGmailHistoryCheck:'preliminary only, Gmail manual-send history and quota still apply',
+    notReadyStatus:'includes pending official-contact audits and explicit review holds'}};
+}
 function diagnoseMateV4Health(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   const pre=JSON.parse(previewMateOutreachReadinessV4());
@@ -1202,6 +1249,7 @@ function diagnoseMateV4Health(){
   const failures=sent.filter(x=>x['状態']==='送信結果要確認'||x['状態']==='送信失敗').length;
   const eligible=pre.eligibleByScriptChecks;
   const applicationAttribution=diagnoseMateOutreachApplicationsV4();
+  const outreachBacklog=diagnoseMateV4Backlog();
   const checks={
     active:pre.automationSwitch==='ON',
     phase:pre.phase,
@@ -1221,6 +1269,7 @@ function diagnoseMateV4Health(){
       lastResult:x['前回結果']||'未実行',lastImportedAt:x['最終取込日時']||''
     })),
     candidateCounts:counts,scriptEligible:eligible,
+    outreachBacklog,
     applicationAttribution,
     sentToday:sentToday.length,
     dailyRemainingCapacity:Math.max(0,pre.dailyCap-sentToday.length),
