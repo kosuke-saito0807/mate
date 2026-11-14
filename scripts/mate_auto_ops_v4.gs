@@ -1095,6 +1095,57 @@ function mateV4SyncReferralLedger(){
  * Counts all rows, remaining sendable candidates and CSV source outcomes.
  * Run in Apps Script before increasing outreach volume.
  */
+/**
+ * Read-only, conservative outbound-to-listing attribution.
+ * Counts ONLY non-test, non-rejected applications whose exact normalized
+ * company name matches a prior sent campaign for the same service.
+ * A match means correlation, not proof that email caused the application.
+ * No prospect or applicant PII appears in the returned diagnostics.
+ */
+function diagnoseMateOutreachApplicationsV4(){
+  const b=mateV4Book_();
+  const logs=mateV4Rows_(mateV4Tab_(b,MATE_V4.sent))
+    .filter(x=>['送信済','返信あり','配信停止'].includes(x['状態']));
+  const applications=mateV4Rows_(mateV4Tab_(b,'掲載セルフ申請'));
+  const normalized=s=>String(s||'').normalize('NFKC').toLowerCase()
+    .replace(/(?:株式会社|合同会社|有限会社|一般社団法人|特定非営利活動法人|npo法人)/gi,'')
+    .replace(/[\s　・（）()\[\]【】]/g,'').trim();
+  const sentByName=new Map();
+  for(const row of logs){
+    const svc=row['サービス'];
+    const title=String(row['件名']||'');
+    const marker='【MATE '+svc+'】無料掲載のご案内｜';
+    if(!title.startsWith(marker))continue;
+    const name=normalized(title.slice(marker.length));
+    const sentAt=Date.parse(String(row['送信処理日時']||'').replace(' ','T')+'+09:00');
+    if(!name||!Number.isFinite(sentAt))continue;
+    const key=svc+'|'+name;
+    sentByName.set(key,Math.min(sentByName.get(key)||sentAt,sentAt));
+  }
+  const byService={CARE:{realApplications:0,nameMatchesAfterSend:0},
+    SPARK:{realApplications:0,nameMatchesAfterSend:0},
+    PLAY:{realApplications:0,nameMatchesAfterSend:0}};
+  const seenIds=new Set();
+  for(const row of applications){
+    const svc=row['サービス'],name=String(row['教室・事業者名']||'');
+    if(!byService[svc])continue;
+    const id=String(row['申請ID']||'').trim();
+    if(!id||seenIds.has(id))continue;
+    seenIds.add(id);
+    const joined=[id,name,row['紹介文'],row['掲載申請の意思'],row['保留・差戻し理由']]
+      .map(x=>String(x||'')).join(' ');
+    if(/テスト|ダミー|架空|内部接続|非公開|運営確認|接続確認/i.test(joined)||
+       row['審査状態']==='差戻し')continue;
+    const received=Date.parse(String(row['受信日時']||'').replace(' ','T')+'+09:00');
+    if(!Number.isFinite(received))continue;
+    byService[svc].realApplications++;
+    const firstSent=sentByName.get(svc+'|'+normalized(name));
+    if(firstSent&&received>=firstSent)byService[svc].nameMatchesAfterSend++;
+  }
+  return {method:'EXACT_NORMALIZED_NAME_AND_SERVICE_AFTER_SEND',
+    caveat:'Name match is not causal attribution. Internal tests and rejected requests excluded.',
+    byService};
+}
 function diagnoseMateV4Health(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   const pre=JSON.parse(previewMateOutreachReadinessV4());
@@ -1111,6 +1162,7 @@ function diagnoseMateV4Health(){
   const sentToday=sent.filter(x=>x['送信処理日時'].startsWith(today));
   const failures=sent.filter(x=>x['状態']==='送信結果要確認'||x['状態']==='送信失敗').length;
   const eligible=pre.eligibleByScriptChecks;
+  const applicationAttribution=diagnoseMateOutreachApplicationsV4();
   const checks={
     active:pre.automationSwitch==='ON',
     phase:pre.phase,
@@ -1130,6 +1182,7 @@ function diagnoseMateV4Health(){
       lastResult:x['前回結果']||'未実行',lastImportedAt:x['最終取込日時']||''
     })),
     candidateCounts:counts,scriptEligible:eligible,
+    applicationAttribution,
     sentToday:sentToday.length,
     dailyRemainingCapacity:Math.max(0,pre.dailyCap-sentToday.length),
     confirmedSentToday:sentToday.filter(x=>x['状態']==='送信済').length,
