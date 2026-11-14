@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-official-root-contact-discovery'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-bodik-catalogue-discovery'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -303,6 +303,78 @@ function mateV4BalancedQueue_(rows,today){
     if(buckets[service].length)result.push(buckets[service].shift());
   return result;
 }
+/**
+ * Discover organization-level CSV sources in BODIK's official CKAN catalogue.
+ * Metadata and licence checks are not permission to solicit recipients.
+ * Only government-published, CC BY/CC0 CSV resources hosted by BODIK are
+ * registered; lead addresses and claims of consent are never imported here.
+ * Bounded: at most 3 catalogue queries and 6 NEW source registrations/day.
+ */
+function mateV4DiscoverLicensedPublicCsvSources(){
+  const p=PropertiesService.getScriptProperties();
+  if(p.getProperty('MATE_SOURCE_CATALOG_DISCOVERY')==='OFF')return 'OFF';
+  const today=mateV4Jst_().slice(0,10);
+  const dateKey='MATE_SOURCE_CATALOG_DISCOVERY_LAST';
+  if(p.getProperty(dateKey)===today)return 'ALREADY_CHECKED';
+  const b=mateV4Book_(),tab=mateV4Tab_(b,MATE_V4.sources);
+  const sources=mateV4Rows_(tab);
+  const seen=new Set(sources.map(x=>x['サービス']+'|'+String(x['取得元CSV HTTPS URL']||'').trim()));
+  if(seen.size>=80)return {mode:'SOURCE_LIMIT',sourceCount:seen.size};
+  const searches=[
+    {service:'CARE',query:'居宅訪問型保育',fit:/居宅訪問|ベビーシッター|訪問保育|認可外保育|保育事業所/},
+    {service:'SPARK',query:'スポーツ教室',fit:/スポーツ教室|文化教室|音楽教室|学習塾|習い事|スポーツクラブ/},
+    {service:'PLAY',query:'観光施設一覧',fit:/観光施設|体験施設|体験活動|博物館|ミュージアム/}
+  ];
+  let found=0,queried=0,failures=0,checked=0;
+  for(const item of searches){
+    if(found>=6||seen.size>=80)break;
+    try{
+      const url='https://data.bodik.jp/api/3/action/package_search?q='+
+        encodeURIComponent(item.query)+'&rows=30&sort=metadata_modified+desc';
+      const response=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:false,timeout:14000,
+        headers:{Accept:'application/json'}});
+      if(response.getResponseCode()!==200)throw Error('catalog HTTP status');
+      const json=JSON.parse(response.getContentText('UTF-8'));
+      if(json.success!==true||!Array.isArray(json.result&&json.result.results))
+        throw Error('unexpected catalog schema');
+      queried++;
+      for(const dataset of json.result.results){
+        checked++;
+        if(found>=6||seen.size>=80)break;
+        const title=String(dataset.title||'');
+        const publisher=String(dataset.organization&&dataset.organization.title||'');
+        const license=String(dataset.license_id||'').toLowerCase();
+        if(!item.fit.test(title)||!/(?:都|道|府|県|市|区|町|村)$/.test(publisher)||
+           !/^(?:cc-by(?:-[0-9.]+)?(?:-jp)?|cc-zero|cc0)$/.test(license))continue;
+        if(/個人情報|個人名簿|園児名簿|保護者名簿|世帯|相談履歴|児童名簿/.test(title))continue;
+        const resources=Array.isArray(dataset.resources)?dataset.resources:[];
+        const csv=resources.find(resource=>{
+          const u=String(resource.url||'');
+          const size=Number(resource.size||0);
+          return /^csv$/i.test(String(resource.format||''))&&
+            /^https:\/\/data\.bodik\.jp\/dataset\//i.test(u)&&
+            (size===0||size<=MATE_V4.maxCSVBytes)&&
+            !/名簿|個人情報|児童名|保護者|世帯|相談記録/.test(String(resource.name||''));
+        });
+        if(!csv)continue;
+        const csvUrl=String(csv.url);
+        const key=item.service+'|'+csvUrl;
+        if(seen.has(key))continue;
+        const name=(publisher+' '+title+'（BODIK '+license.toUpperCase()+'）').slice(0,130);
+        mateV4Append_(tab,[item.service,name,csvUrl,'確認済み','TRUE','','CKAN公開メタデータでライセンス・自治体発行を確認。掲載や営業への同意ではない。']);
+        seen.add(key);found++;
+      }
+    }catch(err){
+      failures++;
+      console.log('SOURCE_CATALOG_LOOKUP_FAILED '+item.service+'; retry next day');
+    }
+  }
+  // Do not create a rapid-retry storm if the catalogue temporarily fails.
+  if(queried>0)p.setProperty(dateKey,today);
+  return {queried,metadataChecked:checked,registered:found,failures,
+    autoEmailApproval:false,onlyPublicLicensedCSV:true};
+}
+
 function mateV4CollectLeads(){
   const b=mateV4Book_(),src=mateV4Tab_(b,MATE_V4.sources),dest=mateV4Tab_(b,MATE_V4.leads);
   const sources=mateV4Rows_(src),existing=mateV4Rows_(dest);
@@ -310,13 +382,15 @@ function mateV4CollectLeads(){
   const known=new Set(mateV4Rows_(mateV4Tab_(b,'3サービス営業リスト'))
     .filter(x=>mateV4Https_(x['公式・窓口URL']))
     .map(x=>{try{return mateV4Key_(x['サービス'],x['公式・窓口URL'],x['企業・教室名'])}catch(e){return ''}}));
-  let count=0;
+  let count=0,processedSources=0;
   for(const source of sources){
+    if(processedSources>=8)break;
     if(source['有効']!=='TRUE'||source['再利用許諾確認']!=='確認済み'||!mateV4Https_(source['取得元CSV HTTPS URL']))continue;
     const service=source['サービス'];if(!['CARE','SPARK','PLAY'].includes(service))continue;
     // Public municipal datasets rarely update hourly; check each once per JST day.
     // Keep this after validation so a newly added source is processed immediately.
     if(String(source['最終取込日時']||'').slice(0,10)===mateV4Jst_().slice(0,10))continue;
+    processedSources++;
     let rows;
     try{rows=mateV4SourceCsv_(source['取得元CSV HTTPS URL'])}
     catch(e){src.getRange(source._row,7).setValue('取得失敗: '+String(e).slice(0,180));continue}
@@ -1373,7 +1447,9 @@ function diagnoseMateV4Health(){
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
-    const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
+    const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),
+      catalogDiscovery:mateV4DiscoverLicensedPublicCsvSources(),
+      collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
       reconciledSent:mateV4ReconcileSentReservations(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
       referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
