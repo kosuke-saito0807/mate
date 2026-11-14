@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-official-contact-recall'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-net-new-verified-applications'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1525,10 +1525,14 @@ function mateV4DailyGrowthDigest(){
   const application=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
   const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0},pending={CARE:0,SPARK:0,PLAY:0},mailMissing={CARE:0,SPARK:0,PLAY:0};
   let auditedToday=0;
+  const newToday={CARE:0,SPARK:0,PLAY:0};
+  const verifiedToday={CARE:0,SPARK:0,PLAY:0};
   for(const r of leads){
     const service=r['サービス'];
     if(!(service in count))continue;
     count[service]++;
+    if(String(r['取得日時']||'').startsWith(today))newToday[service]++;
+    if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+today+' 公式事業者サイトで業務用メール掲載確認'))verifiedToday[service]++;
     if(r['状態']==='窓口確認待ち')pending[service]++;
     if(!mateV4RoleEmail_(r['業務用メール']))mailMissing[service]++;
     if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+today))auditedToday++;
@@ -1545,6 +1549,8 @@ function mateV4DailyGrowthDigest(){
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    '本日新規候補：CARE '+newToday.CARE+' / SPARK '+newToday.SPARK+' / PLAY '+newToday.PLAY,
+    '本日公式メール確認：CARE '+verifiedToday.CARE+' / SPARK '+verifiedToday.SPARK+' / PLAY '+verifiedToday.PLAY,
     '自動CSV収集元：CARE '+activeSources.CARE+' / SPARK '+activeSources.SPARK+' / PLAY '+activeSources.PLAY,
     '収集元の自動発見：'+(props.getProperty('MATE_SOURCE_CATALOG_DISCOVERY')==='OFF'?'OFF':'ON')+
       ' / 最終カタログ確認：'+(props.getProperty('MATE_SOURCE_CATALOG_DISCOVERY_LAST')||'未実施'),
@@ -1557,6 +1563,13 @@ function mateV4DailyGrowthDigest(){
     '実在申請（内部テスト・差戻し除外）：CARE '+observed('CARE').realApplications+' / SPARK '+observed('SPARK').realApplications+' / PLAY '+observed('PLAY').realApplications,
     '承認済み申請：CARE '+approved.CARE+' / SPARK '+approved.SPARK+' / PLAY '+approved.PLAY,
     '本日送信試行ログ：'+sent.filter(r=>r['送信処理日時'].startsWith(today)).length,
+    '累計送信済み：'+sent.filter(r=>r['状態']==='送信済').length+
+      ' / 返信確認：'+sent.filter(r=>r['状態']==='返信あり').length+
+      ' / 配信停止：'+sent.filter(r=>r['状態']==='配信停止').length,
+    '営業送信後の名称一致申請（因果関係ではない）：CARE '+
+      observed('CARE').nameMatchesAfterSend+' / SPARK '+
+      observed('SPARK').nameMatchesAfterSend+' / PLAY '+
+      observed('PLAY').nameMatchesAfterSend,
     '本日未審査申請：'+application.filter(r=>r['受信日時']&&r['受信日時'].startsWith(today)&&r['審査状態']!=='承認').length,
     '',
     '掲載承認・権限・契約は人が確認。未確認の営業宛先には送信しません。',
