@@ -26,3 +26,30 @@ test('candidate normalization is not outreach consent or verified HTTPS availabi
   assert.equal(normalized,'https://nonexistent-business.example.jp/');
   assert.equal(fn.mateV4Host_(normalized),'nonexistent-business.example.jp');
 });
+
+const contactStart=source.indexOf('function mateV4ContactLink_(');
+const contactEnd=source.indexOf('function mateV4CompanyLink_(',contactStart);
+const emailStart=source.indexOf('function mateV4RoleEmail_(');
+const emailEnd=source.indexOf('/*\n * Visits up to',emailStart);
+assert.ok(contactStart>0&&contactEnd>contactStart);
+assert.ok(emailStart>0&&emailEnd>emailStart);
+const contactHelpers=new Function(source.slice(first,last)+
+  'function mateV4SameBusinessHost_(a,b){return mateV4Host_(a)===mateV4Host_(b);}\n'+
+  source.slice(contactStart,contactEnd)+
+  'function mateV4Email_(x){return /^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$/i.test(x)?x:"";}\n'+
+  source.slice(emailStart,emailEnd)+
+  '\nreturn {link:mateV4ContactLink_,role:mateV4RoleEmail_,emails:mateV4PublishedEmails_};')();
+test('discovers a same-host contact link by its visible Japanese label',()=>{
+  const html='<a href="/form/entry">お問い合わせ</a>';
+  assert.equal(contactHelpers.link(html,'https://school.example.jp/'),
+    'https://school.example.jp/form/entry');
+  assert.equal(contactHelpers.link('<a href="https://other.example.org/contact">お問い合わせ</a>',
+    'https://school.example.jp/'),'');
+});
+test('recognizes only generic department mailbox names from public HTML',()=>{
+  assert.equal(contactHelpers.role('reception@school.example.jp'),
+    'reception@school.example.jp');
+  assert.equal(contactHelpers.role('yamada.taro@school.example.jp'),'');
+  assert.deepEqual(contactHelpers.emails('<p>desk&#64;school.example.jp</p>'),
+    ['desk@school.example.jp']);
+});
