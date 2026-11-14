@@ -77,3 +77,16 @@ test('discovery can be disabled without calling external services',()=>{
   assert.equal(x.run(),'OFF');
   assert.equal(x.calls.length,0);
 });
+
+test('catalog API outage is rate-limited to one set of calls per JST day',()=>{
+  let requests=0;
+  const x=fixture([],[],{UrlFetchApp:{fetch:()=>{
+    requests++;
+    return {getResponseCode:()=>503};
+  }}});
+  const initial=x.run();
+  assert.equal(initial.failures,3);
+  assert.equal(requests,3);
+  assert.equal(x.run(),'ALREADY_CHECKED');
+  assert.equal(requests,3);
+});
