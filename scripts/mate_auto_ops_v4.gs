@@ -395,8 +395,9 @@ function mateV4DiscoverLicensedPublicCsvSources(){
       console.log('SOURCE_CATALOG_LOOKUP_FAILED '+item.service+'; retry next day');
     }
   }
-  // Do not create a rapid-retry storm if the catalogue temporarily fails.
-  if(queried>0)p.setProperty(dateKey,today);
+  // Even a complete API outage must not trigger 3 new searches hourly.
+  // A fresh search is attempted on the next JST day instead.
+  p.setProperty(dateKey,today);
   return {queried,metadataChecked:checked,registered:found,failures,
     autoEmailApproval:false,onlyPublicLicensedCSV:true};
 }
