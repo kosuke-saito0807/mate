@@ -6,6 +6,7 @@ on:
     paths:
       - scripts/mate_auto_ops_v4.gs
       - scripts/ci/prepare-mate-gas-deploy.mjs
+      - scripts/ci/prepare-mate-gas-deploy.test.mjs
       - .github/workflows/mate-gas-sync.yml
   workflow_dispatch:
 
@@ -38,6 +39,10 @@ jobs:
       - name: Check JavaScript syntax
         shell: bash
         run: node --check < scripts/mate_auto_ops_v4.gs
+
+      - name: Test safe V4-only staging with mock GAS projects
+        shell: bash
+        run: node --test scripts/ci/prepare-mate-gas-deploy.test.mjs
 
       - name: Verify the one-time protected credentials exist
         shell: bash
