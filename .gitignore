@@ -1,0 +1,11 @@
+# Local Apps Script OAuth credentials and project mapping (GitHub Actions Secrets only)
+.clasprc.json
+.clasp.json
+**/.clasprc.json
+**/.clasp.json
+client_secret.json
+**/client_secret.json
+
+# Local CI scratch and JS dependencies
+node_modules/
+*.log
