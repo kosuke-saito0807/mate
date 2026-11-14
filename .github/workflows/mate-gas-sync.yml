@@ -41,6 +41,13 @@ jobs:
         shell: bash
         run: node --check < scripts/mate_auto_ops_v4.gs
 
+      - name: Syntax check deployment support scripts
+        shell: bash
+        run: |
+          node --check scripts/ci/prepare-mate-gas-deploy.mjs
+          node --check scripts/ci/prepare-mate-gas-deploy.test.mjs
+          node --check scripts/ci/check-mate-clasp-secrets.mjs
+
       - name: Test safe V4-only staging with mock GAS projects
         shell: bash
         run: node --test scripts/ci/prepare-mate-gas-deploy.test.mjs
