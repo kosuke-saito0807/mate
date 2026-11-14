@@ -1,0 +1,96 @@
+name: MATE GAS - safe V4 sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/mate_auto_ops_v4.gs
+      - scripts/ci/prepare-mate-gas-deploy.mjs
+      - .github/workflows/mate-gas-sync.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mate-gas-v4-production
+  cancel-in-progress: false
+
+jobs:
+  sync-gas:
+    name: Sync only MATE AutoOps V4 (preserve other GAS files)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+      CLASP_JSON: ${{ secrets.CLASP_JSON }}
+    steps:
+      - name: Checkout approved code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: node --check < scripts/mate_auto_ops_v4.gs
+
+      - name: Verify the one-time protected credentials exist
+        shell: bash
+        run: |
+          if [[ -z "${CLASPRC_JSON}" || -z "${CLASP_JSON}" ]]; then
+            echo "::error::One-time setup required: add GitHub Actions secrets CLASPRC_JSON and CLASP_JSON (see docs/MATE_GAS_AUTO_DEPLOY.md)."
+            exit 1
+          fi
+
+      - name: Install Google clasp
+        shell: bash
+        run: npm install --global @google/clasp@3
+
+      - name: Pull existing live project without overwriting it
+        id: pull
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK_DIR="$(mktemp -d "${RUNNER_TEMP}/mate-gas.XXXXXX")"
+          echo "dir=${WORK_DIR}" >> "${GITHUB_OUTPUT}"
+          umask 077
+          printf '%s' "${CLASPRC_JSON}" > "${HOME}/.clasprc.json"
+          printf '%s' "${CLASP_JSON}" > "${WORK_DIR}/.clasp.json"
+          unset CLASPRC_JSON CLASP_JSON
+          cd "${WORK_DIR}"
+          clasp pull
+
+      - name: Snapshot remote source before modifications
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "${{ steps.pull.outputs.dir }}"
+          tar --exclude=.clasp.json --exclude=.clasprc.json -czf "${RUNNER_TEMP}/mate-gas-backup.tar.gz" .
+
+      - name: Replace dedicated V4 file only and verify other files are unchanged
+        shell: bash
+        run: |
+          node scripts/ci/prepare-mate-gas-deploy.mjs \
+            "${{ steps.pull.outputs.dir }}" \
+            "${GITHUB_WORKSPACE}/scripts/mate_auto_ops_v4.gs"
+
+      - name: Backup full remote source as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-gas-source-before-sync-${{ github.run_number }}
+          path: ${{ runner.temp }}/mate-gas-backup.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Sync full preserved project to GAS HEAD (no web-app deployment)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "${{ steps.pull.outputs.dir }}"
+          clasp push --force
+          echo "GAS HEAD updated with V4. Triggers and script properties were not intentionally modified."
