@@ -15,7 +15,7 @@ const remoteV4 = [
   'function mateV4SendOutreach(){}',
   'function mateAutoOpsV4Cycle(){}',
   ''
-].join(',\n')
+].join('\n');
 
 function withMockProject(options, cb) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mate-gas-fixture-'));
