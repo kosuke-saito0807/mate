@@ -65,7 +65,7 @@ test('supports an existing dedicated single-source GAS project', () => {
 });
 
 test('rejects a single-file project with unrelated application functions', () => {
-  withMockProject({other:false, v4:remoteV4 + '\\nfunction publishReviewedMateApplications(){}\\n'}, dir => {
+  withMockProject({other:false, v4:remoteV4 + '\nfunction publishReviewedMateApplications(){}\n'}, dir => {
     const result = run(dir);
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /mixed-purpose code/);
