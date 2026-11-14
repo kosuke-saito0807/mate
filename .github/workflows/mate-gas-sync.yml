@@ -7,6 +7,7 @@ on:
       - scripts/mate_auto_ops_v4.gs
       - scripts/ci/prepare-mate-gas-deploy.mjs
       - scripts/ci/prepare-mate-gas-deploy.test.mjs
+      - scripts/ci/check-mate-clasp-secrets.mjs
       - .github/workflows/mate-gas-sync.yml
   workflow_dispatch:
 
@@ -67,6 +68,7 @@ jobs:
           printf '%s' "${CLASPRC_JSON}" > "${HOME}/.clasprc.json"
           printf '%s' "${CLASP_JSON}" > "${WORK_DIR}/.clasp.json"
           unset CLASPRC_JSON CLASP_JSON
+          node "${GITHUB_WORKSPACE}/scripts/ci/check-mate-clasp-secrets.mjs" "${HOME}/.clasprc.json" "${WORK_DIR}/.clasp.json"
           cd "${WORK_DIR}"
           clasp pull
 
