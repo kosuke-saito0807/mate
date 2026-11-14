@@ -24,8 +24,8 @@ if (!fs.existsSync(manifest)) throw new Error('Missing pulled appsscript.json; r
 
 const all = fs.readdirSync(dir, { withFileTypes: true });
 const files = all.filter(e => e.isFile() && /\.(?:js|gs)$/i.test(e.name));
-if (files.length < 2) {
-  throw new Error('Fewer than two GAS source files; expected the multi-file existing project; refusing push');
+if (files.length < 1) {
+  throw new Error('No GAS source files were pulled; refusing push');
 }
 const matches = files.filter(e => {
   const contents = fs.readFileSync(path.join(dir, e.name), 'utf8');
@@ -42,6 +42,19 @@ if (!/MATE AutoOps V4/i.test(original.slice(0, 900))) {
 const required = ['function mateV4Book_()', 'function mateV4SendOutreach()', marker];
 if (!required.every(x => original.includes(x))) {
   throw new Error('Remote file lacks required V4 functions; refusing push');
+}
+// A single-file project is legitimate, but only if it contains the dedicated
+// MATE V4 module. Never overwrite one monolithic file that also owns unrelated
+// intake, approval, notification, or publication functions.
+if (files.length === 1) {
+  const functionNames = code =>
+    [...code.matchAll(/\\bfunction\\s+([A-Za-z_$][\\w$]*)\\s*\\(/g)].map(m => m[1]);
+  const expected = new Set(functionNames(source));
+  const extras = functionNames(original).filter(name => !expected.has(name));
+  if (extras.length) {
+    throw new Error('Single-file GAS project contains ' + extras.length +
+      ' functions not present in the dedicated V4 source; refusing to overwrite mixed-purpose code');
+  }
 }
 const previous = Object.fromEntries(
   all.filter(e => e.isFile() && /\.(?:js|gs|json)$/i.test(e.name) && e.name !== '.clasp.json')
