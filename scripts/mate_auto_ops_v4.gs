@@ -1067,7 +1067,7 @@ function diagnoseMateV4Health(){
     if(x['状態']==='営業可能候補')counts[x['サービス']].ready++;
   }
   const sentToday=sent.filter(x=>x['送信処理日時'].startsWith(today));
-  const failures=sent.filter(x=>x['状態']!=='送信済').length;
+  const failures=sent.filter(x=>x['状態']==='送信結果要確認'||x['状態']==='送信失敗').length;
   const eligible=pre.eligibleByScriptChecks;
   const checks={
     active:pre.automationSwitch==='ON',
@@ -1096,6 +1096,11 @@ function diagnoseMateV4Health(){
       s,sentToday.filter(x=>x['サービス']===s&&x['状態']==='送信済').length
     ])),
     ambiguousOrFailedSendLogRows:failures,
+    replyCount:sent.filter(x=>x['状態']==='返信あり').length,
+    optOutCount:sent.filter(x=>x['状態']==='配信停止').length,
+    responseRatePercent:sent.filter(x=>['送信済','返信あり','配信停止'].includes(x['状態'])).length?
+      Math.round(10000*sent.filter(x=>x['状態']==='返信あり').length/
+        sent.filter(x=>['送信済','返信あり','配信停止'].includes(x['状態'])).length)/100:0,
     totalConfirmedSends:sent.filter(x=>x['状態']==='送信済').length,
     notProofOfLegalPermission:true
   };
