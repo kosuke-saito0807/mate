@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-bodik-catalogue-discovery'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-rotating-licensed-source-discovery'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -320,17 +320,24 @@ function mateV4DiscoverLicensedPublicCsvSources(){
   const sources=mateV4Rows_(tab);
   const seen=new Set(sources.map(x=>x['サービス']+'|'+String(x['取得元CSV HTTPS URL']||'').trim()));
   if(seen.size>=80)return {mode:'SOURCE_LIMIT',sourceCount:seen.size};
+  // Rotate keywords across days instead of re-querying the same three
+  // categories forever. Cap remains three API calls and six sources per day.
+  const dayNo=Number(today.replace(/-/g,''));
   const searches=[
-    {service:'CARE',query:'居宅訪問型保育',fit:/居宅訪問|ベビーシッター|訪問保育|認可外保育|保育事業所/},
-    {service:'SPARK',query:'スポーツ教室',fit:/スポーツ教室|文化教室|音楽教室|学習塾|習い事|スポーツクラブ/},
-    {service:'PLAY',query:'観光施設一覧',fit:/観光施設|体験施設|体験活動|博物館|ミュージアム/}
+    {service:'CARE',queries:['居宅訪問型保育','ベビーシッター','認可外保育','子育て支援事業所','訪問保育'],
+      fit:/居宅訪問|ベビーシッター|訪問保育|認可外保育|保育事業所|子育て支援/},
+    {service:'SPARK',queries:['スポーツ教室','文化教室','音楽教室','学習塾','スポーツクラブ','文化施設一覧'],
+      fit:/スポーツ教室|文化教室|音楽教室|学習塾|習い事|スポーツクラブ|文化施設/},
+    {service:'PLAY',queries:['観光施設一覧','体験施設','博物館一覧','体験活動','文化施設一覧','レジャー施設'],
+      fit:/観光施設|体験施設|体験活動|博物館|ミュージアム|文化施設|レジャー施設/}
   ];
   let found=0,queried=0,failures=0,checked=0;
   for(const item of searches){
     if(found>=6||seen.size>=80)break;
     try{
+      const query=item.queries[dayNo%item.queries.length];
       const url='https://data.bodik.jp/api/3/action/package_search?q='+
-        encodeURIComponent(item.query)+'&rows=30&sort=metadata_modified+desc';
+        encodeURIComponent(query)+'&rows=30&sort=metadata_modified+desc';
       const response=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:false,timeout:14000,
         headers:{Accept:'application/json'}});
       if(response.getResponseCode()!==200)throw Error('catalog HTTP status');
@@ -393,7 +400,13 @@ function mateV4CollectLeads(){
     processedSources++;
     let rows;
     try{rows=mateV4SourceCsv_(source['取得元CSV HTTPS URL'])}
-    catch(e){src.getRange(source._row,7).setValue('取得失敗: '+String(e).slice(0,180));continue}
+    catch(e){
+      // Treat this as today's attempted fetch; never hammer a broken source
+      // once per hour or starve other sources in the eight-source batch.
+      src.getRange(source._row,6,1,2).setValues([[
+        mateV4Jst_(),'取得失敗・再試行は翌日: '+String(e).slice(0,170)]]);
+      continue;
+    }
     let imported=0,missingWebsite=0,skippedDuplicate=0,invalidRows=0;
     for(const x of rows){
       if(count>=MATE_V4.maxNewLeadsPerRun)break;
