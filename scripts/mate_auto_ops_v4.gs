@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-14-uncontacted-balanced-audit'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-official-root-contact-discovery'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -502,8 +502,14 @@ function mateV4RoleEmail_(raw){
   return /^(?:info|contact|office|inquiry|toiawase|business|partner|partners|partnerships|hello|support|general|sales|customer|mail)(?:[._+-][a-z0-9]+)?$/i.test(local)?email:'';
 }
 function mateV4PublishedEmails_(html){
+  // Decode only ordinary HTML entities used to display first-party mailbox
+  // addresses. Never guess masked addresses or scrape personal mailboxes.
+  const visible=String(html||'').replace(/&#(x[0-9a-f]+|[0-9]+);/gi,(match,n)=>{
+    const code=n[0].toLowerCase()==='x'?parseInt(n.slice(1),16):parseInt(n,10);
+    return code===64?'@':code===46?'.':code===45?'-':code===95?'_':match;
+  }).replace(/&(?:commat|period|dot);/gi,m=>/commat/i.test(m)?'@':'.');
   const found=new Set(),pattern=/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
-  for(const match of String(html||'').match(pattern)||[]){
+  for(const match of visible.match(pattern)||[]){
     const email=mateV4RoleEmail_(match);
     if(email)found.add(email);
   }
@@ -608,8 +614,13 @@ function mateV4AuditOfficialContacts(){
       if(mateV4Fresh_(last,retryDays))continue;
     }
     const host=mateV4Host_(x['公式URL']),pages=[];
-    for(const url of [x['窓口URL'],x['公式URL']]){
+    // The stored official URL can be a deep service page with no contact links.
+    // Also inspect the exact same-domain homepage, without following external
+    // URLs or attempting to submit a contact form.
+    const homepage=host?'https://'+host+'/':'';
+    for(const url of [x['窓口URL'],x['公式URL'],homepage]){
       if(!mateV4Https_(url)||!mateV4SameBusinessHost_(url,x['公式URL'])||pages.includes(url))continue;
+      if(pages.length>=3)break;
       pages.push(url);
     }
     if(!pages.length)continue;
@@ -624,14 +635,15 @@ function mateV4AuditOfficialContacts(){
       const loaded=pages.map(fetchPage);
       // The saved contact URL can be stale. Discover both an official contact
       // page and a company-information page from a working homepage.
-      const home=loaded.find(z=>z.url===x['公式URL']&&z.html);
-      if(home){
-        const contact=mateV4ContactLink_(home.html,home.url);
-        const company=mateV4CompanyLink_(home.html,home.url);
-        for(const next of [contact,company]){
+      const homes=loaded.filter(z=>z.html&&
+        (z.url===homepage||z.url===x['公式URL']));
+      for(const home of homes){
+        for(const next of [mateV4ContactLink_(home.html,home.url),
+                           mateV4CompanyLink_(home.html,home.url)]){
           if(next&&!loaded.some(z=>z.url===next)&&loaded.length<4)
             loaded.push(fetchPage(next));
         }
+        if(loaded.length>=4)break;
       }
       const valid=loaded.filter(z=>z.html);
       const refused=valid.some(z=>mateV4SalesRefusal_(z.html));
