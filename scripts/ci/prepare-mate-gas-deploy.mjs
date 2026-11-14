@@ -48,7 +48,7 @@ if (!required.every(x => original.includes(x))) {
 // intake, approval, notification, or publication functions.
 if (files.length === 1) {
   const functionNames = code =>
-    [...code.matchAll(/\\bfunction\\s+([A-Za-z_$][\\w$]*)\\s*\\(/g)].map(m => m[1]);
+    [...code.matchAll(/\bfunction\s+([A-Za-z_$][\w$]*)\s*\(/g)].map(m => m[1]);
   const expected = new Set(functionNames(source));
   const extras = functionNames(original).filter(name => !expected.has(name));
   if (extras.length) {
