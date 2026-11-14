@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-public-site-csv-normalization'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-public-site-safety-and-normalization'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -68,6 +68,11 @@ function mateV4Host_(raw){
   const m=s.match(/^https:\/\/([^\/?#:@]+)(?::(\d+))?(?:[\/?#]|$)/i);
   if(!m||m[2])return '';
   const host=m[1].toLowerCase().replace(/^www\./,'');
+  // Imported spreadsheet values must never direct UrlFetchApp to literal IPs
+  // or internal/reserved hostnames. Official businesses have public DNS names.
+  if(/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host)||
+     /\.(?:local|localhost|internal|invalid|test|example|onion)$/.test(host)||
+     /^(?:localhost|metadata\.google\.internal)$/i.test(host))return '';
   if(host.length>253||!host.includes('.')||!host.split('.').every(
     part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part)))return '';
   return host;
