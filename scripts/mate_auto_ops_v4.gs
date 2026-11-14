@@ -246,19 +246,27 @@ function mateV4FitScore_(x){
  * NOT send. Gmail threads may also contain replies, so check actual sender.
  */
 function mateV4HistoricCampaignRecipients_(){
-  const threads=GmailApp.search('in:sent newer_than:365d "MATE" "無料掲載"',0,400);
-  if(threads.length>=400)throw Error('過去営業送信の検索結果が上限に達したため送信停止');
+  // Gmail does not offer a scalable full-history search on every hourly run.
+  // Legacy (pre-V4) messages live in a fixed cutover window; the append-only
+  // V4 sheet protects all subsequent campaign recipients indefinitely.
+  // A recent mailbox scan catches manual sends and logging failures.
+  const queries=[
+    'in:sent after:2025/11/11 before:2026/11/12 "MATE" "無料掲載"',
+    'in:sent newer_than:7d "MATE" "無料掲載"'
+  ];
   const recipients=new Set();
-  for(const thread of threads){
-    for(const msg of thread.getMessages()){
+  for(const query of queries){
+    const threads=GmailApp.search(query,0,350);
+    if(threads.length>=350)
+      throw Error('重複防止用Gmail照合の上限に達しました: '+query);
+    for(const thread of threads)for(const msg of thread.getMessages()){
       const subject=String(msg.getSubject()||'');
       const from=String(msg.getFrom()||'').toLowerCase();
       if(!/【MATE (CARE|SPARK|PLAY)】/.test(subject)||!/無料掲載/.test(subject)||
          !from.includes(MATE_V4.account))continue;
       const to=String(msg.getTo()||'').toLowerCase();
-      for(const match of to.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[]){
+      for(const match of to.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[])
         recipients.add(match);
-      }
     }
   }
   return recipients;
