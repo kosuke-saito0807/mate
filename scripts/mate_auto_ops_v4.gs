@@ -1023,8 +1023,10 @@ function mateV4SendOutreach(){
     const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email)||manualHistory.has(email))continue;
     const service=x['サービス'];
     if(!['CARE','SPARK','PLAY'].includes(service)||serviceToday[service]>=perServiceCap)continue;
-    const link=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
+    const landing=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
       service==='SPARK'?'https://spark.kosodatemate.jp/partners.html':'https://care.kosodatemate.jp/contact.html';
+    // Aggregate analytics attribution, with no prospect identity in the URL.
+    const link=landing+'?utm_source=mate_outreach&utm_medium=email&utm_campaign=free_listing_'+service.toLowerCase();
     const subject='【MATE '+service+'】無料掲載のご案内｜'+x['事業者名'].slice(0,70);
     // Production copy follows the approved service-specific template. Never append
     // the owner-only test disclaimer to an external campaign message.
