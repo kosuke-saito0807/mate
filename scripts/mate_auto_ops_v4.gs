@@ -375,6 +375,34 @@ function mateV4OptoutInbox(){
  * and never mistake a published address for permission to publish a listing.
  * The sender must explicitly opt into the legal exception as a SCRIPT PROPERTY.
  */
+/**
+ * Quarantine only clear permanent delivery failures from the operator inbox.
+ * Do not interpret temporary throttling or out-of-office as a hard bounce.
+ * Require exactly one historically contacted recipient in the failure body.
+ */
+function mateV4HardBounceQuarantine(){
+  const book=mateV4Book_(),opt=mateV4Tab_(book,MATE_V4.optouts);
+  const known=new Set(mateV4Rows_(mateV4Tab_(book,MATE_V4.sent))
+    .map(x=>mateV4Email_(x['宛先メール'])).filter(Boolean));
+  const held=new Set(mateV4Rows_(opt).map(x=>mateV4Email_(x['メール'])).filter(Boolean));
+  let inspected=0,quarantined=0;
+  for(const thread of GmailApp.search('in:inbox newer_than:30d (from:mailer-daemon@googlemail.com OR from:postmaster@google.com OR subject:"Delivery Status Notification")',0,80)){
+    for(const msg of thread.getMessages()){
+      if(inspected++>=120)break;
+      const subject=String(msg.getSubject()||'');
+      const body=String(msg.getPlainBody()||'').slice(0,12000);
+      if(!/(?:Delivery Status Notification|Undeliverable|Mail Delivery|配信不能|配信エラー|配信できません)/i.test(subject))continue;
+      if(!/(?:5\.1\.1|5\.1\.0|550.{0,70}(?:user unknown|no such user|mailbox unavailable|recipient not found)|address not found|recipient address rejected)/i.test(body))continue;
+      const candidates=[...new Set((body.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi)||[])
+        .map(mateV4Email_).filter(x=>x&&known.has(x)&&!held.has(x)))];
+      if(candidates.length!==1)continue;
+      mateV4Append_(opt,[candidates[0],mateV4Jst_(),'恒久的配送不能（Gmail不達通知）',String(msg.getId()).slice(0,180)]);
+      held.add(candidates[0]);quarantined++;
+    }
+    if(inspected>=120)break;
+  }
+  return {inspected,quarantined};
+}
 function mateV4PublicHtml_(url){
   // Follow short HTTPS redirects only to the exact same business host
   // (optional www prefix). A 301 http->https downgrade and third-party
@@ -1331,7 +1359,7 @@ function diagnoseMateV4Health(){
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
-    const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
+    const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
       reconciledSent:mateV4ReconcileSentReservations(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
       referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
@@ -1368,12 +1396,20 @@ function mateV4DailyGrowthDigest(){
   }
   for(const r of application)if(r['サービス'] in approved &&
     r['審査状態']==='承認')approved[r['サービス']]++;
+  const backlog=diagnoseMateV4Backlog();
+  const attribution=diagnoseMateOutreachApplicationsV4();
+  const funnel=s=>backlog.counts[s];
+  const observed=svc=>attribution.byService[svc];
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
     '窓口確認待ち：CARE '+pending.CARE+' / SPARK '+pending.SPARK+' / PLAY '+pending.PLAY,
     '公式業務メール未取得・不適合：CARE '+mailMissing.CARE+' / SPARK '+mailMissing.SPARK+' / PLAY '+mailMissing.PLAY,
     '本日公式窓口監査済み：'+auditedToday,
+    '未送信候補・審査待ち：CARE '+funnel('CARE').notReadyStatus+' / SPARK '+funnel('SPARK').notReadyStatus+' / PLAY '+funnel('PLAY').notReadyStatus,
+    '根拠期限切れ：CARE '+funnel('CARE').expiredEvidence+' / SPARK '+funnel('SPARK').expiredEvidence+' / PLAY '+funnel('PLAY').expiredEvidence,
+    '暫定送信適格（Gmail履歴照合前）：CARE '+funnel('CARE').validWithoutGmailHistoryCheck+' / SPARK '+funnel('SPARK').validWithoutGmailHistoryCheck+' / PLAY '+funnel('PLAY').validWithoutGmailHistoryCheck,
+    '実在申請（内部テスト・差戻し除外）：CARE '+observed('CARE').realApplications+' / SPARK '+observed('SPARK').realApplications+' / PLAY '+observed('PLAY').realApplications,
     '承認済み申請：CARE '+approved.CARE+' / SPARK '+approved.SPARK+' / PLAY '+approved.PLAY,
     '本日送信試行ログ：'+sent.filter(r=>r['送信処理日時'].startsWith(today)).length,
     '本日未審査申請：'+application.filter(r=>r['受信日時']&&r['受信日時'].startsWith(today)&&r['審査状態']!=='承認').length,
