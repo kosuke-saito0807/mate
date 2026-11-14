@@ -53,11 +53,24 @@ test('fails closed on multiple matching V4 files', () => {
   });
 });
 
-test('fails closed when expected separate GAS files are missing', () => {
+test('supports an existing dedicated single-source GAS project', () => {
   withMockProject({other:false}, dir => {
+    const manifestBefore = fs.readFileSync(path.join(dir, 'appsscript.json'), 'utf8');
+    const result = run(dir);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(fs.readFileSync(path.join(dir, 'mate_auto_ops_v4.js'), 'utf8'),
+      fs.readFileSync(source, 'utf8'));
+    assert.equal(fs.readFileSync(path.join(dir, 'appsscript.json'), 'utf8'), manifestBefore);
+  });
+});
+
+test('rejects a single-file project with unrelated application functions', () => {
+  withMockProject({other:false, v4:remoteV4 + '\\nfunction publishReviewedMateApplications(){}\\n'}, dir => {
     const result = run(dir);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /Fewer than two GAS source files/);
+    assert.match(result.stderr, /mixed-purpose code/);
+    assert.match(fs.readFileSync(path.join(dir, 'mate_auto_ops_v4.js'), 'utf8'),
+      /publishReviewedMateApplications/);
   });
 });
 
