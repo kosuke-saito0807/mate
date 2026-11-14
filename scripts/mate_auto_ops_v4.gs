@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-rotating-licensed-source-discovery'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-growth-funnel-metrics'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -650,6 +650,7 @@ function mateV4AuditOfficialContacts(){
   }
   eligibleServices.forEach(service=>buckets[service].sort((a,b)=>
     auditPriority(a)-auditPriority(b)||
+    mateV4FitScore_(b)-mateV4FitScore_(a)||
     String(a['最終確認結果']||'').localeCompare(String(b['最終確認結果']||''))));
   const leads=[];
   while(eligibleServices.some(s=>buckets[s].length)){
@@ -1431,6 +1432,11 @@ function diagnoseMateV4Health(){
     currentDate:today,
     startDateReached:!pre.outreachStartDate||today>=pre.outreachStartDate,
     activeSourceCount:sources.filter(x=>x['有効']==='TRUE'&&x['再利用許諾確認']==='確認済み').length,
+    activeSourcesByService:Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[
+      s,sources.filter(x=>x['サービス']===s&&x['有効']==='TRUE'&&x['再利用許諾確認']==='確認済み').length
+    ])),
+    catalogDiscoveryLastChecked:p.getProperty('MATE_SOURCE_CATALOG_DISCOVERY_LAST')||'',
+    catalogDiscoveryEnabled:p.getProperty('MATE_SOURCE_CATALOG_DISCOVERY')!=='OFF',
     sourceResults:sources.filter(x=>x['有効']==='TRUE').map(x=>({
       service:x['サービス'],name:x['ソース名'],
       lastResult:x['前回結果']||'未実行',lastImportedAt:x['最終取込日時']||''
@@ -1501,11 +1507,17 @@ function mateV4DailyGrowthDigest(){
     r['審査状態']==='承認')approved[r['サービス']]++;
   const backlog=diagnoseMateV4Backlog();
   const attribution=diagnoseMateOutreachApplicationsV4();
+  const sources=mateV4Rows_(mateV4Tab_(book,MATE_V4.sources));
+  const activeSources=Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[s,
+    sources.filter(x=>x['サービス']===s&&x['有効']==='TRUE'&&x['再利用許諾確認']==='確認済み').length]));
   const funnel=s=>backlog.counts[s];
   const observed=svc=>attribution.byService[svc];
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    '自動CSV収集元：CARE '+activeSources.CARE+' / SPARK '+activeSources.SPARK+' / PLAY '+activeSources.PLAY,
+    '収集元の自動発見：'+(props.getProperty('MATE_SOURCE_CATALOG_DISCOVERY')==='OFF'?'OFF':'ON')+
+      ' / 最終カタログ確認：'+(props.getProperty('MATE_SOURCE_CATALOG_DISCOVERY_LAST')||'未実施'),
     '窓口確認待ち：CARE '+pending.CARE+' / SPARK '+pending.SPARK+' / PLAY '+pending.PLAY,
     '公式業務メール未取得・不適合：CARE '+mailMissing.CARE+' / SPARK '+mailMissing.SPARK+' / PLAY '+mailMissing.PLAY,
     '本日公式窓口監査済み：'+auditedToday,
