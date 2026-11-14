@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-public-site-safety-and-normalization'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-official-contact-recall'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -561,7 +561,13 @@ function mateV4ContactLink_(html,baseUrl){
   let m;
   while((m=pattern.exec(String(html||'')))){
     const href=m[1].replace(/&amp;/gi,'&');
-    if(!/(?:contact|inquir|toiawase|otoiawase|お問い?合わ?せ|%e3%81%8a%e5%95%8f%e3%81%84)/i.test(href))continue;
+    // Some businesses label a link "お問い合わせ" but use an opaque
+    // path like /form/. This audit only reads first-party pages.
+    const following=String(html||'').slice(pattern.lastIndex,pattern.lastIndex+700);
+    const anchorText=following.split(/<\/a\s*>/i)[0]
+      .replace(/<[^>]*>/g,' ').replace(/&nbsp;/gi,' ');
+    if(!/(?:contact|inquir|toiawase|otoiawase|form|お問い?合わ?せ|%e3%81%8a%e5%95%8f%e3%81%84)/i.test(href)&&
+       !/(?:お問い合わせ|お問合せ|お問い合せ|連絡先|法人窓口|Contact|Inquiry)/i.test(anchorText))continue;
     if(/^(?:mailto:|javascript:|data:|\/\/)/i.test(href))continue;
     let url='';
     if(/^https:\/\//i.test(href))url=href;
@@ -610,7 +616,7 @@ function mateV4RoleEmail_(raw){
   const email=mateV4Email_(raw);
   if(!email)return '';
   const local=email.split('@')[0];
-  return /^(?:info|contact|office|inquiry|toiawase|business|partner|partners|partnerships|hello|support|general|sales|customer|mail)(?:[._+-][a-z0-9]+)?$/i.test(local)?email:'';
+  return /^(?:info|contact|office|inquiry|toiawase|otoiawase|uketsuke|madoguchi|jimukyoku|reception|desk|admin|business|partner|partners|partnerships|hello|support|general|sales|customer|mail)(?:[._+-][a-z0-9]+)?$/i.test(local)?email:'';
 }
 function mateV4PublishedEmails_(html){
   // Decode only ordinary HTML entities used to display first-party mailbox
