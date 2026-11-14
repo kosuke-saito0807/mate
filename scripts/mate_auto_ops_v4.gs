@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-balanced-source-rotation'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-yesterday-growth-digest'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1546,20 +1546,22 @@ function mateV4DailyGrowthDigest(){
   const book=mateV4Book_(),props=PropertiesService.getScriptProperties();
   if(props.getProperty('MATE_GROWTH_DIGEST')==='OFF')return 'OFF';
   const today=mateV4Jst_().slice(0,10),key='MATE_GROWTH_DIGEST_LAST';
+  const yesterday=Utilities.formatDate(new Date(Date.now()-86400000),
+    'Asia/Tokyo','yyyy-MM-dd');
   if(props.getProperty(key)===today)return 'ALREADY_DONE';
   const leads=mateV4Rows_(mateV4Tab_(book,MATE_V4.leads));
   const sent=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
   const application=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
   const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0},pending={CARE:0,SPARK:0,PLAY:0},mailMissing={CARE:0,SPARK:0,PLAY:0};
   let auditedToday=0;
-  const newToday={CARE:0,SPARK:0,PLAY:0};
-  const verifiedToday={CARE:0,SPARK:0,PLAY:0};
+  const newYesterday={CARE:0,SPARK:0,PLAY:0};
+  const verifiedYesterday={CARE:0,SPARK:0,PLAY:0};
   for(const r of leads){
     const service=r['サービス'];
     if(!(service in count))continue;
     count[service]++;
-    if(String(r['取得日時']||'').startsWith(today))newToday[service]++;
-    if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+today+' 公式事業者サイトで業務用メール掲載確認'))verifiedToday[service]++;
+    if(String(r['取得日時']||'').startsWith(yesterday))newYesterday[service]++;
+    if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+yesterday+' 公式事業者サイトで業務用メール掲載確認'))verifiedYesterday[service]++;
     if(r['状態']==='窓口確認待ち')pending[service]++;
     if(!mateV4RoleEmail_(r['業務用メール']))mailMissing[service]++;
     if(String(r['最終確認結果']||'').startsWith('AUTO_AUDIT '+today))auditedToday++;
@@ -1576,8 +1578,8 @@ function mateV4DailyGrowthDigest(){
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
     '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
-    '本日新規候補：CARE '+newToday.CARE+' / SPARK '+newToday.SPARK+' / PLAY '+newToday.PLAY,
-    '本日公式メール確認：CARE '+verifiedToday.CARE+' / SPARK '+verifiedToday.SPARK+' / PLAY '+verifiedToday.PLAY,
+    '前日（'+yesterday+'）新規候補：CARE '+newYesterday.CARE+' / SPARK '+newYesterday.SPARK+' / PLAY '+newYesterday.PLAY,
+    '前日（'+yesterday+'）公式メール確認：CARE '+verifiedYesterday.CARE+' / SPARK '+verifiedYesterday.SPARK+' / PLAY '+verifiedYesterday.PLAY,
     '自動CSV収集元：CARE '+activeSources.CARE+' / SPARK '+activeSources.SPARK+' / PLAY '+activeSources.PLAY,
     '収集元の自動発見：'+(props.getProperty('MATE_SOURCE_CATALOG_DISCOVERY')==='OFF'?'OFF':'ON')+
       ' / 最終カタログ確認：'+(props.getProperty('MATE_SOURCE_CATALOG_DISCOVERY_LAST')||'未実施'),
