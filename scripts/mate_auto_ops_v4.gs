@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-role-mail-only-ingestion'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-balanced-source-rotation'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -402,9 +402,34 @@ function mateV4DiscoverLicensedPublicCsvSources(){
     autoEmailApproval:false,onlyPublicLicensedCSV:true};
 }
 
+/**
+ * Fair CSV-source scheduler: unimported/least-recently-checked sources first,
+ * round-robin CARE, SPARK and PLAY. Prevents the first eight rows from starving
+ * all later public datasets as the source registry grows.
+ */
+function mateV4BalancedSourceQueue_(sources,today){
+  const services=['CARE','SPARK','PLAY'],buckets={CARE:[],SPARK:[],PLAY:[]};
+  for(const src of sources){
+    const svc=src['サービス'],last=String(src['最終取込日時']||'');
+    if(!buckets[svc]||src['有効']!=='TRUE'||
+       src['再利用許諾確認']!=='確認済み'||
+       !mateV4Https_(src['取得元CSV HTTPS URL'])||
+       last.slice(0,10)===today)continue;
+    buckets[svc].push(src);
+  }
+  for(const service of services)buckets[service].sort((a,b)=>
+    String(a['最終取込日時']||'').localeCompare(String(b['最終取込日時']||'')));
+  const queue=[];
+  while(services.some(service=>buckets[service].length)){
+    for(const service of services)if(buckets[service].length)
+      queue.push(buckets[service].shift());
+  }
+  return queue;
+}
 function mateV4CollectLeads(){
   const b=mateV4Book_(),src=mateV4Tab_(b,MATE_V4.sources),dest=mateV4Tab_(b,MATE_V4.leads);
-  const sources=mateV4Rows_(src),existing=mateV4Rows_(dest);
+  const sources=mateV4BalancedSourceQueue_(mateV4Rows_(src),mateV4Jst_().slice(0,10));
+  const existing=mateV4Rows_(dest);
   const seen=new Set(existing.map(x=>x['重複キー']).filter(Boolean));
   const known=new Set(mateV4Rows_(mateV4Tab_(b,'3サービス営業リスト'))
     .filter(x=>mateV4Https_(x['公式・窓口URL']))
