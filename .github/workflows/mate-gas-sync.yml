@@ -70,27 +70,12 @@ jobs:
           cd "${WORK_DIR}"
           clasp pull
 
-      - name: Snapshot remote source before modifications
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "${{ steps.pull.outputs.dir }}"
-          tar --exclude=.clasp.json --exclude=.clasprc.json -czf "${RUNNER_TEMP}/mate-gas-backup.tar.gz" .
-
       - name: Replace dedicated V4 file only and verify other files are unchanged
         shell: bash
         run: |
           node scripts/ci/prepare-mate-gas-deploy.mjs \
             "${{ steps.pull.outputs.dir }}" \
             "${GITHUB_WORKSPACE}/scripts/mate_auto_ops_v4.gs"
-
-      - name: Backup full remote source as workflow artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mate-gas-source-before-sync-${{ github.run_number }}
-          path: ${{ runner.temp }}/mate-gas-backup.tar.gz
-          retention-days: 7
-          if-no-files-found: error
 
       - name: Sync full preserved project to GAS HEAD (no web-app deployment)
         shell: bash
