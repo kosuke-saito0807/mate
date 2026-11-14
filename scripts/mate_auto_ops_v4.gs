@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-growth-funnel-metrics'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-public-site-csv-normalization'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -73,6 +73,20 @@ function mateV4Host_(raw){
   return host;
 }
 function mateV4Https_(s){return !!mateV4Host_(s)}
+/**
+ * Public municipal data often stores official sites as http:// or www...
+ * Upgrade to HTTPS as a DISCOVERY HINT only. Never use this conversion
+ * as evidence that the HTTPS site exists or permits outreach.
+ */
+function mateV4CandidateHttps_(raw){
+  const x=String(raw||'').trim();
+  if(!x||x.length>500||/[\\\s<>"'@]/.test(x))return '';
+  const url=/^https:\/\//i.test(x)?x:
+    /^http:\/\//i.test(x)?'https://'+x.slice(7):
+    /^www\./i.test(x)?'https://'+x:'';
+  return mateV4Host_(url)?url:'';
+}
+
 function mateV4SameBusinessHost_(a,b){
   const clean=x=>String(mateV4Host_(x)||'').replace(/^www\./,'');
   const ha=clean(a),hb=clean(b);
@@ -126,8 +140,8 @@ function mateV4SourceCsv_(url){
   if(required.every(k=>keys.includes(k)))
     return rows.map(row=>{const o={};keys.forEach((k,i)=>o[k]=String(row[i]||'').trim());return o});
   const columns={
-    name:['事業者名','法人名','企業名','教室名','施設名','施設名称','名称','事業所名','観光施設名','施設・スポット名'],
-    website:['公式url','ホームページ','ホームページurl','ウェブサイト','ウェブサイトurl','webサイト','webサイトurl','url','公式サイト','公式サイトurl','関連url','リンク先url','施設url','施設ホームページ','サイトurl'],
+    name:['事業者名','法人名','企業名','教室名','施設名','施設名称','名称','事業所名','観光施設名','施設・スポット名','店舗名','事業者名称','施設名称(日本語)'],
+    website:['公式url','ホームページ','ホームページurl','ウェブサイト','ウェブサイトurl','webサイト','webサイトurl','url','公式サイト','公式サイトurl','関連url','リンク先url','施設url','施設ホームページ','サイトurl','ホームページアドレス','公式ホームページ','ウェブページ','url(公式)','website','weburl','施設url(公式)'],
     region:['都道府県','住所','所在地','地域','エリア','所在地_連結表記','所在地(住所)'],
     email:['メール','メールアドレス','公開メール','e-mail','email'],
     contact_url:['問い合わせurl','問合せurl','お問い合わせurl'],
@@ -140,8 +154,8 @@ function mateV4SourceCsv_(url){
   }
   return rows.map(row=>{
     const get=k=>indexes[k]<0?'':String(row[indexes[k]]||'').trim();
-    return {name:get('name'),website:get('website'),region:get('region'),
-      email:get('email'),contact_url:get('contact_url'),service:'',
+    return {name:get('name'),website:mateV4CandidateHttps_(get('website')),region:get('region'),
+      email:get('email'),contact_url:mateV4CandidateHttps_(get('contact_url')),service:'',
       source_url:url,mail_basis:'UNVERIFIED',checked_at:'',
       solicitation_prohibited:'FALSE'};
   });
@@ -410,6 +424,10 @@ function mateV4CollectLeads(){
     let imported=0,missingWebsite=0,skippedDuplicate=0,invalidRows=0;
     for(const x of rows){
       if(count>=MATE_V4.maxNewLeadsPerRun)break;
+      // A dataset row can be from an unrelated or non-commercial venue.
+      // Keep it as discovery-only; later first-party checks decide readiness.
+      x.website=mateV4CandidateHttps_(x.website);
+      x.contact_url=mateV4CandidateHttps_(x.contact_url);
       if(!x.name||!mateV4Https_(x.website)){missingWebsite++;continue}
       if((x.service&&x.service!==service)||!mateV4Https_(x.source_url)){invalidRows++;continue}
       const id=mateV4Key_(service,x.website,x.name);
