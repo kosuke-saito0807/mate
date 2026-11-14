@@ -806,6 +806,48 @@ function mateV4FormalSenderIdentity_(p){
   return {ready:false,mode};
 }
 
+/**
+ * Resolve ambiguous send reservations only when the exact recipient,
+ * MATE campaign subject and sender are found in the Gmail Sent mailbox.
+ * Never turn an unresolved reservation back into an eligible candidate.
+ * Keeps each hourly pass bounded and does not touch prospects or send mail.
+ */
+function mateV4ReconcileSentReservations(){
+  const book=mateV4Book_();
+  const tab=mateV4Tab_(book,MATE_V4.sent);
+  const pending=mateV4Rows_(tab).filter(x=>x['状態']==='送信結果要確認').slice(-20);
+  let confirmed=0,unresolved=0;
+  for(const x of pending){
+    const address=mateV4Email_(x['宛先メール']);
+    const subject=String(x['件名']||'').trim();
+    const service=String(x['サービス']||'');
+    if(!address||!['CARE','SPARK','PLAY'].includes(service)||
+       !subject.startsWith('【MATE '+service+'】無料掲載のご案内')){unresolved++;continue}
+    const original=Date.parse(String(x['送信処理日時']||'').replace(' ','T')+'+09:00');
+    if(!Number.isFinite(original)){unresolved++;continue}
+    const gmailQuery='in:sent to:'+address+' after:'+
+      Utilities.formatDate(new Date(original-86400000),'Asia/Tokyo','yyyy/MM/dd');
+    let match=null;
+    try{
+      for(const thread of GmailApp.search(gmailQuery,0,15)){
+        for(const msg of thread.getMessages()){
+          const from=String(msg.getFrom()||'').toLowerCase();
+          const recipient=String(msg.getTo()||'').toLowerCase();
+          const at=msg.getDate().getTime();
+          if(!from.includes(MATE_V4.account)||!recipient.includes(address)||
+             String(msg.getSubject()||'')!==subject||
+             at<original-300000||at>original+7200000)continue;
+          if(!match||at<match.getDate().getTime())match=msg;
+        }
+      }
+    }catch(e){console.log('SENT_RECONCILIATION_QUERY_FAILED '+String(e).slice(0,120));unresolved++;continue}
+    if(!match){unresolved++;continue}
+    tab.getRange(x._row,6).setValue('送信済');
+    tab.getRange(x._row,9).setValue('Gmail実送信照合済 ID='+String(match.getId()).slice(0,140)+' / 自動再送禁止');
+    confirmed++;
+  }
+  return {checked:pending.length,confirmed,unresolved};
+}
 function mateV4SendOutreach(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_AUTO_SEND')!=='ON'||p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')return 'OFF';
@@ -1111,6 +1153,7 @@ function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
   try{
     const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),
+      reconciledSent:mateV4ReconcileSentReservations(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
       referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
       replies:mateV4TrackReplies()};
