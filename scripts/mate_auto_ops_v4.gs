@@ -73,6 +73,11 @@ function mateV4Host_(raw){
   return host;
 }
 function mateV4Https_(s){return !!mateV4Host_(s)}
+function mateV4SameBusinessHost_(a,b){
+  const clean=x=>String(mateV4Host_(x)||'').replace(/^www\./,'');
+  const ha=clean(a),hb=clean(b);
+  return !!ha&&ha===hb;
+}
 function mateV4Email_(s){
   const x=String(s||'').trim().toLowerCase();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(x)||x.length>250)return '';
@@ -396,7 +401,7 @@ function mateV4PublicHtml_(url){
         const clean=current.replace(/[?#].*$/,'');
         target=clean.slice(0,clean.lastIndexOf('/')+1)+location;
       }
-      if(!mateV4Https_(target)||mateV4Host_(target)!==originalHost||target===current)return '';
+      if(!mateV4Https_(target)||!mateV4SameBusinessHost_(target,url)||target===current)return '';
       current=target;
       continue;
     }
@@ -427,7 +432,32 @@ function mateV4ContactLink_(html,baseUrl){
       const prefix=stripped.slice(0,stripped.lastIndexOf('/')+1);
       url=prefix+href;
     }
-    if(mateV4Https_(url)&&mateV4Host_(url)===host&&url!==baseUrl)return url;
+    if(mateV4Https_(url)&&mateV4SameBusinessHost_(url,baseUrl)&&url!==baseUrl)return url;
+  }
+  return '';
+}
+/** Find an official company/about page as a third audit source.
+ * Some operators publish role addresses only on company-information pages.
+ * Never follow external links and never submit any forms.
+ */
+function mateV4CompanyLink_(html,baseUrl){
+  const host=mateV4Host_(baseUrl),root='https://'+host;
+  if(!host)return '';
+  const pattern=/\bhref\s*=\s*["']([^"']{1,500})["']/gi;
+  let match;
+  while((match=pattern.exec(String(html||'')))){
+    const href=match[1].replace(/&amp;/gi,'&');
+    if(!/(?:company|corporate|about(?:-us)?|profile|会社概要|企業情報|運営会社)/i.test(href)||
+       /^(?:mailto:|javascript:|data:|\/\/)/i.test(href))continue;
+    let url='';
+    if(/^https:\/\//i.test(href))url=href;
+    else if(href.startsWith('/'))url=root+href;
+    else if(!/^[a-z]+:/i.test(href)){
+      const stripped=baseUrl.replace(/[?#].*$/,'');
+      url=stripped.slice(0,stripped.lastIndexOf('/')+1)+href;
+    }
+    if(mateV4Https_(url)&&mateV4SameBusinessHost_(url,baseUrl)&&url!==baseUrl)
+      return url;
   }
   return '';
 }
@@ -551,21 +581,29 @@ function mateV4AuditOfficialContacts(){
     }
     const host=mateV4Host_(x['公式URL']),pages=[];
     for(const url of [x['窓口URL'],x['公式URL']]){
-      if(!mateV4Https_(url)||mateV4Host_(url)!==host||pages.includes(url))continue;
+      if(!mateV4Https_(url)||!mateV4SameBusinessHost_(url,x['公式URL'])||pages.includes(url))continue;
       pages.push(url);
     }
     if(!pages.length)continue;
     checked++;
     try{
-      const loaded=pages.map(url=>({url,html:mateV4PublicHtml_(url)}));
-      // CRM contact URLs may be stale. Prefer the current same-origin
-      // contact link found from the working homepage, even if a saved URL
-      // was present but no longer works. Never submit forms.
+      // A temporary fetch failure on one page must not conceal a valid
+      // company/contact page. Keep all lookups same-business HTTPS only.
+      const fetchPage=url=>{
+        try{return {url,html:mateV4PublicHtml_(url)}}
+        catch(e){return {url,html:''}}
+      };
+      const loaded=pages.map(fetchPage);
+      // The saved contact URL can be stale. Discover both an official contact
+      // page and a company-information page from a working homepage.
       const home=loaded.find(z=>z.url===x['公式URL']&&z.html);
       if(home){
         const contact=mateV4ContactLink_(home.html,home.url);
-        if(contact&&!loaded.some(z=>z.url===contact)&&loaded.length<3)
-          loaded.push({url:contact,html:mateV4PublicHtml_(contact)});
+        const company=mateV4CompanyLink_(home.html,home.url);
+        for(const next of [contact,company]){
+          if(next&&!loaded.some(z=>z.url===next)&&loaded.length<4)
+            loaded.push(fetchPage(next));
+        }
       }
       const valid=loaded.filter(z=>z.html);
       const refused=valid.some(z=>mateV4SalesRefusal_(z.html));
@@ -726,7 +764,7 @@ function mateV4PublicMailOperatorReview_(x){
   if(x['メール用途・営業可の根拠']!=='PUBLIC_BUSINESS_EMAIL')return false;
   if(!mateV4RoleEmail_(x['業務用メール']))return false;
   if(!mateV4Https_(x['確認元URL'])||audit[2]!==x['確認元URL'])return false;
-  return mateV4Host_(x['公式URL'])===mateV4Host_(x['確認元URL']);
+  return mateV4SameBusinessHost_(x['公式URL'],x['確認元URL']);
 }
 function mateV4SenderAddressLooksComplete_(raw){
   const s=String(raw||'').trim();
