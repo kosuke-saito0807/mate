@@ -25,11 +25,9 @@ clasp login
 | Secret名 | 値 |
 |---|---|
 | CLASPRC_JSON | ~/.clasprc.json の JSON全文 |
-| CLASP_JSON | 下記のJSON。スクリプトIDを実値に置換 |
+| CLASP_JSON | **GASのスクリプトIDだけをそのまま貼り付ける**（JSON形式も対応） |
 
-~~~json
-{"scriptId":"ここに既存の営業V4用GASスクリプトID"}
-~~~
+GitHub Secretの入力欄には、GASのプロジェクト設定からコピーしたスクリプトIDの文字列だけを貼り付けてください。`{"scriptId":"..."}` のJSONを手で作る必要はありません。長いGAS編集画面のURL、スプレッドシートID、`JSON` というラベル、説明文などを貼らないでください。
 
 macOSでは次のコマンドで認証JSONをコピーできます。コピー先は必ずGitHub Secretsの入力欄にしてください。
 
