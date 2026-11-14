@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-net-new-verified-applications'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-role-mail-only-ingestion'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -184,7 +184,7 @@ function mateV4SeedExistingCRM(){
     if(existing.has(key))continue;
     mateV4Append_(dest,[
       'CRM-'+key,mateV4Jst_(),svc,name,url,x['エリア']||'',
-      mateV4Email_(x['メール（未再確認）']),url,url,'UNVERIFIED',x['確認日']||'',
+      mateV4RoleEmail_(x['メール（未再確認）']),url,url,'UNVERIFIED',x['確認日']||'',
       key,'FALSE','窓口確認待ち','既存CRMより引継ぎ。公開メールは自動送信の許可証拠ではない。',
       'CRM ID='+x['ID']
     ]);
@@ -439,7 +439,9 @@ function mateV4CollectLeads(){
       const id=mateV4Key_(service,x.website,x.name);
       if(seen.has(id)||known.has(id)){skippedDuplicate++;continue}
       const deny=/^(true|yes|1|禁止)$/i.test(x.solicitation_prohibited);
-      const mail=mateV4Email_(x.email);
+      // Imported directories may contain staff names; retain only public
+      // organizational role inboxes, never personal mailboxes.
+      const mail=mateV4RoleEmail_(x.email);
       const checked=mateV4Fresh_(x.checked_at,14);
       const basis=['OPT_IN','SOLICITATIONS_WELCOME'].includes(x.mail_basis)?x.mail_basis:'UNVERIFIED';
       // Even a properly licensed CSV can contain stale or self-asserted opt-in.
