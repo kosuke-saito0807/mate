@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-14-daily-30-and-reply-coverage'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-14-uncontacted-balanced-audit'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -197,7 +197,8 @@ function mateV4SeedSectorDirectories(){
     {tab:'SPARK営業候補',service:'SPARK',name:'企業・教室名',site:'公式・窓口URL',region:'都県・対象'},
     {tab:'営業管理DB',service:'CARE',name:'事業者名',site:'公式サイト',region:'エリア'},
     {tab:'東京都認定_営業優先',service:'CARE',name:'事業所名',site:'公式サイト',region:'エリア'},
-    {tab:'今すぐ営業リスト',service:'CARE',name:'統合営業先名',site:'公式サイト',region:'届出元・エリア'}
+    {tab:'今すぐ営業リスト',service:'CARE',name:'統合営業先名',site:'公式サイト',region:'届出元・エリア'},
+    {tab:'権限移譲区市_営業候補',service:'CARE',name:'事業所名',site:'公式サイト',region:'自治体'}
   ];
   let total=0,byService={CARE:0,SPARK:0,PLAY:0};
   for(const source of sources){
@@ -462,19 +463,48 @@ function mateV4AuditOfficialContacts(){
   //   1. verified and held businesses, 2. pending businesses with an existing
   //   role mailbox to recheck, 3. no-mailbox prospects needing discovery.
   // No state, rejection or quota gate is changed by this ordering.
-  const auditPriority=x=>x['状態']==='営業可能候補'&&x['営業拒否']==='未確認'?0:
-    x['状態']==='公式公開メール確認済・送信待機'?1:
-    x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(x['業務用メール'])?2:
-    x['状態']==='窓口確認待ち'?3:4;
-  const leads=mateV4Rows_(tab).sort((a,b)=>auditPriority(a)-auditPriority(b));
+  const sentLogs=mateV4Rows_(mateV4Tab_(b,MATE_V4.sent));
+  const sentEmails=new Set(sentLogs.map(x=>mateV4Email_(x['宛先メール'])).filter(Boolean));
+  const sentKeys=new Set(sentLogs.map(x=>x['候補キー']).filter(Boolean));
+  const eligibleServices=['CARE','SPARK','PLAY'];
+  // Prioritize businesses that have never been attempted. Distribute audit
+  // effort across services so a large SPARK backlog cannot starve CARE/PLAY.
+  // Treat any send reservation (including ambiguous failures) as attempted.
+  const auditPriority=x=>{
+    const email=mateV4Email_(x['業務用メール']);
+    const alreadyAttempted=sentKeys.has(x['重複キー'])||(email&&sentEmails.has(email));
+    if(alreadyAttempted)return 99;
+    if(x['営業拒否']==='TRUE'||x['状態']==='配信禁止')return 99;
+    if(x['状態']==='営業可能候補'&&
+       !mateV4Fresh_(x['根拠確認日時'],14))return 0;
+    if(x['状態']==='営業可能候補'&&x['営業拒否']==='未確認')return 1;
+    if(x['状態']==='公式公開メール確認済・送信待機')return 2;
+    if(x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(email))return 3;
+    if(x['状態']==='窓口確認待ち')return 4;
+    return 98;
+  };
+  const buckets={CARE:[],SPARK:[],PLAY:[]};
+  for(const lead of mateV4Rows_(tab)){
+    if(!eligibleServices.includes(lead['サービス']))continue;
+    if(auditPriority(lead)>=98)continue;
+    buckets[lead['サービス']].push(lead);
+  }
+  eligibleServices.forEach(service=>buckets[service].sort((a,b)=>
+    auditPriority(a)-auditPriority(b)||
+    String(a['最終確認結果']||'').localeCompare(String(b['最終確認結果']||''))));
+  const leads=[];
+  while(eligibleServices.some(s=>buckets[s].length)){
+    for(const service of eligibleServices)
+      if(buckets[service].length)leads.push(buckets[service].shift());
+  }
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
   // Audit more companies without overwhelming Apps Script's execution limit.
   // Can tune between 8 and 24 without another code deployment.
-  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||18);
+  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||24);
   const batchSize=Number.isFinite(requested)?
-    Math.min(24,Math.max(8,Math.floor(requested))):18;
+    Math.min(24,Math.max(8,Math.floor(requested))):24;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
     if(checked>=batchSize)break;
@@ -592,7 +622,8 @@ function mateV4AuditOfficialContacts(){
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
   }
-  return {checked,eligible,discovered,batchSize};
+  return {checked,eligible,discovered,batchSize,
+    strategy:'UNCONTACTED_FIRST_ROUND_ROBIN_CARE_SPARK_PLAY'};
 }
 
 /**
