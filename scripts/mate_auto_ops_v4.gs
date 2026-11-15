@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-free-web-promotion-heartbeat'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-startup-failure-telemetry'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1825,6 +1825,14 @@ function mateV4ProductionHeartbeat_(report){
 
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
+  // Persist runtime identity BEFORE any data source can fail. This is proof
+  // of live execution, not proof of successful synchronization or outreach.
+  try{
+    const sheet=mateV4Tab_(mateV4Book_(),'GAS本番稼働監視V4');
+    sheet.getRange(2,1).setValue(mateV4Jst_());
+    sheet.getRange(2,2).setValue(MATE_V4.version);
+    sheet.getRange(2,11).setValue('CYCLE_STARTED');
+  }catch(err){console.log('PRODUCTION_START_HEARTBEAT_FAILED '+String(err).slice(0,120));}
   try{
     const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),
       catalogDiscovery:mateV4DiscoverLicensedPublicCsvSources(),
@@ -1840,6 +1848,15 @@ function mateAutoOpsV4Cycle(){
     try{report.productionHeartbeat=mateV4ProductionHeartbeat_(report)}
     catch(err){console.log('PRODUCTION_HEARTBEAT_FAILED '+String(err).slice(0,120));}
     console.log(JSON.stringify(report));return report;
+  }catch(err){
+    // Keep original failure visible in Apps Script execution history.
+    try{
+      const sheet=mateV4Tab_(mateV4Book_(),'GAS本番稼働監視V4');
+      sheet.getRange(2,11).setValue('CYCLE_FAILED: '+String(err).slice(0,140));
+    }catch(heartbeatErr){
+      console.log('PRODUCTION_ERROR_HEARTBEAT_FAILED '+String(heartbeatErr).slice(0,120));
+    }
+    throw err;
   }finally{lock.releaseLock()}
 }
 function installMateAutoOpsV4(){
