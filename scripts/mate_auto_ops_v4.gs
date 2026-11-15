@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-production-heartbeat-and-osm'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-free-web-promotion-heartbeat'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1728,6 +1728,78 @@ function diagnoseMateV4Health(){
  * Row 2 changes only when the Apps Script runtime actually executes V4 cycle.
  * No recipient addresses, API keys, child data, or Gmail contents are logged.
  */
+/**
+ * Bounded conversion of free-search candidates into the official-site audit.
+ * A map/search listing is NEVER evidence of an inbox or permission to email.
+ * Stage records first, verify the business name on the first-party HTTPS
+ * homepage (no redirects), then create an UNVERIFIED lead for separate audit.
+ */
+function mateV4PromoteFreeWebCandidates(){
+  const p=PropertiesService.getScriptProperties();
+  if(p.getProperty('MATE_WEB_PROMOTION')==='OFF')return 'OFF';
+  const b=mateV4Book_(),queue=mateV4Tab_(b,'営業候補_Web検索_未確認');
+  const leads=mateV4Tab_(b,MATE_V4.leads);
+  const existing=mateV4Rows_(leads);
+  const known=new Set(existing.map(x=>x['サービス']+'|'+mateV4Host_(x['公式URL'])));
+  const candidates=mateV4Rows_(queue).filter(x=>
+    x['状態']==='公式URL・運営者未確認'||x['状態']==='公式サイト・運営者未確認');
+  let checked=0,promoted=0,duplicates=0,notMatched=0;
+  const eligible=['CARE','SPARK','PLAY'];
+  const compact=text=>String(text||'').normalize('NFKC').toLowerCase()
+    .replace(/(?:株式会社|有限会社|合同会社|一般社団法人|特定非営利活動法人|npo法人)/g,'')
+    .replace(/[\s　\-_・。、．,.:：;；｜|()[\]（）【】]/g,'');
+  for(const x of candidates){
+    if(checked>=12)break;
+    const service=x['サービス'];
+    const site=mateV4CandidateHttps_(x['候補URL']);
+    const host=mateV4Host_(site),name=String(x['検索タイトル']||'').trim();
+    const key=service+'|'+host;
+    if(!eligible.includes(service)||!host||name.length<4||
+       mateV4OwnerBlocked_({'事業者名':name,'公式URL':site})){
+      queue.getRange(x._row,7).setValue('対象外・サイト不備');continue;
+    }
+    if(known.has(key)){
+      duplicates++;queue.getRange(x._row,7).setValue('営業候補DBに登録済み');continue;
+    }
+    checked++;
+    try{
+      // Only one first-party GET per candidate; no form interaction.
+      const response=UrlFetchApp.fetch('https://'+host+'/',{
+        muteHttpExceptions:true,followRedirects:false,timeout:12000,
+        headers:{Accept:'text/html'}});
+      const mime=String(response.getHeaders()['Content-Type']||
+        response.getHeaders()['content-type']||'');
+      if(response.getResponseCode()!==200||!/text\/html/i.test(mime)){
+        queue.getRange(x._row,7).setValue('公式HTTPS照合不可');notMatched++;continue;
+      }
+      const html=response.getContentText('UTF-8').slice(0,150000);
+      const visible=compact(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'')
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,'')
+        .replace(/<[^>]+>/g,' '));
+      const search=compact(name);
+      // Only unambiguous name matches are promoted; shorter names and
+      // generic search-result headlines are left for independent review.
+      if(search.length<6||!visible.includes(search)){
+        queue.getRange(x._row,7).setValue('事業者名称の照合待ち');notMatched++;continue;
+      }
+      const unique=mateV4Key_(service,site,name);
+      mateV4Append_(leads,[
+        'WEB-VERIFIED-'+unique,mateV4Jst_(),service,name,'https://'+host+'/',
+        '', '', '',site,'UNVERIFIED','',unique,'未確認','窓口確認待ち',
+        'FREE_WEB_FIRST_PARTY_NAME_MATCH '+mateV4Jst_()+
+        ' / 公式サイト名の一致のみ。営業先メール・法的送信根拠は未確認。',
+        '発見元:'+String(x['検索語']||'').slice(0,100)+
+        ' / © OpenStreetMap contributors (OSM由来の場合)'
+      ]);
+      known.add(key);promoted++;
+      queue.getRange(x._row,7).setValue('公式名称照合済・営業DB移行（送信未承認）');
+    }catch(err){
+      notMatched++;queue.getRange(x._row,7).setValue('公式サイト取得失敗・再確認待ち');
+    }
+  }
+  return {checked,promoted,duplicates,notMatched,sendApproved:0};
+}
+
 function mateV4ProductionHeartbeat_(report){
   const book=mateV4Book_();
   const sheet=mateV4Tab_(book,'GAS本番稼働監視V4');
@@ -1758,6 +1830,7 @@ function mateAutoOpsV4Cycle(){
       catalogDiscovery:mateV4DiscoverLicensedPublicCsvSources(),
       generalWebDiscovery:mateV4DiscoverGeneralWebProspects(),
       freeOsmDiscovery:mateV4DiscoverFreeOsmCandidates(),
+      freeWebPromoted:mateV4PromoteFreeWebCandidates(),
       collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
       reconciledSent:mateV4ReconcileSentReservations(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
