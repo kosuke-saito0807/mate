@@ -354,6 +354,6 @@ assert.equal(run('mateV4DailyGrowthDigest()'),'ALREADY_DONE','no repeated operat
 assert.equal(internalDigest,1);
 assert.equal(run("mateV4Email_('mail@2x.png')"),'','image filename cannot be email recipient');
 assert.equal(run("mateV4RoleEmail_('mail@2x.png')"),'','image filename cannot be public role inbox');
-assert.equal(run("mateV4Email_('info@business.example.org')"),'info@business.example.org','valid organizational mailbox retained');
+assert.equal(run("mateV4Email_('info@company.co.jp')"),'info@company.co.jp','valid organizational mailbox retained');
 assert.equal(mails,0,'no external outreach ever sent by growth tests');
 console.log('PASS: service ranking, fair cycling, historic Gmail dedupe, safe sector import, owner-only digest');
