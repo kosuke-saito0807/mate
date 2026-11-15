@@ -10,6 +10,7 @@ on:
       - scripts/ci/check-mate-clasp-secrets.mjs
       - scripts/ci/mate-growth-sources.test.mjs
       - scripts/ci/mate-growth-site-safety.test.mjs
+      - scripts/ci/mate-name-only-prospects.test.mjs
       - .github/workflows/mate-gas-sync.yml
   workflow_dispatch:
 
@@ -51,10 +52,11 @@ jobs:
           node --check scripts/ci/check-mate-clasp-secrets.mjs
           node --check scripts/ci/mate-growth-sources.test.mjs
           node --check scripts/ci/mate-growth-site-safety.test.mjs
+          node --check scripts/ci/mate-name-only-prospects.test.mjs
 
       - name: Test safe V4-only staging with mock GAS projects
         shell: bash
-        run: node --test scripts/ci/prepare-mate-gas-deploy.test.mjs scripts/ci/mate-growth-sources.test.mjs scripts/ci/mate-growth-site-safety.test.mjs
+        run: node --test scripts/ci/prepare-mate-gas-deploy.test.mjs scripts/ci/mate-growth-sources.test.mjs scripts/ci/mate-growth-site-safety.test.mjs scripts/ci/mate-name-only-prospects.test.mjs
 
       - name: Verify the one-time protected credentials exist
         shell: bash
