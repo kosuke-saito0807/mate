@@ -8,11 +8,11 @@ const start=source.indexOf('function mateV4DiscoverFreeOsmCandidates(){');
 const end=source.indexOf('function mateV4DiscoverGeneralWebProspects(){',start);
 assert.ok(start>0&&end>start);
 const body=source.slice(start,end);
-function mock(items=[],error=false){
+function mock(items=[],error=false,day='2026-11-15'){
  const props={},calls=[],added=[];
  const deps={
   PropertiesService:{getScriptProperties:()=>({getProperty:k=>props[k]||'',setProperty:(k,v)=>props[k]=v})},
-  mateV4Jst_:()=> '2026-11-15 11:00:00',
+  mateV4Jst_:()=> day+' 11:00:00',
   mateV4Book_:()=>({}),mateV4Tab_:(_b,n)=>n,
   MATE_V4:{leads:'営業候補_自動収集'},
   mateV4Rows_:()=>[],
@@ -47,4 +47,14 @@ test('API failures do not create retry storms',()=>{
  assert.equal(x.fn().status,'HTTP_503');
  assert.equal(x.fn(),'ALREADY_CHECKED');
  assert.equal(x.calls.length,1);
+});
+
+test('two consecutive days query distinct bounded city tiles',()=>{
+ const a=mock([],false,'2026-11-15'),b=mock([],false,'2026-11-16');
+ a.fn();b.fn();
+ assert.equal(a.calls.length,1);
+ assert.equal(b.calls.length,1);
+ assert.notEqual(a.calls[0].opts.payload,b.calls[0].opts.payload);
+ assert.equal(a.calls[0].opts.method,'post');
+ assert.equal(b.calls[0].opts.method,'post');
 });
