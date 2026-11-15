@@ -18,7 +18,7 @@
  *   MATE_LEGAL_ADDRESS_PAGE_VERIFIED = YES only once the public operator page
  *     shows legally sufficient sender name, actual address and contact details
  *   MATE_AUTO_SEND_LEGAL_REVIEWED = YES
- *   (optional) MATE_DAILY_CAP = 30 in DAILY_30 (10 per service/day)
+ *   (optional) MATE_DAILY_CAP = 30 in DAILY_30 (global 30/day, fair allocation by eligibility)
  *   Monitoring BCC intentionally disabled. MATE_OWNER_COPY_EMAIL is ignored.
  *   MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED = YES, opt-in to vetted publicly posted business addresses
  *   (optional) MATE_PUBLIC_SITE_AUDIT = OFF, disables safe automatic public-site review
@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-free-osm-216-tile-rotation'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-daily30-dynamic-eligible-allocation'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1102,7 +1102,7 @@ function previewMateOutreachReadinessV4(){
     legalReviewFlag:p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')==='YES',
     publicBusinessEmailExceptionReviewed:p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES',
     dailyCap:Math.min(p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?15:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?90:p.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'?30:p.getProperty('MATE_OUTREACH_PHASE')==='PILOT'?1:5,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0)),
-    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:p.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'?10:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?30:null,
+    dailyPerServiceCap:p.getProperty('MATE_OUTREACH_PHASE')==='BALANCED_15'?5:p.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'?30:p.getProperty('MATE_OUTREACH_PHASE')==='PER_SERVICE_30'?30:null,
     outreachStartDate:p.getProperty('MATE_OUTREACH_START_DATE')||'',
     remainingRecipientQuota:MailApp.getRemainingDailyQuota(),
     maximumExternalMessagesByQuota:MailApp.getRemainingDailyQuota(),
@@ -1263,7 +1263,7 @@ function prepareMateDaily30V4(){
   p.setProperty('MATE_OUTREACH_PHASE','DAILY_30');
   p.setProperty('MATE_DAILY_CAP','30');
   p.setProperty('MATE_SENDER_NAME','MATE運営事務局');
-  return {mode:'DAILY_30_PREPARED_NO_SEND',dailyCap:30,perServiceCap:10,
+  return {mode:'DAILY_30_PREPARED_NO_SEND',dailyCap:30,perServiceCap:30,
     sendEnabled:false,sourceVersion:MATE_V4.version};
 }
 function mateV4FormalSenderIdentity_(p){
@@ -1347,12 +1347,12 @@ function mateV4SendOutreach(){
   const identity=mateV4FormalSenderIdentity_(p);
   if(!identity.ready)
     throw Error('正式な送信主体の登記・確認が必要です。屋号のみで送信を開始できません。');
-  // DAILY_30 limits the entire account to 30/day, max 10 per service. No owner BCC.
+  // DAILY_30 limits the account to 30/day; unused slots can be filled by other services. No owner BCC.
   // Each message consumes one recipient-quota unit. Live Gmail quota controls
   // the actual maximum, shared with other sends by this account.
   const maxCap=phase==='PILOT'?1:phase==='BALANCED_15'?15:phase==='DAILY_30'?30:phase==='PER_SERVICE_30'?90:5;
   const cap=Math.min(maxCap,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
-  const perServiceCap=phase==='BALANCED_15'?5:phase==='DAILY_30'?10:phase==='PER_SERVICE_30'?30:cap;
+  const perServiceCap=phase==='BALANCED_15'?5:phase==='DAILY_30'?30:phase==='PER_SERVICE_30'?30:cap;
   const maxPerExecution=phase==='DAILY_30'?5:phase==='PER_SERVICE_30'?6:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
