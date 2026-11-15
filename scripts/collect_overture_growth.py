@@ -78,10 +78,15 @@ def classify(props):
         return "CARE"
     if re.search(r"tutor|learning.center|language.school|dance.school|music.school|"
                  r"art.school|martial.art|sports.academy|swim.school|"
-                 r"coding|robot|school.of.music", category):
+                 r"coding|robot|school.of.music|music.lesson|"
+                 r"dance.studio|dance.class|swimming.school|gymnastics|"
+                 r"language.center|education.center|sports.school", category):
         return "SPARK"
     if re.search(r"craft|pottery|workshop|art.studio|horse.riding|"
-                 r"kids.activity|creative.arts", category):
+                 r"kids.activity|creative.arts|museum|science.center|"
+                 r"aquarium|zoo|amusement.park|theme.park|"
+                 r"adventure.park|nature.center|visitor.center|"
+                 r"botanical.garden|children.s.museum", category):
         return "PLAY"
     return None
 
@@ -131,10 +136,10 @@ def city_tile(day, slot):
     i = (tick * 2 + slot) % (len(CITIES) * 9)
     city, lat, lon = CITIES[i // 9]
     tile = i % 9
-    lon += ((tile % 3) - 1) * 0.07
-    lat += ((tile // 3) - 1) * 0.05
+    lon += ((tile % 3) - 1) * 0.12
+    lat += ((tile // 3) - 1) * 0.09
     return city + " " + str(tile + 1) + "/9", (
-        lon - 0.03, lat - 0.022, lon + 0.03, lat + 0.022)
+        lon - 0.055, lat - 0.040, lon + 0.055, lat + 0.040)
 
 
 def update_csv(path, discovered, cap=30000):
