@@ -91,12 +91,12 @@ test('catalog API outage is rate-limited to one set of calls per JST day',()=>{
   assert.equal(requests,6);
 });
 
-const queueStart=source.indexOf('function mateV4BalancedSourceQueue_(');
+const queueStart=source.indexOf('function mateV4SourceDue_(');
 const queueEnd=source.indexOf('function mateV4CollectLeads(){',queueStart);
 assert.ok(queueStart>0&&queueEnd>queueStart);
-const sourceQueue=new Function('mateV4Https_',
+const sourceQueue=new Function('mateV4Https_','mateV4Jst_',
   source.slice(queueStart,queueEnd)+'\nreturn mateV4BalancedSourceQueue_;')(
-  u=>String(u).startsWith('https://'));
+  u=>String(u).startsWith('https://'),()=> '2026-11-15 11:00:00');
 const src=(service,id,last='')=>({
   'サービス':service,'有効':'TRUE','再利用許諾確認':'確認済み',
   '取得元CSV HTTPS URL':'https://data.bodik.jp/dataset/'+id+'.csv',
