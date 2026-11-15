@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-listing-intent-and-external-funnel'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-listing-daily-verified-trend'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1912,6 +1912,19 @@ function mateV4RefreshExternalListingKpi_(){
   });
   sheet.getRange(2,1,3,12).setValues(rows);
   sheet.getRange(2,9,3,2).setNumberFormat('0.0%');
+  // Daily trend is an idempotent snapshot, not a new application or approval.
+  // Re-running the cycle updates today's existing row instead of doubling it.
+  const trend=mateV4Tab_(mateV4Book_(),'MATE_外部掲載日次推移_V1');
+  const today=mateV4Jst_().slice(0,10);
+  const previous=mateV4Rows_(trend);
+  for(const row of rows){
+    const service=row[0],snapshot=[today,service,row[1],row[2],row[3],
+      row[4],row[6],row[7],row[6]>0?row[7]/row[6]:0,
+      '第三者証跡・公開URL確認ベース',mateV4Jst_()];
+    const existing=previous.find(x=>x['集計日']===today&&x['サービス']===service);
+    if(existing)trend.getRange(existing._row,1,1,11).setValues([snapshot]);
+    else mateV4Append_(trend,snapshot);
+  }
   return {actualExternalApplications:rows.reduce((s,r)=>s+r[6],0),
     actualExternalPublications:rows.reduce((s,r)=>s+r[7],0)};
 }
