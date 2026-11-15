@@ -1,6 +1,12 @@
 name: MATE free Overture prospect discovery (no email)
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/collect_overture_growth.py
+      - scripts/ci/test_collect_overture_growth.py
+      - .github/workflows/mate-overture-free-prospects.yml
   workflow_dispatch:
   schedule:
     - cron: '21 1 * * *'
