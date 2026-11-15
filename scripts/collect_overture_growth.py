@@ -142,7 +142,7 @@ def cell_clean(x):
 
 def city_tile(day, slot):
     tick = day.toordinal() - dt.date(2026, 1, 1).toordinal()
-    i = (tick * 2 + slot) % (len(CITIES) * 9)
+    i = (tick * 8 + slot) % (len(CITIES) * 9)
     city, lat, lon = CITIES[i // 9]
     tile = i % 9
     lon += ((tile % 3) - 1) * 0.12
@@ -179,11 +179,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="data/mate_overture_discovery.csv")
     parser.add_argument("--day", default=dt.datetime.now(dt.timezone.utc).date().isoformat())
+    parser.add_argument("--batch", type=int, default=None, choices=range(4))
     args = parser.parse_args()
+    now = dt.datetime.now(dt.timezone.utc)
     day = dt.date.fromisoformat(args.day)
+    batch = args.batch if args.batch is not None else min(3, now.hour // 6)
     discovered = []
-    # Two small-city tiles/day, no parallel download, no API-key or billing.
-    for slot in range(2):
+    # Eight distinct bounded tiles/day in four serial batches, no API key.
+    for slot in range(batch * 2, batch * 2 + 2):
         label, bbox = city_tile(day, slot)
         with tempfile.TemporaryDirectory() as work:
             dst = os.path.join(work, "places.geojson")
@@ -198,7 +201,7 @@ def main():
     print(json.dumps({"source": "Overture Places", "new_candidates": added,
                       "total_candidates_in_feed": total,
                       "mail_send_authorized": 0,
-                      "privacy": "no extracted emails or personal phones"}))
+                      "privacy": "no extracted emails or personal phones", "batch": batch}))
 
 
 if __name__ == "__main__":
