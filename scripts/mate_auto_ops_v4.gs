@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-evidence-gated-external-listing-kpi'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-listing-intent-and-external-funnel'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1916,6 +1916,60 @@ function mateV4RefreshExternalListingKpi_(){
     actualExternalPublications:rows.reduce((s,r)=>s+r[7],0)};
 }
 
+/**
+ * Capture genuinely interested REPLIES to previously sent MATE campaigns.
+ * No mail sending, publication, contract, invoice or copied message bodies.
+ * Suppression / STOP requests take precedence over positive intent.
+ */
+function mateV4CaptureListingIntent_(){
+  const book=mateV4Book_();
+  const sheet=mateV4Tab_(book,'MATE_掲載希望返信キュー_V1');
+  const prior=new Set(mateV4Rows_(sheet).map(x=>x['GmailメッセージID']).filter(Boolean));
+  const logs=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
+  const recipients=new Map(),services=['CARE','SPARK','PLAY'];
+  for(const x of logs){
+    if(!services.includes(x['サービス'])||
+       !['送信済','返信あり','配信停止'].includes(x['状態']))continue;
+    const email=mateV4Email_(x['宛先メール']);
+    const sent=Date.parse(String(x['送信処理日時']||'').replace(' ','T')+'+09:00');
+    if(!email||!Number.isFinite(sent))continue;
+    if(!recipients.has(email)||recipients.get(email).sent>sent)
+      recipients.set(email,{service:x['サービス'],sent,
+        campaign:x['件名']});
+  }
+  if(!recipients.size)return {newInterests:0,scanned:0};
+  const stopped=new Set(mateV4Rows_(mateV4Tab_(book,MATE_V4.optouts))
+    .map(x=>String(x['メール']||'').trim().toLowerCase()));
+  let scanned=0,added=0;
+  for(const thread of GmailApp.search('in:inbox newer_than:30d',0,65)){
+    if(scanned>=120)break;
+    for(const msg of thread.getMessages()){
+      if(scanned++>=120)break;
+      const id=String(msg.getId()||'');
+      if(!id||prior.has(id))continue;
+      const from=String(msg.getFrom()||'').toLowerCase();
+      const match=from.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/);
+      const email=match&&match[0],campaign=recipients.get(email);
+      if(!campaign||stopped.has(email)||msg.getDate().getTime()<campaign.sent)continue;
+      const subject=String(msg.getSubject()||'');
+      // Exclude unrelated customer emails even if sent from the same mailbox.
+      if(!subject.includes('MATE '+campaign.service))continue;
+      const body=String(msg.getPlainBody()||'').slice(0,750).trim();
+      if(/配信停止|メール不要|今後連絡不要|unsubscribe|stop/i.test(body))continue;
+      if(!/掲載希望|掲載したい|掲載を希望|掲載について(?:相談|質問)|掲載に興味|登録したい|掲載をご相談/i.test(body))continue;
+      const company=String(campaign.campaign||'').split('｜').slice(1).join('｜');
+      mateV4Append_(sheet,[id,mateV4Jst_(),campaign.service,email,
+        company,subject.slice(0,100),'要返信・申請案内',
+        '既存のMATE営業に対する本人返信。本文は保存していない。公開許諾ではない。',
+        '','審査と掲載意思の確認後のみ公開可。配信停止照合済み。']);
+      prior.add(id);added++;
+      if(added>=15)break;
+    }
+    if(added>=15)break;
+  }
+  return {newInterests:added,scanned};
+}
+
 function mateV4ProductionHeartbeat_(report){
   const book=mateV4Book_();
   const sheet=mateV4Tab_(book,'GAS本番稼働監視V4');
@@ -1985,6 +2039,7 @@ function mateAutoOpsV4Cycle(){
     report.referrals=safe('referrals',mateV4SyncReferralLedger);
     report.outreach=mateV4SendOutreach();
     report.replies=safe('replies',mateV4TrackReplies);
+    report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
     // Heartbeat is best-effort; it cannot block legitimate email cycle work.
     try{report.productionHeartbeat=mateV4ProductionHeartbeat_(report)}
     catch(err){console.log('PRODUCTION_HEARTBEAT_FAILED '+String(err).slice(0,120));}
