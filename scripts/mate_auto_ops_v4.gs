@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-mail-quality-telemetry'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-rolling-geodata-source-cache'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -422,7 +422,7 @@ function mateV4DiscoverLicensedPublicCsvSources(){
 function mateV4SourceDue_(src,today){
   const last=String(src['最終取込日時']||''),url=String(src['取得元CSV HTTPS URL']||'');
   if(last.slice(0,10)!==today)return true;
-  if(!/raw\.githubusercontent\.com\/kosuke-saito0807\/mate\/main\/data\/mate_overture_discovery\.csv/.test(url))
+  if(!/raw\.githubusercontent\.com\/kosuke-saito0807\/mate\/main\/data\/mate_overture_(?:discovery|recent)\.csv/.test(url))
     return false;
   // Refresh the free Overture data once per three-hour JST slot.
   // Ordinary municipal CSVs stay on their once-daily cadence.
@@ -656,6 +656,8 @@ function mateV4CollectLeads(){
     .filter(x=>mateV4Https_(x['公式・窓口URL']))
     .map(x=>{try{return mateV4Key_(x['サービス'],x['公式・窓口URL'],x['企業・教室名'])}catch(e){return ''}}));
   let count=0,stagedCount=0,processedSources=0;
+  // CARE/SPARK/PLAY can share the same Overture feed. Parse it only once.
+  const sourceCache=new Map();
   for(const source of sources){
     if(processedSources>=8)break;
     if(source['有効']!=='TRUE'||source['再利用許諾確認']!=='確認済み'||!mateV4Https_(source['取得元CSV HTTPS URL']))continue;
@@ -665,7 +667,11 @@ function mateV4CollectLeads(){
     if(!mateV4SourceDue_(source,mateV4Jst_().slice(0,10)))continue;
     processedSources++;
     let rows;
-    try{rows=mateV4SourceCsv_(source['取得元CSV HTTPS URL'])}
+    try{
+      const url=source['取得元CSV HTTPS URL'];
+      if(!sourceCache.has(url))sourceCache.set(url,mateV4SourceCsv_(url));
+      rows=sourceCache.get(url).map(x=>({...x}));
+    }
     catch(e){
       // Treat this as today's attempted fetch; never hammer a broken source
       // once per hour or starve other sources in the eight-source batch.
