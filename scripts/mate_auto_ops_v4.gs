@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-paged-catalog-sourcing'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-keyword-cursor-expansion'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -340,23 +340,26 @@ function mateV4DiscoverLicensedPublicCsvSources(){
   const seen=new Set(sources.map(x=>x['サービス']+'|'+String(x['取得元CSV HTTPS URL']||'').trim()));
   const sourceCeiling=1200;
   if(seen.size>=sourceCeiling)return {mode:'SOURCE_LIMIT',sourceCount:seen.size};
-  // Rotate keywords across days instead of re-querying the same three
-  // categories forever. Cap remains three API calls and six sources per day.
+  // Discover across two different keywords per service each day.
+  // At most six catalogue queries, with a separate cursor per keyword.
   const dayNo=Number(today.replace(/-/g,''));
   const searches=[
-    {service:'CARE',queries:['居宅訪問型保育','ベビーシッター','認可外保育','子育て支援事業所','訪問保育'],
-      fit:/居宅訪問|ベビーシッター|訪問保育|認可外保育|保育事業所|子育て支援/},
-    {service:'SPARK',queries:['スポーツ教室','文化教室','音楽教室','学習塾','スポーツクラブ','文化施設一覧'],
-      fit:/スポーツ教室|文化教室|音楽教室|学習塾|習い事|スポーツクラブ|文化施設/},
-    {service:'PLAY',queries:['観光施設一覧','体験施設','博物館一覧','体験活動','文化施設一覧','レジャー施設'],
-      fit:/観光施設|体験施設|体験活動|博物館|ミュージアム|文化施設|レジャー施設/}
+    {service:'CARE',queries:['居宅訪問型保育','ベビーシッター','訪問保育','病児保育','保育事業者','子育て支援事業所','認可外保育施設'],
+      fit:/居宅訪問|ベビーシッター|訪問保育|病児保育|保育事業者|子育て支援事業所|認可外保育施設/},
+    {service:'SPARK',queries:['スポーツ教室','文化教室','音楽教室','学習塾','スポーツクラブ','英会話教室','プログラミング教室','ピアノ教室','各種学校'],
+      fit:/スポーツ教室|文化教室|音楽教室|学習塾|習い事|スポーツクラブ|英会話教室|プログラミング教室|ピアノ教室|各種学校/},
+    {service:'PLAY',queries:['観光施設一覧','体験施設','博物館一覧','体験活動','文化施設一覧','レジャー施設','科学館','農業体験','ワークショップ'],
+      fit:/観光施設|体験施設|体験活動|博物館|ミュージアム|文化施設|レジャー施設|科学館|農業体験|ワークショップ/}
   ];
   let found=0,queried=0,failures=0,checked=0;
-  for(const item of searches){
-    if(found>=18||seen.size>=sourceCeiling)break;
+  const queries=[...searches,...searches];
+  for(const [index,item] of queries.entries()){
+    if(found>=24||seen.size>=sourceCeiling)break;
     try{
-      const query=item.queries[dayNo%item.queries.length];
-      const cursorKey='MATE_CATALOG_CURSOR_'+item.service;
+      const queryIndex=(dayNo+Math.floor(index/searches.length))%item.queries.length;
+      const query=item.queries[queryIndex];
+      // A cursor belongs to a keyword, not an entire service category.
+      const cursorKey='MATE_CATALOG_CURSOR_'+item.service+'_'+queryIndex;
       const cursor=Math.max(0,Number(p.getProperty(cursorKey)||0)||0);
       const url='https://data.bodik.jp/api/3/action/package_search?q='+
         encodeURIComponent(query)+'&rows=60&start='+cursor+'&sort=metadata_modified+desc';
@@ -372,7 +375,7 @@ function mateV4DiscoverLicensedPublicCsvSources(){
       p.setProperty(cursorKey,returned===0||(total>0&&cursor+returned>=total)?'0':String(cursor+returned));
       for(const dataset of json.result.results){
         checked++;
-        if(found>=18||seen.size>=sourceCeiling)break;
+        if(found>=24||seen.size>=sourceCeiling)break;
         const title=String(dataset.title||'');
         const publisher=String(dataset.organization&&dataset.organization.title||'');
         const license=String(dataset.license_id||'').toLowerCase();
