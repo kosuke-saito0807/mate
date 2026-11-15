@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-two-stage-licensed-prospect-intake'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-name-only-backlog-kpi'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1598,6 +1598,7 @@ function mateV4DailyGrowthDigest(){
     'Asia/Tokyo','yyyy-MM-dd');
   if(props.getProperty(key)===today)return 'ALREADY_DONE';
   const leads=mateV4Rows_(mateV4Tab_(book,MATE_V4.leads));
+  const nameOnly=mateV4Rows_(mateV4Tab_(book,'営業候補_公式URL未確認'));
   const sent=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
   const application=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
   const count={CARE:0,SPARK:0,PLAY:0},approved={CARE:0,SPARK:0,PLAY:0},pending={CARE:0,SPARK:0,PLAY:0},mailMissing={CARE:0,SPARK:0,PLAY:0};
@@ -1621,11 +1622,17 @@ function mateV4DailyGrowthDigest(){
   const sources=mateV4Rows_(mateV4Tab_(book,MATE_V4.sources));
   const activeSources=Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[s,
     sources.filter(x=>x['サービス']===s&&x['有効']==='TRUE'&&x['再利用許諾確認']==='確認済み').length]));
+  const rawCounts=Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[s,
+    nameOnly.filter(x=>x['サービス']===s).length]));
+  const rawYesterday=Object.fromEntries(['CARE','SPARK','PLAY'].map(s=>[s,
+    nameOnly.filter(x=>x['サービス']===s&&String(x['取得日時']||'').startsWith(yesterday)).length]));
   const funnel=s=>backlog.counts[s];
   const observed=svc=>attribution.byService[svc];
   const messages=[
     'MATE営業・掲載の日次サマリー '+today,'',
-    '候補件数：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    '候補件数（公式URLあり）：CARE '+count.CARE+' / SPARK '+count.SPARK+' / PLAY '+count.PLAY,
+    'URL未確認の名称候補（営業送信不可）：CARE '+rawCounts.CARE+' / SPARK '+rawCounts.SPARK+' / PLAY '+rawCounts.PLAY,
+    '前日追加のURL未確認候補：CARE '+rawYesterday.CARE+' / SPARK '+rawYesterday.SPARK+' / PLAY '+rawYesterday.PLAY,
     '前日（'+yesterday+'）新規候補：CARE '+newYesterday.CARE+' / SPARK '+newYesterday.SPARK+' / PLAY '+newYesterday.PLAY,
     '前日（'+yesterday+'）公式メール確認：CARE '+verifiedYesterday.CARE+' / SPARK '+verifiedYesterday.SPARK+' / PLAY '+verifiedYesterday.PLAY,
     '自動CSV収集元：CARE '+activeSources.CARE+' / SPARK '+activeSources.SPARK+' / PLAY '+activeSources.PLAY,
