@@ -185,7 +185,12 @@ def write_recent_csv(full_path, recent_path, limit=1200):
     discover-only and the GAS leads sheet maintains its own duplicate keys.
     """
     with full_path.open(encoding="utf-8-sig", newline="") as handle:
-        records = list(csv.DictReader(handle))
+        records = [
+            r for r in csv.DictReader(handle)
+            if r.get("service") in ("CARE", "SPARK", "PLAY")
+            and r.get("name")
+            and next(safe_websites({"websites": [r.get("website", "")]}), None)
+        ]
     recent_path.parent.mkdir(parents=True, exist_ok=True)
     with recent_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)
