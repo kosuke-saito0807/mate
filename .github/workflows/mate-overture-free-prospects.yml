@@ -9,7 +9,7 @@ on:
       - .github/workflows/mate-overture-free-prospects.yml
   workflow_dispatch:
   schedule:
-    - cron: '21 1 * * *'
+    - cron: '21 1,7,13,19 * * *'
 
 permissions:
   contents: write
