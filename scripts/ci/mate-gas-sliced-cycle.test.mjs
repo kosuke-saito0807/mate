@@ -26,7 +26,8 @@ function runCycle(phase,failOptout=false){
  'mateV4DiscoverFreeOsmCandidates','mateV4PromoteFreeWebCandidates',
  'mateV4OptoutInbox','mateV4HardBounceQuarantine','mateV4ReconcileSentReservations',
  'mateV4AuditOfficialContacts','mateV4PrepareReviewDrafts','mateV4SyncReferralLedger',
- 'mateV4SendOutreach','mateV4TrackReplies'];
+ 'mateV4SendOutreach','mateV4TrackReplies','mateV4RefreshExternalListingKpi_',
+ 'mateV4CaptureListingIntent_'];
  for(const name of steps)keys[name]=()=>{invoked.push(name);
    if(failOptout&&name==='mateV4OptoutInbox')throw Error('optout processing failed');
    return 1;
