@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-sliced-gas-safe-cycle'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-free-osm-216-tile-rotation'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -494,19 +494,32 @@ function mateV4DiscoverFreeOsmCandidates(){
     ...existing.map(x=>x['サービス']+'|'+mateV4Host_(x['候補URL'])),
     ...verified.map(x=>x['サービス']+'|'+mateV4Host_(x['公式URL']))
   ].filter(x=>!x.endsWith('|')));
-  // Rotating small urban rectangles, approximately neighborhood-scale.
-  // Bbox: south,west,north,east. Never query the whole of Japan.
-  const areas=[
-    {name:'東京西部',box:[35.64,139.61,35.70,139.70]},
-    {name:'横浜北部',box:[35.47,139.59,35.54,139.68]},
-    {name:'大阪北部',box:[34.68,135.47,34.74,135.55]},
-    {name:'名古屋中心',box:[35.15,136.87,35.20,136.94]},
-    {name:'福岡中心',box:[33.56,130.37,33.62,130.44]},
-    {name:'札幌中心',box:[43.03,141.31,43.09,141.39]},
-    {name:'神戸中心',box:[34.65,135.16,34.71,135.25]},
-    {name:'京都中心',box:[34.98,135.72,35.04,135.81]}
+  // One bounded neighbourhood per day across a large Japanese city pool.
+  // 24 cities * 9 distinct tiles = 216 days before a full repetition.
+  // This increases reach WITHOUT increasing public API call frequency.
+  const centers=[
+    ['東京',35.680,139.735],['横浜',35.462,139.628],
+    ['大阪',34.685,135.500],['名古屋',35.172,136.907],
+    ['福岡',33.591,130.404],['札幌',43.063,141.352],
+    ['神戸',34.689,135.195],['京都',35.011,135.768],
+    ['川崎',35.530,139.699],['さいたま',35.861,139.645],
+    ['千葉',35.607,140.107],['仙台',38.268,140.870],
+    ['広島',34.395,132.456],['静岡',34.975,138.383],
+    ['浜松',34.711,137.726],['岡山',34.665,133.919],
+    ['熊本',32.803,130.708],['北九州',33.883,130.875],
+    ['新潟',37.916,139.036],['金沢',36.561,136.656],
+    ['宇都宮',36.558,139.883],['高松',34.342,134.046],
+    ['鹿児島',31.597,130.558],['那覇',26.213,127.680]
   ];
-  const area=areas[Number(today.replace(/-/g,''))%areas.length];
+  const dateDays=Math.floor(Date.parse(today+'T00:00:00Z')/86400000);
+  const tileIndex=dateDays%(centers.length*9);
+  const city=centers[Math.floor(tileIndex/9)];
+  const tile=tileIndex%9,dx=(tile%3)-1,dy=Math.floor(tile/3)-1;
+  // Approx 5-7 km per box; no worldwide or whole-city Overpass query.
+  const lat=city[1]+dy*0.055,lon=city[2]+dx*0.075;
+  const area={name:city[0]+' '+(tile+1)+'/9',
+    box:[lat-0.025,lon-0.035,lat+0.025,lon+0.035]
+      .map(x=>Number(x.toFixed(5)))};
   const bbox=area.box.join(',');
   // Require a known business site; omit personal phone/address/email tags.
   const query='[out:json][timeout:18][maxsize:12000000];('+
