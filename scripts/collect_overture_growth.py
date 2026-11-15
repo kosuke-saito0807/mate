@@ -145,12 +145,12 @@ def cell_clean(x):
 
 def city_tile(day, slot):
     tick = day.toordinal() - dt.date(2026, 1, 1).toordinal()
-    i = (tick * 16 + slot) % (len(CITIES) * 9)
-    city, lat, lon = CITIES[i // 9]
-    tile = i % 9
-    lon += ((tile % 3) - 1) * 0.12
-    lat += ((tile // 3) - 1) * 0.09
-    return city + " " + str(tile + 1) + "/9", (
+    i = (tick * 16 + slot) % (len(CITIES) * 25)
+    city, lat, lon = CITIES[i // 25]
+    tile = i % 25
+    lon += ((tile % 5) - 2) * 0.12
+    lat += ((tile // 5) - 2) * 0.09
+    return city + " " + str(tile + 1) + "/25", (
         lon - 0.055, lat - 0.040, lon + 0.055, lat + 0.040)
 
 
