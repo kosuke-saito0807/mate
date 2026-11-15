@@ -89,6 +89,23 @@ class TestOvertureGrowth(unittest.TestCase):
             self.assertEqual(len(lines),6)
             self.assertIn("教室24",lines[-1])
 
+    def test_recent_feed_drops_legacy_marketplace_and_government_urls(self):
+        sample=next(MOD.select_records(
+            {"features":[self.sample("music_school","https://school.jp/")]}, "東京"))
+        records=[
+            sample,
+            {**sample, "name":"Amazon book", "website":"https://www.amazon.com/books"},
+            {**sample, "name":"市立施設", "website":"https://example.city.lg.jp/program"},
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            archive=Path(tmp)/"archive.csv"
+            recent=Path(tmp)/"recent.csv"
+            self.assertEqual(MOD.update_csv(archive,records),(3,3))
+            self.assertEqual(MOD.write_recent_csv(archive,recent),1)
+            with recent.open(encoding="utf-8") as handle:
+                lines=handle.readlines()
+            self.assertEqual(len(lines),2)
+
     def test_block_social_and_close_locations(self):
         features={"features":[
            self.sample("music_school","https://instagram.com/test/"),
