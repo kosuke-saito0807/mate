@@ -100,6 +100,13 @@ function mateV4SameBusinessHost_(a,b){
 function mateV4Email_(s){
   const x=String(s||'').trim().toLowerCase();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(x)||x.length>250)return '';
+  // Reject image/document asset filenames misread as email domains (e.g. mail@2x.png).
+  // Apply at the shared validation gate: imported leads, public-site audits,
+  // send reservations and bounce processing must all reject these strings.
+  const domain=x.split('@')[1];
+  const suffix=domain.split('.').pop();
+  if(/^(?:png|jpg|jpeg|gif|webp|svg|ico|bmp|avif|tiff|pdf|css|js|json|xml|html|htm|woff|woff2|ttf|otf|mp4|webm|zip)$/i.test(suffix))return '';
+  if(!domain.split('.').slice(0,-1).every(label=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(label)))return '';
   // Avoid mistakenly marketing to private personal inboxes.
   // Block reserved example domains; these are not real business recipients.
   if(/@(example\.(?:com|net|org|jp)|example\.co\.jp)$/i.test(x))return '';
