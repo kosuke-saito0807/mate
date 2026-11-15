@@ -66,6 +66,7 @@ def get_name(props):
 
 
 def classify(props):
+    name = get_name(props)
     t = props.get("taxonomy") or {}
     if isinstance(t, dict):
         primary = t.get("primary") or ""
@@ -73,9 +74,17 @@ def classify(props):
     else:
         tax = str(t)
     category = " ".join([tax, str(props.get("basic_category") or "")]).lower()
-    if re.search(r"baby.?sitt|child.?care|nanny|day.?care", category):
-        # Nursery facilities are not necessarily sitter operators. Review only.
+    # CARE is a sitter marketplace, NOT a general daycare directory.
+    if re.search(r"baby.?sitt|nanny|home.?child.?care", category) or re.search(
+        r"ベビーシッター|訪問保育|訪問型保育|家事育児サポート", name):
         return "CARE"
+    # Generic category often misses distinctly named child-facing classes.
+    if re.search(r"ピアノ教室|音楽教室|英会話|ロボット教室|プログラミング教室|"
+                 r"体操教室|水泳教室|バレエ教室|ダンススクール|そろばん教室|"
+                 r"子ども英語|こども英語", name):
+        return "SPARK"
+    if re.search(r"親子体験|工作体験|陶芸体験|農業体験|キッズワークショップ", name):
+        return "PLAY"
     if re.search(r"tutor|learning.center|language.school|dance.school|music.school|"
                  r"art.school|martial.art|sports.academy|swim.school|"
                  r"coding|robot|school.of.music|music.lesson|"
