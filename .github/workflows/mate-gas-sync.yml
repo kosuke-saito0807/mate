@@ -8,6 +8,7 @@ on:
       - scripts/ci/prepare-mate-gas-deploy.mjs
       - scripts/ci/prepare-mate-gas-deploy.test.mjs
       - scripts/ci/check-mate-clasp-secrets.mjs
+      - scripts/ci/verify-mate-gas-remote.mjs
       - scripts/ci/mate-growth-sources.test.mjs
       - scripts/ci/mate-growth-site-safety.test.mjs
       - scripts/ci/mate-name-only-prospects.test.mjs
@@ -54,6 +55,7 @@ jobs:
           node --check scripts/ci/prepare-mate-gas-deploy.mjs
           node --check scripts/ci/prepare-mate-gas-deploy.test.mjs
           node --check scripts/ci/check-mate-clasp-secrets.mjs
+          node --check scripts/ci/verify-mate-gas-remote.mjs
           node --check scripts/ci/mate-growth-sources.test.mjs
           node --check scripts/ci/mate-growth-site-safety.test.mjs
           node --check scripts/ci/mate-name-only-prospects.test.mjs
@@ -106,4 +108,14 @@ jobs:
           set -euo pipefail
           cd "${{ steps.pull.outputs.dir }}"
           clasp push --force
-          echo "GAS HEAD updated with V4. Triggers and script properties were not intentionally modified."
+          echo "GAS HEAD push finished. Re-pull verification is required before success."
+
+      - name: Read back GAS HEAD and verify exact V4 source revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "${{ steps.pull.outputs.dir }}"
+          clasp pull
+          node "${GITHUB_WORKSPACE}/scripts/ci/verify-mate-gas-remote.mjs" \
+            "${{ steps.pull.outputs.dir }}" \
+            "${GITHUB_WORKSPACE}/scripts/mate_auto_ops_v4.gs"
