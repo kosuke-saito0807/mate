@@ -1749,7 +1749,7 @@ function mateV4PromoteFreeWebCandidates(){
     .replace(/(?:株式会社|有限会社|合同会社|一般社団法人|特定非営利活動法人|npo法人)/g,'')
     .replace(/[\s　\-_・。、．,.:：;；｜|()[\]（）【】]/g,'');
   for(const x of candidates){
-    if(checked>=12)break;
+    if(checked>=4)break;
     const service=x['サービス'];
     const site=mateV4CandidateHttps_(x['候補URL']);
     const host=mateV4Host_(site),name=String(x['検索タイトル']||'').trim();
@@ -1817,7 +1817,7 @@ function mateV4ProductionHeartbeat_(report){
     small(report.freeOsmDiscovery),
     small(report.generalWebDiscovery),
     Number(report.outreach||0),
-    small(report.collected),
+    small({csv:report.collected,webPromoted:report.freeWebPromoted}),
     status
   ]]);
   return {version:MATE_V4.version,codeRunning:true,total:leads.length};
