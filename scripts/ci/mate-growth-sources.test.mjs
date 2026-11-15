@@ -85,10 +85,10 @@ test('catalog API outage is rate-limited to one set of calls per JST day',()=>{
     return {getResponseCode:()=>503};
   }}});
   const initial=x.run();
-  assert.equal(initial.failures,3);
-  assert.equal(requests,3);
+  assert.equal(initial.failures,6);
+  assert.equal(requests,6);
   assert.equal(x.run(),'ALREADY_CHECKED');
-  assert.equal(requests,3);
+  assert.equal(requests,6);
 });
 
 const queueStart=source.indexOf('function mateV4BalancedSourceQueue_(');
