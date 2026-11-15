@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-four-daily-overture-imports'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-reply-first-listing-conversion'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1430,10 +1430,11 @@ function mateV4SendOutreach(){
       '対象サービスに当てはまらない場合は、そのままご放念ください。',
       '',
       '基本情報の掲載は無料で、掲載料・紹介料はかかりません。',
-      '掲載をご希望いただける場合は、以下のフォームより事業者情報をご登録いただけますと幸いです。',
+      '掲載にご興味がありましたら、まずはこのメールに「掲載希望」とご返信いただくだけでも構いません。',
+      '正式なお申し込みは、以下のフォームからも受け付けています。',
       link,
       '',
-      'お申し込み後、掲載内容およびご担当者様の権限を確認したうえで、掲載の可否・開始について改めてご案内いたします。',
+      'ご返信だけで掲載が確定するものではありません。申請内容とご担当者様の権限を確認したうえで、掲載の可否・開始について改めてご案内いたします。',
       'なお、有料プランへ自動的に移行することはございません。',
       '',
       'ご不明な点がございましたら、お気軽に本メールへご返信ください。',
