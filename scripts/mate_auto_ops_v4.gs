@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-startup-failure-telemetry'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-sliced-gas-safe-cycle'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -922,9 +922,11 @@ function mateV4AuditOfficialContacts(){
   let checked=0,eligible=0,discovered=0;
   // Audit more companies without overwhelming Apps Script's execution limit.
   // Can tune between 8 and 24 without another code deployment.
-  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||24);
+  // Contact scans can fetch multiple pages per business. Stay below the
+  // Apps Script execution ceiling so sends and the end heartbeat can run.
+  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||6);
   const batchSize=Number.isFinite(requested)?
-    Math.min(24,Math.max(8,Math.floor(requested))):24;
+    Math.min(8,Math.max(3,Math.floor(requested))):6;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
     if(checked>=batchSize)break;
@@ -1834,16 +1836,40 @@ function mateAutoOpsV4Cycle(){
     sheet.getRange(2,11).setValue('CYCLE_STARTED');
   }catch(err){console.log('PRODUCTION_START_HEARTBEAT_FAILED '+String(err).slice(0,120));}
   try{
-    const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),
-      catalogDiscovery:mateV4DiscoverLicensedPublicCsvSources(),
-      generalWebDiscovery:mateV4DiscoverGeneralWebProspects(),
-      freeOsmDiscovery:mateV4DiscoverFreeOsmCandidates(),
-      freeWebPromoted:mateV4PromoteFreeWebCandidates(),
-      collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
-      reconciledSent:mateV4ReconcileSentReservations(),
-      publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
-      referrals:mateV4SyncReferralLedger(),outreach:mateV4SendOutreach(),
-      replies:mateV4TrackReplies()};
+    // Heavy free discovery, CSV imports and contact audit cannot all run
+    // together reliably under the GAS execution-time limit. Rotate one
+    // discovery phase per hour while keeping opt-outs and sending checks live.
+    const props=PropertiesService.getScriptProperties();
+    const phaseIndex=Number(props.getProperty('MATE_V4_WORK_PHASE')||0)%3;
+    props.setProperty('MATE_V4_WORK_PHASE',String((phaseIndex+1)%3));
+    const safe=(name,fn)=>{
+      try{return fn()}catch(e){
+        console.log('V4_STEP_FAILED '+name+' '+String(e).slice(0,150));
+        return {step:name,status:'FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE'};
+      }
+    };
+    const report={phaseIndex};
+    if(phaseIndex===0){
+      report.crmSeeded=safe('crmSeeded',mateV4SeedExistingCRM);
+      report.sectorSeeded=safe('sectorSeeded',mateV4SeedSectorDirectories);
+      report.catalogDiscovery=safe('catalogDiscovery',mateV4DiscoverLicensedPublicCsvSources);
+    }else if(phaseIndex===1){
+      report.generalWebDiscovery=safe('generalWebDiscovery',mateV4DiscoverGeneralWebProspects);
+      report.collected=safe('collected',mateV4CollectLeads);
+    }else{
+      report.freeOsmDiscovery=safe('freeOsmDiscovery',mateV4DiscoverFreeOsmCandidates);
+      report.freeWebPromoted=safe('freeWebPromoted',mateV4PromoteFreeWebCandidates);
+    }
+    // Suppression and ambiguous-send reconciliation must be successful BEFORE
+    // any external sends. Never send on an opt-out processing failure.
+    report.optouts=mateV4OptoutInbox();
+    report.hardBounces=mateV4HardBounceQuarantine();
+    report.reconciledSent=mateV4ReconcileSentReservations();
+    report.publicAudit=safe('publicAudit',mateV4AuditOfficialContacts);
+    report.reviewDrafts=safe('reviewDrafts',mateV4PrepareReviewDrafts);
+    report.referrals=safe('referrals',mateV4SyncReferralLedger);
+    report.outreach=mateV4SendOutreach();
+    report.replies=safe('replies',mateV4TrackReplies);
     // Heartbeat is best-effort; it cannot block legitimate email cycle work.
     try{report.productionHeartbeat=mateV4ProductionHeartbeat_(report)}
     catch(err){console.log('PRODUCTION_HEARTBEAT_FAILED '+String(err).slice(0,120));}
