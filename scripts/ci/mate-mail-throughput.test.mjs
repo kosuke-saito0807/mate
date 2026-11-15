@@ -24,3 +24,10 @@ test('outreach can send up to ten in one cycle without bypassing overall DAILY_3
  assert.ok(send.includes("manualHistory.has(email)"));
  assert.ok(send.includes("GmailApp.sendEmail(email,subject,body"));
 });
+
+test('fresh first-party Web-discovered business mailbox outranks old failed audit',()=>{
+ const fresh=audit.indexOf("String(x['最終確認結果']||'').startsWith('WEB_DISCOVERY ')");
+ const stale=audit.indexOf("if(x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(email))return 3");
+ assert.ok(fresh>=0&&stale>fresh);
+ assert.ok(audit.includes('mateV4Fresh_(String(x[\'取得日時\']||\'\').slice(0,10),7)'));
+});
