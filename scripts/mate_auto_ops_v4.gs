@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-listing-daily-verified-trend'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-hourly-outcome-fast-fail'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1993,7 +1993,11 @@ function mateV4ProductionHeartbeat_(report){
     if(r==null)return 'NO_RESULT';
     return JSON.stringify(r).slice(0,250);
   };
-  const status=report&&Object.keys(report).length?'CYCLE_COMPLETED':'EMPTY_CYCLE';
+  const stepFailures=Object.entries(report||{}).filter(([key,value])=>
+    key!=='productionHeartbeat'&&value&&typeof value==='object'&&
+    value.status==='FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE').map(([key])=>key);
+  const status=stepFailures.length?'CYCLE_PARTIAL: '+stepFailures.join(',').slice(0,140):
+    report&&Object.keys(report).length?'CYCLE_COMPLETED':'EMPTY_CYCLE';
   sheet.getRange(2,1,1,11).setValues([[
     mateV4Jst_(),MATE_V4.version,leads.length,
     count.CARE,count.SPARK,count.PLAY,
@@ -2030,11 +2034,13 @@ function mateAutoOpsV4Cycle(){
       }
     };
     const report={phaseIndex};
+    // Real application/publication outcomes are the primary KPI. Refresh on
+    // EVERY hourly cycle instead of waiting up to three discovery phases.
+    report.externalListingKpi=safe('externalListingKpi',mateV4RefreshExternalListingKpi_);
     if(phaseIndex===0){
       report.crmSeeded=safe('crmSeeded',mateV4SeedExistingCRM);
       report.sectorSeeded=safe('sectorSeeded',mateV4SeedSectorDirectories);
       report.catalogDiscovery=safe('catalogDiscovery',mateV4DiscoverLicensedPublicCsvSources);
-      report.externalListingKpi=safe('externalListingKpi',mateV4RefreshExternalListingKpi_);
     }else if(phaseIndex===1){
       report.generalWebDiscovery=safe('generalWebDiscovery',mateV4DiscoverGeneralWebProspects);
       report.collected=safe('collected',mateV4CollectLeads);
