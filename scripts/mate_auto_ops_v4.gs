@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-quote-safe-intent-and-email-guard'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-mail-quality-telemetry'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2024,13 +2024,24 @@ function mateV4ProductionHeartbeat_(report){
     value.status==='FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE').map(([key])=>key);
   const status=stepFailures.length?'CYCLE_PARTIAL: '+stepFailures.join(',').slice(0,140):
     report&&Object.keys(report).length?'CYCLE_COMPLETED':'EMPTY_CYCLE';
+  const numericSend=Number(report&&report.outreach);
+  const safeSend=Number.isFinite(numericSend)?numericSend:0;
+  // Compact operational telemetry: why an hourly cycle produced no mail.
+  const audit=report&&report.publicAudit;
+  const kpi=report&&report.externalListingKpi;
+  const interest=report&&report.listingIntent;
+  const diagnostics={audit:typeof audit==='object'&&audit?
+    {checked:audit.checked||0,eligible:audit.eligible||0,newMail:audit.discovered||0}:audit||'NO_AUDIT',
+    interest:interest&&interest.newInterests||0,
+    externalApps:kpi&&kpi.actualExternalApplications||0,
+    public:kpi&&kpi.actualExternalPublications||0};
   sheet.getRange(2,1,1,11).setValues([[
     mateV4Jst_(),MATE_V4.version,leads.length,
     count.CARE,count.SPARK,count.PLAY,
     small(report.freeOsmDiscovery),
     small(report.generalWebDiscovery),
-    Number(report.outreach||0),
-    small({csv:report.collected,webPromoted:report.freeWebPromoted}),
+    safeSend,
+    small(diagnostics),
     status
   ]]);
   return {version:MATE_V4.version,codeRunning:true,total:leads.length};
