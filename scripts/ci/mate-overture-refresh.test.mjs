@@ -7,6 +7,7 @@ const start=src.indexOf('function mateV4SourceDue_(src,today){'),end=src.indexOf
 assert.ok(start>0&&end>start);
 const fnText=src.slice(start,end);
 const feed='https://raw.githubusercontent.com/kosuke-saito0807/mate/main/data/mate_overture_discovery.csv';
+const recent='https://raw.githubusercontent.com/kosuke-saito0807/mate/main/data/mate_overture_recent.csv';
 const city='https://data.example.jp/tourism.csv';
 function due(last,link,time='2026-11-15 16:00:00'){
  const fn=new Function('mateV4Jst_',fnText+'\nreturn mateV4SourceDue_;')(()=>time);
@@ -22,4 +23,18 @@ test('municipality data remains once daily',()=>{
 });
 test('new Overture source with no import is due',()=>{
  assert.equal(due('',feed),true);
+});
+
+test('rolling Overture feed is refreshable per three-hour slot',()=>{
+ assert.equal(due('2026-11-15 12:00:00',recent),true);
+ assert.equal(due('2026-11-15 15:05:00',recent),false);
+});
+test('shared rolling CSV gets fetched once across all three service registrations',()=>{
+ const begin=src.indexOf('function mateV4CollectLeads(){');
+ const end=src.indexOf('function mateV4OptoutInbox(){',begin);
+ assert.ok(begin>0&&end>begin);
+ const collect=src.slice(begin,end);
+ assert.ok(collect.includes('const sourceCache=new Map()'));
+ assert.ok(collect.includes('if(!sourceCache.has(url))sourceCache.set(url,mateV4SourceCsv_(url))'));
+ assert.ok(collect.includes('rows=sourceCache.get(url).map(x=>({...x}))'));
 });
