@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-general-web-priority-audit'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-free-keyless-osm-prospect-search'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -474,6 +474,85 @@ function mateV4StageNameOnly_(sheet,seen,x,service,sourceUrl){
  * Search results go ONLY to a review queue; they are never approved for mail.
  * The daily search budget is 6 queries (<=120 results before exclusions).
  */
+/**
+ * API-key-free optional candidate discovery from OpenStreetMap Overpass.
+ * Private.coffee permits commercial use, but shared infrastructure requires
+ * strict fair-use: ONE small geographical query/day, no parallel requests.
+ * OSM ODbL data stays in a separate unattributed-to-sales staging queue.
+ * No contact details or emails are extracted; NEVER auto-send from map data.
+ */
+function mateV4DiscoverFreeOsmCandidates(){
+  const props=PropertiesService.getScriptProperties();
+  if(props.getProperty('MATE_FREE_OSM_DISCOVERY')==='OFF')return 'OFF';
+  const today=mateV4Jst_().slice(0,10),key='MATE_FREE_OSM_LAST';
+  if(props.getProperty(key)===today)return 'ALREADY_CHECKED';
+  // Reserve first. Public services must not be hammered on failed requests.
+  props.setProperty(key,today);
+  const b=mateV4Book_(),sheet=mateV4Tab_(b,'営業候補_Web検索_未確認');
+  const existing=mateV4Rows_(sheet),verified=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
+  const seen=new Set([
+    ...existing.map(x=>x['サービス']+'|'+mateV4Host_(x['候補URL'])),
+    ...verified.map(x=>x['サービス']+'|'+mateV4Host_(x['公式URL']))
+  ].filter(x=>!x.endsWith('|')));
+  // Rotating small urban rectangles, approximately neighborhood-scale.
+  // Bbox: south,west,north,east. Never query the whole of Japan.
+  const areas=[
+    {name:'東京西部',box:[35.64,139.61,35.70,139.70]},
+    {name:'横浜北部',box:[35.47,139.59,35.54,139.68]},
+    {name:'大阪北部',box:[34.68,135.47,34.74,135.55]},
+    {name:'名古屋中心',box:[35.15,136.87,35.20,136.94]},
+    {name:'福岡中心',box:[33.56,130.37,33.62,130.44]},
+    {name:'札幌中心',box:[43.03,141.31,43.09,141.39]},
+    {name:'神戸中心',box:[34.65,135.16,34.71,135.25]},
+    {name:'京都中心',box:[34.98,135.72,35.04,135.81]}
+  ];
+  const area=areas[Number(today.replace(/-/g,''))%areas.length];
+  const bbox=area.box.join(',');
+  // Require a known business site; omit personal phone/address/email tags.
+  const query='[out:json][timeout:18][maxsize:12000000];('+
+    'nwr["website"]["name"]["leisure"~"^(sports_centre|dance|fitness_centre)$"]('+bbox+');'+
+    'nwr["website"]["name"]["amenity"~"^(arts_centre|music_school|language_school)$"]('+bbox+');'+
+    'nwr["website"]["name"]["shop"~"^(craft|art|toys)$"]('+bbox+');'+
+    'nwr["website"]["name"]["club"~"^(sport|music)$"]('+bbox+');'+
+    ');out tags 125;';
+  try{
+    const response=UrlFetchApp.fetch('https://overpass.private.coffee/api/interpreter',{
+      method:'post',contentType:'application/x-www-form-urlencoded',
+      payload:'data='+encodeURIComponent(query),muteHttpExceptions:true,
+      followRedirects:false,timeout:25000,
+      headers:{'User-Agent':'MATE-ProspectDiscovery/1.0 (https://care.kosodatemate.jp/operator.html)',
+        Accept:'application/json'}});
+    if(response.getResponseCode()!==200)
+      return {area:area.name,status:'HTTP_'+response.getResponseCode(),added:0};
+    const json=JSON.parse(response.getContentText('UTF-8'));
+    const records=Array.isArray(json.elements)?json.elements:[];
+    let added=0,skipped=0;
+    for(const item of records){
+      const tags=item.tags||{},site=mateV4CandidateHttps_(tags.website||'');
+      const host=mateV4Host_(site),name=String(tags.name||'').trim();
+      const category=tags.leisure||tags.amenity||tags.shop||tags.club||'';
+      const service=/^(sports_centre|dance|fitness_centre|music_school|language_school|sport|music)$/.test(category)?
+        'SPARK':'PLAY';
+      const dedupe=service+'|'+host;
+      if(!host||!name||name.length<4||name.length>130||seen.has(dedupe)||
+         mateV4OwnerBlocked_({'事業者名':name,'公式URL':site})){
+        skipped++;continue;
+      }
+      mateV4Append_(sheet,['OSM-'+service+'-'+item.type+'-'+item.id,mateV4Jst_(),service,
+        name,site,'OpenStreetMap '+area.name,
+        '公式URL・運営者未確認',
+        '© OpenStreetMap contributors / ODbL; map record is discovery only. '+
+          '営業メール送信不可。公式サイト・事業者性・窓口・営業拒否表示の独立確認が必要。']);
+      seen.add(dedupe);added++;
+    }
+    return {area:area.name,received:records.length,added,skipped,
+      sendable:0,licence:'ODbL',source:'OpenStreetMap'};
+  }catch(e){
+    console.log('OSM_DISCOVERY_FAILED '+String(e).slice(0,120));
+    return {area:area.name,status:'FETCH_FAILED',added:0};
+  }
+}
+
 function mateV4DiscoverGeneralWebProspects(){
   const p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_WEB_SEARCH_DISCOVERY')==='OFF')return 'OFF';
@@ -1650,6 +1729,7 @@ function mateAutoOpsV4Cycle(){
     const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),
       catalogDiscovery:mateV4DiscoverLicensedPublicCsvSources(),
       generalWebDiscovery:mateV4DiscoverGeneralWebProspects(),
+      freeOsmDiscovery:mateV4DiscoverFreeOsmCandidates(),
       collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
       reconciledSent:mateV4ReconcileSentReservations(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
