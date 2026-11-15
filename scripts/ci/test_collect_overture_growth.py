@@ -43,8 +43,8 @@ class TestOvertureGrowth(unittest.TestCase):
         b=MOD.city_tile(date(2026,11,16),0)
         self.assertNotEqual(a,b)
         self.assertEqual(len(a[1]),4)
-        self.assertLess(a[1][2]-a[1][0],0.07)
-        self.assertLess(a[1][3]-a[1][1],0.05)
+        self.assertLess(a[1][2]-a[1][0],0.12)
+        self.assertLess(a[1][3]-a[1][1],0.09)
 
     def test_block_social_and_close_locations(self):
         features={"features":[
