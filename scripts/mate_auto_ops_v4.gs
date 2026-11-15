@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-general-web-api-staging'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-general-web-priority-audit'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -814,6 +814,12 @@ function mateV4AuditOfficialContacts(){
     if(x['状態']==='営業可能候補'&&x['営業拒否']==='未確認')return 1;
     if(x['状態']==='公式公開メール確認済・送信待機')return 2;
     if(x['状態']==='窓口確認待ち'&&mateV4RoleEmail_(email))return 3;
+    // Fresh independent businesses found through ordinary web search should
+    // receive the same first-party site audit promptly, never automatic
+    // outreach based on the search result alone.
+    if(x['状態']==='窓口確認待ち'&&
+       String(x['最終確認結果']||'').startsWith('WEB_DISCOVERY ')&&
+       mateV4Fresh_(String(x['取得日時']||'').slice(0,10),7))return 3;
     if(x['状態']==='窓口確認待ち')return 4;
     return 98;
   };
