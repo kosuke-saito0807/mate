@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-reply-first-listing-conversion'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-evidence-gated-external-listing-kpi'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1829,6 +1829,93 @@ function mateV4PromoteFreeWebCandidates(){
   return {checked,promoted,duplicates,notMatched,sendApproved:0};
 }
 
+/**
+ * KPI counts are evidence-gated and read only existing ledgers.
+ * "Third-party confirmed" needs explicit external ownership evidence in the
+ * publication review ledger, not a plausible business name or sent email.
+ * No approvals, publishing, invoices, outreach, or applicant edits.
+ */
+function mateV4ExternalListingFunnel_(){
+  const book=mateV4Book_();
+  const leads=mateV4Rows_(mateV4Tab_(book,MATE_V4.leads));
+  const sent=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
+  const apps=mateV4Rows_(mateV4Tab_(book,'掲載セルフ申請'));
+  const approvals=mateV4Rows_(mateV4Tab_(book,'掲載公開承認V1_運営専用'));
+  const today=mateV4Jst_().slice(0,10);
+  const services=['CARE','SPARK','PLAY'];
+  const summary=Object.fromEntries(services.map(s=>[s,{
+    candidates:0,sent:0,sentToday:0,allApplications:0,heldOrTest:0,
+    verifiedExternalApplications:0,verifiedExternalPublications:0
+  }]));
+  const seenApps=new Set(),seenPublic=new Set();
+  for(const x of leads)if(summary[x['サービス']]&&x['重複キー'])
+    summary[x['サービス']].candidates++;
+  for(const x of sent){
+    const entry=summary[x['サービス']];
+    if(!entry||!['送信済','返信あり','配信停止'].includes(x['状態']))continue;
+    entry.sent++;
+    if(String(x['送信処理日時']||'').slice(0,10)===today)entry.sentToday++;
+  }
+  const reviews=new Map();
+  for(const x of approvals){
+    const id=String(x['申請ID']||'').trim();
+    if(id&&!reviews.has(id))reviews.set(id,x);
+  }
+  for(const x of apps){
+    const service=x['サービス'],entry=summary[service];
+    const id=String(x['申請ID']||'').trim();
+    if(!entry||!id||seenApps.has(id))continue;
+    seenApps.add(id);entry.allApplications++;
+    const review=reviews.get(id);
+    const name=String(x['教室・事業者名']||'');
+    const site=String(x['公式URL']||'');
+    const note=[name,x['紹介文'],x['保留・差戻し理由'],x['掲載申請の意思'],
+      review&&review['備考']].join(' ');
+    const own=/\b(?:nextedu|codecamp|kosodatemate|github\.io|script\.google\.com)\b/i.test(site)||
+      /テスト|ダミー|架空|内部接続|接続確認|非公開|斎藤|サイトウ|codecamp|コードキャンプ/i.test(note);
+    const status=x['審査状態'],authority=x['担当者権限の確認'];
+    const verifiedByThirdParty=review&&String(review['権限確認証跡']||'')
+      .includes('THIRD_PARTY_VERIFIED:');
+    // An owner attestation, even if previously approved, is not third-party
+    // acquisition evidence. An explicit separate third-party proof is needed.
+    const verified=!own&&mateV4Https_(site)&&status!=='差戻し'&&
+      authority==='確認済み'&&verifiedByThirdParty&&
+      review['サービス']===service&&review['申請ID']===id;
+    if(!verified){entry.heldOrTest++;continue;}
+    entry.verifiedExternalApplications++;
+    const published=review['進捗']==='公開確認済み'&&
+      String(review['公開URL']||'').startsWith('https://')&&
+      /(?:care|spark|play)\.kosodatemate\.jp/.test(String(review['公開URL']))&&
+      review['公開用ID']&&review['公開用ID']===x['公開ID']&&
+      review['操作']==='掲載承認';
+    const publicKey=service+'|'+String(review['公開用ID']||'');
+    if(published&&!seenPublic.has(publicKey)){
+      seenPublic.add(publicKey);entry.verifiedExternalPublications++;
+    }
+  }
+  return {today,summary,method:'EXPLICIT_THIRD_PARTY_PROOF_AND_PUBLIC_URL',
+    caveat:'Owner, tests, unverified, rejected and unpublished applications are not external published results'};
+}
+function mateV4RefreshExternalListingKpi_(){
+  const metric=mateV4ExternalListingFunnel_();
+  const sheet=mateV4Tab_(mateV4Book_(),'MATE_外部掲載成果KPI_V1');
+  const rows=['CARE','SPARK','PLAY'].map(s=>{
+    const a=metric.summary[s],rate=(num,den)=>den>0?num/den:0;
+    const issue=a.candidates===0?'新規候補の収集':
+      a.verifiedExternalApplications===0?'外部事業者の権限確認済み申請を獲得':
+      a.verifiedExternalPublications===0?'外部申請の承認・実公開を確認':
+      '公開掲載数と申請から公開までの転換率を向上';
+    return [s,a.candidates,a.sent,a.sentToday,a.allApplications,
+      a.heldOrTest,a.verifiedExternalApplications,a.verifiedExternalPublications,
+      rate(a.verifiedExternalApplications,a.sent),rate(a.verifiedExternalPublications,a.verifiedExternalApplications),
+      issue,mateV4Jst_()];
+  });
+  sheet.getRange(2,1,3,12).setValues(rows);
+  sheet.getRange(2,9,3,2).setNumberFormat('0.0%');
+  return {actualExternalApplications:rows.reduce((s,r)=>s+r[6],0),
+    actualExternalPublications:rows.reduce((s,r)=>s+r[7],0)};
+}
+
 function mateV4ProductionHeartbeat_(report){
   const book=mateV4Book_();
   const sheet=mateV4Tab_(book,'GAS本番稼働監視V4');
@@ -1880,6 +1967,7 @@ function mateAutoOpsV4Cycle(){
       report.crmSeeded=safe('crmSeeded',mateV4SeedExistingCRM);
       report.sectorSeeded=safe('sectorSeeded',mateV4SeedSectorDirectories);
       report.catalogDiscovery=safe('catalogDiscovery',mateV4DiscoverLicensedPublicCsvSources);
+      report.externalListingKpi=safe('externalListingKpi',mateV4RefreshExternalListingKpi_);
     }else if(phaseIndex===1){
       report.generalWebDiscovery=safe('generalWebDiscovery',mateV4DiscoverGeneralWebProspects);
       report.collected=safe('collected',mateV4CollectLeads);
