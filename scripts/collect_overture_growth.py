@@ -34,7 +34,9 @@ CITIES = (
  ("鹿児島",31.597,130.558),("那覇",26.213,127.680),
 )
 BLOCKED = ("facebook.com", "instagram.com", "google.com", "tabelog.com",
-           "youtube.com", "x.com", "ameblo.jp", "note.com", "line.me")
+           "youtube.com", "x.com", "ameblo.jp", "note.com", "line.me",
+           "amazon.com", "amazon.co.jp", "rakuten.co.jp", "rakuten.com",
+           "tripadvisor.com", "booking.com", "jalan.net", "hotpepper.jp")
 EXCLUDE = re.compile(r"code\s*camp|コード\s*キャンプ|口コミ|ランキング|求人", re.I)
 MAIL_RE = re.compile(r"^[a-z0-9.-]+$", re.I)
 
@@ -54,6 +56,7 @@ def safe_websites(props):
         if (not host or not MAIL_RE.fullmatch(host)
                 or host.startswith(("localhost", "127."))
                 or any(host == b or host.endswith("." + b) for b in BLOCKED)
+                or host.endswith((".lg.jp", ".go.jp", ".ac.jp"))
                 or re.search(r"(^|\.)codecamp", host, re.I)):
             continue
         yield "https://" + host + (p.path if p.path else "/")
@@ -142,7 +145,7 @@ def cell_clean(x):
 
 def city_tile(day, slot):
     tick = day.toordinal() - dt.date(2026, 1, 1).toordinal()
-    i = (tick * 8 + slot) % (len(CITIES) * 9)
+    i = (tick * 16 + slot) % (len(CITIES) * 9)
     city, lat, lon = CITIES[i // 9]
     tile = i % 9
     lon += ((tile % 3) - 1) * 0.12
@@ -175,17 +178,34 @@ def update_csv(path, discovered, cap=30000):
     return added, len(records)
 
 
+def write_recent_csv(full_path, recent_path, limit=1200):
+    """Keep hourly GAS CSV imports bounded without losing the source archive.
+
+    The full archive is append-only and deduplicated; the recent window is
+    discover-only and the GAS leads sheet maintains its own duplicate keys.
+    """
+    with full_path.open(encoding="utf-8-sig", newline="") as handle:
+        records = list(csv.DictReader(handle))
+    recent_path.parent.mkdir(parents=True, exist_ok=True)
+    with recent_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FIELDS)
+        writer.writeheader()
+        writer.writerows(records[-limit:])
+    return min(len(records), limit)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="data/mate_overture_discovery.csv")
     parser.add_argument("--day", default=dt.datetime.now(dt.timezone.utc).date().isoformat())
-    parser.add_argument("--batch", type=int, default=None, choices=range(4))
+    parser.add_argument("--batch", type=int, default=None, choices=range(8))
+    parser.add_argument("--recent-output", default="data/mate_overture_recent.csv")
     args = parser.parse_args()
     now = dt.datetime.now(dt.timezone.utc)
     day = dt.date.fromisoformat(args.day)
-    batch = args.batch if args.batch is not None else min(3, now.hour // 6)
+    batch = args.batch if args.batch is not None else min(7, now.hour // 3)
     discovered = []
-    # Eight distinct bounded tiles/day in four serial batches, no API key.
+    # Sixteen distinct bounded tiles/day in eight serial batches, no API key.
     for slot in range(batch * 2, batch * 2 + 2):
         label, bbox = city_tile(day, slot)
         with tempfile.TemporaryDirectory() as work:
@@ -198,8 +218,10 @@ def main():
                 data = json.load(f)
             discovered.extend(select_records(data, label))
     added, total = update_csv(Path(args.output), discovered)
+    recent_count = write_recent_csv(Path(args.output),Path(args.recent_output))
     print(json.dumps({"source": "Overture Places", "new_candidates": added,
                       "total_candidates_in_feed": total,
+                      "recent_feed_records": recent_count,
                       "mail_send_authorized": 0,
                       "privacy": "no extracted emails or personal phones", "batch": batch}))
 
