@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-mail-audit-throughput-boost'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-quote-safe-intent-and-email-guard'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -104,6 +104,9 @@ function mateV4Email_(s){
   // Block reserved example domains; these are not real business recipients.
   if(/@(example\.(?:com|net|org|jp)|example\.co\.jp)$/i.test(x))return '';
   if(/@(gmail\.com|yahoo\.co\.jp|yahoo\.com|icloud\.com|outlook\.com|hotmail\.com)$/i.test(x))return '';
+  // Regular image / font assets such as mail@2x.png are not mailboxes.
+  // A regex match inside a website's markup is insufficient evidence.
+  if(/\.(?:png|jpe?g|gif|webp|svg|ico|css|js|json|woff2?|ttf|otf|map|pdf|html?)$/i.test(x))return '';
   return x;
 }
 /**
@@ -1934,6 +1937,26 @@ function mateV4RefreshExternalListingKpi_(){
  * No mail sending, publication, contract, invoice or copied message bodies.
  * Suppression / STOP requests take precedence over positive intent.
  */
+/**
+ * Return only the new text in a reply. Email clients append earlier messages,
+ * where our own template already contains the opt-in and unsubscribe phrases.
+ * Conservative when quote boundaries are unclear: do not auto-classify.
+ */
+function mateV4ReplyWithoutQuotedCampaign_(raw){
+  const plain=String(raw||'').slice(0,12000).replace(/\r\n?/g,'\n');
+  const parts=plain.split('\n');
+  const newLines=[];
+  for(const line of parts){
+    const x=line.trim();
+    if(/^>/.test(x)||/^[-_]{4,}\s*(?:original message|転送|引用)/i.test(x)||
+       /^(?:On .{0,130}wrote:|差出人\s*[:：]|From\s*[:：]|送信元\s*[:：]|-----Original Message-----)/i.test(x)||
+       /^\d{4}年\d{1,2}月\d{1,2}日.{0,120}(?:書きました|wrote)/i.test(x)||
+       /^-{5,}\s*$/.test(x))break;
+    newLines.push(line);
+  }
+  return newLines.join('\n').trim();
+}
+
 function mateV4CaptureListingIntent_(){
   const book=mateV4Book_();
   const sheet=mateV4Tab_(book,'MATE_掲載希望返信キュー_V1');
@@ -1967,7 +1990,10 @@ function mateV4CaptureListingIntent_(){
       const subject=String(msg.getSubject()||'');
       // Exclude unrelated customer emails even if sent from the same mailbox.
       if(!subject.includes('MATE '+campaign.service))continue;
-      const body=String(msg.getPlainBody()||'').slice(0,750).trim();
+      // Inspect only the sender's newly written reply, not our quoted
+      // original campaign (which already contains "掲載希望" and "配信停止").
+      const body=mateV4ReplyWithoutQuotedCampaign_(msg.getPlainBody()).slice(0,750).trim();
+      if(!body)continue;
       if(/配信停止|メール不要|今後連絡不要|unsubscribe|stop/i.test(body))continue;
       if(!/掲載希望|掲載したい|掲載を希望|掲載について(?:相談|質問)|掲載に興味|登録したい|掲載をご相談/i.test(body))continue;
       const company=String(campaign.campaign||'').split('｜').slice(1).join('｜');
