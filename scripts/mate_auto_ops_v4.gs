@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-keyword-cursor-expansion'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-two-stage-licensed-prospect-intake'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -153,8 +153,8 @@ function mateV4SourceCsv_(url){
   };
   const at=k=>{for(const alias of columns[k]){const i=keys.indexOf(alias);if(i>=0)return i}return -1};
   const indexes={};for(const key of Object.keys(columns))indexes[key]=at(key);
-  if(indexes.name<0||indexes.website<0){
-    const missing=[indexes.name<0?'名称':'公式URL'].filter(Boolean).join('・');
+  if(indexes.name<0){
+    const missing='名称';
     throw Error('CSV列不足 ('+missing+') / 見出し: '+keys.slice(0,12).join(',').slice(0,125));
   }
   return rows.map(row=>{
@@ -435,15 +435,49 @@ function mateV4BalancedSourceQueue_(sources,today){
   }
   return queue;
 }
+/**
+ * Raw prospect stage: missing official websites never become sendable leads.
+ * These are only public organizational/facility names from permitted datasets.
+ * Do not store phone numbers, personal email addresses or street addresses.
+ */
+function mateV4NameOnlyKey_(service,name,region){
+  const text=[service,String(name||'').normalize('NFKC').replace(/\s/g,'').toLowerCase(),
+    String(region||'').normalize('NFKC').replace(/\s/g,'').toLowerCase()].join('|');
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,text)
+    .slice(0,14).map(x=>('0'+((x+256)%256).toString(16)).slice(-2)).join('');
+}
+function mateV4CandidateRegion_(raw){
+  const txt=String(raw||'').normalize('NFKC').trim();
+  const match=txt.match(/^(?:東京都|北海道|大阪府|京都府|.{2,3}県)(?:[^0-9]{0,12}[市区町村])?/);
+  return match?match[0].slice(0,25):'';
+}
+function mateV4StageNameOnly_(sheet,seen,x,service,sourceUrl){
+  const name=String(x.name||'').trim();
+  const region=mateV4CandidateRegion_(x.region);
+  if(!name||name.length<4||name.length>120||!region||
+     /テスト|ダミー|個人情報|園児名簿|児童名簿/.test(name)||
+     /^[一-龥]{2,5}$/.test(name)||
+     mateV4OwnerBlocked_({'事業者名':name})||
+     !mateV4Https_(sourceUrl))return false;
+  const key=mateV4NameOnlyKey_(service,name,region);
+  if(seen.has(key))return false;
+  // Discovery-only and never an email-eligible state.
+  mateV4Append_(sheet,[key,mateV4Jst_(),service,name,region,sourceUrl,
+    '公式URL未確認','自治体データの公開名称のみ。事業者性・対象年齢・公式URL・窓口・利用許可は未確認。送信禁止。']);
+  seen.add(key);return true;
+}
+
 function mateV4CollectLeads(){
   const b=mateV4Book_(),src=mateV4Tab_(b,MATE_V4.sources),dest=mateV4Tab_(b,MATE_V4.leads);
+  const stage=mateV4Tab_(b,'営業候補_公式URL未確認');
+  const staged=new Set(mateV4Rows_(stage).map(x=>x['候補キー']).filter(Boolean));
   const sources=mateV4BalancedSourceQueue_(mateV4Rows_(src),mateV4Jst_().slice(0,10));
   const existing=mateV4Rows_(dest);
   const seen=new Set(existing.map(x=>x['重複キー']).filter(Boolean));
   const known=new Set(mateV4Rows_(mateV4Tab_(b,'3サービス営業リスト'))
     .filter(x=>mateV4Https_(x['公式・窓口URL']))
     .map(x=>{try{return mateV4Key_(x['サービス'],x['公式・窓口URL'],x['企業・教室名'])}catch(e){return ''}}));
-  let count=0,processedSources=0;
+  let count=0,stagedCount=0,processedSources=0;
   for(const source of sources){
     if(processedSources>=8)break;
     if(source['有効']!=='TRUE'||source['再利用許諾確認']!=='確認済み'||!mateV4Https_(source['取得元CSV HTTPS URL']))continue;
@@ -468,7 +502,12 @@ function mateV4CollectLeads(){
       // Keep it as discovery-only; later first-party checks decide readiness.
       x.website=mateV4CandidateHttps_(x.website);
       x.contact_url=mateV4CandidateHttps_(x.contact_url);
-      if(!x.name||!mateV4Https_(x.website)){missingWebsite++;continue}
+      if(!x.name||!mateV4Https_(x.website)){
+        missingWebsite++;
+        if(stagedCount<250&&mateV4StageNameOnly_(stage,staged,x,service,source['取得元CSV HTTPS URL']))
+          stagedCount++;
+        continue;
+      }
       if((x.service&&x.service!==service)||!mateV4Https_(x.source_url)){invalidRows++;continue}
       const id=mateV4Key_(service,x.website,x.name);
       if(seen.has(id)||known.has(id)){skippedDuplicate++;continue}
@@ -493,7 +532,7 @@ function mateV4CollectLeads(){
       ' / 重複 '+skippedDuplicate+' / その他不備 '+invalidRows;
     src.getRange(source._row,6,1,2).setValues([[mateV4Jst_(),summary.slice(0,250)]]);
   }
-  return count;
+  return {urlVerifiedImported:count,nameOnlyStaged:stagedCount,processedSources};
 }
 function mateV4OptoutInbox(){
   const b=mateV4Book_(),sheet=mateV4Tab_(b,MATE_V4.optouts);
