@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-daily30-dynamic-eligible-allocation'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-four-daily-overture-imports'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -416,6 +416,19 @@ function mateV4DiscoverLicensedPublicCsvSources(){
  * round-robin CARE, SPARK and PLAY. Prevents the first eight rows from starving
  * all later public datasets as the source registry grows.
  */
+function mateV4SourceDue_(src,today){
+  const last=String(src['最終取込日時']||''),url=String(src['取得元CSV HTTPS URL']||'');
+  if(last.slice(0,10)!==today)return true;
+  if(!/raw\.githubusercontent\.com\/kosuke-saito0807\/mate\/main\/data\/mate_overture_discovery\.csv/.test(url))
+    return false;
+  // Refresh the free Overture data once per three-hour JST slot.
+  // Ordinary municipal CSVs stay on their once-daily cadence.
+  const currentHour=Number(mateV4Jst_().slice(11,13));
+  const lastHour=Number(last.slice(11,13));
+  return Number.isFinite(currentHour)&&Number.isFinite(lastHour)&&
+    Math.floor(currentHour/3)>Math.floor(lastHour/3);
+}
+
 function mateV4BalancedSourceQueue_(sources,today){
   const services=['CARE','SPARK','PLAY'],buckets={CARE:[],SPARK:[],PLAY:[]};
   for(const src of sources){
@@ -423,7 +436,7 @@ function mateV4BalancedSourceQueue_(sources,today){
     if(!buckets[svc]||src['有効']!=='TRUE'||
        src['再利用許諾確認']!=='確認済み'||
        !mateV4Https_(src['取得元CSV HTTPS URL'])||
-       last.slice(0,10)===today)continue;
+       !mateV4SourceDue_(src,today))continue;
     buckets[svc].push(src);
   }
   for(const service of services)buckets[service].sort((a,b)=>
@@ -646,7 +659,7 @@ function mateV4CollectLeads(){
     const service=source['サービス'];if(!['CARE','SPARK','PLAY'].includes(service))continue;
     // Public municipal datasets rarely update hourly; check each once per JST day.
     // Keep this after validation so a newly added source is processed immediately.
-    if(String(source['最終取込日時']||'').slice(0,10)===mateV4Jst_().slice(0,10))continue;
+    if(!mateV4SourceDue_(source,mateV4Jst_().slice(0,10)))continue;
     processedSources++;
     let rows;
     try{rows=mateV4SourceCsv_(source['取得元CSV HTTPS URL'])}
