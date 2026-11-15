@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-name-only-backlog-kpi'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-general-web-api-staging'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -465,6 +465,76 @@ function mateV4StageNameOnly_(sheet,seen,x,service,sourceUrl){
   mateV4Append_(sheet,[key,mateV4Jst_(),service,name,region,sourceUrl,
     '公式URL未確認','自治体データの公開名称のみ。事業者性・対象年齢・公式URL・窓口・利用許可は未確認。送信禁止。']);
   seen.add(key);return true;
+}
+
+/**
+ * General-web prospect discovery via the documented Brave Search API.
+ * An operator-owned API token is required in private Script Properties:
+ * MATE_BRAVE_SEARCH_API_KEY. No token => no requests or paid API usage.
+ * Search results go ONLY to a review queue; they are never approved for mail.
+ * The daily search budget is 6 queries (<=120 results before exclusions).
+ */
+function mateV4DiscoverGeneralWebProspects(){
+  const p=PropertiesService.getScriptProperties();
+  if(p.getProperty('MATE_WEB_SEARCH_DISCOVERY')==='OFF')return 'OFF';
+  const token=String(p.getProperty('MATE_BRAVE_SEARCH_API_KEY')||'').trim();
+  if(!token)return 'WEB_SEARCH_KEY_NOT_CONFIGURED_NO_REQUESTS';
+  const today=mateV4Jst_().slice(0,10),key='MATE_WEB_SEARCH_LAST';
+  if(p.getProperty(key)===today)return 'ALREADY_SEARCHED';
+  // Reserve first: transient errors must not cause repeated paid API calls.
+  p.setProperty(key,today);
+  const b=mateV4Book_(),tab=mateV4Tab_(b,'営業候補_Web検索_未確認');
+  const existing=mateV4Rows_(tab);
+  const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
+  const seen=new Set([
+    ...existing.map(x=>x['サービス']+'|'+mateV4Host_(x['候補URL'])),
+    ...leads.map(x=>x['サービス']+'|'+mateV4Host_(x['公式URL']))
+  ].filter(x=>!x.endsWith('|')));
+  const blockedHost=/^(?:google\.|yahoo\.|bing\.|brave\.|facebook\.|instagram\.|tiktok\.|twitter\.|x\.com$|youtube\.|tabelog\.|map\.|maps\.|prtimes\.|note\.|ameblo\.|rakuten\.|amazon\.|wantedly\.|townwork\.|indeed\.|coeteco\.|kodomo\.|ekiten\.|en-hyouban\.|fc-research\.|acsa\.|city\.|pref\.|gov\.|wikipedia\.|data\.bodik\.)/i;
+  const dayNumber=Number(today.replace(/-/g,''));
+  const sets=[
+    {service:'CARE',terms:['ベビーシッター 会社 公式サイト お問い合わせ','訪問保育 法人 公式サイト','病児保育 訪問 サービス 会社','産前産後ケア 家事育児サポート 法人']},
+    {service:'SPARK',terms:['子供 プログラミング教室 運営会社 公式','子ども ピアノ教室 法人 公式','幼児 英語教室 株式会社 公式','子供 ロボット教室 フランチャイズ 会社 公式','子供 体操教室 運営 法人 公式']},
+    {service:'PLAY',terms:['親子 ワークショップ 運営 株式会社 公式','子ども 工作体験 企業 イベント 公式','親子 農業体験 運営 会社','子供 体験プログラム 事業者 公式']}
+  ];
+  let queries=0,added=0,skipped=0,errors=0;
+  for(const set of sets){
+    for(let n=0;n<2;n++){
+      const term=set.terms[(dayNumber+n)%set.terms.length];
+      try{
+        const u='https://api.search.brave.com/res/v1/web/search?q='+
+          encodeURIComponent(term)+'&country=JP&search_lang=ja&count=20&offset=0&safesearch=strict';
+        const response=UrlFetchApp.fetch(u,{muteHttpExceptions:true,followRedirects:false,timeout:14000,
+          headers:{'X-Subscription-Token':token,Accept:'application/json'}});
+        queries++;
+        if(response.getResponseCode()!==200){errors++;continue}
+        const payload=JSON.parse(response.getContentText('UTF-8'));
+        const results=payload.web&&Array.isArray(payload.web.results)?payload.web.results:[];
+        for(const item of results){
+          const rawUrl=String(item.url||'');
+          const url=mateV4CandidateHttps_(rawUrl);
+          const host=mateV4Host_(url);
+          const title=String(item.title||'').replace(/<[^>]*>/g,'').trim();
+          const dedupe=set.service+'|'+host;
+          if(!host||blockedHost.test(host)||seen.has(dedupe)||!title||
+             title.length<5||title.length>180||
+             /求人|採用|比較|ランキング|口コミ|評判|ブログ|ニュース|最新記事|一覧|検索結果|個人情報/.test(title)||
+             mateV4OwnerBlocked_({'事業者名':title,'公式URL':url})){
+            skipped++;continue;
+          }
+          const keyText='WEB-'+mateV4Key_(set.service,url,title);
+          mateV4Append_(tab,[keyText,mateV4Jst_(),set.service,title.slice(0,150),url,term,
+            '公式サイト・運営者未確認','検索結果から候補を発見。営業送信禁止。公式サイトの事業者確認・用途/拒否表示の監査前。']);
+          seen.add(dedupe);added++;
+        }
+      }catch(err){
+        errors++;
+        console.log('GENERAL_WEB_DISCOVERY_QUERY_FAILED '+set.service);
+      }
+    }
+  }
+  return {queries,added,skipped,errors,sendable:0,
+    mode:'SEARCH_RESULT_STAGING_ONLY'};
 }
 
 function mateV4CollectLeads(){
@@ -1573,6 +1643,7 @@ function mateAutoOpsV4Cycle(){
   try{
     const report={crmSeeded:mateV4SeedExistingCRM(),sectorSeeded:mateV4SeedSectorDirectories(),
       catalogDiscovery:mateV4DiscoverLicensedPublicCsvSources(),
+      generalWebDiscovery:mateV4DiscoverGeneralWebProspects(),
       collected:mateV4CollectLeads(),optouts:mateV4OptoutInbox(),hardBounces:mateV4HardBounceQuarantine(),
       reconciledSent:mateV4ReconcileSentReservations(),
       publicAudit:mateV4AuditOfficialContacts(),reviewDrafts:mateV4PrepareReviewDrafts(),
