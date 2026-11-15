@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-prioritize-firstparty-new-leads'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-batched-discovery-import'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -56,6 +56,14 @@ function mateV4San_(s,n){
   return /^[=+\-@]/.test(v)?"'"+v:v;
 }
 function mateV4Append_(s,values){s.appendRow(values.map(v=>mateV4San_(v,900)))}
+function mateV4BatchAppend_(s,rows){
+  if(!rows.length)return 0;
+  const width=rows[0].length;
+  if(rows.some(r=>r.length!==width))throw Error('CSV batch width mismatch');
+  const safe=rows.map(r=>r.map(v=>mateV4San_(v,900)));
+  s.getRange(s.getLastRow()+1,1,safe.length,width).setValues(safe);
+  return safe.length;
+}
 function mateV4Jst_(){return Utilities.formatDate(new Date(),'Asia/Tokyo','yyyy-MM-dd HH:mm:ss')}
 function mateV4Date_(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s)))return null;const d=new Date(s+'T00:00:00+09:00');return Number.isFinite(+d)?d:null}
 function mateV4Fresh_(s,maxDays){
@@ -693,8 +701,11 @@ function mateV4CollectLeads(){
       continue;
     }
     let imported=0,missingWebsite=0,skippedDuplicate=0,invalidRows=0;
+    const writeRows=[];
     for(const x of rows){
       if(count>=MATE_V4.maxNewLeadsPerRun)break;
+      // A mixed-service Overture feed is only relevant to its named service.
+      if(x.service&&x.service!==service){invalidRows++;continue;}
       // A dataset row can be from an unrelated or non-commercial venue.
       // Keep it as discovery-only; later first-party checks decide readiness.
       x.website=mateV4CandidateHttps_(x.website);
@@ -705,7 +716,7 @@ function mateV4CollectLeads(){
           stagedCount++;
         continue;
       }
-      if((x.service&&x.service!==service)||!mateV4Https_(x.source_url)){invalidRows++;continue}
+      if(!mateV4Https_(x.source_url)){invalidRows++;continue}
       const id=mateV4Key_(service,x.website,x.name);
       if(seen.has(id)||known.has(id)){skippedDuplicate++;continue}
       const deny=/^(true|yes|1|禁止)$/i.test(x.solicitation_prohibited);
@@ -718,13 +729,16 @@ function mateV4CollectLeads(){
       // Require an operator to check the current official contact page, evidence,
       // objection notices, and date before manually marking any lead send-ready.
       const state=deny?'配信禁止':'窓口確認待ち';
-      mateV4Append_(dest,[
+      writeRows.push([
         'AUTO-'+id,mateV4Jst_(),service,x.name,x.website,x.region||'',
         mail,x.contact_url||'',x.source_url,basis,x.checked_at||'',id,
         deny?'TRUE':'FALSE',state,'CSVの根拠表示だけでは送信不可。公式窓口・拒否表示・根拠確認日を人が確認。掲載・取次の許諾も未取得。',''
       ]);
       seen.add(id);count++;imported++;
     }
+    // Commit the candidate batch BEFORE claiming successful source ingestion.
+    // A write failure leaves this source due for safe replay with dedupe.
+    if(writeRows.length)mateV4BatchAppend_(dest,writeRows);
     const summary=String(imported)+' 件取込 / CSV '+rows.length+' 行 / URL・名称不足 '+missingWebsite+
       ' / 重複 '+skippedDuplicate+' / その他不備 '+invalidRows;
     src.getRange(source._row,6,1,2).setValues([[mateV4Jst_(),summary.slice(0,250)]]);
