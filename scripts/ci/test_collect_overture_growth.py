@@ -46,6 +46,21 @@ class TestOvertureGrowth(unittest.TestCase):
         self.assertLess(a[1][2]-a[1][0],0.12)
         self.assertLess(a[1][3]-a[1][1],0.09)
 
+    def test_care_requires_sitter_not_generic_nursery(self):
+        nursery=self.sample("day_care", "https://sample-nursery.jp/", "つつじが丘保育園")
+        sitter=self.sample("child_care", "https://sitter-company.jp/", "訪問型ベビーシッター会社")
+        nursery_records=list(MOD.select_records({"features":[nursery]}, "鹿児島"))
+        sitter_records=list(MOD.select_records({"features":[sitter]}, "東京"))
+        self.assertEqual(nursery_records,[])
+        self.assertEqual(len(sitter_records),1)
+        self.assertEqual(sitter_records[0]["service"],"CARE")
+
+    def test_japanese_class_name_maps_to_spark(self):
+        x=self.sample("school", "https://sample-piano.jp/", "こども音楽教室")
+        got=list(MOD.select_records({"features":[x]}, "東京"))
+        self.assertEqual(len(got),1)
+        self.assertEqual(got[0]["service"],"SPARK")
+
     def test_block_social_and_close_locations(self):
         features={"features":[
            self.sample("music_school","https://instagram.com/test/"),
