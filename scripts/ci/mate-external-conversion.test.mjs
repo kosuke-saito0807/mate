@@ -61,3 +61,13 @@ test('reply queue requires existing send, explicit intent, suppresses STOP and c
  assert.ok(!code.includes("MailApp.sendEmail("));
  assert.ok(!code.includes("掲載承認"));
 });
+
+test('KPI refresh records one daily trend row per service and updates same-day snapshots',()=>{
+ const a=source.indexOf('function mateV4RefreshExternalListingKpi_(){');
+ const b=source.indexOf('function mateV4CaptureListingIntent_(){',a);
+ const body=source.slice(a,b);
+ assert.ok(body.includes("MATE_外部掲載日次推移_V1"));
+ assert.ok(body.includes("previous.find(x=>x['集計日']===today"));
+ assert.ok(body.includes("trend.getRange(existing._row,1,1,11).setValues([snapshot])"));
+ assert.ok(body.includes("else mateV4Append_(trend,snapshot)"));
+});
