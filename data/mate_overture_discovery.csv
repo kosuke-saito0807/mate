@@ -1,2 +1,6 @@
 service,name,website,region,email,contact_url,source_url,mail_basis,checked_at,solicitation_prohibited
 SPARK,リベルテ音楽教室（しのはら音楽教室）,https://shinohara-piano.com/,鹿児島 8/9,,,https://docs.overturemaps.org/guides/places/,UNVERIFIED,,false
+PLAY,公益財団法人石川県埋蔵文化財センター,https://www.ishikawa-maibun.jp/,金沢 2/9,,,https://docs.overturemaps.org/guides/places/,UNVERIFIED,,false
+PLAY,石川県ふれあい昆虫館,https://www.furekon.jp/,金沢 2/9,,,https://docs.overturemaps.org/guides/places/,UNVERIFIED,,false
+PLAY,加賀獅子頭 知田工房,https://www.chidakoubou.com/,金沢 2/9,,,https://docs.overturemaps.org/guides/places/,UNVERIFIED,,false
+PLAY,石川県農林総合研究センター林業試験場樹木公園,https://www.pref.ishikawa.lg.jp/ringyo/about/park.html,金沢 2/9,,,https://docs.overturemaps.org/guides/places/,UNVERIFIED,,false
