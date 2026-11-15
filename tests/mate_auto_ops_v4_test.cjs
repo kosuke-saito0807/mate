@@ -8,6 +8,8 @@ assert.ok(campaign.includes("MATE SPARKの無料掲載をご案内します"),'S
 assert.ok(campaign.includes("https://care.kosodatemate.jp/operator.html"),'official operator page included');
 assert.ok(campaign.includes("'送信責任主体（正式名称）：'+formalSender"),'required legal sender name kept in actual commercial email');
 assert.ok(!campaign.includes('※これはMATE運営者本人宛て'),'owner test disclaimer cannot leak to prospects');
+// Static assets must never be accepted as public company inboxes.
+// These checks run against the real Apps Script functions in the VM below.
 let mails=0;
 const reviewDrafts=[];
 const settings={};
@@ -349,5 +351,8 @@ assert.equal(run('mateV4DailyGrowthDigest()').day,'2026-10-31');
 assert.equal(internalDigest,1,'one operator-only digest');
 assert.equal(run('mateV4DailyGrowthDigest()'),'ALREADY_DONE','no repeated operator digest');
 assert.equal(internalDigest,1);
+assert.equal(run("mateV4Email_('mail@2x.png')"),'','image filename cannot be email recipient');
+assert.equal(run("mateV4RoleEmail_('mail@2x.png')"),'','image filename cannot be public role inbox');
+assert.equal(run("mateV4Email_('info@business.example.org')"),'info@business.example.org','valid organizational mailbox retained');
 assert.equal(mails,0,'no external outreach ever sent by growth tests');
 console.log('PASS: service ranking, fair cycling, historic Gmail dedupe, safe sector import, owner-only digest');
