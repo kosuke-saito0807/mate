@@ -31,3 +31,12 @@ test('heartbeat flags a failed isolated phase even when other steps succeed',()=
 test('heartbeat only reports completed for a clean cycle',()=>{
  assert.equal(heartbeatStatus({phaseIndex:1,externalListingKpi:{actualExternalPublications:2}}),'CYCLE_COMPLETED');
 });
+
+test('genuine listing interest is captured ahead of slow public-site audits',()=>{
+ const intent=cycle.indexOf("report.listingIntent=safe(");
+ const audit=cycle.indexOf("report.publicAudit=safe(");
+ const optout=cycle.indexOf("report.optouts=mateV4OptoutInbox()");
+ assert.ok(intent>optout,'suppression must be processed first');
+ assert.ok(intent<audit,'warm lead replies must not wait for external audits');
+ assert.equal((cycle.match(/report\.listingIntent=safe/g)||[]).length,1);
+});
