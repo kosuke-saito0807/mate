@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-hourly-outcome-fast-fail'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-prioritize-real-listing-requests'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2053,12 +2053,14 @@ function mateAutoOpsV4Cycle(){
     report.optouts=mateV4OptoutInbox();
     report.hardBounces=mateV4HardBounceQuarantine();
     report.reconciledSent=mateV4ReconcileSentReservations();
+    // Capture warm applicant intent before slow site audits or reply sweeps.
+    // This is read-only Gmail inspection and internal queue creation only.
+    report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
     report.publicAudit=safe('publicAudit',mateV4AuditOfficialContacts);
     report.reviewDrafts=safe('reviewDrafts',mateV4PrepareReviewDrafts);
     report.referrals=safe('referrals',mateV4SyncReferralLedger);
     report.outreach=mateV4SendOutreach();
     report.replies=safe('replies',mateV4TrackReplies);
-    report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
     // Heartbeat is best-effort; it cannot block legitimate email cycle work.
     try{report.productionHeartbeat=mateV4ProductionHeartbeat_(report)}
     catch(err){console.log('PRODUCTION_HEARTBEAT_FAILED '+String(err).slice(0,120));}
