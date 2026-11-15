@@ -43,8 +43,8 @@ class TestOvertureGrowth(unittest.TestCase):
         b=MOD.city_tile(date(2026,11,16),0)
         self.assertNotEqual(a,b)
         self.assertEqual(len(a[1]),4)
-        choices=[MOD.city_tile(date(2026,11,15),slot) for slot in range(8)]
-        self.assertEqual(len({item[0] for item in choices}),8)
+        choices=[MOD.city_tile(date(2026,11,15),slot) for slot in range(16)]
+        self.assertEqual(len({item[0] for item in choices}),16)
         self.assertLess(a[1][2]-a[1][0],0.12)
         self.assertLess(a[1][3]-a[1][1],0.09)
 
@@ -62,6 +62,32 @@ class TestOvertureGrowth(unittest.TestCase):
         got=list(MOD.select_records({"features":[x]}, "東京"))
         self.assertEqual(len(got),1)
         self.assertEqual(got[0]["service"],"SPARK")
+
+    def test_block_marketplace_and_government_sites(self):
+        features={"features":[
+          self.sample("music_school","https://www.amazon.com/Lost-Samurai-School/"),
+          self.sample("museum","https://www.pref.example.lg.jp/museum/","石川県立記念館"),
+          self.sample("music_school","https://www.sample-school.jp/","こども音楽スタジオ")
+        ]}
+        got=list(MOD.select_records(features, "金沢"))
+        self.assertEqual(len(got),1)
+        self.assertEqual(got[0]["service"],"SPARK")
+
+    def test_recent_feed_has_bounded_rows_without_losing_archive(self):
+        sample=next(MOD.select_records(
+            {"features":[self.sample("music_school","https://school.jp/")]}, "東京"))
+        with tempfile.TemporaryDirectory() as tmp:
+            archive=Path(tmp)/"all.csv"
+            recent=Path(tmp)/"recent.csv"
+            leads=[{**sample, "name":"教室"+str(i)} for i in range(25)]
+            self.assertEqual(MOD.update_csv(archive,leads),(25,25))
+            self.assertEqual(MOD.write_recent_csv(archive,recent,limit=5),5)
+            with archive.open(encoding="utf-8") as f:
+                self.assertEqual(len(f.readlines()),26)
+            with recent.open(encoding="utf-8") as f:
+                lines=f.readlines()
+            self.assertEqual(len(lines),6)
+            self.assertIn("教室24",lines[-1])
 
     def test_block_social_and_close_locations(self):
         features={"features":[
