@@ -9,9 +9,9 @@ const fnText=src.slice(start,end);
 const feed='https://raw.githubusercontent.com/kosuke-saito0807/mate/main/data/mate_overture_discovery.csv';
 const recent='https://raw.githubusercontent.com/kosuke-saito0807/mate/main/data/mate_overture_recent.csv';
 const city='https://data.example.jp/tourism.csv';
-function due(last,link,time='2026-11-15 16:00:00'){
+function due(last,link,time='2026-11-15 16:00:00',result=''){
  const fn=new Function('mateV4Jst_',fnText+'\nreturn mateV4SourceDue_;')(()=>time);
- return fn({'最終取込日時':last,'取得元CSV HTTPS URL':link},time.slice(0,10));
+ return fn({'最終取込日時':last,'取得元CSV HTTPS URL':link,'前回結果':result},time.slice(0,10));
 }
 test('overture updates after 3h slot and not in same slot',()=>{
  assert.equal(due('2026-11-15 12:00:00',feed),true);
@@ -37,4 +37,13 @@ test('shared rolling CSV gets fetched once across all three service registration
  assert.ok(collect.includes('const sourceCache=new Map()'));
  assert.ok(collect.includes('if(!sourceCache.has(url))sourceCache.set(url,mateV4SourceCsv_(url))'));
  assert.ok(collect.includes('rows=sourceCache.get(url).map(x=>({...x}))'));
+});
+
+test('static zero-yield municipal inventories do not starve high-value source ingestion',()=>{
+ const result='0 件取込 / CSV 27 行 / 重複 27';
+ assert.equal(due('2026-11-14 08:00:00',city,'2026-11-16 08:00:00',result),false);
+ assert.equal(due('2026-11-01 08:00:00',city,'2026-11-16 08:00:00',result),true);
+});
+test('municipal sources with a fetch failure are eligible for next-day retry',()=>{
+ assert.equal(due('2026-11-15 08:00:00',city,'2026-11-16 08:00:00','取得失敗・再試行は翌日'),true);
 });
