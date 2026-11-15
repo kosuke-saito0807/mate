@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-yesterday-growth-digest'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-15-paged-catalog-sourcing'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -338,7 +338,8 @@ function mateV4DiscoverLicensedPublicCsvSources(){
   const b=mateV4Book_(),tab=mateV4Tab_(b,MATE_V4.sources);
   const sources=mateV4Rows_(tab);
   const seen=new Set(sources.map(x=>x['サービス']+'|'+String(x['取得元CSV HTTPS URL']||'').trim()));
-  if(seen.size>=80)return {mode:'SOURCE_LIMIT',sourceCount:seen.size};
+  const sourceCeiling=1200;
+  if(seen.size>=sourceCeiling)return {mode:'SOURCE_LIMIT',sourceCount:seen.size};
   // Rotate keywords across days instead of re-querying the same three
   // categories forever. Cap remains three API calls and six sources per day.
   const dayNo=Number(today.replace(/-/g,''));
@@ -352,11 +353,13 @@ function mateV4DiscoverLicensedPublicCsvSources(){
   ];
   let found=0,queried=0,failures=0,checked=0;
   for(const item of searches){
-    if(found>=6||seen.size>=80)break;
+    if(found>=18||seen.size>=sourceCeiling)break;
     try{
       const query=item.queries[dayNo%item.queries.length];
+      const cursorKey='MATE_CATALOG_CURSOR_'+item.service;
+      const cursor=Math.max(0,Number(p.getProperty(cursorKey)||0)||0);
       const url='https://data.bodik.jp/api/3/action/package_search?q='+
-        encodeURIComponent(query)+'&rows=30&sort=metadata_modified+desc';
+        encodeURIComponent(query)+'&rows=60&start='+cursor+'&sort=metadata_modified+desc';
       const response=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:false,timeout:14000,
         headers:{Accept:'application/json'}});
       if(response.getResponseCode()!==200)throw Error('catalog HTTP status');
@@ -364,9 +367,12 @@ function mateV4DiscoverLicensedPublicCsvSources(){
       if(json.success!==true||!Array.isArray(json.result&&json.result.results))
         throw Error('unexpected catalog schema');
       queried++;
+      const returned=json.result.results.length;
+      const total=Math.max(0,Number(json.result.count)||0);
+      p.setProperty(cursorKey,returned===0||(total>0&&cursor+returned>=total)?'0':String(cursor+returned));
       for(const dataset of json.result.results){
         checked++;
-        if(found>=6||seen.size>=80)break;
+        if(found>=18||seen.size>=sourceCeiling)break;
         const title=String(dataset.title||'');
         const publisher=String(dataset.organization&&dataset.organization.title||'');
         const license=String(dataset.license_id||'').toLowerCase();
