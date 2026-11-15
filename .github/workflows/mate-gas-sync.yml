@@ -14,6 +14,7 @@ on:
       - scripts/ci/mate-general-web-discovery.test.mjs
       - scripts/ci/mate-free-osm-discovery.test.mjs
       - scripts/ci/mate-production-heartbeat.test.mjs
+      - scripts/ci/mate-web-promotion.test.mjs
       - .github/workflows/mate-gas-sync.yml
   workflow_dispatch:
 
@@ -59,10 +60,11 @@ jobs:
           node --check scripts/ci/mate-general-web-discovery.test.mjs
           node --check scripts/ci/mate-free-osm-discovery.test.mjs
           node --check scripts/ci/mate-production-heartbeat.test.mjs
+          node --check scripts/ci/mate-web-promotion.test.mjs
 
       - name: Test safe V4-only staging with mock GAS projects
         shell: bash
-        run: node --test scripts/ci/prepare-mate-gas-deploy.test.mjs scripts/ci/mate-growth-sources.test.mjs scripts/ci/mate-growth-site-safety.test.mjs scripts/ci/mate-name-only-prospects.test.mjs scripts/ci/mate-general-web-discovery.test.mjs scripts/ci/mate-free-osm-discovery.test.mjs scripts/ci/mate-production-heartbeat.test.mjs
+        run: node --test scripts/ci/prepare-mate-gas-deploy.test.mjs scripts/ci/mate-growth-sources.test.mjs scripts/ci/mate-growth-site-safety.test.mjs scripts/ci/mate-name-only-prospects.test.mjs scripts/ci/mate-general-web-discovery.test.mjs scripts/ci/mate-free-osm-discovery.test.mjs scripts/ci/mate-production-heartbeat.test.mjs scripts/ci/mate-web-promotion.test.mjs
 
       - name: Verify the one-time protected credentials exist
         shell: bash
