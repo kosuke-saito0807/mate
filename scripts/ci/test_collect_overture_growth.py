@@ -43,6 +43,8 @@ class TestOvertureGrowth(unittest.TestCase):
         b=MOD.city_tile(date(2026,11,16),0)
         self.assertNotEqual(a,b)
         self.assertEqual(len(a[1]),4)
+        choices=[MOD.city_tile(date(2026,11,15),slot) for slot in range(8)]
+        self.assertEqual(len({item[0] for item in choices}),8)
         self.assertLess(a[1][2]-a[1][0],0.12)
         self.assertLess(a[1][3]-a[1][1],0.09)
 
