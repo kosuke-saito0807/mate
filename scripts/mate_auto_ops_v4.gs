@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-per-service30-auto-enable-guarded'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-quarterhour-send-guarded'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1433,7 +1433,7 @@ function mateV4SendOutreach(){
   const maxCap=phase==='PILOT'?1:phase==='BALANCED_15'?15:phase==='DAILY_30'?30:phase==='PER_SERVICE_30'?90:5;
   const cap=Math.min(maxCap,Math.max(0,parseInt(p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
   const perServiceCap=phase==='BALANCED_15'?5:phase==='DAILY_30'?30:phase==='PER_SERVICE_30'?30:cap;
-  const maxPerExecution=phase==='DAILY_30'?10:phase==='PER_SERVICE_30'?6:cap;
+  const maxPerExecution=phase==='DAILY_30'?10:phase==='PER_SERVICE_30'?10:cap;
   const leads=mateV4Rows_(mateV4Tab_(b,MATE_V4.leads));
   const sheet=mateV4Tab_(b,MATE_V4.sent);
   const logs=mateV4Rows_(sheet);
@@ -2135,6 +2135,10 @@ function mateAutoOpsV4Cycle(){
       }
     };
     const report={phaseIndex};
+    // Install an independent, inexpensive sender check every 15 minutes.
+    // The full discovery cycle still runs hourly. Existing quotas and
+    // suppression guards remain in mateV4SendOutreach().
+    report.fastSendTrigger=safe('fastSendTrigger',()=>mateV4EnsureFastOutreachTrigger_());
     // Real application/publication outcomes are the primary KPI. Refresh on
     // EVERY hourly cycle instead of waiting up to three discovery phases.
     report.externalListingKpi=safe('externalListingKpi',mateV4RefreshExternalListingKpi_);
@@ -2185,6 +2189,49 @@ function mateAutoOpsV4Cycle(){
     }
     throw err;
   }finally{lock.releaseLock()}
+}
+/**
+ * Separate short send-only runner. Its guardrails are identical to the hourly
+ * runner; it never runs prospect discovery or changes publishing settings.
+ * Running after opt-outs and permanent-bounce quarantine is mandatory.
+ * ScriptLock avoids collisions with the hourly multi-phase cycle.
+ */
+function mateV4FastOutreachCycle(){
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(1000))return 'SKIP_LOCK';
+  try{
+    const p=PropertiesService.getScriptProperties();
+    if(p.getProperty('MATE_AUTO_SEND')!=='ON'||
+       p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')
+      return 'OFF';
+    const optouts=mateV4OptoutInbox();
+    const bounces=mateV4HardBounceQuarantine();
+    const reconciled=mateV4ReconcileSentReservations();
+    // Do not send if a suppression/reconciliation call throws.
+    const sent=mateV4SendOutreach();
+    const result={mode:'FAST_15_MIN',optouts,bounces,reconciled,sent};
+    console.log(JSON.stringify(result));
+    return result;
+  }finally{lock.releaseLock()}
+}
+
+/** Install once from the existing hourly runner, never duplicate a trigger. */
+function mateV4EnsureFastOutreachTrigger_(){
+  mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  if(p.getProperty('MATE_AUTO_SEND')!=='ON'||
+     p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES'||
+     p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')!=='YES'||
+     p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||
+     !mateV4FormalSenderIdentity_(p).ready||
+     !mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')))
+    return 'FAST_TRIGGER_GUARDS_NOT_READY';
+  const existing=ScriptApp.getProjectTriggers().filter(
+    t=>t.getHandlerFunction()==='mateV4FastOutreachCycle');
+  if(existing.length)return 'FAST_TRIGGER_ALREADY_INSTALLED';
+  ScriptApp.newTrigger('mateV4FastOutreachCycle').timeBased()
+    .everyMinutes(15).create();
+  return 'FAST_TRIGGER_INSTALLED_15_MIN';
 }
 function installMateAutoOpsV4(){
   mateV4Book_();
