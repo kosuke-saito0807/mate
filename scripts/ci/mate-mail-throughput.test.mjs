@@ -31,3 +31,23 @@ test('fresh first-party Web-discovered business mailbox outranks old failed audi
  assert.ok(fresh>=0&&stale>fresh);
  assert.ok(audit.includes('mateV4Fresh_(String(x[\'取得日時\']||\'\').slice(0,10),7)'));
 });
+
+test('owner-approved per-service 30 batches more than six per run without relaxing daily caps',()=>{
+ assert.ok(send.includes("phase==='PER_SERVICE_30'?10:cap"));
+ assert.ok(send.includes("phase==='PER_SERVICE_30'?90"));
+ assert.ok(send.includes("phase==='PER_SERVICE_30'?30"));
+ assert.ok(send.includes("MailApp.getRemainingDailyQuota()<1"));
+});
+test('guarded fast outreach trigger runs every fifteen minutes and preserves opt-out-first ordering',()=>{
+ const trigger=src.slice(src.indexOf('function mateV4FastOutreachCycle(){'),
+   src.indexOf('function installMateAutoOpsV4(){'));
+ assert.ok(trigger.includes('everyMinutes(15).create()'));
+ assert.ok(trigger.includes('getProjectTriggers()'));
+ assert.ok(trigger.includes("getHandlerFunction()==='mateV4FastOutreachCycle'"));
+ assert.ok(trigger.includes("MATE_AUTO_SEND_LEGAL_REVIEWED"));
+ const optout=trigger.indexOf('const optouts=mateV4OptoutInbox()');
+ const bounce=trigger.indexOf('const bounces=mateV4HardBounceQuarantine()');
+ const sent=trigger.indexOf('const sent=mateV4SendOutreach()');
+ assert.ok(optout>=0&&bounce>optout&&sent>bounce);
+ assert.ok(trigger.includes('if(!lock.tryLock(1000))'));
+});
