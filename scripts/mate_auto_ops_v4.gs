@@ -2095,7 +2095,7 @@ function mateV4AcknowledgeListingInterests_(){
     let msg;
     try{
       msg=GmailApp.getMessageById(String(x['GmailメッセージID']||''));
-      const from=mateV4Email_(String(msg.getFrom()||'').match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/i)?.[0]||'');
+      const from=mateV4Email_(String(msg.getFrom()||'').match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i)?.[0]||'');
       if(from!==email||!String(msg.getSubject()||'').includes('MATE '+svc)){
         held++;continue;
       }
@@ -2121,7 +2121,7 @@ function mateV4AcknowledgeListingInterests_(){
         'MATE運営事務局（NextEdu）',
         '運営者情報：https://care.kosodatemate.jp/operator.html',
         'ご案内不要の場合は「配信停止」とお知らせください。'
-      ].join('\\n');
+      ].join('\n');
       msg.reply(body,{name:'MATE運営事務局',replyTo:MATE_V4.account});
       queue.getRange(x._row,7).setValue('申請案内送信済・正式申請待ち');
       queue.getRange(x._row,10).setValue('本人成りすましなしの返信を照合。自動公開なし。再送禁止。');
