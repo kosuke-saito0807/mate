@@ -24,7 +24,7 @@ article p{margin:8px 0}.meta{font-size:13px;color:#435c6d}
 a{color:#1165a0}a:focus-visible{outline:3px solid #efb34f}.tag{font-size:12px;background:#e4f0f8;color:#285576;display:inline-block;border-radius:20px;padding:2px 12px;font-weight:bold}
 .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:15px}
 .actions a{border:1px solid #a5c7df;border-radius:8px;padding:8px 12px;text-decoration:none;font-weight:bold}
-.small{font-size:13px;color:#486073}footer{font-size:14px}
+.small{font-size:13px;color:#486073}.findtools{display:flex;flex-wrap:wrap;gap:14px;padding:16px;background:#fff;border:1px solid #d7e5ee;border-radius:12px;margin:22px 0}.findtools label{display:flex;flex-direction:column;font-size:14px;font-weight:700;gap:5px;flex:1 1 220px}.findtools input,.findtools select{width:100%;font:inherit;color:#193850;border:1px solid #98b1c4;border-radius:8px;padding:10px;background:white}.findtools p{width:100%;margin:0;font-size:14px;color:#435c6d}footer{font-size:14px}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"子育て・習い事・親子体験の公式情報リンク集","url":"https://care.kosodatemate.jp/public-guide.html","inLanguage":"ja-JP","isPartOf":{"@type":"WebSite","name":"MATE CARE","url":"https://care.kosodatemate.jp/"},"publisher":{"@type":"Organization","name":"NextEdu","url":"https://care.kosodatemate.jp/operator.html"}}</script>
 </head>
@@ -36,6 +36,11 @@ a{color:#1165a0}a:focus-visible{outline:3px solid #efb34f}.tag{font-size:12px;ba
 <p class="lead">現在16事業者の公式情報を掲載しています。子育て家庭が選択肢を知るきっかけとして、事業者が公式サイトで公開している名称・地域・サービス分野などの事実をMATE編集部が整理しています。詳細や最新の利用条件は各事業者の公式サイトをご確認ください。</p>
 <div class="notice" role="note"><strong>重要：こちらは事業者が申請・承認した「MATE正式掲載」ではありません。</strong> MATE編集部が独自に公開情報をまとめた参考リンク集です。各事業者との提携・許諾・保証・推薦を意味せず、予約の受付や紹介取次ぎも行いません。事業者の安全性、品質、料金、営業状況、空き状況は保証しません。</div>
 
+<div class="findtools" role="search" aria-label="編集部の参考情報を探す">
+<label for="guide-search">キーワードで探す<input id="guide-search" type="search" placeholder="教室名・地域・体験内容など" autocomplete="off"></label>
+<label for="guide-service">ジャンルで絞り込む<select id="guide-service"><option value="ALL">すべてのジャンル</option><option value="care">CARE：子育てサポート</option><option value="spark">SPARK：学び・習い事</option><option value="play">PLAY：親子体験</option></select></label>
+<p id="guide-result-count" role="status" aria-live="polite">公式情報を確認した16事業者を表示しています。</p>
+</div>
 <section aria-labelledby="care"><h2 id="care">CARE：子育てサポート</h2>
 <div class="grid"><article id="marypoppins"><span class="tag">公式情報参考・事業者未確認</span>
 <h3>株式会社メアリーポピンズ</h3><p>公式サイトにベビーシッターサービスの案内があります。神戸市に本社があります。</p>
@@ -116,4 +121,27 @@ a{color:#1165a0}a:focus-visible{outline:3px solid #efb34f}.tag{font-size:12px;ba
 </section>
 </main>
 <footer>運営：NextEdu　｜　<a href="operator.html">運営者情報</a>　｜　<a href="privacy.html">プライバシーポリシー</a>　｜　<a href="disclaimer.html">免責事項</a>　｜　<a href="mailto:kosodatemate@gmail.com">お問い合わせ</a></footer>
+<script>
+(function(){
+  const input=document.getElementById('guide-search');
+  const service=document.getElementById('guide-service');
+  const counter=document.getElementById('guide-result-count');
+  const sections=['care','spark','play'].map(id=>document.querySelector('section[aria-labelledby="'+id+'"]'));
+  const cards=sections.flatMap(section=>Array.from(section.querySelectorAll('article')).map(card=>({card,section,id:section.getAttribute('aria-labelledby'),text:card.textContent.normalize('NFKC').toLocaleLowerCase('ja-JP')})));
+  function render(){
+    const query=input.value.trim().normalize('NFKC').toLocaleLowerCase('ja-JP');
+    const selected=service.value;
+    let count=0;
+    for(const entry of cards){
+      const shown=(selected==='ALL'||selected===entry.id)&&(!query||entry.text.includes(query));
+      entry.card.hidden=!shown;
+      if(shown)count++;
+    }
+    for(const section of sections)section.hidden=!cards.some(entry=>entry.section===section&&!entry.card.hidden);
+    counter.textContent=count+'件の参考情報を表示しています。'+(count===0?'検索条件を変更してみてください。':'');
+  }
+  input.addEventListener('input',render);
+  service.addEventListener('change',render);
+})();
+</script>
 </body></html>
