@@ -31,7 +31,7 @@ class OutreachNoBccTests(unittest.TestCase):
         audit = SRC.split("function mateV4AuditOfficialContacts(){",1)[1].split("function previewMateOutreachReadinessV4(){",1)[0]
         self.assertIn("const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:",audit)
         self.assertIn("MATE_PUBLIC_AUDIT_BATCH",audit)
-        self.assertIn("Math.min(24,Math.max(8,Math.floor(requested)))",audit)
+        self.assertIn("Math.min(16,Math.max(3,Math.floor(requested)))",audit)
         self.assertIn("batchSize",audit)
         self.assertIn("x['状態']==='営業可能候補'&&x['営業拒否']==='未確認'?0",audit)
         self.assertIn("x['営業拒否']==='FALSE'&&mateV4PublicMailOperatorReview_(x)",audit)
@@ -65,7 +65,7 @@ class OutreachNoBccTests(unittest.TestCase):
     def test_business_site_redirects_do_not_follow_third_parties(self):
         getter=SRC.split("function mateV4PublicHtml_(url){",1)[1].split("function mateV4ContactLink_",1)[0]
         self.assertIn("followRedirects:false",getter)
-        self.assertIn("mateV4Host_(target)!==originalHost",getter)
+        self.assertIn("mateV4SameBusinessHost_(target,url)",getter)
         self.assertIn("mateV4Https_(target)",getter)
         self.assertIn("if(status!==200)return ''",getter)
         self.assertIn("bytes.length>250000",getter)
