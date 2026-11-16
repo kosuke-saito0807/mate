@@ -2310,6 +2310,16 @@ function mateV4FastOutreachCycle(){
        p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES'){
       status='OFF';return 'OFF';
     }
+    // GmailApp has a separate daily service-call quota from MailApp's recipient quota.
+    // On exhaustion, skip ALL Gmail reads and sends until the next JST day.
+    // Never bypass suppression/reconciliation gates to force a send.
+    const gmailCooldownKey='MATE_FAST_GMAIL_QUOTA_BLOCKED_JST';
+    const todayJst=mateV4Jst_().slice(0,10);
+    if(p.getProperty(gmailCooldownKey)===todayJst){
+      status='CYCLE_COMPLETED';
+      detail='GMAIL_SERVICE_DAILY_QUOTA_COOLDOWN_NO_SEND';
+      return {mode:'FAST_15_MIN',sent:0,reason:detail};
+    }
     const optouts=mateV4OptoutInbox();
     const bounces=mateV4HardBounceQuarantine();
     const reconciled=mateV4ReconcileSentReservations();
@@ -2325,7 +2335,16 @@ function mateV4FastOutreachCycle(){
     console.log(JSON.stringify(result));
     return result;
   }catch(e){
-    status='CYCLE_FAILED '+String(e).slice(0,120);
+    const message=String(e);
+    if(/Service invoked too many times for one day:\\s*gmail/i.test(message)){
+      // Quota failures must not cause 15-minute retry storms. Resume next JST day.
+      PropertiesService.getScriptProperties().setProperty(
+        'MATE_FAST_GMAIL_QUOTA_BLOCKED_JST',mateV4Jst_().slice(0,10));
+      status='CYCLE_COMPLETED';
+      detail='GMAIL_SERVICE_DAILY_QUOTA_COOLDOWN_NO_SEND';
+      return {mode:'FAST_15_MIN',sent:0,reason:detail};
+    }
+    status='CYCLE_FAILED '+message.slice(0,120);
     throw e;
   }finally{
     if(monitor&&monitorRow)try{
