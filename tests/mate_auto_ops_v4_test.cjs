@@ -221,7 +221,7 @@ context.UrlFetchApp={fetch:()=>({
 })};
 context.Utilities.parseCsv=text=>text.trim().split(/\r?\n/).map(line=>line.split(','));
 context.Utilities.computeDigest=(algo,input)=>Array.from({length:32},(_,i)=>(input.length+i*7)%256);
-assert.equal(run("mateV4CollectLeads()"),1);
+assert.deepEqual(JSON.parse(JSON.stringify(run("mateV4CollectLeads()"))),{urlVerifiedImported:1,nameOnlyStaged:0,processedSources:1});
 assert.equal(leads.at(-1)[13],'窓口確認待ち','unreviewed CSV must not become send-ready');
 assert.equal(leads.at(-1)[9],'OPT_IN','claimed basis retained as unverified source data');
 assert.equal(mails,0,'no outbound email is attempted');
