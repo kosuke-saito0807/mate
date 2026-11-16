@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-fast-trigger-installation-evidence'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-fast-listing-interest-ack'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2073,6 +2073,68 @@ function mateV4CaptureListingIntent_(){
   return {newInterests:added,scanned};
 }
 
+/**
+ * Reply once to explicit, genuine listing-interest replies from contacted
+ * businesses. This is an application invitation, NOT authorization to publish.
+ * Reserve before Gmail send so ambiguous failures never trigger a resend.
+ */
+function mateV4AcknowledgeListingInterests_(){
+  const book=mateV4Book_(),queue=mateV4Tab_(book,'MATE_掲載希望返信キュー_V1');
+  const optouts=new Set(mateV4Rows_(mateV4Tab_(book,MATE_V4.optouts))
+    .map(x=>mateV4Email_(x['メール'])).filter(Boolean));
+  const landing={
+    CARE:'https://care.kosodatemate.jp/contact.html',
+    SPARK:'https://spark.kosodatemate.jp/partners.html',
+    PLAY:'https://care.kosodatemate.jp/play-listing.html'
+  };
+  let done=0,held=0;
+  for(const x of mateV4Rows_(queue)){
+    if(x['状態']!=='要返信・申請案内'||done>=5)continue;
+    const svc=String(x['サービス']||''),email=mateV4Email_(x['送信先メール']);
+    if(!landing[svc]||!email||optouts.has(email)){held++;continue}
+    let msg;
+    try{
+      msg=GmailApp.getMessageById(String(x['GmailメッセージID']||''));
+      const from=mateV4Email_(String(msg.getFrom()||'').match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/i)?.[0]||'');
+      if(from!==email||!String(msg.getSubject()||'').includes('MATE '+svc)){
+        held++;continue;
+      }
+      const own=mateV4ReplyWithoutQuotedCampaign_(msg.getPlainBody()).slice(0,750);
+      if(/配信停止|メール不要|今後連絡不要|unsubscribe|stop/i.test(own)||
+         !/掲載希望|掲載したい|掲載を希望|登録したい|掲載に興味/.test(own)){
+        held++;continue;
+      }
+      if(MailApp.getRemainingDailyQuota()<1)break;
+      // Reserve first: never retry an ambiguous Gmail reply result.
+      queue.getRange(x._row,7).setValue('申請案内送信結果要確認');
+      queue.getRange(x._row,9).setValue(mateV4Jst_());
+      const body=[
+        '掲載についてご関心をお寄せいただき、ありがとうございます。MATE運営事務局です。',
+        '',
+        '基本情報の掲載は無料で、掲載料・紹介料はかかりません。',
+        '以下のフォームから事業者情報をご登録いただけますと、掲載内容・申請者様の権限を確認したうえでご案内できます。',
+        landing[svc],
+        '',
+        'ご不明な点はこのメールへの返信でお気軽にご相談ください。',
+        'フォーム登録やこの返信だけで、自動的に掲載公開・契約・課金されることはありません。',
+        '',
+        'MATE運営事務局（NextEdu）',
+        '運営者情報：https://care.kosodatemate.jp/operator.html',
+        'ご案内不要の場合は「配信停止」とお知らせください。'
+      ].join('\\n');
+      msg.reply(body,{name:'MATE運営事務局',replyTo:MATE_V4.account});
+      queue.getRange(x._row,7).setValue('申請案内送信済・正式申請待ち');
+      queue.getRange(x._row,10).setValue('本人成りすましなしの返信を照合。自動公開なし。再送禁止。');
+      done++;
+    }catch(err){
+      // State remains held/ambiguous and is never auto retried.
+      console.log('LISTING_REPLY_SEND_STATUS_UNVERIFIED '+String(err).slice(0,140));
+      held++;
+    }
+  }
+  return {acknowledged:done,held};
+}
+
 function mateV4ProductionHeartbeat_(report){
   const book=mateV4Book_();
   const sheet=mateV4Tab_(book,'GAS本番稼働監視V4');
@@ -2170,6 +2232,7 @@ function mateAutoOpsV4Cycle(){
     // Capture warm applicant intent before slow site audits or reply sweeps.
     // This is read-only Gmail inspection and internal queue creation only.
     report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
+    report.listingAcknowledgements=safe('listingAcknowledgements',mateV4AcknowledgeListingInterests_);
     report.publicAudit=safe('publicAudit',mateV4AuditOfficialContacts);
     report.reviewDrafts=safe('reviewDrafts',mateV4PrepareReviewDrafts);
     report.referrals=safe('referrals',mateV4SyncReferralLedger);
@@ -2221,11 +2284,13 @@ function mateV4FastOutreachCycle(){
     const optouts=mateV4OptoutInbox();
     const bounces=mateV4HardBounceQuarantine();
     const reconciled=mateV4ReconcileSentReservations();
+    const interested=mateV4CaptureListingIntent_();
+    const acknowledged=mateV4AcknowledgeListingInterests_();
     // Do not send if a suppression/reconciliation call throws.
     const resultSends=mateV4SendOutreach();
     sent=Number(resultSends)||0;
     status='CYCLE_COMPLETED';
-    const result={mode:'FAST_15_MIN',optouts,bounces,reconciled,sent};
+    const result={mode:'FAST_15_MIN',optouts,bounces,reconciled,interested,acknowledged,sent};
     console.log(JSON.stringify(result));
     return result;
   }catch(e){
