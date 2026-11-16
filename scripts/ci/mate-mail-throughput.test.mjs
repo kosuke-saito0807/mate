@@ -62,3 +62,21 @@ test('fast-trigger telemetry records every real start and final status in dedica
  assert.ok(fast.includes("monitor.getRange(monitorRow,3,1,3).setValues("));
  assert.ok(fast.includes("lock.releaseLock()"));
 });
+
+test('positive business reply is routed to the correct service form without auto-publishing',()=>{
+ const start=src.indexOf('function mateV4AcknowledgeListingInterests_(){');
+ const end=src.indexOf('function mateV4ProductionHeartbeat_',start);
+ assert.ok(start>0&&end>start);
+ const reply=src.slice(start,end);
+ for(const uri of ['https://care.kosodatemate.jp/contact.html',
+   'https://spark.kosodatemate.jp/partners.html',
+   'https://care.kosodatemate.jp/play-listing.html'])assert.ok(reply.includes(uri));
+ assert.ok(reply.includes("x['状態']!=='要返信・申請案内'"));
+ assert.ok(reply.includes('optouts.has(email)'));
+ assert.ok(reply.includes('mateV4ReplyWithoutQuotedCampaign_'));
+ assert.ok(reply.includes("if(from!==email"));
+ assert.ok(reply.includes('MailApp.getRemainingDailyQuota()'));
+ assert.ok(reply.indexOf("申請案内送信結果要確認")<reply.indexOf("msg.reply(body"));
+ assert.ok(reply.includes('自動的に掲載公開・契約・課金されることはありません'));
+ assert.ok(reply.includes("申請案内送信済・正式申請待ち"));
+});
