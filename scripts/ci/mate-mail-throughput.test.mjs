@@ -80,3 +80,18 @@ test('positive business reply is routed to the correct service form without auto
  assert.ok(reply.includes('自動的に掲載公開・契約・課金されることはありません'));
  assert.ok(reply.includes("申請案内送信済・正式申請待ち"));
 });
+
+test('15-minute zero-send diagnostics distinguishes cap, Gmail limit, and missing prospects',()=>{
+ const start=src.indexOf('function mateV4FastZeroSendReason_(){');
+ const end=src.indexOf('function mateV4FastOutreachCycle(){',start);
+ assert.ok(start>0&&end>start);
+ const diagnostic=src.slice(start,end);
+ assert.ok(diagnostic.includes('DAILY_CAP_REACHED'));
+ assert.ok(diagnostic.includes('GMAIL_QUOTA_EXHAUSTED'));
+ assert.ok(diagnostic.includes('NO_PRELIMINARY_SENDABLE_PROSPECTS'));
+ assert.ok(diagnostic.includes('diagnoseMateV4Backlog()'));
+ assert.ok(diagnostic.includes("phase==='PER_SERVICE_30'?90"));
+ const cycle=src.slice(end,src.indexOf('function mateV4FastTriggerEvidence_',end));
+ assert.ok(cycle.includes("if(!sent)try{detail=mateV4FastZeroSendReason_()"));
+ assert.ok(cycle.includes("detail||'送信抑止・重複確認済み'"));
+});
