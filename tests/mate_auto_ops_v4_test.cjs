@@ -18,7 +18,7 @@ function sheet(name,header,rows=[]){
   getDataRange(){return {getDisplayValues:()=>values.map(r=>[...r])}},
   appendRow(row){values.push(row)},
   getLastRow(){return values.length},
-  getRange(row,col){return {setValue(v){values[row-1][col-1]=v},setValues(data){for(let i=0;i<data.length;i++)for(let j=0;j<data[i].length;j++)values[row-1+i][col-1+j]=data[i][j]}}}
+  getRange(row,col){return {setValue(v){while(values.length<row)values.push([]);values[row-1][col-1]=v},setValues(data){for(let i=0;i<data.length;i++){while(values.length<row+i)values.push([]);for(let j=0;j<data[i].length;j++)values[row-1+i][col-1+j]=data[i][j]}}}}
  };
  return values;
 }
