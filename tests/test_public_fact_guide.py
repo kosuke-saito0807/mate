@@ -31,6 +31,12 @@ class PublicGuideTest(unittest.TestCase):
         for filename in ("index.html", "spark/index.html", "business.html"):
             self.assertIn("public-guide.html", (ROOT / filename).read_text(encoding="utf-8"))
         self.assertIn("business.html", (ROOT / "public-guide.html").read_text(encoding="utf-8"))
+        guide = (ROOT / "public-guide.html").read_text(encoding="utf-8")
+        self.assertIn('id="guide-search"', guide)
+        self.assertIn('id="guide-service"', guide)
+        self.assertIn('aria-live="polite"', guide)
+        self.assertIn("entry.card.hidden=!shown", guide)
+        self.assertIn("section.hidden=!cards.some", guide)
 
 if __name__ == "__main__":
     unittest.main()
