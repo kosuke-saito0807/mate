@@ -47,7 +47,18 @@ test('guarded fast outreach trigger runs every fifteen minutes and preserves opt
  assert.ok(trigger.includes("MATE_AUTO_SEND_LEGAL_REVIEWED"));
  const optout=trigger.indexOf('const optouts=mateV4OptoutInbox()');
  const bounce=trigger.indexOf('const bounces=mateV4HardBounceQuarantine()');
- const sent=trigger.indexOf('const sent=mateV4SendOutreach()');
+ const sent=trigger.indexOf('const resultSends=mateV4SendOutreach()');
  assert.ok(optout>=0&&bounce>optout&&sent>bounce);
  assert.ok(trigger.includes('if(!lock.tryLock(1000))'));
+});
+
+test('fast-trigger telemetry records every real start and final status in dedicated sheet',()=>{
+ const fast=src.slice(src.indexOf('function mateV4FastOutreachCycle(){'),
+   src.indexOf('function mateV4EnsureFastOutreachTrigger_(){'));
+ assert.ok(fast.includes("'MATE_15分送信稼働監視V1'"));
+ assert.ok(fast.includes("'STARTED'"));
+ assert.ok(fast.includes("status='CYCLE_COMPLETED'"));
+ assert.ok(fast.includes("status='CYCLE_FAILED '"));
+ assert.ok(fast.includes("monitor.getRange(monitorRow,3,1,3).setValues("));
+ assert.ok(fast.includes("lock.releaseLock()"));
 });
