@@ -989,13 +989,12 @@ function mateV4AuditOfficialContacts(){
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
-  // Audit more companies without overwhelming Apps Script's execution limit.
-  // Can tune between 8 and 24 without another code deployment.
-  // Contact scans can fetch multiple pages per business. Stay below the
-  // Apps Script execution ceiling so sends and the end heartbeat can run.
-  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||8);
+  // Prioritize new company contact audits without exhausting GAS execution time.
+  // The batch can be tuned in private Script Properties (3..16); audit steps
+  // remain bounded and cannot bypass opt-out, official-evidence or legal gates.
+  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||12);
   const batchSize=Number.isFinite(requested)?
-    Math.min(8,Math.max(3,Math.floor(requested))):8;
+    Math.min(16,Math.max(3,Math.floor(requested))):12;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
     if(checked>=batchSize)break;
