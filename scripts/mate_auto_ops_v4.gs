@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-fast-listing-interest-ack'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-zero-send-diagnostics'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2259,10 +2259,39 @@ function mateAutoOpsV4Cycle(){
  * Running after opt-outs and permanent-bounce quarantine is mandatory.
  * ScriptLock avoids collisions with the hourly multi-phase cycle.
  */
+/** Explain a zero-send cycle without lowering any outreach safety gate. */
+function mateV4FastZeroSendReason_(){
+  const p=PropertiesService.getScriptProperties();
+  const phase=p.getProperty('MATE_OUTREACH_PHASE')||'OFF';
+  if(p.getProperty('MATE_AUTO_SEND')!=='ON')return 'AUTO_SEND_OFF';
+  const maxCap=phase==='PER_SERVICE_30'?90:
+    phase==='DAILY_30'?30:phase==='BALANCED_15'?15:
+    phase==='PILOT'?1:5;
+  const cap=Math.min(maxCap,Math.max(0,parseInt(
+    p.getProperty('MATE_DAILY_CAP')||'5',10)||0));
+  const today=mateV4Jst_().slice(0,10);
+  const book=mateV4Book_();
+  const logs=mateV4Rows_(mateV4Tab_(book,MATE_V4.sent));
+  const todayLogs=logs.filter(x=>String(x['送信処理日時']||'').startsWith(today));
+  const quota=MailApp.getRemainingDailyQuota();
+  const bySvc={CARE:0,SPARK:0,PLAY:0};
+  for(const x of todayLogs)if(x['サービス'] in bySvc)bySvc[x['サービス']]++;
+  const base='phase='+phase+' cap='+cap+' loggedToday='+todayLogs.length+
+    ' bySvc='+JSON.stringify(bySvc)+' GmailRemaining='+quota;
+  if(todayLogs.length>=cap)return 'DAILY_CAP_REACHED '+base;
+  if(quota<1)return 'GMAIL_QUOTA_EXHAUSTED '+base;
+  // Preliminary counts include recipients already present in Gmail Sent, so
+  // never call them safe-to-send or bypass history checking.
+  const backlog=diagnoseMateV4Backlog();
+  const preliminary=['CARE','SPARK','PLAY'].reduce((n,x)=>
+    n+(backlog.counts[x]?.validWithoutGmailHistoryCheck||0),0);
+  return (preliminary?'REVIEWED_PROSPECTS_NEED_HISTORY_CHECK ':
+    'NO_PRELIMINARY_SENDABLE_PROSPECTS ')+base+' prelim='+preliminary;
+}
 function mateV4FastOutreachCycle(){
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(1000))return 'SKIP_LOCK';
-  let monitor=null,monitorRow=0,status='STARTED',sent=0;
+  let monitor=null,monitorRow=0,status='STARTED',sent=0,detail='';
   try{
     // Store one timestamped record per actual trigger execution, separate
     // from the hourly heartbeat. This verifies the 15-minute cadence.
@@ -2289,6 +2318,8 @@ function mateV4FastOutreachCycle(){
     // Do not send if a suppression/reconciliation call throws.
     const resultSends=mateV4SendOutreach();
     sent=Number(resultSends)||0;
+    if(!sent)try{detail=mateV4FastZeroSendReason_()}
+      catch(err){detail='ZERO_SEND_REASON_UNAVAILABLE '+String(err).slice(0,90)}
     status='CYCLE_COMPLETED';
     const result={mode:'FAST_15_MIN',optouts,bounces,reconciled,interested,acknowledged,sent};
     console.log(JSON.stringify(result));
@@ -2299,7 +2330,7 @@ function mateV4FastOutreachCycle(){
   }finally{
     if(monitor&&monitorRow)try{
       monitor.getRange(monitorRow,3,1,3).setValues([
-        [status,sent,status==='CYCLE_COMPLETED'?'送信抑止・重複確認済み':'再送禁止・ログを照合']]);
+        [status,sent,status==='CYCLE_COMPLETED'?(detail||'送信抑止・重複確認済み'):'再送禁止・ログを照合']]);
     }catch(e){console.log('FAST_TELEMETRY_FINISH_FAILED '+String(e).slice(0,140))}
     lock.releaseLock();
   }
