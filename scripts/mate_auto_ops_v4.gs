@@ -2336,7 +2336,7 @@ function mateV4FastOutreachCycle(){
     return result;
   }catch(e){
     const message=String(e);
-    if(/Service invoked too many times for one day:\\s*gmail/i.test(message)){
+    if(/Service invoked too many times for one day:\s*gmail/i.test(message)){
       // Quota failures must not cause 15-minute retry storms. Resume next JST day.
       PropertiesService.getScriptProperties().setProperty(
         'MATE_FAST_GMAIL_QUOTA_BLOCKED_JST',mateV4Jst_().slice(0,10));
