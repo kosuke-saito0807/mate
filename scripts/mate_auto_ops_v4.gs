@@ -1322,6 +1322,31 @@ function prepareMateDaily30V4(){
   return {mode:'DAILY_30_PREPARED_NO_SEND',dailyCap:30,perServiceCap:30,
     sendEnabled:false,sourceVersion:MATE_V4.version};
 }
+/**
+ * Switch an already-authorized live campaign to the owner's target of
+ * 30 per service / 90 total per JST day. Configuration only: no mail is sent
+ * by this function. All recipient evidence, opt-out, duplicate, sender and
+ * Gmail recipient-quota checks remain enforced in mateV4SendOutreach().
+ * Must be invoked in the MATE-dedicated Apps Script project after deployment.
+ */
+function enableMatePerService30V4(){
+  mateV4Book_();
+  const p=PropertiesService.getScriptProperties();
+  if(p.getProperty('MATE_AUTO_SEND')!=='ON'||
+     p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES'||
+     p.getProperty('MATE_LEGAL_ADDRESS_PAGE_VERIFIED')!=='YES'||
+     p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||
+     !mateV4FormalSenderIdentity_(p).ready||
+     !mateV4SenderAddressLooksComplete_(p.getProperty('MATE_SENDER_ADDRESS')))
+    throw Error('既存の送信・法務・主体確認が整っていないため、90件モードへの切替を拒否');
+  p.setProperty('MATE_DAILY_CAP','90');
+  p.setProperty('MATE_OUTREACH_PHASE','PER_SERVICE_30');
+  const state={mode:'PER_SERVICE_30',totalDailyTarget:90,perServiceCap:30,
+    sendAlreadyEnabled:true,quota:MailApp.getRemainingDailyQuota(),
+    actualSendsDependOnVerifiedNewRecipients:true};
+  console.log(JSON.stringify(state));
+  return state;
+}
 function mateV4FormalSenderIdentity_(p){
   const name=String(p.getProperty('MATE_FORMAL_SENDER_NAME')||'').trim();
   const mode=String(p.getProperty('MATE_LEGAL_IDENTITY_MODE')||'').trim();
