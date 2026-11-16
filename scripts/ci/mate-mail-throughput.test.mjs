@@ -7,9 +7,9 @@ const audit=src.slice(src.indexOf('function mateV4AuditOfficialContacts(){'),
  src.indexOf('function previewMateOutreachReadinessV4(){'));
 const send=src.slice(src.indexOf('function mateV4SendOutreach(){'),
  src.indexOf('function mateV4PrepareReviewDrafts(){'));
-test('public first-party site audit checks at most eight companies per cycle',()=>{
- assert.match(audit,/MATE_PUBLIC_AUDIT_BATCH'\)\|\|8/);
- assert.match(audit,/Math\.min\(8,Math\.max\(3,Math\.floor\(requested\)\)\):8/);
+test('public first-party site audit defaults to twelve, capped at sixteen companies per cycle',()=>{
+ assert.match(audit,/MATE_PUBLIC_AUDIT_BATCH'\)\|\|12/);
+ assert.match(audit,/Math\.min\(16,Math\.max\(3,Math\.floor\(requested\)\)\):12/);
  assert.ok(audit.includes('if(checked>=batchSize)break'));
  assert.ok(audit.includes('mateV4SalesRefusal_'));
  assert.ok(audit.includes('mateV4OwnerBlocked_'));
