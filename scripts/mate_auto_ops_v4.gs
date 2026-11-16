@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-quarterhour-send-guarded'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-quarterhour-evidence-telemetry'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2199,22 +2199,46 @@ function mateAutoOpsV4Cycle(){
 function mateV4FastOutreachCycle(){
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(1000))return 'SKIP_LOCK';
+  let monitor=null,monitorRow=0,status='STARTED',sent=0;
   try{
+    // Store one timestamped record per actual trigger execution, separate
+    // from the hourly heartbeat. This verifies the 15-minute cadence.
+    try{
+      const book=mateV4Book_();
+      monitor=book.getSheetByName('MATE_15分送信稼働監視V1')||
+        book.insertSheet('MATE_15分送信稼働監視V1');
+      if(monitor.getLastRow()===0)monitor.appendRow([
+        '実行開始(JST)','実行コード版','実行状態','送信件数','詳細']);
+      monitorRow=monitor.getLastRow()+1;
+      monitor.getRange(monitorRow,1,1,5).setValues([
+        [mateV4Jst_(),MATE_V4.version,'STARTED',0,'']]);
+    }catch(e){console.log('FAST_TELEMETRY_START_FAILED '+String(e).slice(0,140))}
     const p=PropertiesService.getScriptProperties();
     if(p.getProperty('MATE_AUTO_SEND')!=='ON'||
-       p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES')
-      return 'OFF';
+       p.getProperty('MATE_AUTO_SEND_LEGAL_REVIEWED')!=='YES'){
+      status='OFF';return 'OFF';
+    }
     const optouts=mateV4OptoutInbox();
     const bounces=mateV4HardBounceQuarantine();
     const reconciled=mateV4ReconcileSentReservations();
     // Do not send if a suppression/reconciliation call throws.
-    const sent=mateV4SendOutreach();
+    const resultSends=mateV4SendOutreach();
+    sent=Number(resultSends)||0;
+    status='CYCLE_COMPLETED';
     const result={mode:'FAST_15_MIN',optouts,bounces,reconciled,sent};
     console.log(JSON.stringify(result));
     return result;
-  }finally{lock.releaseLock()}
+  }catch(e){
+    status='CYCLE_FAILED '+String(e).slice(0,120);
+    throw e;
+  }finally{
+    if(monitor&&monitorRow)try{
+      monitor.getRange(monitorRow,3,1,3).setValues([
+        [status,sent,status==='CYCLE_COMPLETED'?'送信抑止・重複確認済み':'再送禁止・ログを照合']]);
+    }catch(e){console.log('FAST_TELEMETRY_FINISH_FAILED '+String(e).slice(0,140))}
+    lock.releaseLock();
+  }
 }
-
 /** Install once from the existing hourly runner, never duplicate a trigger. */
 function mateV4EnsureFastOutreachTrigger_(){
   mateV4Book_();
