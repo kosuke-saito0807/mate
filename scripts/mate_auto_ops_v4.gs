@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-outreach-quality-audit12-per-service30-ready'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-16-per-service30-auto-enable-guarded'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2154,6 +2154,15 @@ function mateAutoOpsV4Cycle(){
     report.optouts=mateV4OptoutInbox();
     report.hardBounces=mateV4HardBounceQuarantine();
     report.reconciledSent=mateV4ReconcileSentReservations();
+    // Owner-approved 30 per service target. Never bypass existing sender,
+    // legal, quota, opt-out or duplicate gates. A missing prerequisite leaves
+    // live settings untouched and is recorded without hiding cycle success.
+    if(props.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'&&
+       props.getProperty('MATE_AUTO_SEND')==='ON'){
+      try{report.capacityTarget=enableMatePerService30V4()}
+      catch(e){report.capacityTarget={mode:'AWAITING_VERIFIED_PRECONDITIONS',
+        reason:'90_PER_DAY_ENABLE_GUARD'};}
+    }
     // Capture warm applicant intent before slow site audits or reply sweeps.
     // This is read-only Gmail inspection and internal queue creation only.
     report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
