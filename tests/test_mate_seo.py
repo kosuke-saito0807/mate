@@ -93,13 +93,24 @@ class SeoLaunchTests(unittest.TestCase):
                 self.assertIn('<meta property="og:url" content="' + url + '">', html)
                 self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">', html)
                 matches = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
-                self.assertEqual(len(matches), 1)
-                obj = json.loads(matches[0])
-                self.assertEqual(obj["@type"], "WebSite")
+                self.assertEqual(len(matches), 2)
+                nodes = [json.loads(block) for block in matches]
+                websites = [node for node in nodes if node.get("@type") == "WebSite"]
+                faqs = [node for node in nodes if node.get("@type") == "FAQPage"]
+                self.assertEqual(len(websites), 1)
+                self.assertEqual(len(faqs), 1)
+                obj = websites[0]
                 self.assertEqual(obj["url"], url)
                 self.assertEqual(obj["publisher"]["name"], "NextEdu")
-                self.assertNotIn('"Review"', matches[0])
-                self.assertNotIn('"LocalBusiness"', matches[0])
+                questions = faqs[0]["mainEntity"]
+                self.assertGreaterEqual(len(questions), 3)
+                for question in questions:
+                    self.assertEqual(question["@type"], "Question")
+                    self.assertIn(question["name"], html)
+                    self.assertIn(question["acceptedAnswer"]["text"], html)
+                for block in matches:
+                    self.assertNotIn('"Review"', block)
+                    self.assertNotIn('"LocalBusiness"', block)
 
     def test_business_application_pages_are_searchable_and_interlinked(self):
         pages = {
