@@ -33,6 +33,9 @@ jobs:
         run: |
           mkdir -p _site
           cp *.html data.json robots.txt sitemap.xml favicon.svg favicon.ico _site/
+          for keyfile in [0-9a-f]*.txt; do
+            if [ -f "$keyfile" ]; then cp "$keyfile" _site/; fi
+          done
           cp -R assets _site/assets
           cp -R spark _site/spark
           find _site/spark -type f -name '*.md' -delete
