@@ -349,5 +349,11 @@ assert.equal(run('mateV4DailyGrowthDigest()').day,'2026-10-31');
 assert.equal(internalDigest,1,'one operator-only digest');
 assert.equal(run('mateV4DailyGrowthDigest()'),'ALREADY_DONE','no repeated operator digest');
 assert.equal(internalDigest,1);
+// Reject falsely extracted asset names before any prospect can enter the send queue.
+assert.equal(run("mateV4Email_('mail@2x.png')"),'','image filename must not be a mailbox');
+assert.equal(run("mateV4RoleEmail_('mail@2x.png')"),'','asset cannot be a public role inbox');
+assert.equal(run("mateV4Email_('photo@cdn.avif')"),'','AVIF filename must not be a mailbox');
+assert.equal(run("mateV4Email_('foo@-bad.com')"),'','malformed domain label must be rejected');
+assert.equal(run("mateV4Email_('info@company.co.jp')"),'info@company.co.jp','legitimate business address remains allowed');
 assert.equal(mails,0,'no external outreach ever sent by growth tests');
 console.log('PASS: service ranking, fair cycling, historic Gmail dedupe, safe sector import, owner-only digest');
