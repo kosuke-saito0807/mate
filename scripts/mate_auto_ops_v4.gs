@@ -114,7 +114,9 @@ function mateV4Email_(s){
   if(/@(gmail\.com|yahoo\.co\.jp|yahoo\.com|icloud\.com|outlook\.com|hotmail\.com)$/i.test(x))return '';
   // Regular image / font assets such as mail@2x.png are not mailboxes.
   // A regex match inside a website's markup is insufficient evidence.
-  if(/\.(?:png|jpe?g|gif|webp|svg|ico|css|js|json|woff2?|ttf|otf|map|pdf|html?)$/i.test(x))return '';
+  if(/\.(?:png|jpe?g|gif|webp|svg|ico|bmp|avif|tiff?|css|js|json|xml|woff2?|ttf|otf|map|pdf|html?|mp4|webm|zip)$/i.test(x))return '';
+  const domain=x.split('@')[1];
+  if(!domain.split('.').slice(0,-1).every(label=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(label)))return '';
   return x;
 }
 /**
