@@ -355,6 +355,9 @@ assert.equal(run("mateV4RoleEmail_('mail@2x.png')"),'','asset cannot be a public
 assert.equal(run("mateV4Email_('photo@cdn.avif')"),'','AVIF filename must not be a mailbox');
 assert.equal(run("mateV4Email_('foo@-bad.com')"),'','malformed domain label must be rejected');
 assert.equal(run("mateV4Email_('info@company.co.jp')"),'info@company.co.jp','legitimate business address remains allowed');
+const autoBefore90=settings.MATE_AUTO_SEND;
+settings.MATE_AUTO_SEND='OFF';
 assert.throws(()=>run('enableMatePerService30V4()'),/既存の送信・法務・主体確認/,'90/day configuration must fail closed without verified prerequisites');
+settings.MATE_AUTO_SEND=autoBefore90;
 assert.equal(mails,0,'no external outreach ever sent by growth tests');
 console.log('PASS: service ranking, fair cycling, historic Gmail dedupe, safe sector import, owner-only digest');
