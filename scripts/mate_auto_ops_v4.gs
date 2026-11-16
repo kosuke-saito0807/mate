@@ -2320,6 +2320,22 @@ function mateV4FastOutreachCycle(){
       detail='GMAIL_SERVICE_DAILY_QUOTA_COOLDOWN_NO_SEND';
       return {mode:'FAST_15_MIN',sent:0,reason:detail};
     }
+    // When no uncontacted, reviewed prospect can be sent, there is no
+    // reason to query Gmail four times an hour. Still scan replies, opt-outs,
+    // and bounces in the final quarter of every hour, or immediately when
+    // a newly eligible lead appears. Never send without those checks.
+    const minute=Number(mateV4Jst_().slice(14,16));
+    let preliminaryReady=null;
+    try{
+      const backlog=diagnoseMateV4Backlog();
+      preliminaryReady=['CARE','SPARK','PLAY'].reduce((n,service)=>
+        n+(backlog.counts[service].validWithoutGmailHistoryCheck||0),0);
+    }catch(e){console.log('FAST_PRECHECK_UNAVAILABLE '+String(e).slice(0,120))}
+    if(preliminaryReady===0&&minute>=10&&minute<50){
+      status='CYCLE_COMPLETED';
+      detail='NO_REVIEWED_UNSENT_LEADS_GMAIL_SCAN_HOURLY_ONLY';
+      return {mode:'FAST_15_MIN',sent:0,reason:detail};
+    }
     const optouts=mateV4OptoutInbox();
     const bounces=mateV4HardBounceQuarantine();
     const reconciled=mateV4ReconcileSentReservations();
