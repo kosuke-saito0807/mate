@@ -17,10 +17,13 @@ class PublicGuideTest(unittest.TestCase):
         self.assertNotIn('"@type":"AggregateRating"', html)
         self.assertNotIn("<img ", html)
         self.assertNotIn("approved:true", html)
-        self.assertEqual(html.count('公式情報参考・事業者未確認'), 3)
+        self.assertEqual(html.count('公式情報参考・事業者未確認'), 16)
         for official in ("https://www.marypoppins.co.jp/", "https://arschool.co.jp/", "https://muumuu.jp/"):
             self.assertIn(official, html)
         self.assertIn("事業者が申請・承認した", html)
+        self.assertIn("現在16事業者の公式情報", html)
+        for anchor in ("honeyclover", "joysitter", "ikuji119", "teno", "codinglab", "bitschool", "gajyuku", "akiba-programming", "arihana", "sorai", "mugenan", "casane", "shirokane"):
+            self.assertIn(f'<article id="{anchor}">', html)
         self.assertIn("提携・許諾・保証・推薦を意味せず", html)
 
     def test_discovery_and_correction_navigation(self):
