@@ -5,6 +5,7 @@ on:
     paths:
       - editorial-care.json
       - spark/editorial-schools.json
+      - spark/schools.json
       - scripts/capture_editorial_sites.py
       - .github/workflows/editorial-provider-previews.yml
   workflow_dispatch:
@@ -40,6 +41,8 @@ jobs:
         run: python scripts/capture_editorial_sites.py --source editorial-care.json --output assets/editorial-thumbnails/care --limit 45 --max-seconds 570
       - name: Capture independent public-site previews for SPARK
         run: python scripts/capture_editorial_sites.py --source spark/editorial-schools.json --output spark/assets/editorial-thumbnails/spark --limit 70 --max-seconds 740
+      - name: Capture approved SPARK school preview when no partner photos exist
+        run: python scripts/capture_editorial_sites.py --source spark/schools.json --output spark/assets/editorial-thumbnails/spark --limit 10 --max-seconds 130
       - name: Commit new screenshots and failure backoff metadata
         id: commit
         run: |
