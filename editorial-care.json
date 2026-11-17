@@ -58,5 +58,65 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-aisha",
+    "name": "Aisha",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "東京・青山のベビー＆キッズシッター派遣とイベント保育を案内する事業者です。",
+    "url": "https://aisha-child.com",
+    "source": "https://aisha-child.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-akamon-mammy",
+    "name": "株式会社赤門マミーサービス",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "文京区を拠点に、家庭向けのシッターとイベント保育を案内しています。",
+    "url": "https://akamon-mammy.com",
+    "source": "https://akamon-mammy.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sunflower-a",
+    "name": "サンフラワー・A",
+    "region": "東京都",
+    "category": "ベビーシッター・訪問保育",
+    "description": "練馬・板橋エリアなどで訪問保育やイベント保育を紹介しています。",
+    "url": "https://sunflower-babysitter.com/",
+    "source": "https://sunflower-babysitter.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ekids",
+    "name": "eキッズ訪問保育",
+    "region": "東京都",
+    "category": "訪問型保育",
+    "description": "障がい児・多胎児・ひとり親家庭などへの訪問型保育を紹介しています。",
+    "url": "https://ekids-hoiku.jp/access",
+    "source": "https://ekids-hoiku.jp/access",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-alpha-nanny",
+    "name": "アルファ・ナニー",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "アルファコーポレーションのベビーシッター派遣サービスです。",
+    "url": "https://www.alpha-co.com/sitter",
+    "source": "https://www.alpha-co.com/sitter",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
