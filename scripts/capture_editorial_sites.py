@@ -21,7 +21,7 @@ from urllib.parse import urlsplit
 from PIL import Image, ImageOps
 from playwright.sync_api import sync_playwright
 
-ID_PATTERN = re.compile(r"^editorial-[a-zA-Z0-9_-]{3,75}$")
+ID_PATTERN = re.compile(r"^(?:editorial-[a-zA-Z0-9_-]{3,75}|mate_spark_[a-zA-Z0-9_-]{8,60})$")
 MAX_AGE_FAILURE = 7 * 24 * 3600
 
 
@@ -85,7 +85,7 @@ def main() -> int:
                 break
             if time.monotonic() - start >= args.max_seconds:
                 break
-            if not isinstance(item, dict) or item.get("editorial") is not True or item.get("approved") is not False:
+            if not isinstance(item, dict) or not ((item.get("editorial") is True and item.get("approved") is False) or (str(item.get("id", "")).startswith("mate_spark_") and item.get("approved") is True)):
                 continue
             name = str(item.get("id", ""))
             target = args.output / (name + ".webp")
