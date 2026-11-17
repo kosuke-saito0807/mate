@@ -1,0 +1,61 @@
+name: Capture editorial provider website previews
+on:
+  push:
+    branches: [main]
+    paths:
+      - editorial-care.json
+      - spark/editorial-schools.json
+      - scripts/capture_editorial_sites.py
+      - .github/workflows/editorial-provider-previews.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '23 */3 * * *'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: mate-public-editorial-preview-generation
+  cancel-in-progress: false
+
+jobs:
+  screenshots:
+    if: github.repository == 'kosuke-saito0807/mate'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install screenshot and image tools
+        run: |
+          python -m pip install --disable-pip-version-check pillow playwright
+          python -m playwright install --with-deps chromium
+      - name: Capture independent public-site previews for CARE
+        run: python scripts/capture_editorial_sites.py --source editorial-care.json --output assets/editorial-thumbnails/care --limit 45 --max-seconds 570
+      - name: Capture independent public-site previews for SPARK
+        run: python scripts/capture_editorial_sites.py --source spark/editorial-schools.json --output spark/assets/editorial-thumbnails/spark --limit 70 --max-seconds 740
+      - name: Commit new screenshots and failure backoff metadata
+        id: commit
+        run: |
+          git add assets/editorial-thumbnails/care spark/assets/editorial-thumbnails/spark
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            git -c user.name='MATE editorial preview bot' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Refresh distinct official website screenshot thumbnails'
+            git pull --rebase origin main
+            git push origin HEAD:main
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy screenshot assets on both public sites
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run pages.yml --ref main
+          gh workflow run firebase-spark-live.yml --ref main
