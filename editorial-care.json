@@ -310,5 +310,17 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-mommybless",
+    "name": "Mommy Bless",
+    "region": "大阪府",
+    "category": "ベビーシッター・産後ケア",
+    "description": "大阪・神戸・京都で、訪問型の産後ケアやベビーシッターサービスを案内しています。",
+    "url": "https://mommybless.com/",
+    "source": "https://mommybless.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
