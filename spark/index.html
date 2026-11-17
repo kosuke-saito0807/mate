@@ -309,9 +309,9 @@ function draw(){
    '<span class="flag">'+escapeHtml(s.category)+'</span><span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span></div>'+
    '<div class="content"><div class="city">'+escapeHtml(s.region)+'</div><h3>'+escapeHtml(s.name)+'</h3>'+
    '<p class="meta"><strong>公開情報参考・事業者未確認</strong></p><p>'+escapeHtml(s.description||'')+'</p>'+
-   '<div class="meta">対象年齢・料金・開催日は公式サイトで確認</div>'+
+   '<div class="meta">対象年齢・料金・開催条件は公式サイトでご確認ください。</div>'+
    '<div class="cardActions"><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a>'+
-   '<a href="partners.html">正式掲載を申請 ↗</a></div><p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除の依頼</a></p></div></article>';
+   '<a href="partners.html">正式掲載を申請 ↗</a></div><p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除を依頼</a></p></div></article>';
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
 
   const action='<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>';
