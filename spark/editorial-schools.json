@@ -262,5 +262,89 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-kidspro",
+    "name": "KIDSPRO",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "Scratch・マインクラフト・Robloxなどを扱う少人数制プログラミング教室です。",
+    "url": "https://kidsprogram.co.jp",
+    "source": "https://kidsprogram.co.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-star-programming",
+    "name": "スタープログラミングスクール",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "子ども向けにScratchやロボット教材を用いたプログラミング学習を案内しています。",
+    "url": "https://star-programming-school.com",
+    "source": "https://star-programming-school.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-proglab",
+    "name": "プログラボ",
+    "region": "全国",
+    "category": "ロボット",
+    "description": "レゴを使ったロボットプログラミングを中心に学ぶ子ども向け教室です。",
+    "url": "https://proglab.education",
+    "source": "https://proglab.education",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-stem-academy",
+    "name": "ステムアカデミーキッズ",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "幼児から中学生を対象にしたプログラミングやSTEAM学習の教室です。",
+    "url": "https://stem-academykids.com",
+    "source": "https://stem-academykids.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-n-codelabo",
+    "name": "N Code Labo",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "角川ドワンゴ学園が運営し、小学生から高校生向けのプログラミング講座を案内しています。",
+    "url": "https://n-codelabo.jp",
+    "source": "https://n-codelabo.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-seiha",
+    "name": "セイハ英語学院",
+    "region": "全国",
+    "category": "英語・英会話",
+    "description": "幼児から中学生まで年齢別の英会話コースを案内しているスクールです。",
+    "url": "https://english-academy.seiha.com/",
+    "source": "https://english-academy.seiha.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-culture-doumon",
+    "name": "カルチャーどうもん",
+    "region": "山口県",
+    "category": "アート",
+    "description": "山口市の商店街にある、絵画・音楽・手芸など多様な習い事を扱う教室です。",
+    "url": "https://c-doumon.com/",
+    "source": "https://c-doumon.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
