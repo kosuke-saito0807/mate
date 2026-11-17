@@ -118,5 +118,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-palette-piano",
+    "name": "ぱれっとピアノ教室",
+    "region": "東京都",
+    "category": "音楽",
+    "description": "子どもの個性や目標に合わせた個別ピアノレッスンを案内する教室です。",
+    "url": "https://palette-pianoschool.com",
+    "source": "https://palette-pianoschool.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-teamo",
+    "name": "TEAMO",
+    "region": "東京都",
+    "category": "スポーツ",
+    "description": "英語と運動を組み合わせた子ども向けレッスンを紹介しています。",
+    "url": "https://teamo-epc.com/",
+    "source": "https://teamo-epc.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mgs-piano",
+    "name": "MGSピアノ教室",
+    "region": "東京都",
+    "category": "音楽",
+    "description": "世田谷区や調布市周辺でピアノなど複数の音楽レッスンを案内しています。",
+    "url": "https://mgs-piano.jp",
+    "source": "https://mgs-piano.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-crecer",
+    "name": "CRECERピアノ教室",
+    "region": "東京都",
+    "category": "音楽",
+    "description": "江東区のピアノレッスンと練習室の案内を掲載している音楽教室です。",
+    "url": "https://crecer-music.com",
+    "source": "https://crecer-music.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
