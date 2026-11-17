@@ -1,0 +1,62 @@
+[
+  {
+    "id": "editorial-marypoppins",
+    "name": "株式会社メアリーポピンズ",
+    "region": "兵庫県",
+    "category": "ベビーシッター",
+    "description": "公式サイトでベビーシッターサービスを案内しています。",
+    "url": "https://www.marypoppins.co.jp/guide/flow/",
+    "source": "https://www.marypoppins.co.jp/guide/flow/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-honeyclover",
+    "name": "ハニークローバー",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "ベビーシッターや夜間・宿泊保育について公式サイトに案内があります。",
+    "url": "https://honeyclover.co.jp/sleepover/",
+    "source": "https://honeyclover.co.jp/sleepover/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-joysitter",
+    "name": "ジョイシッターPLUS",
+    "region": "福岡県",
+    "category": "ベビーシッター・託児",
+    "description": "福岡でのベビーシッター・託児サービスを紹介しています。",
+    "url": "https://joy-create.com/",
+    "source": "https://joy-create.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ikuji119",
+    "name": "育児119",
+    "region": "全国",
+    "category": "訪問型育児支援",
+    "description": "訪問型の育児支援・相談サービスを紹介しています。",
+    "url": "https://ikuji119.com/",
+    "source": "https://ikuji119.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-teno",
+    "name": "テノ．コーポレーション",
+    "region": "全国",
+    "category": "ベビーシッター・出張託児",
+    "description": "ベビーシッターや行事向け出張託児を案内しています。",
+    "url": "https://baby.teno-support.co.jp/",
+    "source": "https://baby.teno-support.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  }
+]
