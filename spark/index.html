@@ -305,7 +305,7 @@ function draw(){
  const suffix=demoMode?'件のサンプル教室':'件の教室';$('status').textContent=sorted.length+' '+suffix;
  $('cards').innerHTML=sorted.map(s=>{
   const fictional=demoMode||s.demo===true;
-  if(s.editorial)return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt">'+
+  if(s.editorial)return '<article class="card" data-editorial-key="'+escapeHtml(s.id)+'"><div class="cardArt">'+
    '<span class="flag">'+escapeHtml(s.category)+'</span><span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span></div>'+
    '<div class="content"><div class="city">'+escapeHtml(s.region)+'</div><h3>'+escapeHtml(s.name)+'</h3>'+
    '<p class="meta"><strong>公開情報参考・事業者未確認</strong></p><p>'+escapeHtml(s.description||'')+'</p>'+
