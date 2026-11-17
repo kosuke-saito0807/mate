@@ -120,9 +120,11 @@ function mateV4Email_(s){
   return x;
 }
 /**
- * Owner-requested permanent exclusion: never solicit CodeCamp or CodeCampKIDS,
- * including group-branded classrooms and domain mailboxes. This is a hard
- * outbound gate independent of mutable lead statuses or stale GAS properties.
+ * Owner-requested permanent exclusions: CodeCamp/CodeCampKIDS and
+ * Lasnaolo株式会社 / Lasnaoloベビーシッター. Never solicit them.
+ * Name, URL paths and email local parts are checked to prevent rediscovery
+ * through public directories and alternate lead sources.
+ * This hard gate applies independently of stale lead rows and GAS properties.
  */
 function mateV4OwnerBlocked_(lead){
   const fields=typeof lead==='string'?[lead]:[
@@ -130,7 +132,8 @@ function mateV4OwnerBlocked_(lead){
     lead['確認元URL'],lead['業務用メール']];
   const combined=fields.map(v=>String(v||'').normalize('NFKC').toLowerCase()).join(' ');
   return /code[\s._-]*camp|コード[\s　]*キャンプ/i.test(combined)||
-    /@(?:[a-z0-9-]+\.)*codecamp(?:kids)?\.(?:jp|co\.jp|com)\b/i.test(combined);
+    /@(?:[a-z0-9-]+\.)*codecamp(?:kids)?\.(?:jp|co\.jp|com)\b/i.test(combined)||
+    /las[\s._-]*na[\s._-]*olo/i.test(combined);
 }
 function mateV4Key_(service,website,name){
   const host=mateV4Host_(website);if(!host)throw Error('Invalid HTTPS website');
