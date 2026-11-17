@@ -60,7 +60,7 @@ jobs:
       - name: Package public site only
         run: |
           mkdir -p _site
-          cp *.html data.json robots.txt sitemap.xml llms.txt favicon.svg favicon.ico _site/
+          cp *.html data.json editorial-care.json robots.txt sitemap.xml llms.txt favicon.svg favicon.ico _site/
           # IndexNow requires the generated verification key at the real host root.
           for keyfile in [0-9a-f]*.txt; do
             if [ -f "$keyfile" ]; then cp "$keyfile" _site/; fi
