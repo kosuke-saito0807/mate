@@ -1,0 +1,62 @@
+[
+  {
+    "id": "editorial-arschool",
+    "name": "アルスクール株式会社",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "子ども向けAI・プログラミング学習について案内しています。",
+    "url": "https://arschool.co.jp/",
+    "source": "https://arschool.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-codinglab",
+    "name": "Coding Lab Japan",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "子ども向け英語でのプログラミング・AI・ロボティクス学習を紹介しています。",
+    "url": "https://codinglab.jp/",
+    "source": "https://codinglab.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-bitschool",
+    "name": "ビットスクール",
+    "region": "愛知県",
+    "category": "プログラミング",
+    "description": "名古屋市の子ども向けプログラミング教室です。",
+    "url": "https://bitschool.jp/",
+    "source": "https://bitschool.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-gajyuku",
+    "name": "こども美術教室がじゅく",
+    "region": "東京都",
+    "category": "アート",
+    "description": "子ども向けの絵画・造形教室を紹介しています。",
+    "url": "https://gajyuku.com/",
+    "source": "https://gajyuku.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-akiba-programming",
+    "name": "秋葉原プログラミング教室",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "上野エリアにあるプログラミング教室です。",
+    "url": "https://akiba-programming-school.com/",
+    "source": "https://akiba-programming-school.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  }
+]
