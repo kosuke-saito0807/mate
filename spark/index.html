@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>子どもの習い事・教室を探す｜MATE SPARK</title>
-<meta name="description" content="MATE SPARKは子どもの習い事・教室をエリア、年齢、曜日、予算で探せる情報サービス。掲載許諾と内容確認が済んだ教室情報を順次公開しています。">
+<meta name="description" content="MATE SPARKは子どもの習い事・教室をエリア、年齢、曜日、予算で探せる情報サービス。正式掲載の教室と、公開情報をもとに編集部が独立に紹介した事業者未承認の教室を区別して案内します。">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#f7fbff">
 <link rel="canonical" href="https://spark.kosodatemate.jp/">
@@ -419,7 +419,7 @@ async function init(){
    schools=(Array.isArray(demo)?demo:[]).filter(s=>s&&s.demo===true&&s.id&&s.name);
    $('demoBanner').textContent='以下の'+schools.length+'教室は画面確認用の架空サンプルです。料金・対象年齢・曜日・写真は説明用であり、実在教室への申込みはできません。';
    $('footnote').textContent='架空のサンプルを表示しています。実在の掲載教室は、掲載許諾・内容確認の完了後に自動反映されます。';
-  }else{schools=real;$('demoBanner').textContent=real.length?'掲載許諾を確認済みの教室を表示しています。掲載のない地域もあります。体験相談は許諾と受付設定を確認してからご案内します。':'掲載許諾をいただいた教室を順次公開しています。';}
+  }else{schools=real;$('demoBanner').textContent=real.length?'正式掲載の教室と、事業者未承認の参考紹介を区別して表示します。掲載のない地域もあります。体験相談は許諾と受付設定を確認してからご案内します。':'掲載許諾をいただいた教室を順次公開しています。';}
   draw();
  }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
 }
