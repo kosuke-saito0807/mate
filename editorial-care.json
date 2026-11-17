@@ -166,5 +166,41 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-mothernet",
+    "name": "株式会社マザーネット",
+    "region": "全国",
+    "category": "訪問保育・病児保育",
+    "description": "仕事と子育ての両立を支えるため、病児保育やベビーシッターなどのサービスを案内しています。",
+    "url": "https://www.mothernet.co.jp/",
+    "source": "https://www.mothernet.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-leange",
+    "name": "ル・アンジェ",
+    "region": "東京都",
+    "category": "ベビーシッター・産後ケア",
+    "description": "ベビーシッター、病児保育、産後ケア、訪問型保育などの事業を案内しています。",
+    "url": "https://www.leange.co.jp/business_services/",
+    "source": "https://www.leange.co.jp/business_services/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kidsline",
+    "name": "キッズライン",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "シッターや家事代行のサポーターを地域や希望条件から探せるマッチングサービスです。",
+    "url": "https://kidsline.me/",
+    "source": "https://kidsline.me/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
