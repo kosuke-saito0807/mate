@@ -238,5 +238,29 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-poppins-sitter",
+    "name": "ポピンズシッター",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "保護者の希望に合わせてシッターを探せる訪問保育サービスを案内しています。",
+    "url": "https://smartsitter.jp",
+    "source": "https://smartsitter.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-miraxs-sitter",
+    "name": "miraxsシッター",
+    "region": "東京都",
+    "category": "ベビーシッター・病児ケア",
+    "description": "首都圏を中心に、シッターや産前産後サポート、病児ケアを案内しています。",
+    "url": "https://sitter.miraxs.co.jp/",
+    "source": "https://sitter.miraxs.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
