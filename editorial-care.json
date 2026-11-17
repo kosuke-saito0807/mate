@@ -418,5 +418,17 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-nobel-byoji",
+    "name": "認定NPO法人ノーベル 病児保育",
+    "region": "大阪府",
+    "category": "訪問型病児保育",
+    "description": "大阪エリアで訪問型の病児保育を案内しています。新規入会は順番待ちの案内が掲載されています。",
+    "url": "https://byojihoiku.nponobel.jp",
+    "source": "https://byojihoiku.nponobel.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
