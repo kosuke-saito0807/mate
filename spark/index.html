@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>子どもの習い事・教室を探す｜MATE SPARK</title>
-<meta name="description" content="MATE SPARKは子どもの習い事・教室をエリア、年齢、曜日、予算で探せる情報サービス。正式掲載の教室と、公開情報をもとに編集部が独立に紹介した事業者未承認の教室を区別して案内します。">
+<meta name="description" content="MATE SPARKは子どもの習い事・教室をエリア、年齢、曜日、予算で探せる情報サービス。子どもの習い事・教室を、地域やジャンルでまとめて探せます。">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#f7fbff">
 <link rel="canonical" href="https://spark.kosodatemate.jp/">
@@ -204,7 +204,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <p id="demoLink" hidden aria-hidden="true"></p>
 <div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option><option value="soon">体験日が近い順</option></select></div></div>
 <div class="cards" id="cards" aria-live="polite"></div>
-<section id="editorial-schools" aria-label="公開情報から探す習い事" style="margin:24px 0;padding:18px;border:1px solid #c7ddec;border-radius:14px;background:#f6faff"><h3 style="margin:0 0 8px">公開情報から探す教室 <span id="editorial-school-count" aria-live="polite"></span></h3><p style="font-size:12px">以下はMATE編集部が公開された事業情報を参考に独自作成した紹介です。事業者の申請・承認、提携、体験予約の受付を意味しません。最新情報は各公式サイトでご確認ください。<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除の依頼</a></p><div id="editorial-school-cards" class="cards" aria-live="polite"></div></section>
+
 <p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
 </div></div></div></section>
 <section class="partners"><div class="wrap partnerRow"><div><p class="eyebrow">FOR SCHOOL PARTNERS</p><h2>あなたの教室と、<br>新しい「好き」をつなごう。</h2><p>教室の魅力を届けて、体験のきっかけを増やしませんか。</p></div><a class="btn" data-mate-cta="listing" href="partners.html">掲載について見る ↗</a></div></section>
@@ -286,14 +286,14 @@ function matching(s){
   const hasMin=typeof s.ageMin==='number',hasMax=typeof s.ageMax==='number';
   if(hasMin&&v<s.ageMin)return false;
   if(hasMax&&v>s.ageMax)return false;
-  if(!hasMin&&!hasMax){
+  if(!hasMin&&!hasMax&&!s.editorial){
     if(v<=5&&!(s.ages||[]).includes('幼児'))return false;
     if(v>=6&&!(s.ages||[]).includes('小学生'))return false;
   }
  }
  if(price&&typeof s.monthlyPrice==='number'&&s.monthlyPrice>Number(price))return false;
- if(price&&typeof s.monthlyPrice!=='number')return false;
- if(selectedDays.size&&(!Array.isArray(s.weekdays)||![...selectedDays].some(d=>s.weekdays.includes(d))))return false;
+ if(price&&typeof s.monthlyPrice!=='number'&&!s.editorial)return false;
+ if(selectedDays.size&&!s.editorial&&(!Array.isArray(s.weekdays)||![...selectedDays].some(d=>s.weekdays.includes(d))))return false;
  if($('trialOnly').checked&&s.acceptsTrial!==true)return false;
  return true;
 }
@@ -302,9 +302,16 @@ function draw(){
  if($('sort').value==='monthly')sorted.sort((a,b)=>(a.monthlyPrice??1e12)-(b.monthlyPrice??1e12));
  if($('sort').value==='trial')sorted.sort((a,b)=>(a.trialPrice??1e12)-(b.trialPrice??1e12));
  if($('sort').value==='soon')sorted.sort((a,b)=>String(a.nextTrialDate||'9999-12-31').localeCompare(String(b.nextTrialDate||'9999-12-31')));
- const suffix=demoMode?'件のサンプル教室':'件の掲載教室';$('status').textContent=(!demoMode&&schools.length===0)?'実在教室の掲載準備中':sorted.length+' '+suffix;
+ const suffix=demoMode?'件のサンプル教室':'件の教室';$('status').textContent=sorted.length+' '+suffix;
  $('cards').innerHTML=sorted.map(s=>{
   const fictional=demoMode||s.demo===true;
+  if(s.editorial)return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt">'+
+   '<span class="flag">'+escapeHtml(s.category)+'</span><span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span></div>'+
+   '<div class="content"><div class="city">'+escapeHtml(s.region)+'</div><h3>'+escapeHtml(s.name)+'</h3>'+
+   '<p class="meta"><strong>公開情報参考・事業者未確認</strong></p><p>'+escapeHtml(s.description||'')+'</p>'+
+   '<div class="meta">対象年齢・料金・開催日は公式サイトで確認</div>'+
+   '<div class="cardActions"><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a>'+
+   '<a href="partners.html">正式掲載を申請 ↗</a></div><p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除の依頼</a></p></div></article>';
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
 
   const action='<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>';
@@ -409,9 +416,12 @@ async function init(){
   const liveResponse=await fetch('./schools.json',{cache:'no-store'});
   if(!liveResponse.ok)throw Error('教室情報の取得に失敗しました');
   const data=await liveResponse.json();
+  const editorialResponse=await fetch('./editorial-schools.json',{cache:'no-store'});
+  const editorialData=editorialResponse.ok?await editorialResponse.json():[];
+  const editorials=Array.isArray(editorialData)?editorialData.filter(p=>p.editorial===true&&p.approved===false&&String(p.url||'').startsWith('https://')).map(p=>({...p,ages:[],tags:[],area:p.region,station:'',weekdays:[],id:String(p.id)})):[];
   const real=(Array.isArray(data)?data:[]).filter(s=>s&&s.approved===true&&s.id&&s.name&&s.region&&s.category).map(s=>({...s,id:String(s.id),ages:Array.isArray(s.ages)?s.ages:[],url:/^https:\/\/[^<>"']+$/i.test(s.url||'')?s.url:''}));
   demoMode=forceDemo;
-  $('demoLink').hidden=demoMode||real.length>0;
+  $('demoLink').hidden=demoMode||real.length+editorials.length>0;
   if(demoMode){
    const demoResponse=await fetch('./demo-schools.json',{cache:'no-store'});
    if(!demoResponse.ok)throw Error('デモデータの取得に失敗しました');
@@ -419,7 +429,7 @@ async function init(){
    schools=(Array.isArray(demo)?demo:[]).filter(s=>s&&s.demo===true&&s.id&&s.name);
    $('demoBanner').textContent='以下の'+schools.length+'教室は画面確認用の架空サンプルです。料金・対象年齢・曜日・写真は説明用であり、実在教室への申込みはできません。';
    $('footnote').textContent='架空のサンプルを表示しています。実在の掲載教室は、掲載許諾・内容確認の完了後に自動反映されます。';
-  }else{schools=real;$('demoBanner').textContent=real.length?'正式掲載の教室と、事業者未承認の参考紹介を区別して表示します。掲載のない地域もあります。体験相談は許諾と受付設定を確認してからご案内します。':'掲載許諾をいただいた教室を順次公開しています。';}
+  }else{schools=real.concat(editorials.filter(p=>!real.some(s=>s.url&&s.url===p.url)));$('demoBanner').textContent='教室の最新の料金・対象年齢・受講条件は各公式サイトをご確認ください。';}
   draw();
  }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
 }
@@ -462,23 +472,5 @@ document.addEventListener('click',function(event){
  gtag('event','mate_listing_click',{service:'SPARK',cta_location:'homepage'});
 },{passive:true});
 </script>
-<script>
-(function(){
- const grid=document.getElementById('editorial-school-cards');
- const esc=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
- let records=[];
- function render(){
-  const counter=document.getElementById('editorial-school-count');if(counter)counter.textContent='（'+records.length+'件）';
-  const q=(document.getElementById('keyword')?.value||'').trim().toLowerCase();
-  const category=document.getElementById('category')?.value||'';
-  const region=document.getElementById('region')?.value||'';
-  const filtered=records.filter(p=>(!q||[p.name,p.description,p.region,p.category].join(' ').toLowerCase().includes(q))&&(!category||p.category===category)&&(!region||p.region===region));
-  grid.innerHTML=filtered.map(p=>'<article class="card"><div class="content"><p class="city">'+esc(p.region)+'</p><h3>'+esc(p.name)+'</h3><p><strong>公開情報参考・事業者未確認</strong></p><p>'+esc(p.description)+'</p><p class="meta">'+esc(p.category)+'／情報確認 '+esc(p.reviewedAt)+'</p><div class="cardActions"><a class="btn" href="'+esc(p.url)+'" rel="noopener noreferrer" target="_blank">公式サイトを見る ↗</a><a href="partners.html">正式掲載を申請 ↗</a></div></div></article>').join('') || '<p style="font-size:13px">条件に合う公開情報の教室はありません。</p>';
- }
- fetch('./editorial-schools.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('editorial');return r.json()}).then(d=>{records=Array.isArray(d)?d.filter(p=>p.editorial===true&&p.approved===false&&/^https:\/\//.test(p.url)):[];render()}).catch(()=>{grid.textContent='公開情報を読み込めませんでした。'});
- ['keyword','category','region'].forEach(id=>document.getElementById(id)?.addEventListener('input',render));
- document.getElementById('categoryQuick')?.addEventListener('click',()=>setTimeout(render,0));
- document.getElementById('reset')?.addEventListener('click',()=>setTimeout(render,0));
-})();
-</script>
+
 </body></html>
