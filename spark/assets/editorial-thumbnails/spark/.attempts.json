@@ -1,0 +1,30 @@
+{
+  "editorial-akiba-programming": {
+    "at": 1794916103,
+    "reason": "Empty screenshot"
+  },
+  "editorial-konami-kids": {
+    "at": 1794916103,
+    "reason": "Page.goto: Timeout 15500ms exceeded.\nCall log:\n  - navigating to \"https://www.konami.com/sportsclub/kids-school/\", waiting until \"domco"
+  },
+  "editorial-palette-piano": {
+    "at": 1794916103,
+    "reason": "Empty screenshot"
+  },
+  "editorial-proglab": {
+    "at": 1794916103,
+    "reason": "HTTP 403"
+  },
+  "editorial-rokko-be": {
+    "at": 1794916103,
+    "reason": "HTTP 403"
+  },
+  "editorial-taijiku": {
+    "at": 1794916103,
+    "reason": "Empty screenshot"
+  },
+  "editorial-urawa-art": {
+    "at": 1794916103,
+    "reason": "Page.goto: Timeout 15500ms exceeded.\nCall log:\n  - navigating to \"https://artslabo.com/\", waiting until \"domcontentloaded\"\n"
+  }
+}
