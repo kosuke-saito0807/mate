@@ -370,5 +370,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-ouchi-wacca",
+    "name": "おうち保育わっか",
+    "region": "広島県",
+    "category": "訪問型保育",
+    "description": "広島市で保育士資格を持つシッターによる家庭訪問型の一時保育などを案内しています。",
+    "url": "https://ouchihoikuwacca.com",
+    "source": "https://ouchihoikuwacca.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-qoonea-enfants",
+    "name": "くうねあ アンファンス",
+    "region": "広島県",
+    "category": "ベビーシッター",
+    "description": "広島市周辺で訪問型の子育て支援や送迎、病児・病後児保育を案内しています。",
+    "url": "https://qoonea.com/enfants",
+    "source": "https://qoonea.com/enfants",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mama-mate",
+    "name": "ママメイト",
+    "region": "千葉県",
+    "category": "ベビーシッター・産後ケア",
+    "description": "複数地域でベビーシッターや産前産後ケアなどのサービスを案内しています。",
+    "url": "https://mama-mate.jp/",
+    "source": "https://mama-mate.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-cocomama",
+    "name": "ココママ",
+    "region": "東京都",
+    "category": "ベビーシッター・産後ケア",
+    "description": "助産師による産後ケアと低月齢児向けの訪問ベビーシッターを案内しています。",
+    "url": "https://cocomama.baby/service/b2c/visit/sangocare/",
+    "source": "https://cocomama.baby/service/b2c/visit/sangocare/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
