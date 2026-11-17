@@ -1,0 +1,16 @@
+/* Unique, attributable previews of independent editorial references.
+   A provider-specific local website screenshot is preferred; when it is not yet
+   available, retain the provider's own favicon and an individual brand tile. */
+.mate-editorial-thumb{--mate-hue:195;position:relative;width:100%;height:170px;overflow:hidden;isolation:isolate;border-radius:9px;background:linear-gradient(135deg,hsl(var(--mate-hue) 52% 84%),hsl(calc(var(--mate-hue) + 42) 65% 95%));}
+.mate-editorial-thumb::before{content:"";position:absolute;inset:-35%;background:radial-gradient(circle at 32% 38%,#fff9 0,transparent 41%),radial-gradient(circle at 75% 82%,#fff7 0,transparent 46%);transform:rotate(-12deg);pointer-events:none;}
+.mate-editorial-shot{position:relative;display:block;width:100%;height:100%;object-fit:cover;object-position:center top;background:#fff;}
+.mate-editorial-shot[hidden],.mate-editorial-favicon[hidden]{display:none!important}
+.mate-editorial-brand{position:absolute;z-index:2;display:flex;align-items:center;gap:9px;left:9px;right:9px;bottom:9px;min-height:46px;padding:7px 11px;border:1px solid #fff9;border-radius:10px;background:#fffffff0;box-shadow:0 4px 22px #122a451a;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);}
+.mate-editorial-favicon{flex:0 0 32px;width:32px;height:32px;object-fit:contain;background:#fff;border:1px solid #edf0f3;border-radius:6px;padding:2px;}
+.mate-editorial-name{font-size:13px;font-weight:800;letter-spacing:.01em;line-height:1.35;color:#14304a;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;word-break:break-word}
+.mate-editorial-thumb.mate-thumbnail-fallback .mate-editorial-brand{justify-content:center;flex-direction:column;gap:10px;top:21px;bottom:21px;left:24px;right:24px;text-align:center;padding:14px;border-radius:14px;background:#ffffffb8;}
+.mate-editorial-thumb.mate-thumbnail-fallback .mate-editorial-favicon{flex:0 0 48px;width:48px;height:48px;border-radius:10px;}
+.mate-editorial-thumb.mate-thumbnail-fallback .mate-editorial-name{font-size:15px;-webkit-line-clamp:3}
+.mate-editorial-thumb .mate-preview-source{position:absolute;z-index:2;top:9px;right:9px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:#24405a;background:#ffffffe8;border-radius:8px;padding:3px 7px;box-shadow:0 2px 8px #18365018}
+.mate-editorial-thumb.mate-thumbnail-fallback .mate-preview-source{background:#ffffff80}
+@media(max-width:520px){.mate-editorial-thumb{height:152px}}
