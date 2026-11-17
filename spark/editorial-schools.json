@@ -250,5 +250,17 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-robotic-sports",
+    "name": "ロボスポアカデミー",
+    "region": "東京都",
+    "category": "ロボット",
+    "description": "東京都荒川区の町屋発、ロボットを作って競技に挑む子ども向け教室です。",
+    "url": "https://robotic-club.jp",
+    "source": "https://robotic-club.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
