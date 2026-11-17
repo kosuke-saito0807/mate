@@ -514,5 +514,89 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-neo-sports",
+    "name": "NEO SPORTS KIDS",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "マット・とび箱・鉄棒などの器具を使うキッズ体操教室を案内しています。",
+    "url": "https://neo-sports.jp/",
+    "source": "https://neo-sports.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-goldenkids",
+    "name": "ゴールデンキッズ",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "5歳から12歳向けの運動能力と人間力を育むスポーツスクールです。",
+    "url": "https://www.godai.gr.jp/gk/",
+    "source": "https://www.godai.gr.jp/gk/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-taijiku",
+    "name": "TAIJIKU",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "子ども向けの運動学習塾としてスクールや体験会を案内しています。",
+    "url": "https://ts.ymcn.co.jp",
+    "source": "https://ts.ymcn.co.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-konami-kids",
+    "name": "コナミスポーツクラブ 運動塾",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "ベビースイミングや体操、水泳などの子ども向け運動スクールを案内しています。",
+    "url": "https://www.konami.com/sportsclub/kids-school/",
+    "source": "https://www.konami.com/sportsclub/kids-school/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-zenon-music",
+    "name": "ゼンオン音楽教室",
+    "region": "福岡県",
+    "category": "音楽",
+    "description": "福岡市などで幼児リトミックとピアノのレッスンを案内しています。",
+    "url": "https://zen-on-music.com/",
+    "source": "https://zen-on-music.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tomoe-music",
+    "name": "トモエミュージックスクール",
+    "region": "全国",
+    "category": "音楽",
+    "description": "親子リトミックやピアノなど、音楽を楽しむレッスンを案内しています。",
+    "url": "https://tomoemusic.com",
+    "source": "https://tomoemusic.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kawai-music",
+    "name": "カワイ音楽教室",
+    "region": "全国",
+    "category": "音楽",
+    "description": "子ども向けのピアノやリトミックのレッスンを全国で案内しています。",
+    "url": "https://music.kawai.jp",
+    "source": "https://music.kawai.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
