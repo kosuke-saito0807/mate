@@ -14,3 +14,5 @@
 .mate-editorial-thumb .mate-preview-source{position:absolute;z-index:2;top:9px;right:9px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:#24405a;background:#ffffffe8;border-radius:8px;padding:3px 7px;box-shadow:0 2px 8px #18365018}
 .mate-editorial-thumb.mate-thumbnail-fallback .mate-preview-source{background:#ffffff80}
 @media(max-width:520px){.mate-editorial-thumb{height:152px}}
+
+.mate-editorial-thumb.mate-thumbnail-fallback .mate-editorial-shot{opacity:0;pointer-events:none}
