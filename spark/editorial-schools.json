@@ -202,5 +202,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-zoo-phonics",
+    "name": "ズー・フォニックス・アカデミー",
+    "region": "全国",
+    "category": "英語・英会話",
+    "description": "幼児から小学生向けにフォニックスを使った英語のレッスンを案内しています。",
+    "url": "https://zoo-phonics.co.jp/",
+    "source": "https://zoo-phonics.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-winbe",
+    "name": "WinBe",
+    "region": "全国",
+    "category": "英語・英会話",
+    "description": "子ども向け英会話とフォニックス学習のレッスンを紹介しています。",
+    "url": "https://winbe.jp/",
+    "source": "https://winbe.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-peppy-culture",
+    "name": "ペッピーキッズクラブ（カルチャーコース）",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "一部教室で子ども向けのプログラミングやアートの講座を案内しています。",
+    "url": "https://peppy-kids.com/course/culture",
+    "source": "https://peppy-kids.com/course/culture",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-rokko-be",
+    "name": "六甲エデュケーション BE studio",
+    "region": "埼玉県",
+    "category": "英語・英会話",
+    "description": "埼玉県深谷市で、幼児や小学生向けの英語コースを案内しています。",
+    "url": "https://rokkoedu.jp/benesse-be-studio",
+    "source": "https://rokkoedu.jp/benesse-be-studio",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
