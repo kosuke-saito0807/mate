@@ -430,5 +430,29 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-doula-fukuoka",
+    "name": "ドゥーラシッターふくおか",
+    "region": "福岡県",
+    "category": "ベビーシッター・産後ケア",
+    "description": "福岡エリアで産前産後の家事育児支援と個別のベビーシッターサービスを案内しています。",
+    "url": "https://doulasitter.com/",
+    "source": "https://doulasitter.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-doula-chizu",
+    "name": "産後ドゥーラ ちづ",
+    "region": "大阪府",
+    "category": "訪問型育児支援",
+    "description": "大阪で、出産前後の家庭に向けた家事・育児の訪問サポートを案内しています。",
+    "url": "https://www.doulachizu.com/",
+    "source": "https://www.doulachizu.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
