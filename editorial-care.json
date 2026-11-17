@@ -202,5 +202,41 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-asuka-sitter",
+    "name": "明日香シッター",
+    "region": "東京都",
+    "category": "ベビーシッター・育児支援",
+    "description": "家庭へのベビーシッター派遣や家事のサポートを案内しています。",
+    "url": "https://sitter.g-asuka.co.jp/",
+    "source": "https://sitter.g-asuka.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sho-has",
+    "name": "ベビーシッターのHAS（小学館グループ）",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "法人会員向けサービスを含むベビーシッター利用案内を掲載しています。",
+    "url": "https://www.shopro.co.jp/hoiku_business/has/",
+    "source": "https://www.shopro.co.jp/hoiku_business/has/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kidsna",
+    "name": "KIDSNAシッター",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "有資格者による訪問保育サービスを、アプリなどを通じて探せるマッチングサービスです。",
+    "url": "https://sitter.kidsna.com/",
+    "source": "https://sitter.kidsna.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
