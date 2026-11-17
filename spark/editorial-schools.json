@@ -742,5 +742,65 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-shohosha",
+    "name": "書峰社書道",
+    "region": "北海道",
+    "category": "アート",
+    "description": "北海道で幼児から小中学生向けに書道・習字の対面指導を案内しています。",
+    "url": "https://www.syohousya.jp/child/",
+    "source": "https://www.syohousya.jp/child/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kumon-shosha",
+    "name": "公文書写",
+    "region": "全国",
+    "category": "アート",
+    "description": "書写を学ぶ教室として、子どもから大人向けに文字の練習コースを案内しています。",
+    "url": "https://www.kumon.ne.jp/lil/",
+    "source": "https://www.kumon.ne.jp/lil/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-avex-dance",
+    "name": "エイベックス・ダンスマスター",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "全国の提携スタジオで子ども向けのダンスプログラムを案内しています。",
+    "url": "https://dancemaster.avex.jp/",
+    "source": "https://dancemaster.avex.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-etc-dance",
+    "name": "ETCダンススクール",
+    "region": "東京都",
+    "category": "スポーツ",
+    "description": "東京・神奈川を中心に幼児から小中高生向けのダンスレッスンを案内しています。",
+    "url": "https://e-t-c.net/flow",
+    "source": "https://e-t-c.net/flow",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-qureo",
+    "name": "QUREOプログラミング教室",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "全国の教室で小学生向けのゲーム型プログラミング学習を案内しています。",
+    "url": "https://qureo.jp",
+    "source": "https://qureo.jp",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
