@@ -322,5 +322,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-beyond-sitter",
+    "name": "BEYONDシッター",
+    "region": "大阪府",
+    "category": "ベビーシッター",
+    "description": "大阪・兵庫・京都など関西エリアで、訪問型の保育サービスを案内しています。",
+    "url": "https://sitterservice-beyond.sbs",
+    "source": "https://sitterservice-beyond.sbs",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ayasan",
+    "name": "Ayasan.jp",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "東京・横浜などで英語対応スタッフによるベビーシッターなどの生活支援を案内しています。",
+    "url": "https://ayasan.jp/ja",
+    "source": "https://ayasan.jp/ja",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-prime-nurse",
+    "name": "PRIME NURSE",
+    "region": "東京都",
+    "category": "ベビーシッター・産後ケア",
+    "description": "助産師や看護師などによる産前産後ケアと訪問ベビーシッターを案内しています。",
+    "url": "https://prime-nurse.co.jp",
+    "source": "https://prime-nurse.co.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-pocca-poca",
+    "name": "家事代行ぽっかぽか",
+    "region": "東京都",
+    "category": "訪問型育児支援",
+    "description": "東京都内を中心に家庭への育児・家事支援やベビーシッターのサービスを案内しています。",
+    "url": "https://pocca-poca.jp/chuo-ku-helper.html",
+    "source": "https://pocca-poca.jp/chuo-ku-helper.html",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
