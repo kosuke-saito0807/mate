@@ -166,5 +166,41 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-rox-kids",
+    "name": "浅草ROX キッズスクール",
+    "region": "東京都",
+    "category": "スポーツ",
+    "description": "浅草ROXで水泳・ダンス・体操など、子ども向けの運動系教室を紹介しています。",
+    "url": "https://www.rox.co.jp/kids_education/",
+    "source": "https://www.rox.co.jp/kids_education/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-cococara",
+    "name": "ならいごとスタジオcococara",
+    "region": "東京都",
+    "category": "アート",
+    "description": "錦糸町エリアで絵画・造形、書道、運動など子ども向けの幅広い習い事を案内しています。",
+    "url": "https://studio-cococara.jp/",
+    "source": "https://studio-cococara.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-studio-bee",
+    "name": "studio BEE",
+    "region": "愛知県",
+    "category": "スポーツ",
+    "description": "名古屋市にある体操や水泳、ダンス、英語などの複合型キッズスクールです。",
+    "url": "https://www.studiobee-work.com/",
+    "source": "https://www.studiobee-work.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
