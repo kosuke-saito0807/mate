@@ -260,7 +260,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <div class="dialogBtns"><button type="button" class="btn light" id="cancelTrial">キャンセル</button><button class="btn" type="submit">事務局へ体験相談を送る ↗</button></div></form>
 <div class="dialogBtns" id="unavailableTrial"><button type="button" class="btn light" id="closeTrial">閉じる</button></div>
 </dialog>
-<link rel="stylesheet" href="assets/mate-gallery.css?v=20261110-premium2"><script src="assets/mate-gallery.js?v=20261110-premium2"></script>
+<link rel="stylesheet" href="assets/mate-gallery.css?v=20261110-premium2"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261117-sites"><script src="assets/mate-gallery.js?v=20261110-premium2"></script>
 <script>
 const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -273,6 +273,20 @@ function saveFav(){try{localStorage.setItem('mateSparkFavIds',JSON.stringify([..
 function choose(id){if(selected.has(id))selected.delete(id);else if(selected.size<5)selected.add(id);else{alert('比較できる教室は最大5件までです。');return}draw()}
 function regionChange(source){$('region').value=source;$('topRegion').value=source;draw()}
 function drawDays(){$('weekdays').innerHTML=weekdays.map(d=>'<button type="button" data-day="'+d+'" class="'+(selectedDays.has(d)?'on':'')+'">'+d+'</button>').join('')}
+function editorialThumb(s){
+ const id=String(s.id||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,82);
+ const name=String(s.name||'教室');let host='';
+ try{const u=new URL(s.url);if(u.protocol==='https:')host=u.hostname.toLowerCase()}catch{}
+ const hue=[...id].reduce((v,ch)=>(v*33+ch.charCodeAt(0))%360,127);
+ const favicon=host?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(host)+'&sz=128':'';
+ return '<div class="mate-editorial-thumb mate-thumbnail-fallback" style="--mate-hue:'+hue+'" data-editorial-thumbnail>'+
+  '<img class="mate-editorial-shot" data-editorial-shot src="assets/editorial-thumbnails/spark/'+escapeHtml(id)+'.webp" alt="'+escapeHtml(name)+'の公式Webサイト縮小プレビュー" loading="lazy" decoding="async" referrerpolicy="no-referrer">'+
+  '<div class="mate-editorial-brand">'+(favicon?'<img class="mate-editorial-favicon" src="'+escapeHtml(favicon)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">':'')+
+  '<span class="mate-editorial-name">'+escapeHtml(name)+'</span></div>'+
+  (host?'<span class="mate-preview-source">公式サイト：'+escapeHtml(host)+'</span>':'')+'</div>';
+}
+document.addEventListener('load',e=>{const i=e.target;if(i&&i.matches&&i.matches('[data-editorial-shot]'))i.closest('.mate-editorial-thumb')?.classList.remove('mate-thumbnail-fallback')},true);
+document.addEventListener('error',e=>{const i=e.target;if(i&&i.matches&&i.matches('[data-editorial-shot],.mate-editorial-favicon'))i.hidden=true},true);
 function imageEmoji(s){return s.category.includes('プログラミング')?'🤖':s.category.includes('音楽')?'🎹':s.category.includes('スポーツ')?'⚽':s.category.includes('英語')?'🌐':'📚'}
 function optionCategory(){for(const value of categories){const el=document.createElement('option');el.value=value;el.textContent=value;$('category').append(el)}}
 function matching(s){
@@ -306,7 +320,7 @@ function draw(){
  $('cards').innerHTML=sorted.map(s=>{
   const fictional=demoMode||s.demo===true;
   if(s.editorial)return '<article class="card" data-editorial-key="'+escapeHtml(s.id)+'"><div class="cardArt">'+
-   '<span class="flag">'+escapeHtml(s.category)+'</span><span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span></div>'+
+   '<span class="flag">'+escapeHtml(s.category)+'</span>'+editorialThumb(s)+'</div>'+
    '<div class="content"><div class="city">'+escapeHtml(s.region)+'</div><h3>'+escapeHtml(s.name)+'</h3>'+
    '<p class="meta"><strong>公開情報参考・事業者未確認</strong></p><p>'+escapeHtml(s.description||'')+'</p>'+
    '<div class="meta">対象年齢・料金・開催条件は公式サイトでご確認ください。</div>'+
