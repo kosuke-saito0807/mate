@@ -3,6 +3,10 @@
     "at": 1794916103,
     "reason": "Empty screenshot"
   },
+  "editorial-avex-dance": {
+    "at": 1794935061,
+    "reason": "HTTP 403"
+  },
   "editorial-konami-kids": {
     "at": 1794916103,
     "reason": "Page.goto: Timeout 15500ms exceeded.\nCall log:\n  - navigating to \"https://www.konami.com/sportsclub/kids-school/\", waiting until \"domco"
