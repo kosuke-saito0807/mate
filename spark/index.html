@@ -335,7 +335,7 @@ function draw(){
    const trialCost=typeof s.trialPrice==='number'?(s.trialPrice===0?'無料体験':'体験 '+yen(s.trialPrice)):'体験料金：要確認';
   return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt '+cls+'">'+
     '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
-    (window.MATEGallery?window.MATEGallery.render(s,'SPARK'):'<span class="emoji" aria-hidden="true">'+imageEmoji(s)+'</span>')+
+    ((Array.isArray(s.images)&&s.images.length&&window.MATEGallery)?window.MATEGallery.render(s,'SPARK'):editorialThumb(s))+
     '<button type="button" class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-pressed="'+(favorite.has(s.id)?'true':'false')+'" aria-label="'+escapeHtml(s.name)+'をお気に入り'+(favorite.has(s.id)?'から解除':'に追加')+'">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
     '</div><div class="content">'+
     '<div class="city">'+escapeHtml(s.region)+' ・ '+escapeHtml(s.area||'')+'</div>'+
