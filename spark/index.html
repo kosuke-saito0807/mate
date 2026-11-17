@@ -326,6 +326,7 @@ function draw(){
     '</div><div class="content">'+
     '<div class="city">'+escapeHtml(s.region)+' ・ '+escapeHtml(s.area||'')+'</div>'+
     '<h3>'+escapeHtml(s.name)+'</h3>'+
+    '<p class="meta"><strong>正式掲載</strong></p>'+
     '<div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div>'+
      '<div class="meta">対象：'+(typeof s.ageMin==='number'&&typeof s.ageMax==='number'?escapeHtml(s.ageMin+'〜'+s.ageMax+'歳'):escapeHtml((s.ages||[]).join('・')||'要確認'))+'</div>'+
     '<p>'+escapeHtml(s.description||'')+'</p>'+
@@ -429,7 +430,7 @@ async function init(){
    schools=(Array.isArray(demo)?demo:[]).filter(s=>s&&s.demo===true&&s.id&&s.name);
    $('demoBanner').textContent='以下の'+schools.length+'教室は画面確認用の架空サンプルです。料金・対象年齢・曜日・写真は説明用であり、実在教室への申込みはできません。';
    $('footnote').textContent='架空のサンプルを表示しています。実在の掲載教室は、掲載許諾・内容確認の完了後に自動反映されます。';
-  }else{schools=real.concat(editorials.filter(p=>!real.some(s=>s.url&&s.url===p.url)));$('demoBanner').textContent='教室の最新の料金・対象年齢・受講条件は各公式サイトをご確認ください。';}
+  }else{schools=real.concat(editorials.filter(p=>!real.some(s=>s.url&&s.url===p.url)));$('demoBanner').textContent='最新の料金・対象年齢・利用条件は各事業者の公式サイトをご確認ください。';}
   draw();
  }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
 }
