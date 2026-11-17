@@ -262,5 +262,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-mammys-service",
+    "name": "マミーズサービス",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "有限会社メイコーポレーションが運営する在宅保育・臨時託児のサービスです。",
+    "url": "https://may-corp.co.jp/company/",
+    "source": "https://may-corp.co.jp/company/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-alice-sitter",
+    "name": "アリスシッター",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "スタジオアリスグループの派遣型ベビーシッターサービス。利用条件は公式案内をご確認ください。",
+    "url": "https://sitter.studio-alice.co.jp/",
+    "source": "https://sitter.studio-alice.co.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-bears-sitter",
+    "name": "ベアーズ キッズ＆ベビーシッター",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "家庭でのキッズ・ベビーシッターを、複数地域向けに案内するサービスです。",
+    "url": "https://happy-bears.com/lp/baby",
+    "source": "https://happy-bears.com/lp/baby",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-withg-sitter",
+    "name": "ウィズグループ ベビーシッター",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "一時的な子どもの預かりや産後の育児サポートなどを案内しています。",
+    "url": "https://www.with-g.com/baby/babysitter",
+    "source": "https://www.with-g.com/baby/babysitter",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
