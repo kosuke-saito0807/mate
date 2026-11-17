@@ -204,6 +204,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <p id="demoLink" hidden aria-hidden="true"></p>
 <div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option><option value="soon">体験日が近い順</option></select></div></div>
 <div class="cards" id="cards" aria-live="polite"></div>
+<section id="editorial-schools" aria-label="公開情報から探す習い事" style="margin:24px 0;padding:18px;border:1px solid #c7ddec;border-radius:14px;background:#f6faff"><h3 style="margin:0 0 8px">公開情報から探す教室</h3><p style="font-size:12px">以下はMATE編集部が公開された事業情報を参考に独自作成した紹介です。事業者の申請・承認、提携、体験予約の受付を意味しません。最新情報は各公式サイトでご確認ください。<a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除の依頼</a></p><div id="editorial-school-cards" class="cards" aria-live="polite"></div></section>
 <p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
 </div></div></div></section>
 <section class="partners"><div class="wrap partnerRow"><div><p class="eyebrow">FOR SCHOOL PARTNERS</p><h2>あなたの教室と、<br>新しい「好き」をつなごう。</h2><p>教室の魅力を届けて、体験のきっかけを増やしませんか。</p></div><a class="btn" data-mate-cta="listing" href="partners.html">掲載について見る ↗</a></div></section>
@@ -460,5 +461,23 @@ document.addEventListener('click',function(event){
  if(!link||typeof gtag!=='function')return;
  gtag('event','mate_listing_click',{service:'SPARK',cta_location:'homepage'});
 },{passive:true});
+</script>
+<script>
+(function(){
+ const grid=document.getElementById('editorial-school-cards');
+ const esc=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+ let records=[];
+ function render(){
+  const q=(document.getElementById('keyword')?.value||'').trim().toLowerCase();
+  const category=document.getElementById('category')?.value||'';
+  const region=document.getElementById('region')?.value||'';
+  const filtered=records.filter(p=>(!q||[p.name,p.description,p.region,p.category].join(' ').toLowerCase().includes(q))&&(!category||p.category===category)&&(!region||p.region===region));
+  grid.innerHTML=filtered.map(p=>'<article class="card"><div class="content"><p class="city">'+esc(p.region)+'</p><h3>'+esc(p.name)+'</h3><p><strong>公開情報参考・事業者未確認</strong></p><p>'+esc(p.description)+'</p><p class="meta">'+esc(p.category)+'／情報確認 '+esc(p.reviewedAt)+'</p><div class="cardActions"><a class="btn" href="'+esc(p.url)+'" rel="noopener noreferrer" target="_blank">公式サイトを見る ↗</a><a href="partners.html">正式掲載を申請 ↗</a></div></div></article>').join('') || '<p style="font-size:13px">条件に合う公開情報の教室はありません。</p>';
+ }
+ fetch('./editorial-schools.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('editorial');return r.json()}).then(d=>{records=Array.isArray(d)?d.filter(p=>p.editorial===true&&p.approved===false&&/^https:\/\//.test(p.url)):[];render()}).catch(()=>{grid.textContent='公開情報を読み込めませんでした。'});
+ ['keyword','category','region'].forEach(id=>document.getElementById(id)?.addEventListener('input',render));
+ document.getElementById('categoryQuick')?.addEventListener('click',()=>setTimeout(render,0));
+ document.getElementById('reset')?.addEventListener('click',()=>setTimeout(render,0));
+})();
 </script>
 </body></html>
