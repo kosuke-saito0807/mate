@@ -346,5 +346,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-megumi-ongakukan",
+    "name": "めぐみ音楽館",
+    "region": "神奈川県",
+    "category": "音楽",
+    "description": "横浜市港南区で、子ども向けピアノやエレクトーンなどのレッスンを案内しています。",
+    "url": "https://www.ongakukan.com/kids.php",
+    "source": "https://www.ongakukan.com/kids.php",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-culture-hiyoshi",
+    "name": "カルチャー日吉",
+    "region": "神奈川県",
+    "category": "アート",
+    "description": "横浜市港北区で、英語・音楽・絵画・書道など幅広い学習講座を案内しています。",
+    "url": "https://www.culture-hiyoshi.com/",
+    "source": "https://www.culture-hiyoshi.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-otamajakushi",
+    "name": "ならいごと教室 おたまじゃくし",
+    "region": "広島県",
+    "category": "スポーツ",
+    "description": "尾道・福山エリアでダンスやバレエ、書道、運動系のレッスンを案内しています。",
+    "url": "https://otama-naraigoto.com/otherclass",
+    "source": "https://otama-naraigoto.com/otherclass",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-techkids",
+    "name": "Tech Kids School",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "小学生向けにプログラミングやコンテストなどの学習機会を案内するスクールです。",
+    "url": "https://techkidsschool.jp/",
+    "source": "https://techkidsschool.jp/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
