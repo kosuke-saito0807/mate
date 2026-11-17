@@ -118,5 +118,53 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-florence-byoji",
+    "name": "フローレンスの病児保育",
+    "region": "東京都",
+    "category": "訪問型病児保育",
+    "description": "子どもの発熱などに備えた自宅訪問型の病児保育サービスです。利用条件は公式案内をご確認ください。",
+    "url": "https://byojihoiku.florence.or.jp",
+    "source": "https://byojihoiku.florence.or.jp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-babybell",
+    "name": "ベビーベル",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "家庭での見守りや送迎、病児保育、家事代行などを案内しています。対応地域は公式サイトでご確認ください。",
+    "url": "https://baby-bell.com/service",
+    "source": "https://baby-bell.com/service",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-takamisupply",
+    "name": "株式会社タカミサプライ",
+    "region": "全国",
+    "category": "ベビーシッター",
+    "description": "東京・名古屋・大阪などの拠点でベビーシッターサービスを案内しています。",
+    "url": "https://ssl.takamisupply.co.jp/baby",
+    "source": "https://ssl.takamisupply.co.jp/baby",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-pasona-lc",
+    "name": "パソナライフケア ベビーシッター",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "東京都の一時預かり利用支援制度に関連するベビーシッターサービスを紹介しています。",
+    "url": "https://lp.pasona-lc.co.jp/babysitter_tokyo",
+    "source": "https://lp.pasona-lc.co.jp/babysitter_tokyo",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
