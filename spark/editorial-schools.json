@@ -58,5 +58,65 @@
     "reviewedAt": "2026-11-17",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-robodan",
+    "name": "ロボ団",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "年長・小学生からのロボットプログラミング学習を案内しています。教室ごとの所在地を公式サイトで確認してください。",
+    "url": "https://robo-done.com",
+    "source": "https://robo-done.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-robbo",
+    "name": "ROBBO",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "英語を使ったロボット・プログラミング制作を学ぶ教室です。教室ごとの所在地は公式情報でご確認ください。",
+    "url": "https://robbojapan.com/",
+    "source": "https://robbojapan.com/",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-crefus",
+    "name": "Crefus（クレファス）",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "ロボット製作・プログラミング・STEAM学習を案内しています。オンラインコースもあります。",
+    "url": "https://crefus.com/e-crefus_lp",
+    "source": "https://crefus.com/e-crefus_lp",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-roborobo",
+    "name": "ロボロボ・Club",
+    "region": "神奈川県",
+    "category": "プログラミング",
+    "description": "ロボットの組み立てとプログラミングに取り組む教室です。リモートでの個別レッスンも案内しています。",
+    "url": "https://enjoy-robo.com",
+    "source": "https://enjoy-robo.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-eikoh-robot",
+    "name": "栄光ロボットアカデミー",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "ロボット教材を使った制作・プログラミング学習を案内しています。",
+    "url": "https://eikoh-robot-academy.com",
+    "source": "https://eikoh-robot-academy.com",
+    "reviewedAt": "2026-11-17",
+    "editorial": true,
+    "approved": false
   }
 ]
