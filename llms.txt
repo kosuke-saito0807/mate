@@ -14,9 +14,12 @@
 
 - [CARE・SPARK・PLAYの事業者向け無料掲載案内](https://care.kosodatemate.jp/business.html): どのサービスが掲載対象かを選び、直接申請へ進む
 
+- [全国のベビーシッター公式情報一覧](https://care.kosodatemate.jp/sitter-directory.html): 事業者未承認の参考紹介をHTMLで掲載。各事業者の公式サイトへリンクし、正式掲載・提携・推薦とは区別しています
+- [公開情報の修正・削除](https://care.kosodatemate.jp/public-guide.html#correction): 事業者向けの独立した受付案内
+
 ## 関連サービス
 - [MATE SPARK](https://spark.kosodatemate.jp/): 子どもの習い事・教室
 - [MATE PLAY](https://play.kosodatemate.jp/): 親子向け体験・お出かけ
 
 ## 利用上の注意
-事業者情報・料金・予約の可否は変更されることがあります。掲載申請は掲載決定や資格の保証を意味しません。
+検索結果に掲載される参考紹介は、事業者がMATE掲載を承認したことを意味しません。参考紹介と正式掲載は区別されます。事業者情報・料金・予約の可否は変更されることがあります。掲載申請は掲載決定や資格の保証を意味しません。
