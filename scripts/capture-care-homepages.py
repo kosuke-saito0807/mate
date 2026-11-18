@@ -16,6 +16,7 @@ from playwright.async_api import async_playwright
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets/editorial-thumbnails/care"
 OUT.mkdir(parents=True, exist_ok=True)
+MANIFEST = OUT / "homepage-manifest.json"
 
 def homepage(value):
     try:
@@ -52,9 +53,9 @@ def entries():
                 known[key] = url
     return known
 
-async def capture(browser, semaphore, key, url):
+async def capture(browser, semaphore, key, url, previous):
     dest = OUT / (key + ".webp")
-    if dest.exists() and dest.stat().st_size > 3000:
+    if previous.get(key) == url and dest.exists() and dest.stat().st_size > 3000:
         return True
     async with semaphore:
         context = await browser.new_context(viewport={"width": 1280, "height": 960}, device_scale_factor=1, locale="ja-JP", java_script_enabled=True, service_workers="block")
@@ -74,17 +75,23 @@ async def capture(browser, semaphore, key, url):
             return True
         except Exception as exc:
             print("SKIP", key, url, str(exc)[:180], flush=True)
+            dest.unlink(missing_ok=True)
             return False
         finally:
             await context.close()
 
 async def main():
     items = entries()
+    try:
+        previous = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        previous = {}
     async with async_playwright() as playwright:
         browser = await playwright.chromium.launch(headless=True, args=["--disable-dev-shm-usage"])
         semaphore = asyncio.Semaphore(3)
-        results = await asyncio.gather(*(capture(browser, semaphore, key, url) for key, url in items.items()))
+        results = await asyncio.gather(*(capture(browser, semaphore, key, url, previous) for key, url in items.items()))
         await browser.close()
+    MANIFEST.write_text(json.dumps({key: url for (key, url), ok in zip(items.items(), results) if ok}, ensure_ascii=False, indent=2)+"\\n", encoding="utf-8")
     print("Captured or existing:", sum(results), "/", len(results), flush=True)
 
 if __name__ == "__main__":
