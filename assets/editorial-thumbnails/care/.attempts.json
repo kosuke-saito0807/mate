@@ -3,6 +3,10 @@
     "at": 1794979106,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://akamon-mammy.com/\", waiting until \"commit\"\n"
   },
+  "editorial-combismile": {
+    "at": 1795009547,
+    "reason": "Empty screenshot"
+  },
   "editorial-kidsline": {
     "at": 1794915995,
     "reason": "HTTP 403"
