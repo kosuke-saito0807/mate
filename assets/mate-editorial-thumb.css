@@ -1,7 +1,7 @@
 /* Unique, attributable previews of independent editorial references.
    A provider-specific local website screenshot is preferred; when it is not yet
    available, retain the provider's own favicon and an individual brand tile. */
-.mate-editorial-thumb{--mate-hue:195;position:relative;width:100%;height:auto;aspect-ratio:4/3;overflow:hidden;isolation:isolate;border-radius:9px;background:linear-gradient(135deg,hsl(var(--mate-hue) 52% 84%),hsl(calc(var(--mate-hue) + 42) 65% 95%));}
+.mate-editorial-thumb{--mate-hue:195;position:relative;width:100%;height:auto;aspect-ratio:1/1;overflow:hidden;isolation:isolate;border-radius:9px;background:linear-gradient(135deg,hsl(var(--mate-hue) 52% 84%),hsl(calc(var(--mate-hue) + 42) 65% 95%));}
 .mate-editorial-thumb::before{content:"";position:absolute;inset:-35%;background:radial-gradient(circle at 32% 38%,#fff9 0,transparent 41%),radial-gradient(circle at 75% 82%,#fff7 0,transparent 46%);transform:rotate(-12deg);pointer-events:none;}
 .mate-editorial-shot{position:relative;display:block;width:100%;height:100%;object-fit:contain;object-position:center top;background:#fff;}
 .mate-editorial-shot[hidden],.mate-editorial-favicon[hidden]{display:none!important}
