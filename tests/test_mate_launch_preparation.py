@@ -25,8 +25,11 @@ class LaunchPreparationTests(unittest.TestCase):
         care=(ROOT/"index.html").read_text(encoding="utf-8")
         spark=(SPARK/"index.html").read_text(encoding="utf-8")
         self.assertIn('consult.html?service=CARE',search)
-        self.assertIn('シッター事業者の無料掲載申請はこちら',search)
-        self.assertIn('provider-search.js?v=20261109-direct-listing',care)
+        # Editorial family cards must not carry the operator application CTA.
+        # Operators reach the dedicated intake via the navigation/partner area.
+        self.assertNotIn('正式掲載を申請 ↗',search)
+        self.assertIn('href="contact.html">掲載相談フォームへ',care)
+        self.assertRegex(care,r'provider-search\\.js\\?v=20261118-[a-z0-9-]+')
         self.assertIn('consult.html?service=SPARK',spark)
         self.assertIn('href="partners.html">教室の無料掲載申請はこちら',spark)
 
