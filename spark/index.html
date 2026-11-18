@@ -168,6 +168,8 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
  .hero-art .hero-visual{object-fit:contain;object-position:center center}
  .hero-art::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.32) 16%,transparent 36%,transparent 70%,rgba(255,255,255,.5) 100%);pointer-events:none}
 }
+/* Editorial cards focus on the family's next action; provider enrollment lives in the partner section. */
+.card[data-editorial-key] .cardActions{grid-template-columns:1fr}
 </style>
 <link rel="stylesheet" href="mate-ux.css?v=20261029"><link rel="stylesheet" href="mate-brand-alignment.css?v=20261103-sales-ready-v16" /><link rel="stylesheet" href="hero-parity.css?v=20261103-copy-position-v3">
 <link rel="stylesheet" href="assets/mate-form-consistency.css?v=20261109"><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","@id":"https://spark.kosodatemate.jp/#practical-faq","inLanguage":"ja-JP","mainEntity":[{"@type":"Question","name":"習い事は何歳から始めるといい？","acceptedAnswer":{"@type":"Answer","text":"一律の開始年齢よりも、お子さまの興味・体力・生活リズムと教室の対象年齢を優先しましょう。見学や短い体験から始める方法もあります。"}},{"@type":"Question","name":"月謝以外にどんな費用がかかる？","acceptedAnswer":{"@type":"Answer","text":"入会金、教材費、道具代、発表会費、交通費などを含めて年間総額を比較しましょう。"}},{"@type":"Question","name":"体験レッスンでは何を見る？","acceptedAnswer":{"@type":"Answer","text":"先生との相性、お子さまの表情、教室の安全配慮、振替・退会の条件を確認し、無理なく通えるか考えましょう。"}}]}</script>
@@ -260,7 +262,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <div class="dialogBtns"><button type="button" class="btn light" id="cancelTrial">キャンセル</button><button class="btn" type="submit">事務局へ体験相談を送る ↗</button></div></form>
 <div class="dialogBtns" id="unavailableTrial"><button type="button" class="btn light" id="closeTrial">閉じる</button></div>
 </dialog>
-<link rel="stylesheet" href="assets/mate-gallery.css?v=20261110-premium2"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261117-sites"><script src="assets/mate-gallery.js?v=20261110-premium2"></script>
+<link rel="stylesheet" href="assets/mate-gallery.css?v=20261110-premium2"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261118-taller4x3"><script src="assets/mate-gallery.js?v=20261110-premium2"></script>
 <script>
 const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -325,7 +327,7 @@ function draw(){
    '<p class="meta"><strong>公開情報参考・事業者未確認</strong></p><p>'+escapeHtml(s.description||'')+'</p>'+
    '<div class="meta">対象年齢・料金・開催条件は公式サイトでご確認ください。</div>'+
    '<div class="cardActions"><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a>'+
-   '<a href="partners.html">正式掲載を申請 ↗</a></div><p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除を依頼</a></p></div></article>';
+   '</div><p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除を依頼</a></p></div></article>';
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
 
   const action='<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>';
