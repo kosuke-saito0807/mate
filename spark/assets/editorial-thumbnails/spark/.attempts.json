@@ -11,6 +11,14 @@
     "at": 1794977223,
     "reason": "HTTP 403"
   },
+  "editorial-cloudt": {
+    "at": 1794979611,
+    "reason": "HTTP 403"
+  },
+  "editorial-fuji-sports": {
+    "at": 1794979611,
+    "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://fujisportsclub.com/\", waiting until \"commit\"\n"
+  },
   "editorial-jexer-kids": {
     "at": 1794979276,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://jexer.jp/kids/\", waiting until \"commit\"\n"
