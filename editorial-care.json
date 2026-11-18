@@ -598,5 +598,17 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-ikuji-net",
+    "name": "育児ねっと",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "東京近郊でベビーシッターや一時保育、産前産後の子育て支援を案内しています。",
+    "url": "https://petit-monsieur.co.jp/",
+    "source": "https://petit-monsieur.co.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
