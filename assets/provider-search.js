@@ -28,6 +28,19 @@ function mateFocusListingHash(){
 }
 function resetSearch(){for(const id of ['q','area'])document.getElementById(id).value='';render()}
 for(const id of ['q','area','sort'])document.getElementById(id).addEventListener(id==='q'?'input':'change',render);
-Promise.all([fetch('data.json?'+Date.now()).then(r=>{if(!r.ok)throw Error('approved load');return r.json()}),fetch('editorial-care.json?'+Date.now()).then(r=>{if(!r.ok)throw Error('editorial load');return r.json()})]).then(([x,editorial])=>{const official=Array.isArray(x)?x:(x.providers||x.data||[]);D=official.concat((Array.isArray(editorial)?editorial:[]).filter(p=>p.editorial===true&&p.approved===false).map(p=>({...p,area:p.region,official_url:p.url})));fill();render();mateFocusListingHash();document.getElementById('care-data-status').textContent=D.length?'正式掲載と事業者未承認の参考紹介を区別して表示しています。料金・対象年齢・利用条件は各公式サイトでご確認ください。':'現在、掲載シッター事業者を募集中です。'}).catch(()=>{render();document.getElementById('care-data-status').textContent='シッター情報を取得できませんでした。時間をおいてページを再読み込みしてください。'});
+Promise.allSettled([
+ fetch('data.json?'+Date.now()).then(r=>{if(!r.ok)throw Error('approved load');return r.json()}),
+ fetch('editorial-care.json?'+Date.now()).then(r=>{if(!r.ok)throw Error('editorial load');return r.json()})
+]).then(([approvedResult,editorialResult])=>{
+ const x=approvedResult.status==='fulfilled'?approvedResult.value:[];
+ const raw=Array.isArray(x)?x:(Array.isArray(x.providers)?x.providers:Array.isArray(x.data)?x.data:[]);
+ const editorial=editorialResult.status==='fulfilled'&&Array.isArray(editorialResult.value)?editorialResult.value:[];
+ D=raw.concat(editorial.filter(p=>p.editorial===true&&p.approved===false).map(p=>({...p,area:p.region,official_url:p.url})));
+ fill();render();mateFocusListingHash();
+ const status=document.getElementById('care-data-status');
+ if(approvedResult.status==='rejected'&&editorialResult.status==='rejected')status.textContent='掲載情報を取得できませんでした。時間をおいて再読み込みしてください。';
+ else if(approvedResult.status==='rejected'||editorialResult.status==='rejected')status.textContent='一部の掲載情報を取得できませんでした。現在表示中の事業者情報は公式サイトでもご確認ください。';
+ else status.textContent=D.length?'正式掲載と事業者未承認の参考紹介を区別して表示しています。料金・対象年齢・利用条件は各公式サイトでご確認ください。':'現在、掲載シッター事業者を募集中です。';
+});
 
 document.getElementById('results').addEventListener('click',event=>{const link=event.target.closest('a[data-provider-id]');if(link&&window.gtag){const id=String(link.dataset.providerId||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','provider_outbound',{service:'CARE',provider_id:id});gtag('event','mate_partner_click',{service:'CARE',partner_id:id})}}});
