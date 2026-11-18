@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/editorial-thumbnails/care/
+          git add -A assets/editorial-thumbnails/care/
           if git diff --cached --quiet; then
             echo "No new homepage screenshots"
           else
