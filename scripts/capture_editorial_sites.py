@@ -22,7 +22,9 @@ from PIL import Image, ImageOps
 from playwright.sync_api import sync_playwright
 
 ID_PATTERN = re.compile(r"^(?:editorial-[a-zA-Z0-9_-]{3,75}|mate_spark_[a-zA-Z0-9_-]{8,60})$")
+# Respect hard blocks for a week, but retry transient blank/slow pages the next day.
 MAX_AGE_FAILURE = 7 * 24 * 3600
+TRANSIENT_FAILURE_AGE = 24 * 3600
 
 
 def allowed_url(raw: object) -> str | None:
@@ -97,13 +99,23 @@ def main() -> int:
                 skipped += 1
                 continue
             attempt = failures.get(name, {})
-            if isinstance(attempt, dict) and now - int(attempt.get("at", 0)) < MAX_AGE_FAILURE:
-                skipped += 1
-                continue
+            if isinstance(attempt, dict):
+                reason = str(attempt.get("reason", ""))
+                # HTTP 403/401/429 must not be repeatedly retried against a site.
+                backoff = MAX_AGE_FAILURE if any(code in reason for code in ("HTTP 401", "HTTP 403", "HTTP 429")) else TRANSIENT_FAILURE_AGE
+                if now - int(attempt.get("at", 0)) < backoff:
+                    skipped += 1
+                    continue
             page = context.new_page()
             temp = args.output / (name + ".temp.png")
             try:
-                response = page.goto(url, wait_until="domcontentloaded", timeout=15500)
+                # Some operator sites never reach DOMContentLoaded; capture the public
+                # document after the first response rather than giving up entirely.
+                response = page.goto(url, wait_until="commit", timeout=14500)
+                try:
+                    page.wait_for_load_state("domcontentloaded", timeout=5500)
+                except Exception:
+                    pass
                 if response is not None and response.status >= 400:
                     raise RuntimeError("HTTP " + str(response.status))
                 if not allowed_url(page.url):
