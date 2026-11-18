@@ -118,7 +118,10 @@ class DiscoveryQuality(unittest.TestCase):
   care=src("assets/provider-search.js")
   spark=src("spark/index.html")
   self.assertIn('href="guide-sitter-choice.html"',care)
-  self.assertIn("シッター事業者の無料掲載申請はこちら",care)
+  # Family-oriented editorial cards keep correction and outbound links only.
+  # Operator application remains accessible via the dedicated partner area.
+  self.assertNotIn("正式掲載を申請 ↗",care)
+  self.assertIn('href="contact.html">掲載相談フォームへ',src("index.html"))
   self.assertIn('href="guide-lessons-choice.html"',spark)
   self.assertIn("教室の無料掲載申請はこちら",spark)
   # No fictional providers or unauthorized bookings created by fallback links.
