@@ -802,5 +802,101 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-kids-atelier-nishitokyo",
+    "name": "こども絵画造形教室 キッズ・アトリエ",
+    "region": "東京都",
+    "category": "アート",
+    "description": "西東京市と練馬大泉で絵画・造形を学べる子ども向け教室です。",
+    "url": "https://kids-atelier7.moo.jp/",
+    "source": "https://kids-atelier7.moo.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-minato-art-kids",
+    "name": "湊アートテラス こどもクラス",
+    "region": "東京都",
+    "category": "アート",
+    "description": "子どもがさまざまな画材を使って制作を楽しむ造形・美術レッスンを案内しています。",
+    "url": "https://minato-art.com/kids",
+    "source": "https://minato-art.com/kids",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-okada-ballet",
+    "name": "岡田純奈バレエ団 スクール",
+    "region": "愛知県",
+    "category": "スポーツ",
+    "description": "初心者の子どもから経験者まで、年齢や経験に応じたバレエクラスを案内しています。",
+    "url": "https://okada-ballet.com/o_school",
+    "source": "https://okada-ballet.com/o_school",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-eys-kids-ballet",
+    "name": "EYS-Kids バレエアカデミー",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "子ども向けのバレエレッスンを、楽しさや表現力を大切にした方針で紹介しています。",
+    "url": "https://eys-kids.com/art-college/ballet/pc/",
+    "source": "https://eys-kids.com/art-college/ballet/pc/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sody-dance",
+    "name": "SODYダンススクール",
+    "region": "福岡県",
+    "category": "スポーツ",
+    "description": "福岡市東区のダンススクール。子ども向けのダンスやバレエなどのレッスンを案内しています。",
+    "url": "https://sody4839.net/",
+    "source": "https://sody4839.net/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-lydia-dance",
+    "name": "リディアダンスアカデミー",
+    "region": "全国",
+    "category": "スポーツ",
+    "description": "3歳から通えるキッズダンススタジオで、初めての方向けのクラスも案内しています。",
+    "url": "https://re-dia.jp/",
+    "source": "https://re-dia.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-twoshoes",
+    "name": "Two Shoes Dance Academy Japan",
+    "region": "愛知県",
+    "category": "スポーツ",
+    "description": "名古屋で英語にも触れながらバレエやジャズなどのダンスを学べる教室です。",
+    "url": "https://twoshoesdance.jp/",
+    "source": "https://twoshoesdance.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-robot-sendai",
+    "name": "ロボット科学教育 仙台校",
+    "region": "宮城県",
+    "category": "ロボット",
+    "description": "仙台でロボット製作やプログラミングを通じた科学教育を案内しています。",
+    "url": "https://robot-sendai.com/",
+    "source": "https://robot-sendai.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
