@@ -2200,13 +2200,35 @@ function mateAutoOpsV4Cycle(){
       }
     };
     const report={phaseIndex};
-    // Install an independent, inexpensive sender check every 15 minutes.
-    // The full discovery cycle still runs hourly. Existing quotas and
-    // suppression guards remain in mateV4SendOutreach().
+    // Do the mandatory safety checks and the real send first: discovery and
+    // inbox analytics can consume the 6-minute GAS execution window.
+    // A failed suppression or ambiguous-send reconciliation must prevent sends.
     report.fastSendTrigger=safe('fastSendTrigger',()=>mateV4EnsureFastOutreachTrigger_());
-    // Real application/publication outcomes are the primary KPI. Refresh on
-    // EVERY hourly cycle instead of waiting up to three discovery phases.
+    report.optouts=mateV4OptoutInbox();
+    report.hardBounces=mateV4HardBounceQuarantine();
+    report.reconciledSent=mateV4ReconcileSentReservations();
+    if(props.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'&&
+       props.getProperty('MATE_AUTO_SEND')==='ON'){
+      try{report.capacityTarget=enableMatePerService30V4()}
+      catch(e){report.capacityTarget={mode:'AWAITING_VERIFIED_PRECONDITIONS',
+        reason:'90_PER_DAY_ENABLE_GUARD'};}
+    }
+    // This sender uses existing recipient verification, owner suppression,
+    // deduplication, daily caps and Gmail quota gates unchanged.
+    report.outreach=mateV4SendOutreach();
+
+    // Refresh quality and conversion work after the send attempt. Newly
+    // verified leads are eligible for a later guarded cycle, not a shortcut.
     report.externalListingKpi=safe('externalListingKpi',mateV4RefreshExternalListingKpi_);
+    report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
+    report.listingAcknowledgements=safe('listingAcknowledgements',mateV4AcknowledgeListingInterests_);
+    report.publicAudit=safe('publicAudit',mateV4AuditOfficialContacts);
+    report.reviewDrafts=safe('reviewDrafts',mateV4PrepareReviewDrafts);
+    report.referrals=safe('referrals',mateV4SyncReferralLedger);
+    report.replies=safe('replies',mateV4TrackReplies);
+
+    // Rotate expensive fresh-source discovery only after time-critical work.
+    // The separate 15-minute guarded sender continues independently.
     if(phaseIndex===0){
       report.crmSeeded=safe('crmSeeded',mateV4SeedExistingCRM);
       report.sectorSeeded=safe('sectorSeeded',mateV4SeedSectorDirectories);
@@ -2218,29 +2240,6 @@ function mateAutoOpsV4Cycle(){
       report.freeOsmDiscovery=safe('freeOsmDiscovery',mateV4DiscoverFreeOsmCandidates);
       report.freeWebPromoted=safe('freeWebPromoted',mateV4PromoteFreeWebCandidates);
     }
-    // Suppression and ambiguous-send reconciliation must be successful BEFORE
-    // any external sends. Never send on an opt-out processing failure.
-    report.optouts=mateV4OptoutInbox();
-    report.hardBounces=mateV4HardBounceQuarantine();
-    report.reconciledSent=mateV4ReconcileSentReservations();
-    // Owner-approved 30 per service target. Never bypass existing sender,
-    // legal, quota, opt-out or duplicate gates. A missing prerequisite leaves
-    // live settings untouched and is recorded without hiding cycle success.
-    if(props.getProperty('MATE_OUTREACH_PHASE')==='DAILY_30'&&
-       props.getProperty('MATE_AUTO_SEND')==='ON'){
-      try{report.capacityTarget=enableMatePerService30V4()}
-      catch(e){report.capacityTarget={mode:'AWAITING_VERIFIED_PRECONDITIONS',
-        reason:'90_PER_DAY_ENABLE_GUARD'};}
-    }
-    // Capture warm applicant intent before slow site audits or reply sweeps.
-    // This is read-only Gmail inspection and internal queue creation only.
-    report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
-    report.listingAcknowledgements=safe('listingAcknowledgements',mateV4AcknowledgeListingInterests_);
-    report.publicAudit=safe('publicAudit',mateV4AuditOfficialContacts);
-    report.reviewDrafts=safe('reviewDrafts',mateV4PrepareReviewDrafts);
-    report.referrals=safe('referrals',mateV4SyncReferralLedger);
-    report.outreach=mateV4SendOutreach();
-    report.replies=safe('replies',mateV4TrackReplies);
     // Heartbeat is best-effort; it cannot block legitimate email cycle work.
     try{report.productionHeartbeat=mateV4ProductionHeartbeat_(report)}
     catch(err){console.log('PRODUCTION_HEARTBEAT_FAILED '+String(err).slice(0,120));}
