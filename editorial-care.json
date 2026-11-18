@@ -454,5 +454,53 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-toranoko-kids",
+    "name": "とらのこKidsサポート",
+    "region": "愛知県",
+    "category": "ベビーシッター・産後ケア",
+    "description": "春日井・名古屋周辺でベビーシッターや産前産後ヘルパー、病児シッターの訪問サービスを案内しています。",
+    "url": "https://toranokokids.com/",
+    "source": "https://toranokokids.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-iconico-sitter",
+    "name": "イコニコ・カンパニー",
+    "region": "愛知県",
+    "category": "ベビーシッター",
+    "description": "愛知県などでキッズ・ベビーシッターや家事支援サービスを案内しています。",
+    "url": "https://www.iconico.co.jp/baby/aichi",
+    "source": "https://www.iconico.co.jp/baby/aichi",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kids-bean",
+    "name": "KIDS BEAN",
+    "region": "愛知県",
+    "category": "ベビーシッター",
+    "description": "名古屋市を中心に家庭訪問型の個別保育や夜間の託児支援を案内しています。",
+    "url": "https://kids-bean.com/nagoya/sitter/sitter.html",
+    "source": "https://kids-bean.com/nagoya/sitter/sitter.html",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kids-familie",
+    "name": "キッズファミリエ",
+    "region": "宮城県",
+    "category": "ベビーシッター",
+    "description": "仙台市を拠点に家庭や指定場所での子どもの預かりを案内するシッター事業所です。",
+    "url": "https://kidsfamilie.com/",
+    "source": "https://kidsfamilie.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
