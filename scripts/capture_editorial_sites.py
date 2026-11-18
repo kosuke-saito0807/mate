@@ -75,7 +75,7 @@ def main() -> int:
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, args=["--no-sandbox"])
         context = browser.new_context(
-            viewport={"width": 880, "height": 505},
+            viewport={"width": 880, "height": 660},
             device_scale_factor=1,
             locale="ja-JP",
             reduced_motion="reduce",
@@ -95,9 +95,16 @@ def main() -> int:
             if not ID_PATTERN.fullmatch(name) or not url:
                 skipped += 1
                 continue
+            # Older 16:9 screenshots were visibly cropped in the newer 4:3 cards.
+            # Refresh them incrementally; preserve an existing image if retry fails.
             if target.exists() and target.stat().st_size > 1200:
-                skipped += 1
-                continue
+                try:
+                    with Image.open(target) as existing:
+                        if existing.size == (640, 480):
+                            skipped += 1
+                            continue
+                except (OSError, ValueError):
+                    pass
             attempt = failures.get(name, {})
             if isinstance(attempt, dict):
                 reason = str(attempt.get("reason", ""))
@@ -125,7 +132,7 @@ def main() -> int:
                 page.wait_for_timeout(900)
                 page.screenshot(path=str(temp), full_page=False, animations="disabled", timeout=8500)
                 with Image.open(temp) as source:
-                    photo = ImageOps.fit(source.convert("RGB"), (640, 368), method=Image.Resampling.LANCZOS)
+                    photo = ImageOps.fit(source.convert("RGB"), (640, 480), method=Image.Resampling.LANCZOS)
                     photo.save(target, "WEBP", quality=72, method=5)
                 if target.stat().st_size < 1200:
                     target.unlink(missing_ok=True)
