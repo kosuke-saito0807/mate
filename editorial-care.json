@@ -502,5 +502,101 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-sapporo-baby",
+    "name": "札幌ベビーシッター",
+    "region": "北海道",
+    "category": "ベビーシッター",
+    "description": "札幌近郊で家庭向けベビーシッターやイベント託児などを案内しています。",
+    "url": "https://sapporobaby.com/",
+    "source": "https://sapporobaby.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mami-sitter",
+    "name": "マミーシッター",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "東京都内の家庭向けベビーシッターサービスや育児支援を案内しています。",
+    "url": "https://mami-sitter.com",
+    "source": "https://mami-sitter.com",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sapporo-sitter",
+    "name": "札幌シッターサービス",
+    "region": "北海道",
+    "category": "ベビーシッター",
+    "description": "札幌周辺でベビーシッターの派遣やイベント託児などのサービスを案内しています。",
+    "url": "https://sapporositter.com/",
+    "source": "https://sapporositter.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-makana-sapporo",
+    "name": "まかなシッターサービス",
+    "region": "北海道",
+    "category": "ベビーシッター",
+    "description": "札幌市に拠点を置き、資格を持つスタッフによる子どものシッティングを案内しています。",
+    "url": "https://makana-sapporo.com/",
+    "source": "https://makana-sapporo.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-risunoki",
+    "name": "子育てサポートワーカーズ りすの樹",
+    "region": "福岡県",
+    "category": "ベビーシッター・産後ケア",
+    "description": "福岡県内でベビーシッターや産前産後の家事育児支援、集団託児などを案内しています。",
+    "url": "https://www.kosodate-w.jp/",
+    "source": "https://www.kosodate-w.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-chezvous",
+    "name": "シェヴ",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "東京23区や横浜などでベビーシッティングと家事サポートを案内しています。",
+    "url": "https://chezvous.co.jp",
+    "source": "https://chezvous.co.jp",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-bigmama",
+    "name": "ビッグママ ベビーシッター",
+    "region": "神奈川県",
+    "category": "ベビーシッター",
+    "description": "横浜・東京エリアで英語対応のベビーシッターサービスを案内しています。",
+    "url": "https://bigmama.jp/en",
+    "source": "https://bigmama.jp/en",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-bebimama",
+    "name": "ベビママ",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "保護者がシッターのプロフィールなどを比較できるベビーシッターマッチングサービスです。",
+    "url": "https://bebi-mama.jp/",
+    "source": "https://bebi-mama.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
