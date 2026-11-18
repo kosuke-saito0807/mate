@@ -610,5 +610,29 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-muraoka-care",
+    "name": "ケアサービスむらおか",
+    "region": "栃木県",
+    "category": "ベビーシッター",
+    "description": "宇都宮を拠点に家事支援や介護支援とあわせてベビーシッターの紹介を案内しています。",
+    "url": "https://ks-muraoka.com",
+    "source": "https://ks-muraoka.com",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mystyle-sitter",
+    "name": "株式会社マイスタイル",
+    "region": "岡山県",
+    "category": "ベビーシッター",
+    "description": "岡山・広島を中心にベビーシッター、イベント保育などのサービスを案内しています。",
+    "url": "https://mystyle.postmate-hd.jp/service/nursery.html",
+    "source": "https://mystyle.postmate-hd.jp/service/nursery.html",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
