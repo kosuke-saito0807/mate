@@ -19,6 +19,10 @@
     "at": 1794979611,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://fujisportsclub.com/\", waiting until \"commit\"\n"
   },
+  "editorial-itoman-junior": {
+    "at": 1794980273,
+    "reason": "HTTP 403"
+  },
   "editorial-jexer-kids": {
     "at": 1794979276,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://jexer.jp/kids/\", waiting until \"commit\"\n"
