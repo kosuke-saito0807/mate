@@ -1,6 +1,6 @@
 {
   "editorial-akiba-programming": {
-    "at": 1794916103,
+    "at": 1795002840,
     "reason": "Empty screenshot"
   },
   "editorial-avex-dance": {
@@ -27,12 +27,8 @@
     "at": 1794979276,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://jexer.jp/kids/\", waiting until \"commit\"\n"
   },
-  "editorial-konami-kids": {
-    "at": 1794916103,
-    "reason": "Page.goto: Timeout 15500ms exceeded.\nCall log:\n  - navigating to \"https://www.konami.com/sportsclub/kids-school/\", waiting until \"domco"
-  },
   "editorial-palette-piano": {
-    "at": 1794916103,
+    "at": 1795002840,
     "reason": "Empty screenshot"
   },
   "editorial-proglab": {
@@ -48,15 +44,11 @@
     "reason": "HTTP 403"
   },
   "editorial-taijiku": {
-    "at": 1794916103,
+    "at": 1795002840,
     "reason": "Empty screenshot"
   },
   "editorial-up-edu-science": {
     "at": 1794979276,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://up-edu.com/science-lab\", waiting until \"commit\"\n"
-  },
-  "editorial-urawa-art": {
-    "at": 1794916103,
-    "reason": "Page.goto: Timeout 15500ms exceeded.\nCall log:\n  - navigating to \"https://artslabo.com/\", waiting until \"domcontentloaded\"\n"
   }
 }
