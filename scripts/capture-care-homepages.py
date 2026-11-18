@@ -91,7 +91,7 @@ async def main():
         semaphore = asyncio.Semaphore(3)
         results = await asyncio.gather(*(capture(browser, semaphore, key, url, previous) for key, url in items.items()))
         await browser.close()
-    MANIFEST.write_text(json.dumps({key: url for (key, url), ok in zip(items.items(), results) if ok}, ensure_ascii=False, indent=2)+"\\n", encoding="utf-8")
+    MANIFEST.write_text(json.dumps({key: url for (key, url), ok in zip(items.items(), results) if ok}, ensure_ascii=False, indent=2), encoding="utf-8")
     print("Captured or existing:", sum(results), "/", len(results), flush=True)
 
 if __name__ == "__main__":
