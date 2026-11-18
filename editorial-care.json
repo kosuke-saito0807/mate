@@ -634,5 +634,29 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-office-pocket",
+    "name": "オフィスポケット（マーマ）",
+    "region": "神奈川県",
+    "category": "ベビーシッター",
+    "description": "自宅での保育や保育園・幼稚園の送迎、外出時の同行保育などのベビーシッターサービスを案内しています。",
+    "url": "https://www.office-pocket.co.jp/babysitter.html",
+    "source": "https://www.office-pocket.co.jp/babysitter.html",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yuimaru-kanazawa",
+    "name": "ゆいま～るベビー金沢",
+    "region": "石川県",
+    "category": "ベビーシッター",
+    "description": "ケアサポート金沢が運営するベビーシッターサービス。イベント保育や産前産後の支援についても公式サイトで案内しています。",
+    "url": "https://cs-kanazawa.com/",
+    "source": "https://cs-kanazawa.com/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
