@@ -7,6 +7,10 @@
     "at": 1794935061,
     "reason": "HTTP 403"
   },
+  "editorial-biima-sports": {
+    "at": 1794977223,
+    "reason": "HTTP 403"
+  },
   "editorial-konami-kids": {
     "at": 1794916103,
     "reason": "Page.goto: Timeout 15500ms exceeded.\nCall log:\n  - navigating to \"https://www.konami.com/sportsclub/kids-school/\", waiting until \"domco"
