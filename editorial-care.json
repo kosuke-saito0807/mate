@@ -658,5 +658,29 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-jbs",
+    "name": "ジャパンベビーシッターサービス（JBS）",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "定期・スポット利用の訪問保育や送迎など、複数のベビーシッターサービスを公式サイトで案内しています。",
+    "url": "https://jbs-mom.co.jp/",
+    "source": "https://jbs-mom.co.jp/",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-combismile",
+    "name": "コンビスマイル ベビー＆キッズシッター",
+    "region": "東京都",
+    "category": "ベビーシッター",
+    "description": "コンビスマイルがベビー＆キッズシッターサービスを提供し、公式サイトで利用料金などを案内しています。",
+    "url": "https://combismile.co.jp/",
+    "source": "https://combismile.co.jp/wp-content/uploads/2024/12/ryoukinnhyou2025.pdf",
+    "reviewedAt": "2026-11-18",
+    "editorial": true,
+    "approved": false
   }
 ]
