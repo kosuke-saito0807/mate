@@ -34,7 +34,7 @@ function detailLink(p){return 'provider.html?id='+encodeURIComponent(n(p.id));}
 function card(p){
  let url=ur(p);try{if(new URL(url).protocol!=='https:')url=''}catch{url=''}
  const approved=p.editorial!==true,detail=approved?detailLink(p):'';
- const desc=n(p.description),limit=78,hasMore=desc.length>limit;
+ const desc=n(p.description),limit=60,hasMore=desc.length>limit;
  const short=hasMore?desc.slice(0,limit).replace(/[\r\n]+/g,' ').trim()+'…':desc;
  const media=p.editorial?mateEditorialThumb(p,"CARE"):(Array.isArray(p.images)&&p.images.length&&window.MATEGallery?window.MATEGallery.render(p,"CARE"):mateApprovedThumb(p));
  const thumb=approved?media.replace('href="'+escapeHtml(url)+'"','href="'+escapeHtml(detail)+'"').replace(/target="_blank" rel="noopener noreferrer"/,'').replace('の公式サイトを開く','の掲載詳細を見る'):media;
