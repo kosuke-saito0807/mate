@@ -330,7 +330,7 @@ function draw(){
   if(s.editorial)return '<article class="card" data-editorial-key="'+escapeHtml(s.id)+'"><div class="cardArt">'+
    '<span class="flag">'+escapeHtml(s.category)+'</span>'+editorialThumb(s)+'</div>'+
    '<div class="content"><div class="city">'+escapeHtml(s.region)+'</div><h3>'+escapeHtml(s.name)+'</h3>'+
-   '<p class="meta"><strong>公開情報参考・事業者未確認</strong></p><p>'+escapeHtml(s.description||'')+'</p>'+
+   '<p>'+escapeHtml(s.description||'')+'</p>'+
    '<div class="meta">対象年齢・料金・開催条件は公式サイトでご確認ください。</div>'+
    '<p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除を依頼</a></p>'+
    '<div class="cardActions"><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></div></article>';
