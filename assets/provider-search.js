@@ -32,20 +32,22 @@ const ALL_PREFECTURES=["北海道","青森県","岩手県","宮城県","秋田�
 function fill(){const known=new Set(ALL_PREFECTURES);const more=[...new Set(D.flatMap(ar))].filter(x=>x&&!known.has(x)).sort((x,y)=>x.localeCompare(y,'ja'));const options=[...ALL_PREFECTURES,...more];['area'].forEach(id=>{const select=document.getElementById(id);const current=select.value;select.innerHTML=select.options[0].outerHTML+options.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');select.value=options.includes(current)?current:''})}
 function detailLink(p){return 'provider.html?id='+encodeURIComponent(n(p.id));}
 function card(p){
- let url=ur(p);try{if(!['https:','http:'].includes(new URL(url).protocol))url=''}catch{url=''}
- const approved=p.editorial!==true;
- const detail=approved?detailLink(p):'';
- const desc=n(p.description),limit=118,hasMore=desc.length>limit;
- const short=hasMore?desc.slice(0,limit).replace(/[\\r\\n]+/g,' ').trim()+'…':desc;
+ let url=ur(p);try{if(new URL(url).protocol!=='https:')url=''}catch{url=''}
+ const approved=p.editorial!==true,detail=approved?detailLink(p):'';
+ const desc=n(p.description),limit=78,hasMore=desc.length>limit;
+ const short=hasMore?desc.slice(0,limit).replace(/[\r\n]+/g,' ').trim()+'…':desc;
  const media=p.editorial?mateEditorialThumb(p,"CARE"):(Array.isArray(p.images)&&p.images.length&&window.MATEGallery?window.MATEGallery.render(p,"CARE"):mateApprovedThumb(p));
  const thumb=approved?media.replace('href="'+escapeHtml(url)+'"','href="'+escapeHtml(detail)+'"').replace(/target="_blank" rel="noopener noreferrer"/,'').replace('の公式サイトを開く','の掲載詳細を見る'):media;
- const longAction=hasMore?(approved?'<a class="result-read-more" href="'+escapeHtml(detail)+'">続きを読む・詳細を見る</a>':'<button type="button" class="result-read-more" data-more-id="'+escapeHtml(n(p.id))+'">続きを読む</button>'):'';
+ const longAction=hasMore?(approved?'<a class="result-inline-more" href="'+escapeHtml(detail)+'">続きを読む</a>':'<button type="button" class="result-inline-more" data-more-id="'+escapeHtml(n(p.id))+'">続きを読む</button>'):'';
+ const area=ar(p).join('・')||'公式サイトでご確認ください';
+ const category=n(p.category)||'サービス内容は公式サイトでご確認ください';
+ const price=approved&&p.pricingNotes?'<p class="result-price" title="'+escapeHtml(n(p.pricingNotes))+'"><strong>料金目安：</strong>'+escapeHtml(n(p.pricingNotes).slice(0,55))+'</p>':'';
  return '<article class="result" id="listing-'+escapeHtml(n(p.id))+'">'+thumb+
   '<h3>'+escapeHtml(mateDisplayName(p))+'</h3>'+
-  '<p>'+escapeHtml(ar(p).join('・')||'対応エリアは公式サイトをご確認ください')+'</p>'+
-  (p.category?'<p class="result-kicker">'+escapeHtml(n(p.category))+'</p>':'')+
-  '<p class="result-description">'+escapeHtml(short)+'</p>'+longAction+
-  (approved&&p.pricingNotes?'<p class="result-meta">料金：'+escapeHtml(n(p.pricingNotes).slice(0,75))+'</p>':'')+
+  '<p class="result-quick-meta"><strong>対象エリア：</strong>'+escapeHtml(area)+'</p>'+
+  '<p class="result-quick-meta"><strong>サービス：</strong>'+escapeHtml(category)+'</p>'+
+  '<p class="result-description"><strong>紹介：</strong>'+escapeHtml(short)+(longAction?' '+longAction:'')+'</p>'+
+  price+
   (approved?'<a class="provider-link" data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(detail)+'">詳細を見る ↗</a>':
    (url?'<a class="provider-link" data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a>':''))+
   '</article>';
@@ -60,15 +62,61 @@ document.addEventListener('click',function(e){
  dialog.showModal();
 });
 
-function render(){const query=n(document.getElementById('q').value).toLowerCase(),area=n(document.getElementById('area').value);let matches=D.filter(p=>(!query||JSON.stringify(p).toLowerCase().includes(query))&&(!area||ar(p).some(a=>a==='全国'||a===area||a.includes(area)||area.includes(a)&&ALL_PREFECTURES.includes(a))));matches=matches.slice().sort((a,b)=>Number(a.editorial===true)-Number(b.editorial===true)||(document.getElementById('sort').value==='name'?nm(a).localeCompare(nm(b),'ja'):0));const editorialCount=matches.filter(p=>p.editorial===true).length,approvedCount=matches.length-editorialCount;document.getElementById('results-count').textContent=matches.length+' 件の掲載情報（事業者確認済み '+approvedCount+' 件・公開情報による参考紹介 '+editorialCount+' 件）';document.getElementById('results').innerHTML=matches.length?matches.map(card).join(''):'<div class="empty"><h3>'+ (D.length?'条件に合うシッターがありません':'新しい出会いを、準備しています。')+'</h3><p>'+ (D.length?'エリアやキーワードを変えてみてください。':'掲載許可をいただいたシッター事業者から順次公開します。')+'</p><p><a href="consult.html?service=CARE">シッターについて相談する ↗</a></p><p><a href="guide-sitter-choice.html">初めてのベビーシッター選び・依頼前のチェックポイント ↗</a></p></div>';}
+let visibleLimit=18;
+function refineBlock(total,through){
+ const options=document.getElementById('area').innerHTML;
+ return '<section class="care-results-refine" aria-label="シッター検索と絞り込み">'+
+  '<div class="care-refine-heading"><strong>ここまで '+through+' / '+total+' 件</strong><span>探したい事業者がまだ見つからない方へ</span></div>'+
+  '<form data-care-refine class="care-refine-form">'+
+  '<label>キーワード<input name="refine-q" type="search" maxlength="100" autocomplete="off" placeholder="会社名・サービス内容" value="'+escapeHtml(document.getElementById('q').value)+'"></label>'+
+  '<label>対象エリア<select name="refine-area">'+options+'</select></label>'+
+  '<button type="submit">この条件で絞り込む</button>'+
+  '<a href="#find" class="care-results-up">検索一覧へ戻る ↑</a></form></section>';
+}
+function render(){
+ const query=n(document.getElementById('q').value).toLowerCase(),area=n(document.getElementById('area').value);
+ let matches=D.filter(p=>(!query||JSON.stringify(p).toLowerCase().includes(query))&&(!area||ar(p).some(a=>a==='全国'||a===area||a.includes(area)||area.includes(a)&&ALL_PREFECTURES.includes(a))));
+ matches=matches.slice().sort((a,b)=>Number(a.editorial===true)-Number(b.editorial===true)||(document.getElementById('sort').value==='name'?nm(a).localeCompare(nm(b),'ja'):0));
+ const editorialCount=matches.filter(p=>p.editorial===true).length,approvedCount=matches.length-editorialCount;
+ const shown=matches.slice(0,visibleLimit);
+ document.getElementById('results-count').textContent=matches.length+' 件（'+shown.length+' 件表示中、事業者確認済み '+approvedCount+' 件・参考紹介 '+editorialCount+' 件）';
+ if(!matches.length){
+  document.getElementById('results').innerHTML='<div class="empty"><h3>'+(D.length?'条件に合うシッターがありません':'新しい出会いを、準備しています。')+'</h3><p>'+(D.length?'エリアやキーワードを変えてみてください。':'掲載許可をいただいたシッター事業者から順次公開します。')+'</p><p><a href="consult.html?service=CARE">シッターについて相談する ↗</a></p><p><a href="guide-sitter-choice.html">初めてのベビーシッター選び ↗</a></p></div>';
+  return;
+ }
+ const parts=[];
+ shown.forEach((p,i)=>{parts.push(card(p));if(i===11&&shown.length>=13)parts.push(refineBlock(matches.length,i+1));});
+ if(matches.length>shown.length){
+  parts.push('<section class="care-results-pagination" aria-label="さらに一覧を見る">'+
+    '<strong>表示中 '+shown.length+' / '+matches.length+' 件</strong><p>残りの事業者を見るか、条件で絞り込めます。</p>'+
+    '<div class="care-pagination-actions"><button type="button" data-show-more>さらに '+Math.min(18,matches.length-shown.length)+' 件を見る</button>'+
+    '<button type="button" data-show-all>すべての事業者を表示</button><a href="#find">検索・絞り込みに戻る ↑</a></div>'+
+    '</section>');
+ }else if(shown.length>12){parts.push(refineBlock(matches.length,shown.length));}
+ document.getElementById('results').innerHTML=parts.join('');
+ document.querySelectorAll('[data-care-refine] select[name="refine-area"]').forEach(el=>{el.value=area});
+}
+document.getElementById('results').addEventListener('click',event=>{
+ if(event.target.closest('[data-show-more]')){visibleLimit+=18;render();}
+ if(event.target.closest('[data-show-all]')){visibleLimit=D.length;render();}
+});
+document.getElementById('results').addEventListener('submit',event=>{
+ const form=event.target.closest('[data-care-refine]');if(!form)return;
+ event.preventDefault();
+ document.getElementById('q').value=form.elements.namedItem('refine-q').value;
+ document.getElementById('area').value=form.elements.namedItem('refine-area').value;
+ visibleLimit=18;render();
+ document.getElementById('find').scrollIntoView({behavior:'smooth',block:'start'});
+});
 var mateDeepLinkResolved=false;
 function mateFocusListingHash(){
  if(mateDeepLinkResolved||!/^#listing-[a-z0-9_-]{6,95}$/i.test(location.hash))return;
  var id=location.hash.slice(1),target=document.getElementById(id);
  if(target){mateDeepLinkResolved=true;target.scrollIntoView({block:'center'});}
+ else if(D.some(p=>'listing-'+n(p.id)===id)){visibleLimit=D.length;render();const found=document.getElementById(id);if(found){mateDeepLinkResolved=true;found.scrollIntoView({block:'center'});}}
 }
-function resetSearch(){for(const id of ['q','area'])document.getElementById(id).value='';render()}
-for(const id of ['q','area','sort'])document.getElementById(id).addEventListener(id==='q'?'input':'change',render);
+function resetSearch(){for(const id of ['q','area'])document.getElementById(id).value='';visibleLimit=18;render()}
+for(const id of ['q','area','sort'])document.getElementById(id).addEventListener(id==='q'?'input':'change',()=>{visibleLimit=18;render()});
 Promise.allSettled([
  fetch('data.json?'+Date.now()).then(r=>{if(!r.ok)throw Error('approved load');return r.json()}),
  fetch('editorial-care.json?'+Date.now()).then(r=>{if(!r.ok)throw Error('editorial load');return r.json()})
