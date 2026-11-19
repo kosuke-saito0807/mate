@@ -682,5 +682,29 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-josanshes",
+    "name": "ジョサンシーズ",
+    "region": "東京都",
+    "category": "新生児・低月齢ベビーシッター・産後ケア",
+    "description": "助産師・看護師・保育士などの資格者による低月齢児向けシッターや産後ケアについて公式サイトで案内しています。",
+    "url": "https://josanshes.com/",
+    "source": "https://josanshes.com/",
+    "reviewedAt": "2026-11-19",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-nagi-care",
+    "name": "Nagi. 助産師ベビーシッター・産後ケア",
+    "region": "東京都",
+    "category": "ベビーシッター・産後ケア",
+    "description": "東京と一部近郊での助産師によるベビーシッター・訪問産後ケアについて公式サイトで案内しています。",
+    "url": "https://nagi-care.jp/",
+    "source": "https://nagi-care.jp/",
+    "reviewedAt": "2026-11-19",
+    "editorial": true,
+    "approved": false
   }
 ]
