@@ -14,7 +14,7 @@ class OperatorDiscoverabilityTests(unittest.TestCase):
         self.assertIn("<h1>斎藤幸輔", page)
         self.assertIn("斎藤幸輔（Kosuke Saito）", page)
         self.assertIn('rel="canonical" href="https://care.kosodatemate.jp/operator.html"', page)
-        self.assertIn("斎藤幸輔（Kosuke Saito）のプロフィール", home)
+        self.assertIn("運営者情報・NextEdu", home)
         self.assertIn('href="operator.html"', home)
         self.assertIn("index,follow", page)
 
