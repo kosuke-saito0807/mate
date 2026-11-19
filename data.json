@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": "mate_care_3a29e1c1eb6f4f1b",
+    "name": "株式会社ポピンズシッター",
+    "area": "東京都・首都圏が主",
+    "facility_no": "",
+    "official_url": "https://smartsitter.jp/",
+    "verified": true,
+    "verified_at": "2026-11-19",
+    "status": "掲載許可",
+    "description": "ポピンズグループによるベビーシッターのマッチングサービス。保護者がWebなどからシッターを検索・予約でき、送迎などの短時間利用にも対応しています。",
+    "category": "ベビーシッター",
+    "pricingNotes": "料金・補助制度の条件は公式サイトをご確認ください。",
+    "tags": "シッター・送迎・福利厚生補助",
+    "data_as_of": "2026-11-19",
+    "images": [],
+    "thumbnail": null,
+    "fallbackImageKey": "fallback-care-ベビーシッター"
+  }
+]
