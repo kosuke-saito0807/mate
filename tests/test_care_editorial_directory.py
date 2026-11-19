@@ -28,6 +28,10 @@ class CareEditorialDirectoryTests(unittest.TestCase):
         cards = re.findall(r'<article class="provider" id="([^"]+)"', self.directory)
         self.assertEqual(set(cards), {p["id"] for p in self.providers})
         self.assertEqual(len(cards), len(self.providers))
+        self.assertEqual(self.directory.count('class="directory-thumb"'), len(self.providers))
+        for p in self.providers:
+            with self.subTest(thumbnail=p["id"]):
+                self.assertIn('assets/editorial-thumbnails/care/'+p["id"]+'.webp', self.directory)
 
     def test_json_ld_matches_source_count(self):
         match = re.search(r'<script type="application/ld\+json">([\s\S]*?)</script>', self.directory)
