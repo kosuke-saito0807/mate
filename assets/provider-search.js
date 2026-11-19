@@ -16,7 +16,7 @@ function mateEditorialThumb(p,service){
 }
 /* Approved listings without licensed photos use the same branded visual frame. */
 function mateApprovedThumb(p){
- const name=nm(p),url=ur(p);let host='';
+ const name=mateDisplayName(p),url=ur(p);let host='';
  try{const u=new URL(url);if(u.protocol==='https:')host=u.hostname.toLowerCase()}catch{}
  const favicon=host?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(host)+'&sz=128':'';
  const html='<a class="mate-editorial-thumb mate-thumbnail-fallback mate-approved-brand" data-approved-brand data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(name)+'の公式サイトを開く">'+
