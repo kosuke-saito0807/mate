@@ -174,6 +174,17 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 .cards>.card .cardActions>.btn{display:flex;align-items:center;justify-content:center;min-height:44px;line-height:1.4}
 /* Editorial cards focus on the family's next action; provider enrollment lives in the partner section. */
 .card[data-editorial-key] .cardActions{grid-template-columns:1fr}
+/* Balanced thumbnails and consistent card teaser height. */
+#cards.cards>.card>.cardArt{height:clamp(142px,19vw,202px)!important;max-height:202px!important;min-height:0!important;aspect-ratio:auto!important}
+#cards .cardArt:has(>.mate-editorial-thumb){height:clamp(142px,19vw,202px)!important;aspect-ratio:auto!important}
+#cards .cardArt>.mate-editorial-thumb{height:100%;aspect-ratio:auto}
+#cards .card-description{font-size:12px;line-height:1.65;height:6.6em;min-height:6.6em;max-height:6.6em;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;white-space:pre-line;overflow-wrap:anywhere}
+#cards .card-readmore{display:inline-flex;align-self:flex-start;align-items:center;min-height:30px;padding:2px 0;margin:3px 0 9px;background:none;border:0;color:#0878ea;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+#spark-reference-modal{border:0;border-radius:16px;max-width:min(660px,calc(100vw - 24px));width:100%;max-height:85vh;overflow:auto;padding:27px;color:#073661}
+#spark-reference-modal::backdrop{background:#112a4390}
+#spark-reference-modal p{white-space:pre-wrap;line-height:1.9;overflow-wrap:anywhere}
+#spark-reference-modal .modal-controls{display:flex;justify-content:flex-end;gap:14px;margin-top:20px}
+#spark-reference-modal .modal-controls>*{padding:10px 15px;border-radius:9px;border:1px solid #cfe0f0}
 </style>
 <link rel="stylesheet" href="mate-ux.css?v=20261029"><link rel="stylesheet" href="mate-brand-alignment.css?v=20261103-sales-ready-v16" /><link rel="stylesheet" href="hero-parity.css?v=20261103-copy-position-v3">
 <link rel="stylesheet" href="assets/mate-form-consistency.css?v=20261109"><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","@id":"https://spark.kosodatemate.jp/#practical-faq","inLanguage":"ja-JP","mainEntity":[{"@type":"Question","name":"習い事は何歳から始めるといい？","acceptedAnswer":{"@type":"Answer","text":"一律の開始年齢よりも、お子さまの興味・体力・生活リズムと教室の対象年齢を優先しましょう。見学や短い体験から始める方法もあります。"}},{"@type":"Question","name":"月謝以外にどんな費用がかかる？","acceptedAnswer":{"@type":"Answer","text":"入会金、教材費、道具代、発表会費、交通費などを含めて年間総額を比較しましょう。"}},{"@type":"Question","name":"体験レッスンでは何を見る？","acceptedAnswer":{"@type":"Answer","text":"先生との相性、お子さまの表情、教室の安全配慮、振替・退会の条件を確認し、無理なく通えるか考えましょう。"}}]}</script>
@@ -239,7 +250,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <p style="font-size:12px;line-height:1.7;margin:16px 0 0;color:#466072">情報は一般的な確認項目です。事業者の資格・保険・料金・空き状況・安全性をMATEが保証するものではありません。</p>
 </div></section>
 </main>
-<footer class="spark-footer"><div class="wrap"><div class="footerTop"><div class="footerBrand"><a href="./"><img src="mate-spark-logo.svg?v=20261102-brand" alt="MATE SPARK"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事の相談</a><a href="#discover">教室を探す</a><a href="guide-lessons-choice.html">習い事の選び方</a><a href="guide-lesson-age-fit.html">習い事は何歳から？年齢に合う選び方</a><a href="guide-lessons-age-two.html">2歳の習い事を選ぶポイント</a><a href="guide-lesson-total-cost.html">習い事の年間費用の比べ方</a><a href="https://care.kosodatemate.jp/guides.html">子育てガイド一覧</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="partners.html">無料掲載を申し込む</a><a href="partners.html">掲載条件・料金</a><a href="https://care.kosodatemate.jp/public-guide.html">公開情報リンク集（事業者未承認）</a><a href="https://care.kosodatemate.jp/business.html">MATE全サービスの無料掲載</a><a href="https://care.kosodatemate.jp/listing-terms.html">無料掲載条件</a><a href="operator.html">運営者情報</a><a href="https://care.kosodatemate.jp/operator.html">MATE代表・斎藤幸輔のプロフィール</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><div class="footerNote">掲載情報は事業者の許諾・確認ができたものから順次公開します。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE SPARK. All rights reserved.</div></div></footer>
+<dialog id="spark-reference-modal" aria-labelledby="spark-modal-name"><h2 id="spark-modal-name" data-ref-name>掲載情報</h2><p data-ref-desc></p><div class="modal-controls"><button type="button" onclick="this.closest('dialog').close()">閉じる</button><a data-ref-site target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></dialog><footer class="spark-footer"><div class="wrap"><div class="footerTop"><div class="footerBrand"><a href="./"><img src="mate-spark-logo.svg?v=20261102-brand" alt="MATE SPARK"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事の相談</a><a href="#discover">教室を探す</a><a href="guide-lessons-choice.html">習い事の選び方</a><a href="guide-lesson-age-fit.html">習い事は何歳から？年齢に合う選び方</a><a href="guide-lessons-age-two.html">2歳の習い事を選ぶポイント</a><a href="guide-lesson-total-cost.html">習い事の年間費用の比べ方</a><a href="https://care.kosodatemate.jp/guides.html">子育てガイド一覧</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="partners.html">無料掲載を申し込む</a><a href="partners.html">掲載条件・料金</a><a href="https://care.kosodatemate.jp/public-guide.html">公開情報リンク集（事業者未承認）</a><a href="https://care.kosodatemate.jp/business.html">MATE全サービスの無料掲載</a><a href="https://care.kosodatemate.jp/listing-terms.html">無料掲載条件</a><a href="operator.html">運営者情報</a><a href="https://care.kosodatemate.jp/operator.html">MATE代表・斎藤幸輔のプロフィール</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><div class="footerNote">掲載情報は事業者の許諾・確認ができたものから順次公開します。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE SPARK. All rights reserved.</div></div></footer>
 <div class="selection" id="selectionBar" hidden><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
 <dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
 <dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
@@ -317,6 +328,20 @@ function matching(s){
  if($('trialOnly').checked&&s.acceptsTrial!==true)return false;
  return true;
 }
+function schoolDetailUrl(p){return 'school-detail.html?id='+encodeURIComponent(p.id)}
+function teaser(p){const t=String(p.description||'').trim();return t.length>118?t.slice(0,118).replace(/[\\r\\n]+/g,' ').trim()+'…':t}
+function schoolThumb(p){
+ const original=window.MATEGallery?window.MATEGallery.render(p,'SPARK'):editorialThumb(p);
+ const url=schoolDetailUrl(p);
+ return p.demo===true?original:original.replace(/href="[^"]+" target="_blank" rel="noopener noreferrer"/,'href="'+escapeHtml(url)+'"');
+}
+document.addEventListener('click',e=>{
+ const btn=e.target.closest?.('[data-reference-more]');if(!btn)return;
+ const entry=schools.find(x=>x.id===btn.dataset.referenceMore&&x.editorial);
+ if(!entry)return;const dlg=document.getElementById('spark-reference-modal');if(!dlg)return;
+ dlg.querySelector('[data-ref-name]').textContent=entry.name;dlg.querySelector('[data-ref-desc]').textContent=entry.description||'';
+ dlg.querySelector('[data-ref-site]').href=entry.url;dlg.showModal();
+});
 function draw(){
  const sorted=schools.filter(matching);
  if($('sort').value==='monthly')sorted.sort((a,b)=>(a.monthlyPrice??1e12)-(b.monthlyPrice??1e12));
@@ -330,20 +355,20 @@ function draw(){
   if(s.editorial)return '<article class="card" data-editorial-key="'+escapeHtml(s.id)+'"><div class="cardArt">'+
    '<span class="flag">'+escapeHtml(s.category)+'</span>'+editorialThumb(s)+'</div>'+
    '<div class="content"><div class="city">'+escapeHtml(s.region)+'</div><h3>'+escapeHtml(s.name)+'</h3>'+
-   '<p>'+escapeHtml(s.description||'')+'</p>'+
+   '<p class="card-description">'+escapeHtml(teaser(s))+'</p>'+(String(s.description||'').length>118?'<button type="button" class="card-readmore" data-reference-more="'+escapeHtml(s.id)+'">続きを読む</button>':'')+
    '<div class="meta">対象年齢・料金・開催条件は公式サイトでご確認ください。</div>'+
    '<p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除を依頼</a></p>'+
    '<div class="cardActions"><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></div></article>';
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
 
-  const action='<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>';
+  const action=fictional?'<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>':'<a class="btn" href="'+escapeHtml(schoolDetailUrl(s))+'">詳細を見る ↗</a>';
   const marks=(s.tags||[]).map(t=>'<span>'+escapeHtml(t)+'</span>').join('');
   const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
   const nextTrial=(!fictional&&s.nextTrialDate)?'<div class="meta">次回体験予定：'+escapeHtml(s.nextTrialDate.replaceAll('-','/'))+'</div>':'';
    const trialCost=typeof s.trialPrice==='number'?(s.trialPrice===0?'無料体験':'体験 '+yen(s.trialPrice)):'体験料金：要確認';
   return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt '+cls+'">'+
     '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
-    (window.MATEGallery?window.MATEGallery.render(s,'SPARK'):editorialThumb(s))+
+    schoolThumb(s)+
     '<button type="button" class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-pressed="'+(favorite.has(s.id)?'true':'false')+'" aria-label="'+escapeHtml(s.name)+'をお気に入り'+(favorite.has(s.id)?'から解除':'に追加')+'">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
     '</div><div class="content">'+
     '<div class="city">'+escapeHtml(s.region)+' ・ '+escapeHtml(s.area||'')+'</div>'+
@@ -351,7 +376,7 @@ function draw(){
     
     '<div class="meta">📍 '+escapeHtml(s.station||'')+' '+escapeHtml(s.walk||'')+'</div>'+
      '<div class="meta">対象：'+(typeof s.ageMin==='number'&&typeof s.ageMax==='number'?escapeHtml(s.ageMin+'〜'+s.ageMax+'歳'):escapeHtml((s.ages||[]).join('・')||'要確認'))+'</div>'+
-    '<p>'+escapeHtml(s.description||'')+'</p>'+
+    '<p class="card-description">'+escapeHtml(teaser(s))+'</p>'+(String(s.description||'').length>118?'<a class="card-readmore" href="'+escapeHtml(schoolDetailUrl(s))+'">続きを読む・詳細を見る</a>':'')+
     '<div class="specs"><span class="price">'+fee+'</span><span class="mini">／月</span></div>'+
     '<div class="meta">開催曜日：'+escapeHtml((s.weekdays||[]).join('・')||'教室へ確認')+'</div>'+ '<div class="meta">'+trialCost+'</div>'+nextTrial+
     '<div class="labels">'+marks+'</div>'+
