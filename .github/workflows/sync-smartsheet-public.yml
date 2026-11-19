@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/mate_drive_media.py'
+      - 'provider.html'
+      - 'spark/school-detail.html'
       - 'scripts/sync_google_sheets_public.py'
       - 'scripts/sync_spark_public.py'
       - '.github/workflows/sync-smartsheet-public.yml'
