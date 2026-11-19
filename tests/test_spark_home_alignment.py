@@ -18,7 +18,7 @@ class OriginalSiteAlignmentTest(unittest.TestCase):
                 self.assertIn(text, h)
         for text in ('id="region"', 'id="age"', 'id="price"', 'id="category"',
                      'id="keyword"', 'id="weekdays"', 'id="cards"',
-                     'id="compareDialog"', 'href="operator.html"'):
+                     'id="compareDialog"', 'href="https://care.kosodatemate.jp/operator.html"'):
             with self.subTest(id=text):
                 self.assertIn(text, h)
 
