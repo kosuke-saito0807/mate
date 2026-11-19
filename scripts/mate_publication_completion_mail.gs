@@ -161,11 +161,19 @@ function matePubRun_(send){
       state.setValue("送信処理中・要確認");
       evidence.setValue("MAIL_ATTEMPT:"+Utilities.getUuid());
       SpreadsheetApp.flush();
-      var body=["MATE "+result.service+"への掲載申請をいただき、ありがとうございます。","",
-        "事務局による審査と公開確認が完了し、掲載ページを公開しました。",
-        "掲載先："+result.url,"",
-        "掲載内容の訂正・削除をご希望の場合は、このメールへご返信ください。",
-        "MATE運営事務局（NextEdu）","kosodatemate@gmail.com"].join("\n");
+      var body=[result.company+" ご担当者様","",
+        "この度はMATE "+result.service+"の無料掲載にお申し込みいただき、誠にありがとうございます。",
+        "事務局による確認と公開サイトでの掲載確認が完了し、掲載を開始しました。","",
+        "【貴社の掲載ページ】",
+        result.url,
+        "上記のURLから掲載内容をご確認ください。掲載カードが表示されない場合は、ページを再読み込みし、表示される事業者名をご確認ください。","",
+        "【掲載内容の修正・削除】",
+        "社名・説明文・エリア・公式サイトURLなどの修正、掲載の取り下げをご希望の場合は、本メールにそのままご返信ください。",
+        "事業者名・掲載ページURL・変更したい箇所と正しい情報をお知らせいただければ、運営事務局で内容とご担当者様の権限を確認のうえ対応します。",
+        "修正・削除のご相談に費用はかかりません。",
+        "公開情報についてのご案内：https://care.kosodatemate.jp/public-guide.html#correction","",
+        "ご不明な点がございましたら、お気軽にご返信ください。","",
+        "MATE運営事務局（NextEdu）","お問い合わせ：kosodatemate@gmail.com"].join("\n");
       try{
         MailApp.sendEmail({to:result.email,
           subject:"【MATE "+result.service+"】掲載開始のご案内",
