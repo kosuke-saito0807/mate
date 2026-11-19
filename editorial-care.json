@@ -706,5 +706,29 @@
     "reviewedAt": "2026-11-19",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-ebisu-josancare",
+    "name": "えびす助産ケア",
+    "region": "東京都・神奈川県・千葉県",
+    "category": "助産師ベビーシッター・訪問育児支援",
+    "description": "助産師・看護師・保育士などの資格者による訪問型の子育て支援とベビーシッターサービスを公式サイトで案内しています。",
+    "url": "https://mwyt1.jp/",
+    "source": "https://mwyt1.jp/",
+    "reviewedAt": "2026-11-19",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-cuddlehome",
+    "name": "CUDDLE（カドル）",
+    "region": "東京都",
+    "category": "訪問型産前産後ケア・シッター",
+    "description": "都内の複数区で、助産師による訪問型産前産後ケアや赤ちゃんのお世話などのサービスを公式サイトで案内しています。",
+    "url": "https://cuddlehome.jp/",
+    "source": "https://cuddlehome.jp/",
+    "reviewedAt": "2026-11-19",
+    "editorial": true,
+    "approved": false
   }
 ]
