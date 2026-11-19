@@ -42,7 +42,18 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 .results>.result>.provider-link{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:auto;padding:11px 14px;border-radius:10px;background:#0878ea;color:#fff;font-size:12px;line-height:1.4;text-align:center}
 .results>.result>.provider-link:hover{background:#0767c7}
 .results>.result>.provider-link:focus-visible{outline:3px solid #0055ad;outline-offset:3px}
-.result-description{font-size:13px;line-height:1.7;color:#42637b;margin:10px 0;white-space:pre-line;overflow-wrap:anywhere}.result-meta{font-size:12px;color:#556d82;margin:5px 0}</style>
+/* Visually balanced cards: a smaller 3:2 visual frame and fixed 4-line teaser. */
+#results.results>.result>.mate-editorial-thumb,#results.results>.result>.mate-photo-carousel{height:clamp(155px,19vw,226px)!important;max-height:226px!important;aspect-ratio:auto!important;margin-bottom:12px}
+.result-description{font-size:13px;line-height:1.6;color:#42637b;margin:10px 0;white-space:pre-line;overflow:hidden;height:6.4em;min-height:6.4em;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4}
+.result-read-more{display:inline-flex;align-self:start;align-items:center;min-height:32px;margin:0 0 10px;padding:3px 0;background:none;border:0;color:#0878ea;font-weight:800;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.result-read-more:focus-visible{outline:3px solid #0878ea;outline-offset:3px}
+#reference-detail-dialog{border:0;border-radius:17px;box-shadow:0 20px 72px #102e4770;max-width:min(680px,calc(100vw - 24px));width:100%;max-height:85vh;padding:25px;overflow:auto;color:#073661}
+#reference-detail-dialog::backdrop{background:#0e253e90}
+#reference-detail-dialog p{white-space:pre-wrap;line-height:1.9;color:#355775;font-size:14px;overflow-wrap:anywhere}
+#reference-detail-dialog .ref-controls{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
+#reference-detail-dialog .ref-controls>*{border-radius:9px;padding:9px 16px;border:1px solid #cadaea;background:white;color:#075ea8;font-weight:800}
+#reference-detail-dialog .ref-controls a{background:#0878ea;color:white}
+.result-meta{font-size:12px;color:#556d82;margin:5px 0}</style>
 <link rel="stylesheet" href="assets/brand.css?v=20261014-mobile"><link rel="stylesheet" href="assets/mate-ux.css?v=20261029"><link rel="stylesheet" href="assets/mate-brand-alignment.css?v=20261103-sales-ready-v16">
 <style id="care-scene-four-card-guard">
 /* Reference: existing work-from-home photo card; preserve natural geometry. */
@@ -97,8 +108,9 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 <p style="font-size:12px;line-height:1.7;margin:16px 0 0;color:#466072">情報は一般的な確認項目です。事業者の資格・保険・料金・空き状況・安全性をMATEが保証するものではありません。</p>
 </div></section>
 </main>
+<dialog id="reference-detail-dialog" aria-labelledby="reference-detail-heading"><h2 id="reference-detail-heading" data-ref-name>掲載情報</h2><p data-ref-copy></p><div class="ref-controls"><button type="button" onclick="this.closest('dialog').close()">閉じる</button><a href="#" data-ref-link target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></dialog>
 <footer class="footer"><div class="w"><div class="footerTop"><div class="footerBrand"><a href="index.html"><img src="assets/MATE_logo_01.svg?v=20261010-logo" alt="MATE CARE"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="consult.html?service=CARE">シッターの相談</a><a href="#find">シッターを探す</a><a href="guide-sitter-choice.html">初めてのシッター選び</a><a href="guide-sitter-hourly-cost.html">シッターの最低利用時間・料金総額</a><a href="guide-family-outing.html">親子のお出かけガイド</a><a href="guide-weekend-family-event.html">親子イベント参加前のチェックリスト</a><a href="guides.html">子育てガイド一覧</a><a href="sitter-directory.html">全国のシッター公式情報一覧（参考紹介）</a><a href="public-guide.html">子育てサービスの公式情報リンク集</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="contact.html">無料掲載を申し込む</a><a href="partners.html">掲載条件・料金</a><a href="business.html">CARE・SPARK・PLAYの無料掲載</a><a href="listing-terms.html">無料掲載条件</a><a href="public-guide.html#correction">公開情報の修正・削除</a><a href="operator.html">運営者情報・斎藤幸輔プロフィール</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><p class="mate-operator-signature" style="font-size:12px;line-height:1.9;color:#bbd0e4;margin:22px 0 0">MATE CARE・SPARK・PLAY 運営：NextEdu ／ <a href="operator.html" style="text-decoration:underline;color:inherit">代表・斎藤幸輔（Kosuke Saito）のプロフィール・取材実績</a></p><div class="footerNote">CAREの検索結果には、事業者の許諾・内容確認済みの正式掲載と、MATE編集部が公開情報から独立に作成した事業者未承認の参考紹介を明確に区分して表示します。参考紹介は正式掲載・提携・推薦ではありません。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE CARE. All rights reserved.</div></div></footer>
-<link rel="stylesheet" href="assets/mate-gallery.css?v=20261120-linked-gallery"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261119-unified-brands"><script src="assets/mate-gallery.js?v=20261120-linked-gallery" defer></script><script src="assets/provider-search.js?v=20261120-approved-linked" defer></script>
+<link rel="stylesheet" href="assets/mate-gallery.css?v=20261120-linked-gallery"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261119-unified-brands"><script src="assets/mate-gallery.js?v=20261120-linked-gallery" defer></script><script src="assets/provider-search.js?v=20261120-detail-teasers" defer></script>
 <script>
 /* Anonymous homepage listing-CTA count: no form fields, email addresses or query strings. */
 document.addEventListener('click',function(event){
