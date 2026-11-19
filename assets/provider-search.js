@@ -19,10 +19,10 @@ function mateApprovedThumb(p){
  const name=nm(p),url=ur(p);let host='';
  try{const u=new URL(url);if(u.protocol==='https:')host=u.hostname.toLowerCase()}catch{}
  const favicon=host?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(host)+'&sz=128':'';
- const html='<div class="mate-editorial-thumb mate-thumbnail-fallback mate-approved-brand" data-approved-brand aria-label="'+escapeHtml(name)+'">'+
+ const html='<a class="mate-editorial-thumb mate-thumbnail-fallback mate-approved-brand" data-approved-brand data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(name)+'の公式サイトを開く">'+
   '<div class="mate-editorial-brand">'+(favicon?'<img class="mate-editorial-favicon" src="'+escapeHtml(favicon)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">':'')+
   '<span class="mate-editorial-name">'+escapeHtml(name)+'</span></div>'+
-  (host?'<span class="mate-preview-source">公式サイト：'+escapeHtml(host)+'</span>':'')+'</div>';
+  (host?'<span class="mate-preview-source">公式サイト：'+escapeHtml(host)+'</span>':'')+'</a>';
  return html;
 }
 function mateDisplayName(p){return nm(p).replace(/^(?:株式会社|有限会社|合同会社|一般社団法人|特定非営利活動法人)[ 　]*/,'').trim()||nm(p)}
