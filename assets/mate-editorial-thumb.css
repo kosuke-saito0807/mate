@@ -31,3 +31,6 @@ a.mate-editorial-thumb:focus-visible{outline:3px solid #0878ea;outline-offset:3p
 .mate-approved-brand .mate-editorial-favicon{width:52px;height:52px;flex:0 0 52px;object-fit:contain}
 .mate-approved-brand .mate-editorial-name{font-size:15px;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
 .results>.result h3{font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+
+/* Explicitly lock the image frame geometry against inherited homepage CSS. */
+#results.results>.result>.mate-editorial-thumb,#results.results>.result>.mate-photo-carousel{aspect-ratio:4/3!important;height:auto!important;min-height:0!important;max-height:none!important;align-self:stretch;flex:0 0 auto}
