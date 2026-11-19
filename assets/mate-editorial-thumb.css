@@ -38,3 +38,13 @@ a.mate-editorial-thumb:focus-visible{outline:3px solid #0878ea;outline-offset:3p
 /* November 2026 final search-card height: overrides older 4:3 important declarations. */
 #results.results>.result>.mate-editorial-thumb,#results.results>.result>.mate-photo-carousel{height:clamp(155px,19vw,226px)!important;max-height:226px!important;min-height:0!important;aspect-ratio:auto!important;align-self:stretch}
 #results.results>.result>.mate-editorial-thumb .mate-editorial-shot{height:100%;object-fit:contain}
+
+/* Final shared frame: same actual height regardless of provider name or image. */
+#results.results>.result>.mate-editorial-thumb,#results.results>.result>.mate-photo-carousel{
+ box-sizing:border-box;width:100%;height:clamp(138px,15vw,182px)!important;
+ max-height:182px!important;min-height:0!important;aspect-ratio:auto!important;
+ margin:0 0 10px;align-self:stretch;flex:0 0 auto;overflow:hidden;border-radius:11px;
+}
+#results.results>.result>.mate-editorial-thumb .mate-editorial-brand{max-height:calc(100% - 15px)}
+#results.results>.result>.mate-editorial-thumb .mate-preview-source{max-width:55%}
+#results.results>.result>.mate-photo-carousel .mate-photo-slides{height:100%}
