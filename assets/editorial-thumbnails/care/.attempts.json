@@ -1,8 +1,4 @@
 {
-  "editorial-akamon-mammy": {
-    "at": 1794979106,
-    "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://akamon-mammy.com/\", waiting until \"commit\"\n"
-  },
   "editorial-combismile": {
     "at": 1795009547,
     "reason": "Empty screenshot"

@@ -16,16 +16,12 @@
     "reason": "HTTP 403"
   },
   "editorial-fuji-sports": {
-    "at": 1794979611,
-    "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://fujisportsclub.com/\", waiting until \"commit\"\n"
+    "at": 1795080200,
+    "reason": "HTTP 403"
   },
   "editorial-itoman-junior": {
     "at": 1794980273,
     "reason": "HTTP 403"
-  },
-  "editorial-jexer-kids": {
-    "at": 1794979276,
-    "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://jexer.jp/kids/\", waiting until \"commit\"\n"
   },
   "editorial-palette-piano": {
     "at": 1795002840,
@@ -48,7 +44,7 @@
     "reason": "Empty screenshot"
   },
   "editorial-up-edu-science": {
-    "at": 1794979276,
+    "at": 1795080200,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://up-edu.com/science-lab\", waiting until \"commit\"\n"
   }
 }
