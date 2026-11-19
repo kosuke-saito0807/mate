@@ -26,7 +26,7 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("mateDisplayName(p)",care)
   self.assertNotIn('result-kicker">公開情報参考・事業者未確認',care)
   self.assertNotIn('<strong>公開情報参考・事業者未確認</strong>',spark)
-  self.assertIn("事業者未承認",care)
+  self.assertIn("未確認の参考紹介",care)
   self.assertIn("mate-approved-brand",src("assets/mate-editorial-thumb.css"))
   self.assertIn("Number(a.editorial===true)-Number(b.editorial===true)",spark)
   self.assertNotIn(':"正式掲載"',care)
