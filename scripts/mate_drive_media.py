@@ -6,7 +6,18 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import time
 from pathlib import Path
+
+def _get_with_transient_retry(session, url, params, timeout):
+    """Retry only transient Google API limits, never hidden 403/404 permissions."""
+    for attempt in range(2):
+        response = session.get(url, params=params, timeout=timeout)
+        if response.status_code in (429, 502, 503) and attempt == 0:
+            time.sleep(1.0)
+            continue
+        return response
+
 
 DRIVE_ID=re.compile(r"^DRIVE:([A-Za-z0-9_-]{20,128})$")
 APP_ID=re.compile(r"^MATE-WEB-([0-9a-f-]{36})$",re.I)
@@ -50,9 +61,9 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
             file_id=photo.group(1)
             attempted_downloads+=1
             try:
-                meta=session.get(
-                  "https://www.googleapis.com/drive/v3/files/"+file_id,
-                  params={"fields":"id,mimeType,size,trashed"},timeout=12)
+                meta=_get_with_transient_retry(
+                  session, "https://www.googleapis.com/drive/v3/files/"+file_id,
+                  {"fields":"id,mimeType,size,trashed"}, 12)
                 if meta.status_code!=200:
                     hold("metadata_http_"+str(meta.status_code));continue
                 info=meta.json()
@@ -62,9 +73,9 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                     hold("wrong_mime");continue
                 if int(info.get("size") or 0)>240000:
                     hold("too_large");continue
-                response=session.get(
-                  "https://www.googleapis.com/drive/v3/files/"+file_id,
-                  params={"alt":"media"},timeout=20)
+                response=_get_with_transient_retry(
+                  session, "https://www.googleapis.com/drive/v3/files/"+file_id,
+                  {"alt":"media"}, 20)
                 if response.status_code!=200:
                     hold("download_http_"+str(response.status_code));continue
                 blob=response.content
