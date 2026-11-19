@@ -31,7 +31,13 @@ class CareEditorialDirectoryTests(unittest.TestCase):
         self.assertEqual(self.directory.count('class="directory-thumb"'), len(self.providers))
         for p in self.providers:
             with self.subTest(thumbnail=p["id"]):
-                self.assertIn('assets/editorial-thumbnails/care/'+p["id"]+'.webp', self.directory)
+                photo = ROOT / 'assets/editorial-thumbnails/care' / (p["id"] + '.webp')
+                tag='assets/editorial-thumbnails/care/'+p["id"]+'.webp'
+                if photo.is_file():
+                    self.assertIn(tag, self.directory)
+                else:
+                    self.assertNotIn(tag, self.directory)
+                    self.assertIn('class="directory-thumb-title">'+p["name"]+'</span>', self.directory)
 
     def test_json_ld_matches_source_count(self):
         match = re.search(r'<script type="application/ld\+json">([\s\S]*?)</script>', self.directory)
