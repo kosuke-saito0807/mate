@@ -25,6 +25,8 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn("Number(a.editorial===true)-Number(b.editorial===true)",spark)
   self.assertNotIn(':"正式掲載"',care)
   self.assertNotIn('<strong>正式掲載</strong>',spark)
+  self.assertIn("(window.MATEGallery?window.MATEGallery.render(s,\'SPARK\'):editorialThumb(s))",spark)
+  self.assertNotIn("Array.isArray(s.images)&&s.images.length&&window.MATEGallery",spark)
   self.assertIn(".results>.result>.provider-link",home)
   self.assertIn("margin-top:auto",home)
   self.assertIn(".cards>.card .cardActions{margin-top:auto",spark)
