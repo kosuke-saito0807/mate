@@ -26,6 +26,18 @@ class DiscoveryQuality(unittest.TestCase):
    self.assertNotIn("mate-photo-fallback",gallery)
   self.assertIn("Number(a.editorial===true)-Number(b.editorial===true)",care)
   self.assertIn("mateApprovedThumb(p)",care)
+  # Directory UX: summaries never force a tall card; labels and in-paragraph
+  # read-more remain immediately adjacent, with mid-list refinements.
+  self.assertIn('class="result-inline-more"',care)
+  self.assertIn('class="result-description"><strong>紹介：</strong>',care)
+  self.assertIn('<strong>対象エリア：</strong>',care)
+  self.assertIn('<strong>サービス：</strong>',care)
+  self.assertIn("let visibleLimit=18",care)
+  self.assertIn("data-show-more",care)
+  self.assertIn("data-show-all",care)
+  self.assertIn('data-care-refine',care)
+  self.assertIn('profile-gallery-panel',src("provider.html"))
+  self.assertIn('id="gallery"',src("provider.html"))
   self.assertIn('<a class="mate-editorial-thumb mate-thumbnail-fallback mate-approved-brand"',care)
   self.assertIn('data-approved-brand data-provider-id',care)
   self.assertIn('href="\'+escapeHtml(url)+\'" target="_blank" rel="noopener noreferrer"',care)
