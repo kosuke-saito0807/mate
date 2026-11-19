@@ -13,6 +13,25 @@ PAGES={
 GUIDES={"guide-sitter-choice.html","guide-family-outing.html","spark/guide-lessons-choice.html","guide-sitter-fees-check.html","guide-weekend-family-event.html","spark/guide-lesson-age-fit.html"}
 def src(path):return (ROOT/path).read_text(encoding="utf-8")
 class DiscoveryQuality(unittest.TestCase):
+ def test_approved_listings_first_clean_labels_and_aligned_links(self):
+  care=src("assets/provider-search.js")
+  spark=src("spark/index.html")
+  home=src("index.html")
+  for path in ("assets/mate-gallery.js","spark/assets/mate-gallery.js"):
+   gallery=src(path)
+   self.assertNotIn("カテゴリーイメージ",gallery)
+   self.assertNotIn("mate-photo-fallback",gallery)
+  self.assertIn("Number(a.editorial===true)-Number(b.editorial===true)",care)
+  self.assertIn("Number(a.editorial===true)-Number(b.editorial===true)",spark)
+  self.assertNotIn(':"正式掲載"',care)
+  self.assertNotIn('<strong>正式掲載</strong>',spark)
+  self.assertIn(".results>.result>.provider-link",home)
+  self.assertIn("margin-top:auto",home)
+  self.assertIn(".cards>.card .cardActions{margin-top:auto",spark)
+  self.assertIn("min-height:44px",spark)
+  for path in ("assets/mate-gallery.css","spark/assets/mate-gallery.css"):
+   self.assertIn(".mate-photo-fallback{display:none!important}",src(path))
+
  def test_ux_baseline_and_keyboard_skip(self):
   for path in PAGES:
    with self.subTest(path=path):
