@@ -1485,6 +1485,8 @@ function mateV4SendOutreach(){
       service==='SPARK'?'https://spark.kosodatemate.jp/partners.html':'https://care.kosodatemate.jp/contact.html';
     // Aggregate analytics attribution, with no prospect identity in the URL.
     const link=landing+'?utm_source=mate_outreach&utm_medium=email&utm_campaign=free_listing_'+service.toLowerCase();
+    const serviceSite=({CARE:'https://care.kosodatemate.jp/',SPARK:'https://spark.kosodatemate.jp/',PLAY:'https://play.kosodatemate.jp/'})[service];
+    const serviceOverview=({CARE:'ベビーシッターや訪問保育の事業者をエリアやサービスの特徴から探せる情報サイトです。',SPARK:'子ども向け習い事・教室を探す保護者に、教室情報や特色を届ける情報サイトです。',PLAY:'親子で参加できる体験・ワークショップを探せる情報サイトです。'})[service];
     const subject='【MATE '+service+'】無料掲載のご案内｜'+x['事業者名'].slice(0,70);
     // Production copy follows the approved service-specific template. Never append
     // the owner-only test disclaimer to an external campaign message.
@@ -1498,6 +1500,12 @@ function mateV4SendOutreach(){
         SPARK:'幼児から高校生まで、幅広い年齢のお子さまの習い事を探すご家庭に、教室の特色や学びの魅力を届けるMATE SPARKの無料掲載をご案内します。',
         PLAY:'親子向け体験・ワークショップを探す家庭に、体験内容を届けるPLAYの無料掲載をご案内します。'})[service],
       '対象サービスに当てはまらない場合は、そのままご放念ください。',
+      '',
+      '【サイト・掲載イメージ】',
+      'MATE '+service+'：'+serviceSite,
+      serviceOverview,
+      'サイト内の事業者カードには、名称・対応エリア・サービスの特徴・公式サイトへのリンク等を掲載する想定です。',
+      '公開情報をもとにした参考紹介と、事業者様のご申請・確認を経た正式掲載は区別しています。',
       '',
       '基本情報の掲載は無料で、掲載料・紹介料はかかりません。',
       '掲載にご興味がありましたら、まずはこのメールに「掲載希望」とご返信いただくだけでも構いません。',
