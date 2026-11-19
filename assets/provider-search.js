@@ -45,6 +45,7 @@ function card(p){
   '<p>'+escapeHtml(ar(p).join('・')||'対応エリアは公式サイトをご確認ください')+'</p>'+
   (p.category?'<p class="result-kicker">'+escapeHtml(n(p.category))+'</p>':'')+
   '<p class="result-description">'+escapeHtml(short)+'</p>'+longAction+
+  (approved&&p.pricingNotes?'<p class="result-meta">料金：'+escapeHtml(n(p.pricingNotes).slice(0,75))+'</p>':'')+
   (approved?'<a class="provider-link" data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(detail)+'">詳細を見る ↗</a>':
    (url?'<a class="provider-link" data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a>':''))+
   '</article>';
