@@ -27,13 +27,20 @@ def main():
         valid.append((entry, url))
     def e(s):
         return html.escape(str(s or ""), quote=True)
+    # A screenshot is optional: missing assets render the named brand fallback
+    # instead of embedding a broken image URL.
+    def image(entry):
+        file = ROOT / "assets/editorial-thumbnails/care" / (entry["id"] + ".webp")
+        return ('<img src="assets/editorial-thumbnails/care/{id}.webp" '
+                'alt="{name}の公式サイトトップページ" loading="lazy" decoding="async" onerror="this.hidden=true">'
+                .format(id=e(entry["id"]),name=e(entry["name"]))) if file.is_file() else ""
     cards = "\n".join(
         ('<article class="provider" id="{id}"><a class="directory-thumb" href="{url}" target="_blank" rel="noopener noreferrer" aria-label="{name}の公式サイトを開く">'
-        '<img src="assets/editorial-thumbnails/care/{id}.webp" alt="{name}の公式サイトトップページ" loading="lazy" decoding="async" onerror="this.hidden=true">'
-        '<span class="directory-thumb-title">{name}</span></a><h2>{name}</h2><p class="meta">{region} ・ {category}</p>'
+        '{image}<span class="directory-thumb-title">{name}</span></a><h2>{name}</h2><p class="meta">{region} ・ {category}</p>'
         '<p>{description}</p><a href="{url}" target="_blank" rel="noopener noreferrer">公式サイトで詳細を見る ↗</a></article>').format(
             id=e(entry["id"]), name=e(entry["name"]), region=e(entry.get("region")),
-            category=e(entry.get("category")), description=e(entry.get("description")), url=e(url)
+            category=e(entry.get("category")), description=e(entry.get("description")), url=e(url),
+            image=image(entry)
         ) for entry, url in valid
     )
     source = TARGET.read_text(encoding="utf-8")
