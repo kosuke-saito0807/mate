@@ -1654,5 +1654,29 @@
     "reviewedAt": "2026-11-18",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-kids-prolab",
+    "name": "Kidsプログラミングラボ",
+    "region": "全国",
+    "category": "プログラミング",
+    "description": "小学生を中心に、Scratchなどによるゲーム制作と段階的なプログラミング学習を案内している教室です。教室ごとの開講情報は公式サイトをご確認ください。",
+    "url": "https://kids-prolab.com/",
+    "source": "https://kids-prolab.com/",
+    "reviewedAt": "2026-11-19",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-protech-club",
+    "name": "プロ・テック倶楽部",
+    "region": "東京都・神奈川県・千葉県・埼玉県",
+    "category": "ロボット・プログラミング",
+    "description": "小中学生などに向けてロボット・ゲーム・IoT・AIを題材にしたプログラミングやものづくりの講座を公式サイトで紹介しています。",
+    "url": "https://protech-club.com/",
+    "source": "https://protech-club.com/",
+    "reviewedAt": "2026-11-19",
+    "editorial": true,
+    "approved": false
   }
 ]
