@@ -29,9 +29,9 @@
    const photos=images.length?images:[fallbackSrc];
    const alt=safe(data.name||"事業者")+"の掲載写真";
    return '<div class="mate-photo-carousel" data-mate-gallery="1" data-photo-index="0" data-fallback="'+safe(fallbackSrc)+'" aria-label="'+alt+'">'+
-     '<div class="mate-photo-slides">'+photos.map((u,i)=>'<img class="'+(images.length?'mate-real-photo':'mate-category-photo')+'" src="'+safe(u)+'" alt="'+alt+(images.length?" "+(i+1)+"枚目":"（カテゴリーイメージ）")+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" '+(i?'hidden':'')+'>').join('')+'</div>'+
+     '<div class="mate-photo-slides">'+photos.map((u,i)=>'<img class="'+(images.length?'mate-real-photo':'mate-category-photo')+'" src="'+safe(u)+'" alt="'+alt+(images.length?" "+(i+1)+"枚目":"（イメージ）")+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" '+(i?'hidden':'')+'>').join('')+'</div>'+
      (photos.length>1?'<button type="button" class="mate-photo-prev" aria-label="前の写真" data-photo-move="-1">‹</button><button type="button" class="mate-photo-next" aria-label="次の写真" data-photo-move="1">›</button><span class="mate-photo-count" aria-live="polite">1 / '+photos.length+'</span>':'')+
-     (!images.length?'<span class="mate-photo-fallback">カテゴリーイメージ</span>':'')+
+
     '</div>';
  }
  document.addEventListener("click",function(event){
@@ -50,7 +50,7 @@
    if(!(img instanceof HTMLImageElement)||!img.closest("[data-mate-gallery]"))return;
    const container=img.closest("[data-mate-gallery]"),fallbackSrc=container.dataset.fallback;
    if(img.src.endsWith(fallbackSrc))return;
-   img.src=fallbackSrc;img.className="mate-category-photo";img.alt="カテゴリーイメージ";
+   img.src=fallbackSrc;img.className="mate-category-photo";img.alt="掲載イメージ";
  },true);
  global.MATEGallery={render,fallback};
 })(window);
