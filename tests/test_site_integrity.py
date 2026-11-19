@@ -37,7 +37,10 @@ class SiteIntegrity(unittest.TestCase):
                         continue
                     self.assertFalse(url.scheme, (str(page), value))
                     self.assertFalse(url.path.startswith("//"), (str(page), value))
-                    dest = (page.parent / unquote(url.path)).resolve()
+                    # Leading slash is site-root relative: CARE root or SPARK root,
+                    # rather than the Linux filesystem root.
+                    path = unquote(url.path)
+                    dest = ((root / path.lstrip("/")) if path.startswith("/") else (page.parent / path)).resolve()
                     # Resolve pages linked as directories to index.html.
                     if dest.is_dir():
                         dest /= "index.html"
