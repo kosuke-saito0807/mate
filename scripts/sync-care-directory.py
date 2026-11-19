@@ -28,10 +28,10 @@ def main():
     def e(s):
         return html.escape(str(s or ""), quote=True)
     cards = "\n".join(
-        '<article class="provider" id="{id}"><a class="directory-thumb" href="{url}" target="_blank" rel="noopener noreferrer" aria-label="{name}の公式サイトを開く">'
+        ('<article class="provider" id="{id}"><a class="directory-thumb" href="{url}" target="_blank" rel="noopener noreferrer" aria-label="{name}の公式サイトを開く">'
         '<img src="assets/editorial-thumbnails/care/{id}.webp" alt="{name}の公式サイトトップページ" loading="lazy" decoding="async" onerror="this.hidden=true">'
         '<span class="directory-thumb-title">{name}</span></a><h2>{name}</h2><p class="meta">{region} ・ {category}</p>'
-        '<p>{description}</p><a href="{url}" target="_blank" rel="noopener noreferrer">公式サイトで詳細を見る ↗</a></article>'.format(
+        '<p>{description}</p><a href="{url}" target="_blank" rel="noopener noreferrer">公式サイトで詳細を見る ↗</a></article>').format(
             id=e(entry["id"]), name=e(entry["name"]), region=e(entry.get("region")),
             category=e(entry.get("category")), description=e(entry.get("description")), url=e(url)
         ) for entry, url in valid
