@@ -19,3 +19,6 @@
 .mate-photo-carousel .mate-photo-count{background:rgba(12,39,66,.72);padding:4px 11px;
   backdrop-filter:blur(7px);border:1px solid rgba(255,255,255,.13)}
 @media(prefers-reduced-motion:reduce){.mate-photo-carousel button{transition:none}}
+
+/* Hide legacy category-image text badges even on stale cached markup. */
+.mate-photo-fallback{display:none!important}
