@@ -19,6 +19,9 @@ class DiscoveryQuality(unittest.TestCase):
   home=src("index.html")
   for path in ("assets/mate-gallery.js","spark/assets/mate-gallery.js"):
    gallery=src(path)
+   self.assertIn("mate-gallery-official-link",gallery)
+   self.assertIn("photoStart+photos.map",gallery)
+   self.assertIn("photoEnd+",gallery)
    self.assertNotIn("カテゴリーイメージ",gallery)
    self.assertNotIn("mate-photo-fallback",gallery)
   self.assertIn("Number(a.editorial===true)-Number(b.editorial===true)",care)
