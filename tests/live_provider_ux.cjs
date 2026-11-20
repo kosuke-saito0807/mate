@@ -81,7 +81,8 @@ async function spark(browser){
   try{
     await op.locator('h1').waitFor();
     assert.match(await op.locator('main').innerText(),/MATE SPARK/);
-    check('SPARK operator does not link to CARE operator',await op.locator('a[href="https://care.kosodatemate.jp/operator.html"]').count(),0);
+    check('SPARK operator canonical stays local',await op.locator('link[rel="canonical"]').getAttribute('href'),'https://spark.kosodatemate.jp/operator.html');
+    assert.ok((await op.locator('main').innerText()).includes('NextEdu'),'SPARK local NextEdu operator information');
     check('SPARK operator home points to same site',await op.locator('a.operator-home').getAttribute('href'),'./');
     await op.locator('a.operator-home').click();
     check('SPARK home stays on SPARK domain',new URL(op.url()).origin,'https://spark.kosodatemate.jp');
