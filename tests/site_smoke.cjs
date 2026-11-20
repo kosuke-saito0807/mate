@@ -103,7 +103,7 @@ async function main() {
       const shot=await photos.first().evaluate(el=>el.getBoundingClientRect().toJSON());
       assert.ok(shot.y>=frame.y-1&&shot.y<frame.bottom,'first photo should be inside visible gallery frame');
       assert.ok(shot.height>=frame.height-2,'first photo fills the gallery');
-      assert.equal(await photos.first().evaluate(el=>getComputedStyle(el).objectFit),'cover');
+      assert.equal(await photos.first().evaluate(el=>getComputedStyle(el).objectFit),'contain','full provider-detail photos must not crop faces');
       assert.equal(await profile.locator('#facts').count(),1);
       assert.equal(await profile.locator('#official').count(),1);
       const afterFacts=await profile.locator('#official').evaluate(el=>Boolean(document.querySelector('#facts').compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING));
