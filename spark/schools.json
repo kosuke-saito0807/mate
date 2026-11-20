@@ -24,8 +24,14 @@
     "trialPrice": 0,
     "ageMin": 7,
     "ageMax": 18,
-    "images": [],
-    "thumbnail": null,
+    "images": [
+      "/assets/partner-media/spark/48444d99-17e4-4fd9-a2ac-45a07e93e832/01-61c2e70cfbdf507a.jpg",
+      "/assets/partner-media/spark/48444d99-17e4-4fd9-a2ac-45a07e93e832/02-140fc716e957bb99.jpg",
+      "/assets/partner-media/spark/48444d99-17e4-4fd9-a2ac-45a07e93e832/03-5885c0c851896afa.jpg",
+      "/assets/partner-media/spark/48444d99-17e4-4fd9-a2ac-45a07e93e832/04-f6d9b755f64c713c.jpg",
+      "/assets/partner-media/spark/48444d99-17e4-4fd9-a2ac-45a07e93e832/05-af0a4b6785353c51.jpg"
+    ],
+    "thumbnail": "/assets/partner-media/spark/48444d99-17e4-4fd9-a2ac-45a07e93e832/01-61c2e70cfbdf507a.jpg",
     "fallbackImageKey": "fallback-spark-プログラミング"
   }
 ]

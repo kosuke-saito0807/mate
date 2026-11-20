@@ -12,8 +12,13 @@
     "category": "ベビーシッター",
     "pricingNotes": "申請時点の事業者案内：入会金・年会費無料、保育料1時間2,420円〜。プラットフォーム使用料なし。送迎など30分〜の短時間利用や各種補助制度に対応。最新条件は公式サイトでご確認ください。",
     "data_as_of": "2026-11-19",
-    "images": [],
-    "thumbnail": null,
+    "images": [
+      "/assets/partner-media/care/3a29e1c1-eb6f-4f1b-8c92-a54e6a497ffc/01-1fbd8bbc05ac04f0.jpg",
+      "/assets/partner-media/care/3a29e1c1-eb6f-4f1b-8c92-a54e6a497ffc/02-19d4d757177f4c3e.jpg",
+      "/assets/partner-media/care/3a29e1c1-eb6f-4f1b-8c92-a54e6a497ffc/03-da9493f085b09d7f.jpg",
+      "/assets/partner-media/care/3a29e1c1-eb6f-4f1b-8c92-a54e6a497ffc/04-e3207a3be966bf33.jpg"
+    ],
+    "thumbnail": "/assets/partner-media/care/3a29e1c1-eb6f-4f1b-8c92-a54e6a497ffc/01-1fbd8bbc05ac04f0.jpg",
     "fallbackImageKey": "fallback-care-ベビーシッター"
   }
 ]
