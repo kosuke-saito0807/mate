@@ -1678,5 +1678,77 @@
     "reviewedAt": "2026-11-19",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-mirai-makerslab-kanazawa",
+    "name": "ミライ・メイカーズラボ",
+    "region": "石川県",
+    "category": "プログラミング・ものづくり",
+    "description": "金沢市で小学生から高校生に向けて、プログラミングやロボット、電子工作、CADなどの体験・課題解決型学習を公式サイトで案内しています。対象学年と開催日は公式情報をご確認ください。",
+    "url": "https://mirai-makerslab.biz/",
+    "source": "https://mirai-makerslab.biz/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-aimpro-fitness-ishikawa",
+    "name": "エイム マイクラプログラミング教室",
+    "region": "石川県",
+    "category": "プログラミング",
+    "description": "金沢市・野々市市・白山市・内灘町などで、小学生向けのマインクラフトを題材にしたプログラミング教室と体験案内を公式サイトに掲載しています。開校校舎・学年・料金は各校で確認してください。",
+    "url": "https://aimpro-fitness.com/",
+    "source": "https://aimpro-fitness.com/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-haruyoka-fukuoka",
+    "name": "はるよかプログラミングスクール",
+    "region": "福岡県",
+    "category": "プログラミング",
+    "description": "福岡市早良区の小中学生向けプログラミングスクール。ロボットやScratchなどの学習コース、無料体験について公式サイトで案内しています。受講条件や開催日程は公式情報をご確認ください。",
+    "url": "https://haruyoka.co.jp/school/",
+    "source": "https://haruyoka.co.jp/school/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kidsmirai-iizuka",
+    "name": "子ども未来研究所 プログラミング教室",
+    "region": "福岡県",
+    "category": "プログラミング・ロボット",
+    "description": "飯塚市で年長児や小学生を対象に、ScratchJr・Scratch・小型ロボットなどを使うプログラミング学習について公式サイトで案内しています。募集条件と授業日程は公式情報をご確認ください。",
+    "url": "https://kidsmirai.taisei.sh/",
+    "source": "https://kidsmirai.taisei.sh/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-akky-kids-fukuoka",
+    "name": "Akky先生のキッズプログラミング教室",
+    "region": "福岡県",
+    "category": "プログラミング・デジタルアート",
+    "description": "福岡市南区野間の子ども向けプログラミング教室。幼稚園年長児からの学びやScratch、Java、デジタルアートなどのクラスを公式サイトで案内しています。対象年齢は各クラスでご確認ください。",
+    "url": "https://www.miratobi.co-site.jp/",
+    "source": "https://www.miratobi.co-site.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-proglab-foleohakata",
+    "name": "プログラボ フォレオ博多",
+    "region": "福岡県",
+    "category": "ロボット・プログラミング",
+    "description": "福岡市博多区のフォレオ博多内にあるロボットプログラミング教室。年長児・小学生向けにレゴやmicro:bit、Scratchなどの教材を用いたコースを公式サイトで紹介しています。",
+    "url": "https://www.proglab.education/school/foleohakata/",
+    "source": "https://www.proglab.education/school/foleohakata/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
