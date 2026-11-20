@@ -107,7 +107,7 @@ def build() -> int:
     )
     if matches != 1:
         raise ValueError("SPARK directory count marker missing")
-    pattern = r'(<script type="application/ld\+json" id="directory-jsonld">)(.*?)(</script>)'
+    pattern = r'(<script type="application/ld\+json">)(.*?)(</script>)'
     match = re.search(pattern, page, re.S)
     if not match:
         raise ValueError("Directory schema marker missing")
