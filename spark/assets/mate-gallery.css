@@ -41,3 +41,9 @@
 .mate-photo-carousel .mate-photo-slides>.mate-gallery-official-link:focus-visible{
   outline:3px solid #0878ea;outline-offset:-3px;
 }
+
+
+/* Faces need a little breathing room at the top of owner-uploaded photos. */
+.mate-photo-carousel .mate-photo-slides img.mate-real-photo{
+ object-fit:cover;object-position:center 23%;padding:0;
+}
