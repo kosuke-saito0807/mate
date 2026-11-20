@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /demo-schools.json
-Disallow: /schools.json
+Allow: /schools.json
+Allow: /editorial-schools.json
 Sitemap: https://spark.kosodatemate.jp/sitemap.xml

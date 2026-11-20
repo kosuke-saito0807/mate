@@ -195,6 +195,22 @@ class SeoLaunchTests(unittest.TestCase):
         for name in ("direct-intake-test-20261025.html", "play-direct-intake-test-20261025.html"):
             self.assertIn('content="noindex,nofollow,noarchive"', (ROOT / name).read_text(encoding="utf-8"))
 
+    def test_spark_googlebot_can_load_public_school_json(self):
+        robots=(ROOT/"spark/robots.txt").read_text(encoding="utf-8")
+        self.assertIn("Sitemap: https://spark.kosodatemate.jp/sitemap.xml",robots)
+        self.assertIn("Disallow: /demo-schools.json",robots)
+        self.assertIn("Allow: /schools.json",robots)
+        self.assertIn("Allow: /editorial-schools.json",robots)
+        self.assertNotIn("Disallow: /schools.json",robots)
+        # These are published school and unapproved editorial references,
+        # never the demo or non-public review data.
+        official=json.loads((ROOT/"spark/schools.json").read_text(encoding="utf-8"))
+        editorial=json.loads((ROOT/"spark/editorial-schools.json").read_text(encoding="utf-8"))
+        self.assertTrue(isinstance(official,list))
+        self.assertTrue(isinstance(editorial,list))
+        self.assertTrue(all(row.get("editorial") is True and row.get("approved") is False for row in editorial))
+        self.assertIn("fetch('./schools.json'",(ROOT/"spark/index.html").read_text(encoding="utf-8"))
+
     def test_deploy_bundles_care_sitemap(self):
         workflow = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         # Match the required public files without locking the test to the exact
