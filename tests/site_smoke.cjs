@@ -312,7 +312,9 @@ async function main() {
     if(liveSchools.length){
       await spark.waitForFunction(n=>document.querySelector('#cards article.card')?.dataset.schoolId===n[0].id,
         liveSchools);
-      assert.equal(await spark.locator('#cards article.card').count(),liveSchools.length);
+      const visibleCards=await spark.locator('#cards article.card').count();
+      assert.ok(visibleCards>=liveSchools.length&&visibleCards<=18,'SPARK shows verified owner schools before a maximum of 18 total cards');
+      assert.equal(await spark.locator('#sparkPager').isHidden(),false,'SPARK reference directory paginates after 18 cards');
     }else{
       await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
       assert.equal(await spark.locator('#cards article.card').count(),0);
