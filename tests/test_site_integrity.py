@@ -142,7 +142,9 @@ class SiteIntegrity(unittest.TestCase):
         self.assertIn("nextedu-saito-portrait.png",operator)
         self.assertTrue((ROOT / "assets/nextedu-saito-portrait.png").is_file())
         for page in [*ROOT.glob("*.html"),*(ROOT / "spark").glob("*.html")]:
-            if page.name=="operator.html" and page.parent==ROOT:
+            if page.name=="operator.html" and page.parent in (ROOT,SITE):
+                # Owner explicitly publishes the same full profile on SPARK;
+                # the shared bio remains isolated to the operator pages.
                 continue
             body=page.read_text(encoding="utf-8")
             # Founder identity in cross-page SEO metadata and footer is intentional.
