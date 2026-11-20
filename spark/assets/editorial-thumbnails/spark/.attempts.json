@@ -1,7 +1,15 @@
 {
+  "editorial-aimpro-fitness-ishikawa": {
+    "at": 1795133918,
+    "reason": "HTTP 429"
+  },
   "editorial-akiba-programming": {
     "at": 1795089422,
     "reason": "Empty screenshot"
+  },
+  "editorial-akky-kids-fukuoka": {
+    "at": 1795133918,
+    "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://www.miratobi.co-site.jp/\", waiting until \"commit\"\n"
   },
   "editorial-avex-dance": {
     "at": 1794935061,
@@ -23,12 +31,20 @@
     "at": 1794980273,
     "reason": "HTTP 403"
   },
+  "editorial-kidsmirai-iizuka": {
+    "at": 1795133918,
+    "reason": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://kidsmirai.taisei.sh/\nCall log:\n  - navigating to \"https://kidsmirai.taisei.sh/\", waiti"
+  },
   "editorial-palette-piano": {
     "at": 1795089422,
     "reason": "Empty screenshot"
   },
   "editorial-proglab": {
     "at": 1794916103,
+    "reason": "HTTP 403"
+  },
+  "editorial-proglab-foleohakata": {
+    "at": 1795133918,
     "reason": "HTTP 403"
   },
   "editorial-rokko-be": {
