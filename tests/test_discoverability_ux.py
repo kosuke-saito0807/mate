@@ -36,7 +36,7 @@ class DiscoveryQuality(unittest.TestCase):
    self.assertIn("e.key==='ArrowLeft'",detail)
    self.assertIn("e.key==='ArrowRight'",detail)
   self.assertIn("mate-gallery.css?v=20261120-photo-cover-v3",src("index.html"))
-  self.assertIn("mate-gallery.css?v=20261120-photo-cover-v3",src("spark/index.html"))
+  self.assertIn("mate-gallery.css?v=20261120-tall-media-v4",src("spark/index.html"))
   care=json.loads(src("data.json"))[0]
   spark=json.loads(src("spark/schools.json"))[0]
   self.assertEqual(len(care["images"]),4)
