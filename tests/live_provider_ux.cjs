@@ -83,8 +83,9 @@ async function spark(browser){
     assert.match(await op.locator('main').innerText(),/MATE SPARK/);
     check('SPARK operator canonical stays local',await op.locator('link[rel="canonical"]').getAttribute('href'),'https://spark.kosodatemate.jp/operator.html');
     assert.ok((await op.locator('main').innerText()).includes('NextEdu'),'SPARK local NextEdu operator information');
-    check('SPARK operator home points to same site',await op.locator('a.operator-home').getAttribute('href'),'./');
-    await op.locator('a.operator-home').click();
+    check('SPARK operator profile has book and media sections',await op.locator('.founder-history h3').count(),2);
+    check('SPARK operator home points to same site',await op.locator('.operator-header .home-link').getAttribute('href'),'./');
+    await op.locator('.operator-header .home-link').click();
     check('SPARK home stays on SPARK domain',new URL(op.url()).origin,'https://spark.kosodatemate.jp');
     await op.locator('#cards .card').first().waitFor({state:'visible',timeout:17000});
     const listing=await op.evaluate(()=>{
@@ -106,11 +107,13 @@ async function spark(browser){
 async function play(browser){
   const op=await pageAt(browser,'https://play.kosodatemate.jp/operator');
   try{
-    await op.locator('.operator-page h1').waitFor({state:'visible',timeout:17000});
-    assert.match(await op.locator('.operator-page h1').innerText(),/MATE PLAY/);
+    await op.locator('.play-operator-parity h1').waitFor({state:'visible',timeout:17000});
+    assert.match(await op.locator('.play-operator-parity h1').innerText(),/MATE運営者情報/);
+    check('PLAY operator profile has book and media sections',await op.locator('.founder-history h3').count(),2);
+    check('PLAY operator service details',await op.locator('#operator-details').innerText(),'MATE PLAY');
     check('PLAY operator page stays local',new URL(op.url()).origin,'https://play.kosodatemate.jp');
-    check('PLAY operator home is local',await op.locator('.operator-page-nav a').getAttribute('href'),'/');
-    await op.locator('.operator-page-nav a').click();
+    check('PLAY operator home is local',await op.locator('.operator-header .home-link').getAttribute('href'),'/');
+    await op.locator('.operator-header .home-link').click();
     check('PLAY home origin',new URL(op.url()).origin,'https://play.kosodatemate.jp');
     await op.locator('.school-grid .school-card').first().waitFor({state:'visible',timeout:17000});
     const listing=await op.evaluate(()=>{
