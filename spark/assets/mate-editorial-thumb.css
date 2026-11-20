@@ -20,3 +20,10 @@
 .cardArt:has(>.mate-editorial-thumb){height:auto;aspect-ratio:4/3;position:relative}
 .cardArt>.mate-editorial-thumb{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
 .cardArt>.flag{z-index:4}
+
+
+/* Independent provider screenshots use the full same-size thumbnail frame. */
+#cards .cardArt>.mate-editorial-thumb:not(.mate-thumbnail-fallback) .mate-editorial-shot{
+ object-fit:cover;object-position:center top;background:transparent;
+}
+#cards .cardArt>.mate-editorial-thumb.mate-thumbnail-fallback .mate-editorial-shot{object-fit:contain}
