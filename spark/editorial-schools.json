@@ -1750,5 +1750,53 @@
     "reviewedAt": "2026-11-20",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-cotmirai-aoyama",
+    "name": "プログラミングスクール CotoMirai",
+    "region": "東京都",
+    "category": "プログラミング・STEAM",
+    "description": "港区南青山の子ども向けプログラミングスクール。3歳から参加できる親子向けプログラミングトイの体験や、年中児から小学生を対象としたロボット・Scratchなどの個別指導を公式サイトで案内しています。",
+    "url": "https://kids-mirai.jp/",
+    "source": "https://kids-mirai.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-jspace-fukutsu",
+    "name": "J-SPACE AI・ロボット・プログラミング教室",
+    "region": "福岡県",
+    "category": "AI・ロボット・プログラミング",
+    "description": "福岡県福津市でAI、ロボット制作やプログラミングの学びを提供する教室です。エンジニア経験のある講師が指導する内容や教室案内を公式サイトで紹介しています。最新コースや対象年齢は公式サイトをご確認ください。",
+    "url": "https://j-space.jp/",
+    "source": "https://j-space.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-fap-kanazawa-kidsclub",
+    "name": "金沢キッズプログラミングクラブ（FAP）",
+    "region": "石川県",
+    "category": "プログラミング・ドローン",
+    "description": "一般社団法人FAPが運営する小学生向けプログラミングクラブ。金沢市のITビジネスプラザ武蔵などでmicro:bitやドローンを使うプログラミング学習を案内しています。開催日と募集状況は公式サイトでご確認ください。",
+    "url": "https://fap-club.org/",
+    "source": "https://fap-club.org/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-toki-nagano-ekoda",
+    "name": "トキ・ナガノ プログラミング教室",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "練馬区江古田駅近くの子ども向けプログラミング教室です。Scratchによる基礎学習と少人数指導、体験授業の案内を公式サイトに掲載しています。対象年齢や最新の開催・料金情報は公式サイトをご確認ください。",
+    "url": "https://www.toki-nagano.com/",
+    "source": "https://www.toki-nagano.com/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
