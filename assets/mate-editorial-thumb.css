@@ -48,3 +48,17 @@ a.mate-editorial-thumb:focus-visible{outline:3px solid #0878ea;outline-offset:3p
 #results.results>.result>.mate-editorial-thumb .mate-editorial-brand{max-height:calc(100% - 15px)}
 #results.results>.result>.mate-editorial-thumb .mate-preview-source{max-width:55%}
 #results.results>.result>.mate-photo-carousel .mate-photo-slides{height:100%}
+
+
+/* Taller, consistently filled provider thumbnails. Site screenshots fill the same
+   frame as approved photos; logo-only fallbacks remain safely centered. */
+#results.results>.result>.mate-editorial-thumb,
+#results.results>.result>.mate-photo-carousel{
+ height:clamp(180px,19.5vw,222px)!important;max-height:222px!important;
+}
+#results.results>.result>.mate-editorial-thumb:not(.mate-thumbnail-fallback) .mate-editorial-shot{
+ object-fit:cover;object-position:center top;background:transparent;
+}
+#results.results>.result>.mate-editorial-thumb.mate-thumbnail-fallback .mate-editorial-shot{
+ object-fit:contain;
+}
