@@ -36,8 +36,9 @@ function card(p){
  const approved=p.editorial!==true,detail=approved?detailLink(p):'';
  const desc=n(p.description),limit=60,hasMore=desc.length>limit;
  const short=hasMore?desc.slice(0,limit).replace(/[\r\n]+/g,' ').trim()+'…':desc;
- const media=p.editorial?mateEditorialThumb(p,"CARE"):(Array.isArray(p.images)&&p.images.length&&window.MATEGallery?window.MATEGallery.render(p,"CARE"):mateApprovedThumb(p));
- const thumb=approved?media.replace('href="'+escapeHtml(url)+'"','href="'+escapeHtml(detail)+'"').replace(/target="_blank" rel="noopener noreferrer"/,'').replace('の公式サイトを開く','の掲載詳細を見る'):media;
+ const hasGallery=approved&&Array.isArray(p.images)&&p.images.length>0&&Boolean(window.MATEGallery);
+ const media=p.editorial?mateEditorialThumb(p,"CARE"):(hasGallery?window.MATEGallery.render(p,"CARE",detail):mateApprovedThumb(p));
+ const thumb=approved&&!hasGallery?media.replace('href="'+escapeHtml(url)+'"','href="'+escapeHtml(detail)+'"').replace(/target="_blank" rel="noopener noreferrer"/,'').replace('の公式サイトを開く','の掲載詳細を見る'):media;
  const longAction=hasMore?(approved?'<a class="result-inline-more" href="'+escapeHtml(detail)+'">続きを読む</a>':'<button type="button" class="result-inline-more" data-more-id="'+escapeHtml(n(p.id))+'">続きを読む</button>'):'';
  const area=ar(p).join('・')||'公式サイトでご確認ください';
  const category=n(p.category)||'サービス内容は公式サイトでご確認ください';
