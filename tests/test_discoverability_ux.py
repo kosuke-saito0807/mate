@@ -13,6 +13,25 @@ PAGES={
 GUIDES={"guide-sitter-choice.html","guide-family-outing.html","spark/guide-lessons-choice.html","guide-sitter-fees-check.html","guide-weekend-family-event.html","spark/guide-lesson-age-fit.html"}
 def src(path):return (ROOT/path).read_text(encoding="utf-8")
 class DiscoveryQuality(unittest.TestCase):
+ def test_photo_gallery_does_not_hide_approved_images_and_official_link_is_below_facts(self):
+  for path in ("provider.html","spark/school-detail.html"):
+   html=src(path)
+   self.assertIn(".photo .brand-tile[hidden]{display:none!important}",html)
+   self.assertIn("img.photo-slide{position:absolute;inset:0",html)
+   self.assertIn("grid-template-columns:minmax(0,1fr)",html)
+   self.assertLess(html.index('id="gallery"'),html.index('id="facts"'))
+   self.assertLess(html.index('id="facts"'),html.index('id="official"'))
+  spark=src("spark/index.html")
+  self.assertIn('href="operator.html">運営者情報・NextEdu',spark)
+  self.assertIn('id="sparkShowMore"',spark)
+  self.assertIn("visibleSchools=sorted.slice(0,visibleLimit)",spark)
+  self.assertIn("const params=new URLSearchParams({service:'SPARK',inquiry:'trial-comparison'})",spark)
+  self.assertIn("location.assign('https://care.kosodatemate.jp/consult.html?'+params.toString())",spark)
+  consult=src("consult.html")
+  self.assertIn("query.get('inquiry')==='trial-comparison'",consult)
+  self.assertIn("form.elements.namedItem('inquiryType').value='体験・利用相談'",consult)
+  self.assertIn("form.elements.namedItem('referral_interest').checked=false",consult)
+
  def test_owner_photo_cover_layout_and_full_image_access(self):
   # Approved listing cards should not shrink owner photos into a padded frame.
   # Full detail views retain a separate, noncropping viewer for text/people.
