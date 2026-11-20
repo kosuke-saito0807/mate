@@ -766,5 +766,29 @@
     "reviewedAt": "2026-11-20",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-ami-fukuoka",
+    "name": "キッズ＆ベビーシッターAmi（株式会社Aile）",
+    "region": "福岡県",
+    "category": "ベビーシッター・訪問保育",
+    "description": "福岡市を中心とした居宅訪問型のベビーシッターサービスです。家庭でのお子さまの見守りや身の回りのお世話、送迎などについて公式サイトで案内しています。料金・対象年齢・利用可能日は公式案内でご確認ください。",
+    "url": "https://ami-09.jp/",
+    "source": "https://ami-09.jp/about/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-parmo-sapporo",
+    "name": "ベビーシッター ぱるも（合同会社Half Step）",
+    "region": "北海道",
+    "category": "ベビーシッター・訪問保育",
+    "description": "札幌市を中心に活動する訪問型ベビーシッターサービス。通常のシッティングのほか、イベント時の託児や企業との提携について公式サイトで案内しています。最新の料金・対応条件は公式サイトをご確認ください。",
+    "url": "https://halfstep-llc.com/",
+    "source": "https://halfstep-llc.com/partnership/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
