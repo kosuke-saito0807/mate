@@ -3,6 +3,7 @@
 
 ## 公式情報
 - [MATE SPARK](https://spark.kosodatemate.jp/): 習い事・教室を探す
+- [子どもの習い事・教室の公式情報一覧](https://spark.kosodatemate.jp/school-directory.html): プログラミング、英語、音楽、アート、スポーツなど、公式サイトで確認した独立の事業者未承認参考情報をジャンル・地域ごとに探す
 - [教室の無料掲載申請](https://spark.kosodatemate.jp/partners.html): 事業者が直接申請、内容と権限を確認してから掲載判断
 - [習い事の選び方](https://spark.kosodatemate.jp/guide-lessons-choice.html): 選ぶときの確認ポイント
 - [体験レッスンの確認事項](https://spark.kosodatemate.jp/guide-lesson-trial-review.html)

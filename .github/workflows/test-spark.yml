@@ -54,6 +54,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Generate SPARK crawlable school directory
+        run: python3 scripts/sync-spark-directory.py
       - name: Verify static data and deployment settings
         run: |
           python3 -m json.tool spark/schools.json >/dev/null
