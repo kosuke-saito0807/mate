@@ -50,12 +50,16 @@
 .provider-official .muted{text-align:center;margin:10px 0 0}
 .profile-gallery-panel .photo img.photo-slide{object-fit:contain!important;object-position:center!important;background:#f1f6fb!important}
 @media(max-width:760px){.provider-official{padding:18px 12px}.profile-gallery-panel .photo{height:clamp(245px,72vw,360px)}}
+
+/* Compact, name-first provider details: accessible gallery remains keyboard/zoom enabled. */
+.detail{gap:12px;max-width:1040px}.profile-title{width:100%;padding:4px 4px 0;grid-column:1/-1}.profile-title h1{font-size:clamp(27px,3.8vw,42px);margin:0 0 3px;line-height:1.35}.profile-title .muted{margin:0;color:#667f93}.profile-gallery-panel{width:100%;max-width:none;padding:0;border:0;background:transparent;border-radius:14px}.profile-gallery-panel .photo{height:clamp(285px,49vw,530px);width:100%;margin:0;background:#f0f6fa;border-radius:14px}.profile-gallery-panel .photo img.photo-slide{object-fit:contain!important;object-position:center!important;background:#f0f6fa!important}.profile-gallery-panel .photo:has(img.photo-slide){cursor:zoom-in}.detail>.panel{padding:clamp(19px,3vw,30px)}.detail>.panel>h2:first-child{margin-top:0}@media(max-width:760px){.profile-gallery-panel .photo{height:clamp(270px,79vw,440px)}.detail{gap:10px}}
 </style></head><body>
 <header class="top"><div class="w"><a href="index.html"><img src="assets/MATE_header_lockup.svg" alt="MATE CARE"></a><a class="back" href="index.html#find">← 検索に戻る</a></div></header>
 <div class="w crumb"><a href="index.html">MATE CARE</a> / 事業者の詳細</div>
 <main class="w"><p id="status">掲載情報を読み込んでいます…</p><div class="detail" id="detail" hidden>
-<section class="profile-gallery-panel" aria-label="申請済み事業者の掲載写真"><p class="gallery-eyebrow">事業者の写真</p><div class="photo" id="gallery"><div class="brand-tile" id="brand"></div><div class="gallery-nav" id="nav" hidden><button type="button" id="prev" aria-label="前の写真">‹</button><button type="button" id="next" aria-label="次の写真">›</button></div><span class="count" id="count" hidden aria-live="polite"></span></div><button type="button" id="full-photo" class="photo-fullscreen-trigger" hidden>写真を全体表示（拡大）</button><p class="muted gallery-hint">申請と画像利用許諾を確認した写真のみ掲載します。</p></section>
-<article class="panel"><p class="eyebrow">PROVIDER PROFILE</p><h1 id="name"></h1><p class="muted" id="date"></p><h2>サービスについて</h2><p class="copy" id="copy"></p><h2>掲載情報</h2><dl class="facts" id="facts"></dl><p class="muted">申請時点の掲載情報です。最新の料金・空き状況・利用条件は各事業者の公式サイトでご確認ください。</p><section class="provider-official" aria-labelledby="official-heading"><h2 id="official-heading">公式サイト・最新情報</h2><a id="official" class="action" target="_blank" rel="noopener noreferrer">事業者の公式サイトを見る ↗</a><p class="muted">掲載内容の訂正・削除は<a href="public-guide.html#correction">こちら</a>をご確認ください。</p></section></article>
+<header class="profile-title"><h1 id="name"></h1><p class="muted" id="date"></p></header>
+<section class="profile-gallery-panel" aria-label="申請済み事業者の掲載写真"><div class="photo" id="gallery"><div class="brand-tile" id="brand"></div><div class="gallery-nav" id="nav" hidden><button type="button" id="prev" aria-label="前の写真">‹</button><button type="button" id="next" aria-label="次の写真">›</button></div><span class="count" id="count" hidden aria-live="polite"></span></div></section>
+<article class="panel"><h2>サービスについて</h2><p class="copy" id="copy"></p><h2>掲載情報</h2><dl class="facts" id="facts"></dl><p class="muted">申請時点の掲載情報です。最新の料金・空き状況・利用条件は各事業者の公式サイトでご確認ください。</p><section class="provider-official" aria-labelledby="official-heading"><h2 id="official-heading">公式サイト・最新情報</h2><a id="official" class="action" target="_blank" rel="noopener noreferrer">事業者の公式サイトを見る ↗</a><p class="muted">掲載内容の訂正・削除は<a href="public-guide.html#correction">こちら</a>をご確認ください。</p></section></article>
 </div></main><dialog id="photo-modal" class="photo-fullscreen" aria-label="申請写真を全体表示"><div class="photo-fullscreen-inner"><div class="photo-fullscreen-top"><span id="photo-modal-caption">申請された写真</span><button type="button" id="photo-modal-close" aria-label="写真の拡大表示を閉じる">閉じる ✕</button></div><img id="photo-modal-image" class="photo-fullscreen-image" alt="写真の全体表示"><div class="photo-fullscreen-actions"><button type="button" id="photo-modal-prev">‹ 前の写真</button><span id="photo-modal-count" aria-live="polite"></span><button type="button" id="photo-modal-next">次の写真 ›</button></div></div></dialog><footer class="footer"><div class="w"><div class="footerTop"><div class="footerBrand"><a href="index.html"><img src="assets/MATE_logo_01.svg?v=20261010-logo" alt="MATE CARE"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="consult.html?service=CARE">シッターの相談</a><a href="#find">シッターを探す</a><a href="guide-sitter-choice.html">初めてのシッター選び</a><a href="guide-sitter-hourly-cost.html">シッターの最低利用時間・料金総額</a><a href="guide-family-outing.html">親子のお出かけガイド</a><a href="guide-weekend-family-event.html">親子イベント参加前のチェックリスト</a><a href="guides.html">子育てガイド一覧</a><a href="sitter-directory.html">全国のシッター公式情報一覧（参考紹介）</a><a href="public-guide.html">子育てサービスの公式情報リンク集</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="contact.html">無料掲載を申し込む</a><a href="partners.html">掲載条件・料金</a><a href="business.html">CARE・SPARK・PLAYの無料掲載</a><a href="listing-terms.html">無料掲載条件</a><a href="public-guide.html#correction">公開情報の修正・削除</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="operator.html">運営者情報・NextEdu</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><div class="footerNote">CAREの検索結果には、事業者の許諾・内容確認済みの正式掲載と、MATE編集部が公開情報から独立に作成した事業者未承認の参考紹介を明確に区分して表示します。参考紹介は正式掲載・提携・推薦ではありません。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE CARE. All rights reserved.</div></div></footer>
 <script>
 (async function(){
@@ -67,9 +71,9 @@ try{
  if(!p)throw Error('missing');const u=new URL(p.official_url);
  if(u.protocol!=='https:'||u.username||u.password)throw Error('invalid URL');
  const short=String(p.name).replace(/^(株式会社|有限会社|合同会社)\s*/,'');
- document.title=short+'｜事業者の詳細｜MATE CARE';
+ document.title=p.name+'｜事業者の詳細｜MATE CARE';
  const can=document.createElement('link');can.rel='canonical';can.href=location.origin+location.pathname+'?id='+encodeURIComponent(id);document.head.append(can);
- el('name').textContent=short;el('date').textContent='情報確認日：'+(p.verified_at||'');el('copy').textContent=p.description||'最新のサービス情報は公式サイトをご確認ください。';el('official').href=u.href;
+ el('name').textContent=p.name;el('date').textContent='情報確認日：'+(p.verified_at||'');el('copy').textContent=p.description||'最新のサービス情報は公式サイトをご確認ください。';el('official').href=u.href;
  const facts=[['正式な事業者名',p.name],['サービス',p.category],['対応地域',p.area],['料金・利用条件',p.pricingNotes],['対応時間',p.openingHours]];
  facts.forEach(([k,v])=>{if(v===undefined||v===null||!String(v).trim())return;const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=v;el('facts').append(dt,dd)});
  const photos=Array.isArray(p.images)?p.images.filter(x=>typeof x==='string'&&/^\/?assets\/partner-media\/care\/[0-9a-f-]{36}\/\d{2}-[0-9a-f]{16}\.jpg$/i.test(x)).slice(0,5):[];
@@ -83,11 +87,14 @@ try{
  // Broken or missing images must not leave the gallery completely blank.
  imgs.forEach(img=>{img.onerror=()=>{const at=imgs.indexOf(img);if(at<0)return;imgs.splice(at,1);img.remove();
  if(imgs.length){index=Math.min(index,imgs.length-1);show();el('nav').hidden=imgs.length<2;el('count').hidden=imgs.length<2;}
- else{el('full-photo').hidden=true;el('nav').hidden=true;el('count').hidden=true;el('brand').hidden=false;el('brand').textContent=short+'（写真は現在表示できません）';}
+ else{el('nav').hidden=true;el('count').hidden=true;el('brand').hidden=false;el('brand').textContent=short+'（写真は現在表示できません）';}
  };});
  if(imgs.length>1){el('nav').hidden=false;el('count').hidden=false;el('prev').onclick=()=>move(-1);el('next').onclick=()=>move(1)}
- el('full-photo').hidden=false;
- el('full-photo').onclick=()=>{large.src=imgs[index].src;large.alt=imgs[index].alt+'（全体表示）';el('photo-modal-caption').textContent=short+'の申請写真';el('photo-modal-count').textContent=(index+1)+' / '+imgs.length;modal.showModal()};
+ 
+ const openPhoto=()=>{large.src=imgs[index].src;large.alt=imgs[index].alt+'（全体表示）';el('photo-modal-caption').textContent=short+'の申請写真';el('photo-modal-count').textContent=(index+1)+' / '+imgs.length;modal.showModal()};
+ el('gallery').setAttribute('role','button');el('gallery').tabIndex=0;el('gallery').setAttribute('aria-label','掲載写真を拡大');
+ el('gallery').addEventListener('click',e=>{if(!e.target.closest('.gallery-nav'))openPhoto()});
+ el('gallery').addEventListener('keydown',e=>{if(e.target===el('gallery')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openPhoto()}});
  el('photo-modal-close').onclick=()=>modal.close();
  el('photo-modal-prev').onclick=()=>move(-1);el('photo-modal-next').onclick=()=>move(1);
  if(imgs.length<2){el('photo-modal-prev').hidden=true;el('photo-modal-next').hidden=true}
