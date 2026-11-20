@@ -71,7 +71,7 @@ try{
  facts.forEach(([k,v])=>{if(v===undefined||v===null||!String(v).trim())return;const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=v;el('facts').append(dt,dd)});
  const photos=Array.isArray(p.images)?p.images.filter(x=>typeof x==='string'&&/^\/?assets\/partner-media\/spark\/[0-9a-f-]{36}\/\d{2}-[0-9a-f]{16}\.jpg$/i.test(x)).slice(0,5):[];
  if(photos.length){
- el('brand').hidden=true;let index=0;photos.forEach((src,i)=>{const img=document.createElement('img');img.src=new URL(src,location.origin).href;img.loading=i===0?'eager':'lazy';img.decoding='async';img.alt=short+'の掲載写真 '+(i+1)+'枚目';img.className='photo-slide';img.hidden=i!==0;el('gallery').appendChild(img)});
+ el('brand').hidden=true;let index=0;photos.forEach((src,i)=>{const img=document.createElement('img');img.src=src.startsWith('/')?src.slice(1):src;img.loading=i===0?'eager':'lazy';img.decoding='async';img.alt=short+'の掲載写真 '+(i+1)+'枚目';img.className='photo-slide';img.hidden=i!==0;el('gallery').appendChild(img)});
  let imgs=[...el('gallery').querySelectorAll('.photo-slide')];
  const modal=el('photo-modal'),large=el('photo-modal-image');
  function show(){imgs.forEach((img,i)=>img.hidden=i!==index);el('count').textContent=(index+1)+' / '+imgs.length;
