@@ -730,5 +730,41 @@
     "reviewedAt": "2026-11-19",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-serenesta",
+    "name": "Serenesta（セレネスタ）",
+    "region": "東京都",
+    "category": "ベビーシッター・発達支援に配慮した訪問保育",
+    "description": "東京都心部の9区を中心に、担当シッター制の訪問保育を案内しています。発達特性のあるお子さまに対応するプリサイスシッターと、家庭向けのグランドシッターを公式サイトで紹介しています。",
+    "url": "https://serenesta.jp/",
+    "source": "https://serenesta.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-babysitter-dakko",
+    "name": "ベビーシッターDAKKO",
+    "region": "東京都・神奈川県・千葉県",
+    "category": "ベビーシッター・病児保育・イベント託児",
+    "description": "東京・神奈川・千葉の一部地域を中心に、保育士資格を持つシッターによる出張保育を提供。10か月からのシッティング、病児・病後児保育、イベント託児、早朝・夜間対応などを公式サイトで案内しています。",
+    "url": "https://babysitter-dakko.com/",
+    "source": "https://babysitter-dakko.com/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kxn-nanny",
+    "name": "ケーバイエヌ（K×N）",
+    "region": "全国各地（対象地域は公式サイトで確認）",
+    "category": "英語シッター・バイリンガルナニー・訪問保育",
+    "description": "バイリンガルナニー・英語シッターの訪問保育に加え、子どもの送迎や夜間・宿泊保育、おうち学童、不登校児童の訪問支援などを公式サイトで案内しています。各地域の対応条件は公式案内をご確認ください。",
+    "url": "https://kxn.co.jp/",
+    "source": "https://kxn.co.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
