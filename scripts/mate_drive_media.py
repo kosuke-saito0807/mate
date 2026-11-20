@@ -122,6 +122,9 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
               f"transfer_exceptions={failed_downloads}, failure_reasons={dict(sorted(failed_reasons.items()))}")
         if len(mapping)<expected_photos:
             if any(k.endswith("_accessNotConfigured") for k in failed_reasons):
+                project=str(getattr(credentials,"project_id","") or "")
+                if re.fullmatch(r"[a-z][a-z0-9-]{5,62}",project):
+                    print("MATE approved publisher Cloud project ID: "+project)
                 print("::warning title=MATE private media blocked::Google Drive API (drive.googleapis.com) "
                       "is not enabled on the approved publisher's Google Cloud project. "
                       "File-specific viewer grants are already separate from API enablement. "
