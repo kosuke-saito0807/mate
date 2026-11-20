@@ -23,16 +23,23 @@
    if(/科学|実験|理科|自然体験|農業/.test(c))return "assets/mate-category-science.svg";
    return "assets/mate-category-learning.svg";
  }
- function render(data,service){
+ function render(data,service,internalDetailUrl){
    const fallbackSrc=fallback(service,data.category,data.description);
    const images=(Array.isArray(data.images)?data.images:[]).filter(imageSafe).slice(0,5);
    const photos=images.length?images:[fallbackSrc];
    const alt=safe(data.name||"事業者")+"の掲載写真";
-   // The entire photo is a keyboard-accessible external link; carousel controls stay separate.
+   // Approved photos link to the provider's own MATE profile; controls are separate.
+   // Only fixed site-local owner-detail routes are accepted, never an arbitrary URL.
+   const localPattern=service==="CARE"?/^provider\.html\?id=mate_care_[0-9a-f]{16}$/i:
+     /^school-detail\.html\?id=mate_spark_[0-9a-f]{16}$/i;
+   const localUrl=typeof internalDetailUrl==="string"&&localPattern.test(internalDetailUrl)?internalDetailUrl:"";
    let officialUrl="";
    try{const u=new URL(data.official_url||data.url||data.website||"");if(u.protocol==="https:"&&!u.username&&!u.password)officialUrl=u.href;}catch{}
-   const photoStart=officialUrl?'<a class="mate-gallery-official-link" href="'+safe(officialUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="'+safe(data.name||"事業者")+'の公式サイトを開く">':'';
-   const photoEnd=officialUrl?'</a>':'';
+   const photoUrl=localUrl||officialUrl;
+   const photoStart=photoUrl?'<a class="mate-gallery-official-link" href="'+safe(photoUrl)+'"'+
+      (localUrl?' aria-label="'+safe(data.name||"事業者")+'のMATE掲載詳細を見る"':
+      ' target="_blank" rel="noopener noreferrer" aria-label="'+safe(data.name||"事業者")+'の公式サイトを開く"')+'>':'';
+   const photoEnd=photoUrl?'</a>':'';
    return '<div class="mate-photo-carousel" data-mate-gallery="1" data-photo-index="0" data-fallback="'+safe(fallbackSrc)+'" aria-label="'+alt+'">'+
      '<div class="mate-photo-slides">'+photoStart+photos.map((u,i)=>'<img class="'+(images.length?'mate-real-photo':'mate-category-photo')+'" src="'+safe(u)+'" alt="'+alt+(images.length?" "+(i+1)+"枚目":"（イメージ）")+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" '+(i?'hidden':'')+'>').join('')+photoEnd+'</div>'+
      (photos.length>1?'<button type="button" class="mate-photo-prev" aria-label="前の写真" data-photo-move="-1">‹</button><button type="button" class="mate-photo-next" aria-label="次の写真" data-photo-move="1">›</button><span class="mate-photo-count" aria-live="polite">1 / '+photos.length+'</span>':'')+
