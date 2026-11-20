@@ -83,6 +83,10 @@ header{height:78px;position:absolute;z-index:5;width:100%}.head{height:78px;disp
 @media(max-width:820px){.care-refine-form{grid-template-columns:repeat(2,minmax(0,1fr))}.care-refine-form button,.care-refine-form a{width:100%}}
 @media(max-width:480px){#results.results>.result{padding:13px}.care-refine-form{grid-template-columns:1fr}.care-pagination-actions>*{flex:1 1 100%}}
 
+
+/* Low-contrast operational metadata belongs to assistive text, not the result hero. */
+#care-data-status:not(.show-error){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;border:0!important;margin:-1px!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important}
+#results-count{font-size:11px!important;line-height:1.5!important;color:#8da0b1!important;font-weight:400!important;letter-spacing:0!important;margin:0!important}
 </style>
 <link rel="stylesheet" href="assets/brand.css?v=20261014-mobile"><link rel="stylesheet" href="assets/mate-ux.css?v=20261029"><link rel="stylesheet" href="assets/mate-brand-alignment.css?v=20261103-sales-ready-v16">
 <style id="care-scene-four-card-guard">
