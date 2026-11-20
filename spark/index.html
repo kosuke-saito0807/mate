@@ -312,7 +312,7 @@ function editorialThumb(s){
   (host?'<span class="mate-preview-source">公式サイト：'+escapeHtml(host)+'</span>':'')+'</div>';
 }
 document.addEventListener('load',e=>{const i=e.target;if(i&&i.matches&&i.matches('[data-editorial-shot]'))i.closest('.mate-editorial-thumb')?.classList.remove('mate-thumbnail-fallback')},true);
-document.addEventListener('error',e=>{const i=e.target;if(i&&i.matches&&i.matches('[data-editorial-shot],.mate-editorial-favicon'))i.hidden=true},true);
+document.addEventListener('error',e=>{const i=e.target;if(i&&i.matches&&i.matches('[data-editorial-shot],.mate-editorial-favicon'))i.remove()},true);
 function imageEmoji(s){return s.category.includes('プログラミング')?'🤖':s.category.includes('音楽')?'🎹':s.category.includes('スポーツ')?'⚽':s.category.includes('英語')?'🌐':'📚'}
 function optionCategory(){for(const value of categories){const el=document.createElement('option');el.value=value;el.textContent=value;$('category').append(el)}}
 function matching(s){
