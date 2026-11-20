@@ -126,7 +126,7 @@ class SiteIntegrity(unittest.TestCase):
         self.assertIn("e.preventDefault();",page)
         self.assertIn("const eligible=selected.size>0",page)
         self.assertIn("if(demoMode||!chosen.length||chosen.length!==selected.size)return",page)
-        self.assertIn("form.action=''; // No legacy FormSubmit transport.",page)
+        self.assertIn('id="trialForm" method="POST" action="" hidden',page)
         self.assertIn("alert('体験相談は現在準備中です。",page)
         # Family-to-MATE consultation is distinct from partner-facing booking intake.
         self.assertIn("params.set('schools',",page)
