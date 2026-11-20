@@ -60,7 +60,7 @@
     "reason": "Empty screenshot"
   },
   "editorial-up-edu-science": {
-    "at": 1795080200,
+    "at": 1795175810,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://up-edu.com/science-lab\", waiting until \"commit\"\n"
   }
 }
