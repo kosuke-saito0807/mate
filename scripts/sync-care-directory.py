@@ -52,6 +52,21 @@ def main():
     source, changes = re.subn(pattern, f'公開情報による参考紹介：{len(valid)}件', source, count=1)
     if changes != 1:
         raise RuntimeError("Count anchor missing")
+    # Derive the published verification date from the public editorial source.
+    # Avoid showing stale dates after a new provider has been added.
+    verified_dates = [
+        entry.get("reviewedAt", "") for entry, _ in valid
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(entry.get("reviewedAt", "")))
+    ]
+    if verified_dates:
+        latest = max(verified_dates)
+        year, month, day = map(int, latest.split("-"))
+        source = re.sub(
+            r"\d{4}年\d{1,2}月\d{1,2}日時点の掲載データ",
+            f"{year}年{month}月{day}日時点の掲載データ",
+            source, count=1,
+        )
+
     pattern = r'(<script type="application/ld\+json">)([\s\S]*?)(</script>)'
     match = re.search(pattern, source)
     if not match:
