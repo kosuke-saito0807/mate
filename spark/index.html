@@ -367,7 +367,7 @@ function draw(){
    '<p class="card-description">'+escapeHtml(teaser(s))+'</p>'+(String(s.description||'').length>118?'<button type="button" class="card-readmore" data-reference-more="'+escapeHtml(s.id)+'">続きを読む</button>':'')+
    '<div class="meta">対象年齢・料金・開催条件は公式サイトでご確認ください。</div>'+
    '<p class="meta"><a href="mailto:kosodatemate@gmail.com?subject=MATE%20SPARK%20情報修正">修正・削除を依頼</a></p>'+
-   '<div class="cardActions"><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></div></article>';
+   '<div class="cardActions"><button class="btn light" type="button" data-pick="'+escapeHtml(s.id)+'" aria-pressed="'+String(selected.has(s.id))+'">'+(selected.has(s.id)?'✓ 比較候補':'＋ 比較')+'</button><a class="btn" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></div></article>';
   const cls=s.category==='音楽'?'music':s.category==='スポーツ'?'sports':'';
 
   const action=fictional?'<button class="btn" type="button" data-detail="'+escapeHtml(s.id)+'">詳しく見る ↗</button>':'<a class="btn" href="'+escapeHtml(schoolDetailUrl(s))+'">詳細を見る ↗</a>';
@@ -405,7 +405,7 @@ function draw(){
  $('selectionBar').hidden=selected.size===0;
  // Selected approved schools are used only to prefill a private family-to-MATE consultation.
  const eligible=selected.size>0&&selected.size<=5&&!demoMode&&
-   [...selected].every(id=>schools.some(s=>s.id===id&&s.approved===true&&!s.demo));
+   [...selected].every(id=>schools.some(s=>s.id===id&&!s.demo&&s.url&&s.editorial===true||s.id===id&&s.approved===true&&!s.demo));
  $('trial').disabled=!eligible;
  $('trial').textContent='選んだ教室をまとめて無料相談';
  $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
@@ -442,7 +442,7 @@ function showDetail(id){
 }
 function showTrial(){
  // One family-to-MATE inquiry, not five partner submissions or confirmed trial bookings.
- const chosen=schools.filter(s=>selected.has(s.id)&&s.approved===true&&!s.demo).slice(0,5);
+ const chosen=schools.filter(s=>selected.has(s.id)&&!s.demo&&((s.editorial===true&&s.approved===false)||s.approved===true)).slice(0,5);
  if(demoMode||!chosen.length||chosen.length!==selected.size)return;
  const params=new URLSearchParams({service:'SPARK',inquiry:'trial-comparison'});
  params.set('schools',chosen.map(s=>String(s.name||'').slice(0,70)).join('／').slice(0,350));
