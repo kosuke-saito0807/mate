@@ -121,10 +121,14 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
               f"downloads_attempted={attempted_downloads}, public_assets={len(mapping)}, "
               f"transfer_exceptions={failed_downloads}, failure_reasons={dict(sorted(failed_reasons.items()))}")
         if len(mapping)<expected_photos:
-            print("WARNING: approved photos are absent from public assets. "
-                  "Check the publish service account's Drive folder viewer role, "
-                  "the file MIME/size and the media-ledger review status; "
-                  "the listing will use category fallback until fixed.")
+            if any(k.endswith("_accessNotConfigured") for k in failed_reasons):
+                print("::warning title=MATE private media blocked::Google Drive API (drive.googleapis.com) "
+                      "is not enabled on the approved publisher's Google Cloud project. "
+                      "File-specific viewer grants are already separate from API enablement. "
+                      "Enable the Drive API in Cloud Console; only approved files may be published.")
+            else:
+                print("::warning title=MATE private media incomplete::Approved images not all accessible. "
+                      "Review private file sharing, media approval, MIME and size; never use public Drive links.")
     _prune_generated_media(folder, set(mapping.values()), url_prefix)
     return mapping
 
