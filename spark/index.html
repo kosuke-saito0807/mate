@@ -331,9 +331,9 @@ function matching(s){
 function schoolDetailUrl(p){return 'school-detail.html?id='+encodeURIComponent(p.id)}
 function teaser(p){const t=String(p.description||'').trim();return t.length>118?t.slice(0,118).replace(/[\\r\\n]+/g,' ').trim()+'…':t}
 function schoolThumb(p){
- const original=window.MATEGallery?window.MATEGallery.render(p,'SPARK'):editorialThumb(p);
  const url=schoolDetailUrl(p);
- return p.demo===true?original:original.replace(/href="[^"]+" target="_blank" rel="noopener noreferrer"/,'href="'+escapeHtml(url)+'"');
+ const original=window.MATEGallery?window.MATEGallery.render(p,'SPARK',p.demo===true?'':url):editorialThumb(p);
+ return p.demo===true||window.MATEGallery?original:original.replace(/href="[^"]+" target="_blank" rel="noopener noreferrer"/,'href="'+escapeHtml(url)+'"');
 }
 document.addEventListener('click',e=>{
  const btn=e.target.closest?.('[data-reference-more]');if(!btn)return;
