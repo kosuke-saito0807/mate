@@ -319,7 +319,7 @@ async function main() {
       await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
       assert.equal(await spark.locator('#cards article.card').count(),0);
     }
-    assert.ok((await spark.locator('#demoBanner').innerText()).includes('掲載許諾'));
+    assert.ok((await spark.locator('#demoBanner').innerText()).includes('最新の料金'));
     assert.equal(await spark.locator('a[href="?demo=1#discover"]').count(),0,
       'No public demo link; QA-only demo still requires explicit query');
     await spark.close();
