@@ -502,8 +502,10 @@ async function main() {
       }
       if(pathname==='/spark/'){
         if(liveSchools.length){
-          await page.waitForFunction(n=>document.querySelectorAll('#cards article.card').length===n,liveSchools.length);
-          assert.equal(await page.locator('#cards article.card').count(),liveSchools.length);
+          await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===18);
+          assert.equal(await page.locator('#cards article.card').count(),18,
+            'Mobile SPARK displays first 18 approved/editorial cards');
+          assert.equal(await page.locator('#sparkPager').isHidden(),false);
         }else{
           await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
           assert.equal(await page.locator('#cards article.card').count(),0);
