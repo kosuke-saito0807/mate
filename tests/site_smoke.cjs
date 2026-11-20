@@ -78,7 +78,8 @@ async function main() {
     await care.locator('#results-count').waitFor();
     const shownCount=await care.locator('#results article.result').count();
     assert.ok(shownCount>0&&shownCount<=18,'CARE should display first 18 real and independently labelled listings');
-    assert.ok((await care.locator('#results-count').innerText()).includes('件表示中'));
+    assert.match(await care.locator('#results-count').textContent(),/\\d+件/);
+    assert.match(await care.locator('#results-count').getAttribute('aria-label')||'',/件表示中/);
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
     assert.ok(await care.locator('#results .provider-link').count()>0,'CARE cards should link to verified detail or official sources');
     assert.ok((await care.locator('a[href="https://spark.kosodatemate.jp/"]').count())>0);
@@ -108,7 +109,7 @@ async function main() {
       assert.equal(await profile.locator('#official').count(),1);
       const afterFacts=await profile.locator('#official').evaluate(el=>Boolean(document.querySelector('#facts').compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING));
       assert.ok(afterFacts,'official website CTA must be placed after facts');
-      await profile.locator('#full-photo').click();
+      await profile.locator('#gallery .photo-slide').first().click();
       assert.equal(await profile.locator('#photo-modal').evaluate(el=>el.open),true,'uncropped gallery opens');
       await profile.locator('#photo-modal-close').click();
       await profile.close();
