@@ -1822,5 +1822,53 @@
     "reviewedAt": "2026-11-20",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-kpa-programming",
+    "name": "キッズプログラミングアカデミー",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "現役ゲーム開発者らが指導する子ども向けプログラミング教室。教室でのレッスンのほか出張教室についても案内しています。最新の開講場所・対象年齢・費用は公式サイトをご確認ください。",
+    "url": "https://kids.prog-academy.jp/",
+    "source": "https://kids.prog-academy.jp/contact/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-cafe-paso-kasuga",
+    "name": "こどもプログラミング教室 カフェパソ",
+    "region": "福岡県",
+    "category": "プログラミング",
+    "description": "福岡県春日市の子ども向けプログラミング教室です。学習塾「アシスト春日」の連絡先を公式サイトに案内しています。教室の受付状況や授業内容は公式ページで確認してください。",
+    "url": "https://cafepaso.themedia.jp/",
+    "source": "https://cafepaso.themedia.jp/pages/1308302/profile",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-icec-yokohama",
+    "name": "株式会社国際華文教育センター（iCEC）",
+    "region": "神奈川県",
+    "category": "英語・英会話",
+    "description": "横浜市の教育事業者。中国語・英語・プログラミング・ダンスなどの教室やアフタースクールの企画運営を公式サイトで案内しています。開催場所・募集状況は公式サイトをご確認ください。",
+    "url": "https://icec.co.jp/",
+    "source": "https://icec.co.jp/company/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ktop-nishitokyo",
+    "name": "K-topプログラミング教室",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "東京都西東京市の小学生向けプログラミング教室。マインクラフトを用いたコースやRobloxを扱う学習内容を公式サイトで案内しています。時間割・体験申込・対象学年などは公式サイトをご確認ください。",
+    "url": "https://k-top.net/programming/",
+    "source": "https://k-top.net/programming/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
