@@ -435,7 +435,7 @@ function draw(){
  $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
  $('favoriteOnly').setAttribute('aria-pressed',String(favoritesOnly));
  $('favoriteOnly').classList.toggle('on',favoritesOnly);
- $('categoryQuick').querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('on',b.dataset.category===$('category').value));
+ renderCategoryQuick();
 }
 function showDetail(id){
  if(window.gtag&&!demoMode)gtag('event','school_detail_view',{service:'SPARK',school_id:id});
