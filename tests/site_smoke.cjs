@@ -436,7 +436,7 @@ async function main() {
       });
       const pageResponse=await p.goto('https://mate-spark.web.app/',{waitUntil:'networkidle'});
       assert.equal(pageResponse.status(),200);
-      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===1);
+      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===18 && document.querySelector('#cards [data-school-id]'));
       // Keyboard activation tests the real comparison button without flaky
       // viewport pointer interception by sticky header or lazy card imagery.
       await p.locator('[data-pick]').first().focus();
