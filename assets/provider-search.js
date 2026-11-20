@@ -47,7 +47,7 @@ function card(p){
   '<h3>'+escapeHtml(mateDisplayName(p))+'</h3>'+
   '<p class="result-quick-meta"><strong>対象エリア：</strong>'+escapeHtml(area)+'</p>'+
   '<p class="result-quick-meta"><strong>サービス：</strong>'+escapeHtml(category)+'</p>'+
-  '<p class="result-description"><strong>紹介：</strong>'+escapeHtml(short)+(longAction?' '+longAction:'')+'</p>'+
+  '<p class="result-description">'+escapeHtml(short)+(longAction?' '+longAction:'')+'</p>'+
   price+
   (approved?'<a class="provider-link" data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(detail)+'">詳細を見る ↗</a>':
    (url?'<a class="provider-link" data-provider-id="'+escapeHtml(n(p.id))+'" href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a>':''))+
@@ -80,7 +80,8 @@ function render(){
  matches=matches.slice().sort((a,b)=>Number(a.editorial===true)-Number(b.editorial===true)||(document.getElementById('sort').value==='name'?nm(a).localeCompare(nm(b),'ja'):0));
  const editorialCount=matches.filter(p=>p.editorial===true).length,approvedCount=matches.length-editorialCount;
  const shown=matches.slice(0,visibleLimit);
- document.getElementById('results-count').textContent=matches.length+' 件（'+shown.length+' 件表示中、事業者確認済み '+approvedCount+' 件・参考紹介 '+editorialCount+' 件）';
+ document.getElementById('results-count').textContent=matches.length+'件';
+ document.getElementById('results-count').setAttribute('aria-label',matches.length+'件の候補、'+shown.length+'件表示中。事業者確認済み'+approvedCount+'件、編集部の参考紹介'+editorialCount+'件');
  if(!matches.length){
   document.getElementById('results').innerHTML='<div class="empty"><h3>'+(D.length?'条件に合うシッターがありません':'新しい出会いを、準備しています。')+'</h3><p>'+(D.length?'エリアやキーワードを変えてみてください。':'掲載許可をいただいたシッター事業者から順次公開します。')+'</p><p><a href="consult.html?service=CARE">シッターについて相談する ↗</a></p><p><a href="guide-sitter-choice.html">初めてのベビーシッター選び ↗</a></p></div>';
   return;
@@ -130,7 +131,8 @@ Promise.allSettled([
  const status=document.getElementById('care-data-status');
  if(approvedResult.status==='rejected'&&editorialResult.status==='rejected')status.textContent='掲載情報を取得できませんでした。時間をおいて再読み込みしてください。';
  else if(approvedResult.status==='rejected'||editorialResult.status==='rejected')status.textContent='一部の掲載情報を取得できませんでした。現在表示中の事業者情報は公式サイトでもご確認ください。';
- else status.textContent=D.length?'事業者が確認した掲載情報を優先表示しています。未確認の参考紹介とは区別し、料金・対象年齢・利用条件は各公式サイトでご確認ください。':'現在、掲載シッター事業者を募集中です。';
+ else status.textContent=D.length?'正式掲載と編集部の参考情報は区別して表示しています。':'現在、掲載シッター事業者を募集中です。';
+ if(approvedResult.status==='rejected'||editorialResult.status==='rejected')status.classList.add('show-error');else status.classList.remove('show-error');
 });
 
 document.getElementById('results').addEventListener('click',event=>{const link=event.target.closest('a[data-provider-id]');if(link&&window.gtag){const id=String(link.dataset.providerId||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','provider_outbound',{service:'CARE',provider_id:id});gtag('event','mate_partner_click',{service:'CARE',partner_id:id})}}});
