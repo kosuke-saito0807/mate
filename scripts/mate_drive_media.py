@@ -19,6 +19,21 @@ def _get_with_transient_retry(session, url, params, timeout):
         return response
 
 
+def _safe_api_reason(response):
+    """Report only Google API's machine-readable error class, never file IDs, messages or tokens."""
+    try:
+        error = response.json().get("error", {})
+        status = str(error.get("status") or "").upper()
+        reasons = error.get("errors") or []
+        reason = str(reasons[0].get("reason") or "") if reasons and isinstance(reasons[0], dict) else ""
+        for key in (reason, status):
+            if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,55}", key):
+                return key
+    except (ValueError, TypeError, KeyError, AttributeError):
+        pass
+    return "unknown"
+
+
 DRIVE_ID=re.compile(r"^DRIVE:([A-Za-z0-9_-]{20,128})$")
 APP_ID=re.compile(r"^MATE-WEB-([0-9a-f-]{36})$",re.I)
 
@@ -65,7 +80,7 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                   session, "https://www.googleapis.com/drive/v3/files/"+file_id,
                   {"fields":"id,mimeType,size,trashed"}, 12)
                 if meta.status_code!=200:
-                    hold("metadata_http_"+str(meta.status_code));continue
+                    hold("metadata_http_"+str(meta.status_code)+"_"+_safe_api_reason(meta));continue
                 info=meta.json()
                 if info.get("trashed"):
                     hold("trashed");continue
@@ -77,7 +92,7 @@ def sync_approved_media(records, allowed_ids, service, destination, url_prefix, 
                   session, "https://www.googleapis.com/drive/v3/files/"+file_id,
                   {"alt":"media"}, 20)
                 if response.status_code!=200:
-                    hold("download_http_"+str(response.status_code));continue
+                    hold("download_http_"+str(response.status_code)+"_"+_safe_api_reason(response));continue
                 blob=response.content
                 if not (64<=len(blob)<=240000 and blob[:3]==b"\xff\xd8\xff" and blob[-2:]==b"\xff\xd9"):
                     continue
