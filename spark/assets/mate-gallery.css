@@ -26,3 +26,18 @@
 /* Partner images remain clickable, with keyboard focus; carousel arrows are independent. */
 .mate-photo-slides>.mate-gallery-official-link{display:block;width:100%;height:100%;position:relative;cursor:pointer}
 .mate-photo-slides>.mate-gallery-official-link:focus-visible{outline:3px solid #0878ea;outline-offset:-4px}
+
+
+/* Approved applicant images: fill the compact thumbnail edge to edge.
+   Logos and independent editorial screenshots retain their own separate treatment. */
+.mate-photo-carousel .mate-photo-slides img.mate-real-photo{
+  display:block;width:100%;height:100%;box-sizing:border-box;
+  object-fit:cover;object-position:center center;padding:0;border:0;
+  background:transparent;filter:none;
+}
+.mate-photo-carousel .mate-photo-slides>.mate-gallery-official-link{
+  width:100%;height:100%;display:block;overflow:hidden;
+}
+.mate-photo-carousel .mate-photo-slides>.mate-gallery-official-link:focus-visible{
+  outline:3px solid #0878ea;outline-offset:-3px;
+}
