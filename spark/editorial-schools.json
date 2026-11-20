@@ -1798,5 +1798,29 @@
     "reviewedAt": "2026-11-20",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-coco-labo-kameari",
+    "name": "一般社団法人ココロエデュケーションラボ（ココラボ）",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "東京都葛飾区亀有を拠点に、子ども向けプログラミング教育やミュージカル・表現教育、各種出張ワークショップを案内する団体です。教室やイベントの開催日時・対象年齢は公式案内をご確認ください。",
+    "url": "https://coco-labo.net/",
+    "source": "https://coco-labo.net/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kodomo-mirai-npo",
+    "name": "NPO法人こどものみらい教育推進協会",
+    "region": "東京都",
+    "category": "プログラミング",
+    "description": "子ども向けのプログラミング教育機会の提供を目指し、東京都内で子ども向けプログラミング体験イベントなどを案内しています。開催会場・募集状況は公式サイトをご確認ください。",
+    "url": "https://kodomo-edu.or.jp/",
+    "source": "https://kodomo-edu.or.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
