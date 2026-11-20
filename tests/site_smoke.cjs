@@ -436,7 +436,7 @@ async function main() {
       });
       const pageResponse=await p.goto('https://mate-spark.web.app/',{waitUntil:'networkidle'});
       assert.equal(pageResponse.status(),200);
-      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===18 && document.querySelector('#cards [data-school-id]'));
+      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===24 && document.querySelector('#cards [data-school-id]'));
       // Keyboard activation tests the real comparison button without flaky
       // viewport pointer interception by sticky header or lazy card imagery.
       await p.locator('[data-pick]').first().focus();
@@ -502,9 +502,9 @@ async function main() {
       }
       if(pathname==='/spark/'){
         if(liveSchools.length){
-          await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===18);
-          assert.equal(await page.locator('#cards article.card').count(),18,
-            'Mobile SPARK displays first 18 approved/editorial cards');
+          await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===24);
+          assert.equal(await page.locator('#cards article.card').count(),24,
+            'Mobile SPARK displays first 24 approved/editorial cards');
           assert.equal(await page.locator('#sparkPager').isHidden(),false);
         }else{
           await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
