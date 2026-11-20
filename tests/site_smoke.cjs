@@ -76,14 +76,43 @@ async function main() {
     // CARE's redundant visitor-privacy banner is intentionally removed.
     assert.equal(await care.locator('.privacyComfort').count(),0);
     await care.locator('#results-count').waitFor();
-    assert.equal(await care.locator('#results article.result').count(),0);
+    const shownCount=await care.locator('#results article.result').count();
+    assert.ok(shownCount>0&&shownCount<=18,'CARE should display first 18 real and independently labelled listings');
+    assert.ok((await care.locator('#results-count').innerText()).includes('件表示中'));
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
-    assert.equal(await care.locator('#results a[href="consult.html?service=CARE"]').count(),1,'CARE empty results should guide parents to consultation');
-    assert.equal(await care.locator('#results a[href="contact.html"]').count(),1,'CARE empty results also provide a separate business route');
+    assert.ok(await care.locator('#results .provider-link').count()>0,'CARE cards should link to verified detail or official sources');
     assert.ok((await care.locator('a[href="https://spark.kosodatemate.jp/"]').count())>0);
     await care.locator('#q').fill('存在しないシッター');
     await care.locator('#sort').selectOption('name');
     await care.close();
+
+    // Approved photos must actually render, not just exist in JSON while a
+    // full-height hidden brand tile pushes the photos out of their clipped frame.
+    for (const spec of [
+      {uri:'/provider.html?id=mate_care_3a29e1c1eb6f4f1b',photos:4},
+      {uri:'/spark/school-detail.html?id=mate_spark_48444d9917e44fd9',photos:5}
+    ]) {
+      const profile=await checkPage(browser,spec.uri);
+      await profile.locator('#detail').waitFor({state:'visible'});
+      const photos=profile.locator('#gallery .photo-slide');
+      assert.equal(await photos.count(),spec.photos,'all approved uploaded photos must render');
+      const brandDisplay=await profile.locator('#brand').evaluate(el=>getComputedStyle(el).display);
+      assert.equal(brandDisplay,'none','hidden logo brand tile must leave room for approved photos');
+      await profile.waitForFunction(()=>{const img=document.querySelector('#gallery .photo-slide');return !!(img&&img.complete&&img.naturalWidth>0)});
+      const frame=await profile.locator('#gallery').evaluate(el=>el.getBoundingClientRect().toJSON());
+      const shot=await photos.first().evaluate(el=>el.getBoundingClientRect().toJSON());
+      assert.ok(shot.y>=frame.y-1&&shot.y<frame.bottom,'first photo should be inside visible gallery frame');
+      assert.ok(shot.height>=frame.height-2,'first photo fills the gallery');
+      assert.equal(await photos.first().evaluate(el=>getComputedStyle(el).objectFit),'cover');
+      assert.equal(await profile.locator('#facts').count(),1);
+      assert.equal(await profile.locator('#official').count(),1);
+      const afterFacts=await profile.locator('#official').evaluate(el=>Boolean(document.querySelector('#facts').compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING));
+      assert.ok(afterFacts,'official website CTA must be placed after facts');
+      await profile.locator('#full-photo').click();
+      assert.equal(await profile.locator('#photo-modal').evaluate(el=>el.open),true,'uncropped gallery opens');
+      await profile.locator('#photo-modal-close').click();
+      await profile.close();
+    }
 
     care = await checkPage(browser,'/contact.html');
     assert.ok((await care.locator('#listing-contact').count())===1);
