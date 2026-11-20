@@ -105,9 +105,11 @@ class SparkFullFeatureTests(unittest.TestCase):
     def test_form_is_closed_until_real_consent(self):
         html = (ROOT / "spark/index.html").read_text(encoding="utf-8")
         self.assertIn('id="trialForm" method="POST" action="" hidden', html)
-        self.assertIn("list.length===selected.size", html)
+        self.assertIn("chosen.length!==selected.size", html)
         self.assertIn("!demoMode", html)
-        self.assertIn("s.approved===true&&s.acceptsTrial===true", html)
+        self.assertIn("s.approved===true&&!s.demo", html)
+        self.assertIn("location.assign('https://care.kosodatemate.jp/consult.html?'+params.toString())", html)
+        self.assertIn("trialIntakeEnabled=false", html)
         self.assertIn('name="_honey"', html)
         self.assertIn('type="checkbox" name="agreed"', html)
         config = json.loads((ROOT / "spark/config.json").read_text(encoding="utf-8"))
