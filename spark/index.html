@@ -225,7 +225,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <button type="button" id="reset" class="btn light" style="margin-top:12px;width:100%">条件をリセット</button>
 </aside><div><div class="mainSearch"><label>教室名・駅・市区町村で検索<input type="search" id="keyword" placeholder="例：千石・英語・プログラミング"></label><label>エリア<select id="topRegion"><option value="">全国</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select></label><label>ジャンル<select id="category"><option value="">すべての習い事</option></select></label></div>
 <div class="categories" id="categoryQuick"><button type="button" data-category="" class="on">すべて</button><button type="button" data-category="プログラミング">プログラミング</button><button type="button" data-category="音楽">音楽</button><button type="button" data-category="スポーツ">スポーツ</button></div>
-<p class="notice" id="demoBanner">掲載情報は教室からの許諾を確認後に公開します。体験申込は準備中です。</p>
+<p class="notice" id="demoBanner">掲載情報は事業者の許諾状況に応じて区別します。体験の直接予約はできませんが、気になる教室を選んでMATE事務局にまとめて無料相談できます。</p>
 <p id="demoLink" hidden aria-hidden="true"></p>
 <div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option><option value="soon">体験日が近い順</option></select></div></div>
 <div class="cards" id="cards" aria-live="polite"></div><div id="sparkPager" class="spark-list-pager" hidden><span id="sparkPageCount"></span><button id="sparkShowMore" type="button">さらに18件を見る</button><button id="sparkShowAll" type="button">すべて表示</button></div>
@@ -236,7 +236,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <section class="mate-help" id="faq" aria-labelledby="mate-faq-heading">
   <div class="mate-help-inner">
     <div class="mate-help-heading"><p class="mate-help-eyebrow">GUIDE &amp; FAQ</p><h2 id="mate-faq-heading">はじめての方へ</h2><p>安心して比較・相談するために、よくある質問をまとめました。</p></div>
-    <div class="mate-help-columns"><div class="mate-help-questions"><details class="mate-help-question"><summary>いま教室の体験を申し込めますか？</summary><p>実在する教室の掲載を準備しています。現在、MATE SPARK内で体験申込や予約の確定はできません。掲載後も最新の条件は教室の公式案内をご確認ください。</p></details>
+    <div class="mate-help-columns"><div class="mate-help-questions"><details class="mate-help-question"><summary>いま教室の体験を申し込めますか？</summary><p>実在する教室の掲載を準備しています。現在、MATE SPARK内で体験枠の予約・申込確定はできません。比較した教室については、MATE運営事務局の無料相談フォームにまとめて問い合わせられます。教室への取次ぎには別途同意が必要です。</p></details>
 <details class="mate-help-question"><summary>掲載する教室はどのように確認していますか？</summary><p>教室の掲載意思と情報・許諾を確認できたものから公開します。掲載は指導品質や体験枠の保証を意味しません。</p></details>
 <details class="mate-help-question"><summary>検索や比較に料金はかかりますか？</summary><p>サイト上の検索・比較は無料です。入会金・月謝・体験料などの実際の費用は、各教室が案内する最新条件をご確認ください。</p></details>
 <details class="mate-help-question"><summary>教室の掲載を相談できますか？</summary><p>教室の掲載希望を受け付けています。掲載内容と担当者の権限を事務局が確認し、承認後に公開します。</p></details></div>
@@ -259,9 +259,9 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 </div></section>
 </main>
 <dialog id="spark-reference-modal" aria-labelledby="spark-modal-name"><h2 id="spark-modal-name" data-ref-name>掲載情報</h2><p data-ref-desc></p><div class="modal-controls"><button type="button" onclick="this.closest('dialog').close()">閉じる</button><a data-ref-site target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></dialog><footer class="spark-footer"><div class="wrap"><div class="footerTop"><div class="footerBrand"><a href="./"><img src="mate-spark-logo.svg?v=20261102-brand" alt="MATE SPARK"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事の相談</a><a href="#discover">教室を探す</a><a href="guide-lessons-choice.html">習い事の選び方</a><a href="guide-lesson-age-fit.html">習い事は何歳から？年齢に合う選び方</a><a href="guide-lessons-age-two.html">2歳の習い事を選ぶポイント</a><a href="guide-lesson-total-cost.html">習い事の年間費用の比べ方</a><a href="https://care.kosodatemate.jp/guides.html">子育てガイド一覧</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="partners.html">無料掲載を申し込む</a><a href="https://care.kosodatemate.jp/public-guide.html#correction">公開情報の修正・削除</a><a href="https://care.kosodatemate.jp/business.html">MATE全サービスの無料掲載</a><a href="https://care.kosodatemate.jp/listing-terms.html">無料掲載条件</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="operator.html">運営者情報・NextEdu</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><div class="footerNote">掲載情報は事業者の許諾・確認ができたものから順次公開します。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE SPARK. All rights reserved.</div></div></footer>
-<div class="selection" id="selectionBar" hidden><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
+<div class="selection" id="selectionBar" hidden><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>選んだ教室をまとめて無料相談</button></div></div></div>
 <dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
-<dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
+<dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。選んだ教室について、MATE運営事務局へ一度に無料相談できます。体験予約や教室への情報送信は、この比較操作だけでは行いません。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
 <dialog id="trialDialog" aria-labelledby="trialHeading"><h2 id="trialHeading">体験相談をまとめて送る</h2>
 <p class="notice" id="trialSchools">教室を選択してください。</p>
 <p class="muted">このフォームは日程確定や教室への直接申込ではありません。事務局が掲載許諾と送信先を確認してから、ご希望の教室へ取次ぎます。</p>
@@ -403,12 +403,11 @@ function draw(){
  $('sparkShowMore').textContent='さらに '+Math.min(18,Math.max(0,sorted.length-visibleLimit))+' 件を見る';
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
  $('selectionBar').hidden=selected.size===0;
- // No actual submissions before explicit school permission, and never on fictional demo data.
+ // Selected approved schools are used only to prefill a private family-to-MATE consultation.
  const eligible=selected.size>0&&selected.size<=5&&!demoMode&&
-   [...selected].every(id=>schools.some(s=>s.id===id&&s.approved===true&&s.acceptsTrial===true));
- const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com','spark.kosodatemate.jp'].includes(location.hostname.toLowerCase());
- $('trial').disabled=!(eligible&&safeHost&&trialIntakeEnabled);
- $('trial').textContent=(eligible&&safeHost&&trialIntakeEnabled)?'まとめて体験相談する':'まとめて体験相談（準備中）';
+   [...selected].every(id=>schools.some(s=>s.id===id&&s.approved===true&&!s.demo));
+ $('trial').disabled=!eligible;
+ $('trial').textContent='選んだ教室をまとめて無料相談';
  $('favoriteOnly').textContent=favoritesOnly?'♥ お気に入りを表示中':'♡ お気に入りだけを見る';
  $('favoriteOnly').setAttribute('aria-pressed',String(favoritesOnly));
  $('favoriteOnly').classList.toggle('on',favoritesOnly);
@@ -442,19 +441,12 @@ function showDetail(id){
  $('detailDialog').showModal();
 }
 function showTrial(){
- const list=schools.filter(s=>selected.has(s.id)&&s.approved===true&&s.acceptsTrial===true);
- const eligible=!demoMode&&list.length===selected.size&&list.length>0&&list.length<=5;
- const safeHost=['mate-spark.web.app','mate-spark.firebaseapp.com','spark.kosodatemate.jp'].includes(location.hostname.toLowerCase());
- if(!eligible||!safeHost||!trialIntakeEnabled)return;
- const form=$('trialForm');
- $('trialIds').value=list.map(s=>s.id).join(',');
- $('trialNames').value=list.map(s=>s.name).join('／');
- $('trialSchools').textContent='ご希望の教室：'+list.map(s=>s.name).join('／');
- form.action=''; // No legacy FormSubmit transport. Keep trial intake blocked until approved GAS route exists.
- form.elements.namedItem('_next').value=new URL('thanks-trial.html',document.baseURI).href;
- form.elements.namedItem('_url').value=location.href.split('#')[0];
- form.hidden=false;$('unavailableTrial').hidden=true;
- $('trialDialog').showModal();
+ // One family-to-MATE inquiry, not five partner submissions or confirmed trial bookings.
+ const chosen=schools.filter(s=>selected.has(s.id)&&s.approved===true&&!s.demo).slice(0,5);
+ if(demoMode||!chosen.length||chosen.length!==selected.size)return;
+ const params=new URLSearchParams({service:'SPARK',inquiry:'trial-comparison'});
+ params.set('schools',chosen.map(s=>String(s.name||'').slice(0,70)).join('／').slice(0,350));
+ location.assign('https://care.kosodatemate.jp/consult.html?'+params.toString());
 }
 function showComparison(){
  if(window.gtag&&!demoMode)gtag('event','school_compare',{service:'SPARK',school_count:selected.size});
