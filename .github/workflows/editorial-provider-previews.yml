@@ -43,10 +43,12 @@ jobs:
         run: python scripts/capture_editorial_sites.py --source spark/editorial-schools.json --output spark/assets/editorial-thumbnails/spark --limit 70 --max-seconds 740
       - name: Capture approved SPARK school preview when no partner photos exist
         run: python scripts/capture_editorial_sites.py --source spark/schools.json --output spark/assets/editorial-thumbnails/spark --limit 10 --max-seconds 130
+      - name: Keep crawlable CARE directory in sync with current screenshots
+        run: python scripts/sync-care-directory.py
       - name: Commit new screenshots and failure backoff metadata
         id: commit
         run: |
-          git add assets/editorial-thumbnails/care spark/assets/editorial-thumbnails/spark
+          git add assets/editorial-thumbnails/care spark/assets/editorial-thumbnails/spark sitter-directory.html
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else

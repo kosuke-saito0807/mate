@@ -33,6 +33,8 @@ jobs:
           python -m playwright install chromium --with-deps
       - name: Capture each provider official homepage
         run: python scripts/capture-care-homepages.py
+      - name: Regenerate directory after screenshot output has settled
+        run: python scripts/sync-care-directory.py
       - name: Commit successful provider-specific screenshots
         run: |
           git config user.name "github-actions[bot]"
