@@ -49,7 +49,9 @@ class SparkVisualOctoberTests(unittest.TestCase):
     def test_sample_is_not_represented_as_real(self):
         page = (SITE / "index.html").read_text(encoding="utf-8")
         self.assertIn("架空サンプル", page)
-        self.assertIn("s.approved===true&&s.acceptsTrial===true", page)
+        self.assertIn("s.approved===true&&!s.demo", page)
+        self.assertIn("chosen.length!==selected.size", page)
+        self.assertIn("consult.html?'+params.toString()", page)
         self.assertIn("!demoMode", page)
 
 
