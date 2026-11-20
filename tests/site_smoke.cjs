@@ -103,7 +103,7 @@ async function main() {
       const shot=await photos.first().evaluate(el=>el.getBoundingClientRect().toJSON());
       assert.ok(shot.y>=frame.y-1&&shot.y<frame.bottom,'first photo should be inside visible gallery frame');
       assert.ok(shot.height>=frame.height-2,'first photo fills the gallery');
-      assert.equal(await photos.first().evaluate(el=>getComputedStyle(el).objectFit),'cover');
+      assert.equal(await photos.first().evaluate(el=>getComputedStyle(el).objectFit),'contain','full provider-detail photos must not crop faces');
       assert.equal(await profile.locator('#facts').count(),1);
       assert.equal(await profile.locator('#official').count(),1);
       const afterFacts=await profile.locator('#official').evaluate(el=>Boolean(document.querySelector('#facts').compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING));
@@ -313,8 +313,8 @@ async function main() {
       await spark.waitForFunction(n=>document.querySelector('#cards article.card')?.dataset.schoolId===n[0].id,
         liveSchools);
       const visibleCards=await spark.locator('#cards article.card').count();
-      assert.ok(visibleCards>=liveSchools.length&&visibleCards<=18,'SPARK shows verified owner schools before a maximum of 18 total cards');
-      assert.equal(await spark.locator('#sparkPager').isHidden(),false,'SPARK reference directory paginates after 18 cards');
+      assert.ok(visibleCards>=liveSchools.length&&visibleCards<=24,'SPARK shows verified owner schools before a maximum of 24 total cards');
+      assert.equal(await spark.locator('#sparkPager').isHidden(),false,'SPARK reference directory paginates after 24 cards');
     }else{
       await spark.waitForFunction(() => document.querySelector('#status')?.textContent.includes('掲載準備中'));
       assert.equal(await spark.locator('#cards article.card').count(),0);
@@ -436,7 +436,7 @@ async function main() {
       });
       const pageResponse=await p.goto('https://mate-spark.web.app/',{waitUntil:'networkidle'});
       assert.equal(pageResponse.status(),200);
-      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===18 && document.querySelector('#cards [data-school-id]'));
+      await p.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===24 && document.querySelector('#cards [data-school-id]'));
       // Keyboard activation tests the real comparison button without flaky
       // viewport pointer interception by sticky header or lazy card imagery.
       await p.locator('[data-pick]').first().focus();
@@ -502,9 +502,9 @@ async function main() {
       }
       if(pathname==='/spark/'){
         if(liveSchools.length){
-          await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===18);
-          assert.equal(await page.locator('#cards article.card').count(),18,
-            'Mobile SPARK displays first 18 approved/editorial cards');
+          await page.waitForFunction(()=>document.querySelectorAll('#cards article.card').length===24);
+          assert.equal(await page.locator('#cards article.card').count(),24,
+            'Mobile SPARK displays first 24 approved/editorial cards');
           assert.equal(await page.locator('#sparkPager').isHidden(),false);
         }else{
           await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('掲載準備中'));
