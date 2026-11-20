@@ -97,11 +97,11 @@ form.elements.namedItem('service').value=svc;
 const query=new URLSearchParams(location.search);
 if(svc==='SPARK'&&query.get('inquiry')==='trial-comparison'){
  const raw=query.get('schools')||'';
- const names=raw.split('／').map(v=>v.trim()).filter(v=>v&&v.length<=70&&/^[^<>\\\\\r\n]{1,70}$/.test(v)).slice(0,5);
+ const names=raw.split('／').map(v=>v.trim()).filter(v=>v&&v.length<=70&&!/[<>\r\n]/.test(v)).slice(0,5);
  if(names.length&&raw.length<=350){
   form.elements.namedItem('inquiryType').value='体験・利用相談';
   const message=form.elements.namedItem('message');
-  message.value='比較中の教室：'+names.join('／')+'\\n体験についてまとめて相談したいです。\\n希望エリア・曜日・年齢など：';
+  message.value='比較中の教室：'+names.join('／')+'\n体験についてまとめて相談したいです。\n希望エリア・曜日・年齢など：';
   document.getElementById('lead').textContent='選んだ'+names.length+'件の教室を含む相談内容を入力しています。MATE事務局への一括相談であり、教室への直接申込・予約確定ではありません。';
   form.elements.namedItem('referral_interest').checked=false;
  }
