@@ -1870,5 +1870,41 @@
     "reviewedAt": "2026-11-20",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-kids-edu-ichigaya",
+    "name": "KIDS EDU インターナショナルプリスクール＆アカデミー",
+    "region": "東京都",
+    "category": "英語・英会話",
+    "description": "東京都千代田区の幼児教育・アフタースクール施設。英語での学習、モンテッソーリ教育、プログラミング・STEAMプログラムなどを公式サイトで案内しています。開講状況・対象年齢・料金は公式サイトでご確認ください。",
+    "url": "https://kids-edu.co.jp/",
+    "source": "https://kids-edu.co.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-lemonade-school-kitahama",
+    "name": "Lemonade English School",
+    "region": "大阪府",
+    "category": "英語・英会話",
+    "description": "大阪市中央区・北浜の子ども向け英語スクール。英語学童、英語イマージョン、英語学習講座などを公式サイトで案内しています。教室の開講時間・受講条件は公式情報でご確認ください。",
+    "url": "https://lemonade-school.com/",
+    "source": "https://lemonade-school.com/ja/supporter-ambassador/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-aura-kids-ai-steam",
+    "name": "Aura Kids（Aura株式会社）",
+    "region": "東京都",
+    "category": "科学・実験",
+    "description": "幼児・小学生向けの探究型AI創造教育やSTEAMワークショップを案内する教育事業者。イベントの開催地・対象年齢・申込み条件は公式サイトでご確認ください。",
+    "url": "https://www.aurakidscreative.com/",
+    "source": "https://www.aurakidscreative.com/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
