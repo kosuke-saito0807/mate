@@ -175,8 +175,8 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 /* Editorial cards focus on the family's next action; provider enrollment lives in the partner section. */
 .card[data-editorial-key] .cardActions{grid-template-columns:1fr}
 /* Balanced thumbnails and consistent card teaser height. */
-#cards.cards>.card>.cardArt{height:clamp(142px,19vw,202px)!important;max-height:202px!important;min-height:0!important;aspect-ratio:auto!important}
-#cards .cardArt:has(>.mate-editorial-thumb){height:clamp(142px,19vw,202px)!important;aspect-ratio:auto!important}
+#cards.cards>.card>.cardArt{height:clamp(175px,22vw,232px)!important;max-height:232px!important;min-height:0!important;aspect-ratio:auto!important}
+#cards .cardArt:has(>.mate-editorial-thumb){height:clamp(175px,22vw,232px)!important;aspect-ratio:auto!important}
 #cards .cardArt>.mate-editorial-thumb{height:100%;aspect-ratio:auto}
 #cards .card-description{font-size:12px;line-height:1.65;height:6.6em;min-height:6.6em;max-height:6.6em;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;white-space:pre-line;overflow-wrap:anywhere}
 #cards .card-readmore{display:inline-flex;align-self:flex-start;align-items:center;min-height:30px;padding:2px 0;margin:3px 0 9px;background:none;border:0;color:#0878ea;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -185,6 +185,14 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 #spark-reference-modal p{white-space:pre-wrap;line-height:1.9;overflow-wrap:anywhere}
 #spark-reference-modal .modal-controls{display:flex;justify-content:flex-end;gap:14px;margin-top:20px}
 #spark-reference-modal .modal-controls>*{padding:10px 15px;border-radius:9px;border:1px solid #cfe0f0}
+
+/* Browse in manageable batches instead of rendering every school at once. */
+.spark-list-pager{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:20px 12px;background:#f7fbff;border:1px solid #d8e7f3;border-radius:13px;margin:19px 0}
+.spark-list-pager[hidden]{display:none}
+.spark-list-pager button{font-weight:800;border:1px solid #9ac5e8;border-radius:9px;padding:10px 16px;background:#fff;color:#1264a9;cursor:pointer}
+.spark-list-pager button:first-of-type{background:#0878ea;color:#fff}
+.spark-list-pager span{font-size:12px;color:#58718a}
+#cards .cardArt .mate-editorial-shot{object-fit:cover;object-position:center top}
 </style>
 <link rel="stylesheet" href="mate-ux.css?v=20261029"><link rel="stylesheet" href="mate-brand-alignment.css?v=20261103-sales-ready-v16" /><link rel="stylesheet" href="hero-parity.css?v=20261103-copy-position-v3">
 <link rel="stylesheet" href="assets/mate-form-consistency.css?v=20261109"><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","@id":"https://spark.kosodatemate.jp/#practical-faq","inLanguage":"ja-JP","mainEntity":[{"@type":"Question","name":"習い事は何歳から始めるといい？","acceptedAnswer":{"@type":"Answer","text":"一律の開始年齢よりも、お子さまの興味・体力・生活リズムと教室の対象年齢を優先しましょう。見学や短い体験から始める方法もあります。"}},{"@type":"Question","name":"月謝以外にどんな費用がかかる？","acceptedAnswer":{"@type":"Answer","text":"入会金、教材費、道具代、発表会費、交通費などを含めて年間総額を比較しましょう。"}},{"@type":"Question","name":"体験レッスンでは何を見る？","acceptedAnswer":{"@type":"Answer","text":"先生との相性、お子さまの表情、教室の安全配慮、振替・退会の条件を確認し、無理なく通えるか考えましょう。"}}]}</script>
@@ -220,7 +228,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <p class="notice" id="demoBanner">掲載情報は教室からの許諾を確認後に公開します。体験申込は準備中です。</p>
 <p id="demoLink" hidden aria-hidden="true"></p>
 <div class="resultshead"><div class="headControls"><b id="status">教室データを読み込み中</b><button type="button" id="favoriteOnly" class="favOnly" aria-pressed="false">♡ お気に入りだけを見る</button></div><div class="sort"><label for="sort">並び替え</label><select id="sort"><option value="default">掲載順</option><option value="monthly">月謝が安い順</option><option value="trial">体験料金が安い順</option><option value="soon">体験日が近い順</option></select></div></div>
-<div class="cards" id="cards" aria-live="polite"></div>
+<div class="cards" id="cards" aria-live="polite"></div><div id="sparkPager" class="spark-list-pager" hidden><span id="sparkPageCount"></span><button id="sparkShowMore" type="button">さらに18件を見る</button><button id="sparkShowAll" type="button">すべて表示</button></div>
 
 <p class="filterFoot" id="footnote">最新の料金や受講条件は各教室の公式情報をご確認ください。</p>
 </div></div></div></section>
@@ -250,7 +258,7 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <p style="font-size:12px;line-height:1.7;margin:16px 0 0;color:#466072">情報は一般的な確認項目です。事業者の資格・保険・料金・空き状況・安全性をMATEが保証するものではありません。</p>
 </div></section>
 </main>
-<dialog id="spark-reference-modal" aria-labelledby="spark-modal-name"><h2 id="spark-modal-name" data-ref-name>掲載情報</h2><p data-ref-desc></p><div class="modal-controls"><button type="button" onclick="this.closest('dialog').close()">閉じる</button><a data-ref-site target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></dialog><footer class="spark-footer"><div class="wrap"><div class="footerTop"><div class="footerBrand"><a href="./"><img src="mate-spark-logo.svg?v=20261102-brand" alt="MATE SPARK"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事の相談</a><a href="#discover">教室を探す</a><a href="guide-lessons-choice.html">習い事の選び方</a><a href="guide-lesson-age-fit.html">習い事は何歳から？年齢に合う選び方</a><a href="guide-lessons-age-two.html">2歳の習い事を選ぶポイント</a><a href="guide-lesson-total-cost.html">習い事の年間費用の比べ方</a><a href="https://care.kosodatemate.jp/guides.html">子育てガイド一覧</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="partners.html">無料掲載を申し込む</a><a href="https://care.kosodatemate.jp/public-guide.html#correction">公開情報の修正・削除</a><a href="https://care.kosodatemate.jp/business.html">MATE全サービスの無料掲載</a><a href="https://care.kosodatemate.jp/listing-terms.html">無料掲載条件</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="https://care.kosodatemate.jp/operator.html">運営者情報・NextEdu</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><div class="footerNote">掲載情報は事業者の許諾・確認ができたものから順次公開します。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE SPARK. All rights reserved.</div></div></footer>
+<dialog id="spark-reference-modal" aria-labelledby="spark-modal-name"><h2 id="spark-modal-name" data-ref-name>掲載情報</h2><p data-ref-desc></p><div class="modal-controls"><button type="button" onclick="this.closest('dialog').close()">閉じる</button><a data-ref-site target="_blank" rel="noopener noreferrer">公式サイトを見る ↗</a></div></dialog><footer class="spark-footer"><div class="wrap"><div class="footerTop"><div class="footerBrand"><a href="./"><img src="mate-spark-logo.svg?v=20261102-brand" alt="MATE SPARK"></a><p>子育てに頼れる相棒を。</p></div><nav class="footerLinks" aria-label="フッターメニュー"><div class="mateFooterGroup"><h3>ご家族の方へ</h3><a href="https://care.kosodatemate.jp/consult.html?service=SPARK">習い事の相談</a><a href="#discover">教室を探す</a><a href="guide-lessons-choice.html">習い事の選び方</a><a href="guide-lesson-age-fit.html">習い事は何歳から？年齢に合う選び方</a><a href="guide-lessons-age-two.html">2歳の習い事を選ぶポイント</a><a href="guide-lesson-total-cost.html">習い事の年間費用の比べ方</a><a href="https://care.kosodatemate.jp/guides.html">子育てガイド一覧</a></div><div class="mateFooterGroup"><h3>掲載をご希望の方へ</h3><a href="partners.html">無料掲載を申し込む</a><a href="https://care.kosodatemate.jp/public-guide.html#correction">公開情報の修正・削除</a><a href="https://care.kosodatemate.jp/business.html">MATE全サービスの無料掲載</a><a href="https://care.kosodatemate.jp/listing-terms.html">無料掲載条件</a></div><div class="mateFooterGroup"><h3>MATE・運営情報</h3><a href="https://care.kosodatemate.jp/">MATE CARE ↗</a><a href="https://spark.kosodatemate.jp/">MATE SPARK ↗</a><a href="https://play.kosodatemate.jp/">MATE PLAY ↗</a><a href="operator.html">運営者情報・NextEdu</a><a href="privacy.html">プライバシーポリシー</a><a href="terms.html">利用規約</a><a href="disclaimer.html">免責事項</a></div></nav></div><div class="footerNote">掲載情報は事業者の許諾・確認ができたものから順次公開します。MATEはサービス品質・料金・空き状況・予約の成立を保証しません。最新の条件は各事業者の公式案内をご確認ください。</div><div class="copyright">運営：NextEdu ｜ <a href="mailto:kosodatemate@gmail.com">お問い合わせ：kosodatemate@gmail.com</a> ｜ © MATE SPARK. All rights reserved.</div></div></footer>
 <div class="selection" id="selectionBar" hidden><div class="wrap"><span id="selectedCount">気になる教室 0件</span><div class="right"><button type="button" id="compare" class="btn light" disabled>比較する</button><button type="button" id="trial" class="btn" disabled>まとめて体験相談（準備中）</button></div></div></div>
 <dialog id="detailDialog" aria-labelledby="detailHeading"><h2 id="detailHeading">教室の詳細</h2><div id="detailContent"></div><div class="dialogBtns"><button type="button" id="closeDetail" class="btn light">閉じる</button></div></dialog>
 <dialog id="compareDialog"><h2>気になる教室を比較</h2><div id="comparisons"></div><p>表示内容は参考情報です。体験相談の一括送信は提携教室の許諾・受付準備が整い次第開始します。</p><div class="dialogBtns"><button type="button" id="closeCompare" class="btn light">閉じる</button></div></dialog>
@@ -277,14 +285,14 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 <div class="dialogBtns"><button type="button" class="btn light" id="cancelTrial">キャンセル</button><button class="btn" type="submit">事務局へ体験相談を送る ↗</button></div></form>
 <div class="dialogBtns" id="unavailableTrial"><button type="button" class="btn light" id="closeTrial">閉じる</button></div>
 </dialog>
-<link rel="stylesheet" href="assets/mate-gallery.css?v=20261120-photo-cover-v3"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261118-taller4x3"><script src="assets/mate-gallery.js?v=20261120-linked-gallery"></script>
+<link rel="stylesheet" href="assets/mate-gallery.css?v=20261120-tall-media-v4"><link rel="stylesheet" href="assets/mate-editorial-thumb.css?v=20261120-tall-media-v4"><script src="assets/mate-gallery.js?v=20261120-linked-gallery"></script>
 <script>
 const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yen=n=>typeof n==='number'?'¥'+n.toLocaleString('ja-JP'):'料金は公式サイトで確認';
 const weekdays=['月','火','水','木','金','土','日'];
 const categories=['プログラミング','音楽','スポーツ','学習塾','英語・英会話','ダンス','バレエ','水泳','体操','サッカー','野球','テニス','武道','書道','そろばん','絵画・造形','科学・実験','ロボット','STEAM','ピアノ','ギター','バイオリン','歌・声楽','演劇','料理','囲碁・将棋','作文','国語','算数・数学','受験対策','幼児教室','オンライン','プログラミング・ロボット','その他'];
-let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false,trialIntakeEnabled=false;
+let schools=[],selected=new Set(),favorite=new Set(),demoMode=false,selectedDays=new Set(),favoritesOnly=false,trialIntakeEnabled=false,visibleLimit=18;
 try{favorite=new Set(JSON.parse(localStorage.getItem('mateSparkFavIds')||'[]'))}catch(e){}
 function saveFav(){try{localStorage.setItem('mateSparkFavIds',JSON.stringify([...favorite]))}catch(e){}}
 function choose(id){if(selected.has(id))selected.delete(id);else if(selected.size<5)selected.add(id);else{alert('比較できる教室は最大5件までです。');return}draw()}
@@ -349,8 +357,9 @@ function draw(){
  if($('sort').value==='soon')sorted.sort((a,b)=>String(a.nextTrialDate||'9999-12-31').localeCompare(String(b.nextTrialDate||'9999-12-31')));
  // Keep approved providers above reference profiles for every sort mode.
  sorted.sort((a,b)=>Number(a.editorial===true)-Number(b.editorial===true));
- const suffix=demoMode?'件のサンプル教室':'件の教室';$('status').textContent=sorted.length+' '+suffix;
- $('cards').innerHTML=sorted.map(s=>{
+ const suffix=demoMode?'件のサンプル教室':'件の教室';$('status').textContent=sorted.length+' '+suffix+'（'+Math.min(sorted.length,visibleLimit)+'件表示中）';
+ const visibleSchools=sorted.slice(0,visibleLimit);
+ $('cards').innerHTML=visibleSchools.map(s=>{
   const fictional=demoMode||s.demo===true;
   if(s.editorial)return '<article class="card" data-editorial-key="'+escapeHtml(s.id)+'"><div class="cardArt">'+
    '<span class="flag">'+escapeHtml(s.category)+'</span>'+editorialThumb(s)+'</div>'+
@@ -388,6 +397,10 @@ function draw(){
   const target=document.getElementById(location.hash.slice(1));
   if(target){window.MATEListingHashResolved=true;target.scrollIntoView({block:'center'});}
  }
+ const hasMore=sorted.length>visibleLimit;
+ $('sparkPager').hidden=!hasMore;
+ $('sparkPageCount').textContent='表示中 '+Math.min(sorted.length,visibleLimit)+' / '+sorted.length+' 件';
+ $('sparkShowMore').textContent='さらに '+Math.min(18,Math.max(0,sorted.length-visibleLimit))+' 件を見る';
  $('selectedCount').textContent='比較候補 '+selected.size+'件 · お気に入り '+favorite.size+'件';$('compare').disabled=selected.size===0;
  $('selectionBar').hidden=selected.size===0;
  // No actual submissions before explicit school permission, and never on fictional demo data.
@@ -481,7 +494,7 @@ async function init(){
   draw();
  }catch(e){$('status').textContent='データを読み込めませんでした。';$('cards').innerHTML='<div class="empty"><h3>現在データを表示できません</h3><p>時間を置いて再度お試しください。</p></div>';console.error(e)}
 }
-$('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);drawDays();draw()});
+$('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);visibleLimit=18;drawDays();draw()});
 $('cards').addEventListener('click',e=>{
  const outbound=e.target.closest('a[href^="https://"]');if(outbound&&window.gtag&&!demoMode){const card=outbound.closest('[data-school-id]');(()=>{const id=String(card?.dataset.schoolId||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','school_outbound_click',{service:'SPARK',school_id:id});gtag('event','mate_partner_click',{service:'SPARK',partner_id:id})}})()}
  const pick=e.target.closest('[data-pick]'),fav=e.target.closest('[data-fav]'),detail=e.target.closest('[data-detail]');
@@ -492,9 +505,11 @@ $('cards').addEventListener('click',e=>{
 $('categoryQuick').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;$('category').value=b.dataset.category;draw()});
 $('region').addEventListener('change',()=>regionChange($('region').value));
 $('topRegion').addEventListener('change',()=>regionChange($('topRegion').value));
-['age','price','category','keyword','sort','trialOnly'].forEach(id=>$(id).addEventListener('input',draw));
-$('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();drawDays();draw()});
-$('favoriteOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;draw()});
+['age','price','category','keyword','sort','trialOnly'].forEach(id=>$(id).addEventListener('input',()=>{visibleLimit=18;draw()}));
+$('reset').addEventListener('click',()=>{for(const id of ['region','topRegion','age','price','category','keyword'])$(id).value='';$('sort').value='default';$('trialOnly').checked=false;selectedDays.clear();visibleLimit=18;drawDays();draw()});
+$('favoriteOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;visibleLimit=18;draw()});
+$('sparkShowMore').addEventListener('click',()=>{visibleLimit+=18;draw()});
+$('sparkShowAll').addEventListener('click',()=>{visibleLimit=schools.length;draw()});
 $('detailDialog').addEventListener('click',e=>{const a=e.target.closest('a[href^="https://"]');if(a&&window.gtag&&!demoMode)(()=>{const id=String(schools.find(s=>s.name===$('detailHeading').textContent)?.id||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','school_outbound_click',{service:'SPARK',school_id:id});gtag('event','mate_partner_click',{service:'SPARK',partner_id:id})}})();});
 $('closeDetail').addEventListener('click',()=>$('detailDialog').close());
 $('trial').addEventListener('click',showTrial);
