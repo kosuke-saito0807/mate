@@ -78,7 +78,7 @@ async function main() {
     await care.locator('#results-count').waitFor();
     const shownCount=await care.locator('#results article.result').count();
     assert.ok(shownCount>0&&shownCount<=18,'CARE should display first 18 real and independently labelled listings');
-    assert.match(await care.locator('#results-count').textContent(),/\\d+件/);
+    assert.match(await care.locator('#results-count').textContent(),/\d+件/);
     assert.match(await care.locator('#results-count').getAttribute('aria-label')||'',/件表示中/);
     assert.ok((await care.locator('#care-data-status').innerText()).includes('掲載'));
     assert.ok(await care.locator('#results .provider-link').count()>0,'CARE cards should link to verified detail or official sources');
