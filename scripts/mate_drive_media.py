@@ -13,7 +13,7 @@ def _get_with_transient_retry(session, url, params, timeout):
     """Retry only transient Google API limits, never hidden 403/404 permissions."""
     for attempt in range(2):
         response = session.get(url, params=params, timeout=timeout)
-        if response.status_code in (429, 502, 503) and attempt == 0:
+        if response.status_code in (429, 500, 502, 503, 504) and attempt == 0:
             time.sleep(1.0)
             continue
         return response
