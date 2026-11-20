@@ -441,12 +441,13 @@ async function main() {
       // viewport pointer interception by sticky header or lazy card imagery.
       await p.locator('[data-pick]').first().focus();
       await p.keyboard.press('Enter');
-      // Even if a legacy config flag were switched on, the old FormSubmit
-      // transport is retired and the trial referral remains disabled until
-      // a reviewed GAS backend, school permission, and parental consent exist.
-      assert.equal(await p.locator('#trial').isEnabled(),false,
-        'Trial intake must remain disabled without consent-safe backend');
-      assert.equal(await p.locator('#trialForm').isHidden(),true);
+      // Family-to-MATE grouped consultations are allowed, but a partner trial
+      // is not booked or submitted by the comparison button.
+      assert.equal(await p.locator('#trial').isEnabled(),true,
+        'Selected verified schools can be sent to MATE support for consultation');
+      assert.ok((await p.locator('#trial').innerText()).includes('無料相談'));
+      assert.equal(await p.locator('#trialForm').isHidden(),true,
+        'Legacy direct trial POST form stays disabled regardless of flags');
       // The school-owner listing intake should appear on approved Firebase hosts.
       await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
