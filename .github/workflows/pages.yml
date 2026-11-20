@@ -28,6 +28,8 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: main
+      - name: Generate CARE crawlable reference directory from editorial source
+        run: python3 scripts/sync-care-directory.py
       - name: Audit all CARE and SPARK indexable URLs (source only)
         run: python3 scripts/audit_all_public_seo.py
       - name: Test MATE SPARK publication safeguards
