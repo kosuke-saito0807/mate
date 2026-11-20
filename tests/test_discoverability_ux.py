@@ -13,6 +13,35 @@ PAGES={
 GUIDES={"guide-sitter-choice.html","guide-family-outing.html","spark/guide-lessons-choice.html","guide-sitter-fees-check.html","guide-weekend-family-event.html","spark/guide-lesson-age-fit.html"}
 def src(path):return (ROOT/path).read_text(encoding="utf-8")
 class DiscoveryQuality(unittest.TestCase):
+ def test_owner_photo_cover_layout_and_full_image_access(self):
+  # Approved listing cards should not shrink owner photos into a padded frame.
+  # Full detail views retain a separate, noncropping viewer for text/people.
+  for path in ("assets/mate-gallery.css","spark/assets/mate-gallery.css"):
+   css=src(path)
+   self.assertIn(".mate-photo-slides img.mate-real-photo",css)
+   self.assertIn("object-fit:cover;object-position:center center;padding:0",css)
+   self.assertIn("background:transparent;filter:none",css)
+  for path in ("provider.html","spark/school-detail.html"):
+   detail=src(path)
+   self.assertIn('id="gallery"',detail)
+   self.assertIn('id="photo-modal"',detail)
+   self.assertIn('id="full-photo"',detail)
+   self.assertIn('object-fit:cover;object-position:center',detail)
+   self.assertIn('.photo-fullscreen-image{display:block;flex:1;',detail)
+   self.assertIn('object-fit:contain;',detail)
+   self.assertIn("modal.showModal()",detail)
+   self.assertIn("modal.close()",detail)
+   self.assertIn("el('photo-modal-prev').onclick=()=>move(-1)",detail)
+   self.assertIn("el('photo-modal-next').onclick=()=>move(1)",detail)
+   self.assertIn("e.key==='ArrowLeft'",detail)
+   self.assertIn("e.key==='ArrowRight'",detail)
+  self.assertIn("mate-gallery.css?v=20261120-photo-cover-v3",src("index.html"))
+  self.assertIn("mate-gallery.css?v=20261120-photo-cover-v3",src("spark/index.html"))
+  care=json.loads(src("data.json"))[0]
+  spark=json.loads(src("spark/schools.json"))[0]
+  self.assertEqual(len(care["images"]),4)
+  self.assertEqual(len(spark["images"]),5)
+
  def test_approved_listings_first_clean_labels_and_aligned_links(self):
   care=src("assets/provider-search.js")
   spark=src("spark/index.html")
