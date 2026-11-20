@@ -790,5 +790,41 @@
     "reviewedAt": "2026-11-20",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-coti-sapporo",
+    "name": "プライベートシッターcoti",
+    "region": "北海道",
+    "category": "ベビーシッター・家事サポート",
+    "description": "札幌市を拠点とする訪問型のプライベートシッターサービス。ご家庭の希望に応じたシッティングや家事サポートを案内しています。実際のサービスの組み合わせ、利用可能日や料金は公式サイトをご確認ください。",
+    "url": "https://coti-sapporo.com/",
+    "source": "https://coti-sapporo.com/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-bambitz-oita",
+    "name": "子育てサポート バンビッツ（株式会社Bambitz）",
+    "region": "大分県",
+    "category": "ベビーシッター・キッズシッター",
+    "description": "大分市・別府市を中心に、訪問型ベビーシッター・キッズシッターと家事代行サービスを案内しています。対象年齢や訪問可能地域・料金は公式サイトで最新の条件をご確認ください。",
+    "url": "https://bambitz.com/",
+    "source": "https://bambitz.com/about/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-satoyo-sitter",
+    "name": "SATOYO sitter（サトヨシッター）",
+    "region": "全国（対応エリアは公式確認）",
+    "category": "ベビーシッター・訪問保育",
+    "description": "ベビーシッターの派遣や送迎、早朝・夜間・宿泊保育などの相談を受け付けているサービスです。実際に利用できる地域やシッターの手配可否・料金は公式サイトでご確認ください。",
+    "url": "https://satoyositter.jp/",
+    "source": "https://satoyositter.jp/",
+    "reviewedAt": "2026-11-20",
+    "editorial": true,
+    "approved": false
   }
 ]
