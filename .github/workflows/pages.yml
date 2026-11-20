@@ -50,6 +50,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_social.py' -v
           python3 -m unittest discover -s tests -p 'test_play_public_link_cutover.py' -v
           python3 -m unittest discover -s tests -p 'test_discoverability_ux.py' -v
+          node --test scripts/ci/test-approved-owner-gallery.mjs
           python3 -m unittest discover -s tests -p 'test_public_data_contract.py' -v
           python3 -m unittest discover -s tests -p 'test_owner_publication_rehearsal.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_sales_quality.py' -v
