@@ -194,11 +194,6 @@ dialog{max-width:680px;max-height:85vh;overflow:auto;width:calc(100% - 25px);bor
 .spark-list-pager span{font-size:12px;color:#58718a}
 #cards .cardArt .mate-editorial-shot{object-fit:cover;object-position:center top}
 
-/* Harmonize editorial screenshots and approved galleries at the same taller size. */
-#cards.cards>.card>.cardArt,#cards .cardArt:has(>.mate-editorial-thumb){height:clamp(200px,23vw,252px)!important;max-height:252px!important}
-#cards .cardArt .mate-real-photo{object-fit:cover!important;object-position:center 12%!important}
-#cards .cardArt>.mate-editorial-thumb:not(.mate-thumbnail-fallback) .mate-editorial-shot{object-fit:cover!important;object-position:center top!important}
-@media(max-width:620px){#cards.cards>.card>.cardArt{height:clamp(220px,65vw,290px)!important;max-height:290px!important}}
 </style>
 <link rel="stylesheet" href="mate-ux.css?v=20261029"><link rel="stylesheet" href="mate-brand-alignment.css?v=20261103-sales-ready-v16" /><link rel="stylesheet" href="hero-parity.css?v=20261103-copy-position-v3">
 <link rel="stylesheet" href="assets/mate-form-consistency.css?v=20261109"><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","@id":"https://spark.kosodatemate.jp/#practical-faq","inLanguage":"ja-JP","mainEntity":[{"@type":"Question","name":"習い事は何歳から始めるといい？","acceptedAnswer":{"@type":"Answer","text":"一律の開始年齢よりも、お子さまの興味・体力・生活リズムと教室の対象年齢を優先しましょう。見学や短い体験から始める方法もあります。"}},{"@type":"Question","name":"月謝以外にどんな費用がかかる？","acceptedAnswer":{"@type":"Answer","text":"入会金、教材費、道具代、発表会費、交通費などを含めて年間総額を比較しましょう。"}},{"@type":"Question","name":"体験レッスンでは何を見る？","acceptedAnswer":{"@type":"Answer","text":"先生との相性、お子さまの表情、教室の安全配慮、振替・退会の条件を確認し、無理なく通えるか考えましょう。"}}]}</script>
@@ -535,4 +530,11 @@ document.addEventListener('click',function(event){
 },{passive:true});
 </script>
 
+<style id="mate-media-final-20261120">
+/* Harmonize editorial screenshots and approved galleries at the same taller size. */
+#cards.cards>.card>.cardArt,#cards .cardArt:has(>.mate-editorial-thumb){height:clamp(200px,23vw,252px)!important;max-height:252px!important}
+#cards .cardArt .mate-real-photo{object-fit:cover!important;object-position:center 12%!important}
+#cards .cardArt>.mate-editorial-thumb:not(.mate-thumbnail-fallback) .mate-editorial-shot{object-fit:cover!important;object-position:center top!important}
+@media(max-width:620px){#cards.cards>.card>.cardArt{height:clamp(220px,65vw,290px)!important;max-height:290px!important}}
+</style>
 </body></html>
