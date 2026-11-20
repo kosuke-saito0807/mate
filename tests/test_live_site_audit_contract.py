@@ -86,6 +86,19 @@ class ProductionMonitorContracts(unittest.TestCase):
         self.assertNotIn(".submit(",SCRIPT)
         self.assertNotIn("formPage.fill(",SCRIPT)
 
+    def test_provider_ux_regression_uses_real_hosts_without_submission(self):
+        ux=(ROOT/"tests/live_provider_ux.cjs").read_text(encoding="utf-8")
+        for marker in (
+            "https://care.kosodatemate.jp/provider.html?id=mate_care_3a29e1c1eb6f4f1b",
+            "https://spark.kosodatemate.jp/operator.html",
+            "https://play.kosodatemate.jp/operator",
+            "#compareConsult",
+            "#gallery img.photo-slide",
+        ):
+            self.assertIn(marker, ux)
+        for forbidden in (".request.post(", ".submit(", "method:'POST'", 'method:"POST"', ".fill("):
+            self.assertNotIn(forbidden, ux)
+
 
 if __name__=="__main__":
     unittest.main()
