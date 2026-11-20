@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "tests/live_three_sites.cjs"
+      - "tests/live_provider_ux.cjs"
       - "tests/test_live_site_audit_contract.py"
       - ".github/workflows/live-three-sites.yml"
       - "*.html"
@@ -13,6 +14,7 @@ on:
     branches: [main]
     paths:
       - "tests/live_three_sites.cjs"
+      - "tests/live_provider_ux.cjs"
       - "tests/test_live_site_audit_contract.py"
       - ".github/workflows/live-three-sites.yml"
       - "*.html"
@@ -43,12 +45,15 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p 'test_live_site_audit_contract.py' -v
           node --check tests/live_three_sites.cjs
+          node --check tests/live_provider_ux.cjs
       - name: Install Playwright (browser used only for reads)
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Review 3 live websites, desktop and mobile; never submit forms
         run: node tests/live_three_sites.cjs
+      - name: Verify Poppins provider photos, SPARK comparison and PLAY operator (read-only)
+        run: node tests/live_provider_ux.cjs
       - name: Save read-only screenshots and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
