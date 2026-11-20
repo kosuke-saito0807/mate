@@ -77,7 +77,9 @@ class SiteIntegrity(unittest.TestCase):
         index = (SITE / "index.html").read_text(encoding="utf-8")
         self.assertIn('id="trialForm" method="POST" action="" hidden', index)
         self.assertIn("!demoMode", index)
-        self.assertIn("s.approved===true&&s.acceptsTrial===true", index)
+        self.assertIn("s.approved===true&&!s.demo", index)
+        self.assertIn("chosen.length!==selected.size", index)
+        self.assertIn("location.assign('https://care.kosodatemate.jp/consult.html?'+params.toString())", index)
         self.assertFalse(json.loads((SITE / "config.json").read_text(encoding="utf-8"))["applyEnabled"])
         self.assertIn('id="listing-contact"', (ROOT / "contact.html").read_text(encoding="utf-8"))
         self.assertIn('id="partnerForm" data-mate-direct-listing="true" hidden', (SITE / "partners.html").read_text(encoding="utf-8"))
@@ -122,8 +124,12 @@ class SiteIntegrity(unittest.TestCase):
         self.assertIn("trialIntakeEnabled=false;",page)
         self.assertNotIn("formsubmit.co",page)
         self.assertIn("e.preventDefault();",page)
-        self.assertIn("eligible&&safeHost&&trialIntakeEnabled",page)
-        self.assertIn("!eligible||!safeHost||!trialIntakeEnabled",page)
+        self.assertIn("const eligible=selected.size>0",page)
+        self.assertIn("if(demoMode||!chosen.length||chosen.length!==selected.size)return",page)
+        self.assertIn("form.action=''; // No legacy FormSubmit transport.",page)
+        self.assertIn("alert('体験相談は現在準備中です。",page)
+        # Family-to-MATE consultation is distinct from partner-facing booking intake.
+        self.assertIn("params.set('schools',",page)
 
     def test_full_operator_biography_and_photo_while_protecting_other_pages(self):
         operator=(ROOT / "operator.html").read_text(encoding="utf-8")
