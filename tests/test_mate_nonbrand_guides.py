@@ -30,5 +30,7 @@ class NonbrandGuideTests(unittest.TestCase):
                 self.assertIn(url, urls)
                 self.assertIn(Path(page).name, (ROOT / home).read_text(encoding="utf-8"))
                 self.assertIn(Path(page).name, hub)
+                llms = ROOT / ('spark/llms.txt' if page.startswith('spark/') else 'llms.txt')
+                self.assertIn(url, llms.read_text(encoding='utf-8'))
 if __name__ == "__main__":
     unittest.main()
