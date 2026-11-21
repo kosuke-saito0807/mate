@@ -1,0 +1,38 @@
+name: Check MATE 3-site public indexability (read only)
+
+on:
+  schedule:
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mate-public-indexability-monitor
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test indexability monitor (offline)
+        run: python3 -m unittest discover -s tests -p "test_three_site_indexability.py" -v
+      - name: Inspect real CARE, SPARK and PLAY public HTTPS pages
+        run: |
+          mkdir -p artifacts
+          python3 scripts/check_three_site_indexability.py > artifacts/three-site-indexability.json
+          cat artifacts/three-site-indexability.json
+      - name: Save diagnostics when there is a crawlability regression
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-indexability-report
+          path: artifacts/three-site-indexability.json
+          if-no-files-found: ignore
+          retention-days: 14
