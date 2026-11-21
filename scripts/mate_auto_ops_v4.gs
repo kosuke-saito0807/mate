@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-17-fast-gmail-usage-guard'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-hourly-gmail-quota-cooldown'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -2199,10 +2199,31 @@ function mateAutoOpsV4Cycle(){
     // together reliably under the GAS execution-time limit. Rotate one
     // discovery phase per hour while keeping opt-outs and sending checks live.
     const props=PropertiesService.getScriptProperties();
+    // Preserve Gmail quota for opt-outs and verified replies. The 15-minute
+    // runner already records the current JST day when Gmail service calls
+    // are exhausted. Never retry Gmail reads in the hourly runner that day.
+    const gmailQuotaDate=mateV4Jst_().slice(0,10);
+    const gmailQuotaKey='MATE_FAST_GMAIL_QUOTA_BLOCKED_JST';
+    if(props.getProperty(gmailQuotaKey)===gmailQuotaDate){
+      const paused={gmailQuota:'PAUSED_UNTIL_NEXT_JST_DAY',
+        outreach:'NOT_ATTEMPTED',sendOutcome:'NOT_ASSERTED'};
+      try{
+        paused.productionHeartbeat=mateV4ProductionHeartbeat_(paused);
+        mateV4Tab_(mateV4Book_(),'GAS本番稼働監視V4')
+          .getRange(2,11).setValue('GMAIL_QUOTA_COOLDOWN_NO_GMAIL_CALLS');
+      }catch(e){console.log('QUOTA_COOLDOWN_HEARTBEAT_FAILED '+String(e).slice(0,140))}
+      console.log(JSON.stringify(paused));return paused;
+    }
     const phaseIndex=Number(props.getProperty('MATE_V4_WORK_PHASE')||0)%3;
     props.setProperty('MATE_V4_WORK_PHASE',String((phaseIndex+1)%3));
+    const gmailDependent=new Set(['listingIntent','listingAcknowledgements',
+      'reviewDrafts','referrals','replies']);
     const safe=(name,fn)=>{
+      if(gmailDependent.has(name)&&props.getProperty(gmailQuotaKey)===gmailQuotaDate)
+        return {step:name,status:'SKIPPED_GMAIL_QUOTA_COOLDOWN'};
       try{return fn()}catch(e){
+        if(/Service invoked too many times for one day:\s*gmail/i.test(String(e)))
+          props.setProperty(gmailQuotaKey,gmailQuotaDate);
         console.log('V4_STEP_FAILED '+name+' '+String(e).slice(0,150));
         return {step:name,status:'FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE'};
       }
@@ -2253,13 +2274,23 @@ function mateAutoOpsV4Cycle(){
     catch(err){console.log('PRODUCTION_HEARTBEAT_FAILED '+String(err).slice(0,120));}
     console.log(JSON.stringify(report));return report;
   }catch(err){
-    // Keep original failure visible in Apps Script execution history.
+    const gmailQuota=/Service invoked too many times for one day:\s*gmail/i.test(String(err));
+    if(gmailQuota)try{
+      PropertiesService.getScriptProperties().setProperty(
+        'MATE_FAST_GMAIL_QUOTA_BLOCKED_JST',mateV4Jst_().slice(0,10));
+    }catch(cooldownErr){console.log('GMAIL_COOLDOWN_SAVE_FAILED '+String(cooldownErr).slice(0,120))}
+    // Record incomplete cycle. A Gmail exception can occur after a send
+    // reservation; do not claim delivery or retry without sent-log review.
     try{
       const sheet=mateV4Tab_(mateV4Book_(),'GAS本番稼働監視V4');
-      sheet.getRange(2,11).setValue('CYCLE_FAILED: '+String(err).slice(0,140));
+      sheet.getRange(2,11).setValue(gmailQuota?
+        'GMAIL_QUOTA_EXHAUSTED_RECONCILE_SENT_LOG':
+        'CYCLE_FAILED: '+String(err).slice(0,140));
     }catch(heartbeatErr){
       console.log('PRODUCTION_ERROR_HEARTBEAT_FAILED '+String(heartbeatErr).slice(0,120));
     }
+    if(gmailQuota)return {gmailQuota:'PAUSED_UNTIL_NEXT_JST_DAY',
+      sendOutcome:'UNKNOWN_REQUIRES_SENT_LOG_RECONCILIATION'};
     throw err;
   }finally{lock.releaseLock()}
 }
