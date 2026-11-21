@@ -399,7 +399,7 @@ function draw(){
   const fee=typeof s.monthlyPrice==='number' ? yen(s.monthlyPrice) : '料金は公式サイトで確認';
   const nextTrial=(!fictional&&s.nextTrialDate)?'<div class="meta">次回体験予定：'+escapeHtml(s.nextTrialDate.replaceAll('-','/'))+'</div>':'';
    const trialCost=typeof s.trialPrice==='number'?(s.trialPrice===0?'無料体験':'体験 '+yen(s.trialPrice)):'体験料金：要確認';
-  return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'"><div class="cardArt '+cls+'">'+
+  return '<article class="card" id="listing-'+escapeHtml(s.id)+'" data-school-id="'+escapeHtml(s.id)+'" data-mate-demo="'+(fictional?'true':'false')+'"><div class="cardArt '+cls+'">'+
     '<span class="flag">'+escapeHtml(s.category)+(fictional?' / 架空サンプル':'')+'</span>'+
     schoolThumb(s)+
     '<button type="button" class="favorite" data-fav="'+escapeHtml(s.id)+'" aria-pressed="'+(favorite.has(s.id)?'true':'false')+'" aria-label="'+escapeHtml(s.name)+'をお気に入り'+(favorite.has(s.id)?'から解除':'に追加')+'">'+(favorite.has(s.id)?'♥':'♡')+'</button>'+
@@ -512,7 +512,18 @@ async function init(){
 }
 $('weekdays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;const d=b.dataset.day;selectedDays.has(d)?selectedDays.delete(d):selectedDays.add(d);visibleLimit=24;drawDays();draw()});
 $('cards').addEventListener('click',e=>{
- const outbound=e.target.closest('a[href^="https://"]');if(outbound&&window.gtag&&!demoMode){const card=outbound.closest('[data-school-id]');(()=>{const id=String(card?.dataset.schoolId||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','school_outbound_click',{service:'SPARK',school_id:id});gtag('event','mate_partner_click',{service:'SPARK',partner_id:id})}})()}
+ const outbound=e.target.closest('a[href^="https://"]');
+ if(outbound&&typeof window.gtag==='function'&&!demoMode){
+  let target;try{target=new URL(outbound.href,location.href)}catch{}
+  const external=target&&(target.protocol==='https:'||target.protocol==='http:')&&
+   target.hostname!==location.hostname&&!/(^|\.)kosodatemate\.jp$/.test(target.hostname);
+  const card=outbound.closest('[data-school-id]');
+  const id=String(card?.dataset.schoolId||'');
+  if(external&&/^[A-Za-z0-9_-]{1,80}$/.test(id)){
+   gtag('event','school_outbound_click',{service:'SPARK',school_id:id});
+   gtag('event','mate_partner_click',{service:'SPARK',partner_id:id});
+  }
+ }
  const pick=e.target.closest('[data-pick]'),fav=e.target.closest('[data-fav]'),detail=e.target.closest('[data-detail]');
  if(pick)choose(pick.dataset.pick);
  if(detail)showDetail(detail.dataset.detail);

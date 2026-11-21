@@ -22,6 +22,23 @@ class FunnelEventTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 subprocess.run(['node', '--check', str(ROOT / filename)], check=True, capture_output=True, text=True)
 
+    def test_runtime_provider_clicks_are_not_fabricated_referrals(self):
+        if not shutil.which("node"):
+            self.skipTest("Node.js unavailable")
+        subprocess.run(
+            ["node", "--test", "scripts/ci/test-provider-outbound.mjs"],
+            cwd=ROOT, check=True, capture_output=True, text=True
+        )
+
+    def test_care_internal_detail_not_counted_as_offsite_referral(self):
+        care = (ROOT / "assets/provider-search.js").read_text(encoding="utf-8")
+        self.assertIn("mate_provider_detail_click", care)
+        self.assertIn("if(external){", care)
+        self.assertIn("url.pathname.endsWith('/provider.html')", care)
+        spark = (ROOT / "spark/index.html").read_text(encoding="utf-8")
+        self.assertIn('data-mate-demo=', spark)
+        self.assertIn("if(external&&/^[A-Za-z0-9_-]", spark)
+
     def test_event_names_and_privacy(self):
         files = [ROOT / "assets/mate-funnel-events.js", ROOT / "spark/assets/mate-funnel-events.js"]
         a, b = (path.read_text(encoding="utf-8") for path in files)
