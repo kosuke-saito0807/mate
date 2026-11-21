@@ -37,7 +37,9 @@ def main():
     cards = "\n".join(
         ('<article class="provider" id="{id}"><a class="directory-thumb" href="{url}" target="_blank" rel="noopener noreferrer" aria-label="{name}の公式サイトを開く">'
         '{image}<span class="directory-thumb-title">{name}</span></a><h2>{name}</h2><p class="meta">{region} ・ {category}</p>'
-        '<p>{description}</p><a href="{url}" target="_blank" rel="noopener noreferrer">公式サイトで詳細を見る ↗</a></article>').format(
+        '<p>{description}</p><a href="{url}" target="_blank" rel="noopener noreferrer">公式サイトで詳細を見る ↗</a>'
+        '<p class="directory-owner-claim">この事業者のご担当者様ですか？ '
+        '<a data-mate-owner-claim="CARE" href="contact.html#claim={id}">無料の正式掲載を申請する</a></p></article>').format(
             id=e(entry["id"]), name=e(entry["name"]), region=e(entry.get("region")),
             category=e(entry.get("category")), description=e(entry.get("description")), url=e(url),
             image=image(entry)
