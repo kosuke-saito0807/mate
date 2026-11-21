@@ -17,7 +17,8 @@ class LaunchPreparationTests(unittest.TestCase):
             self.assertIn('<section class="mate-help" id="faq"',html)
             self.assertIn('class="mate-help-services"',html)
             self.assertIn('aria-current="page"',html)
-            self.assertIn("掲載意思",html)
+            self.assertIn("正式掲載",html)
+            self.assertIn("参考紹介",html)
             self.assertIn("公式案内",html)
 
     def test_empty_results_help_families_before_businesses(self):

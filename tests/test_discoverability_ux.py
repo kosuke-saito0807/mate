@@ -228,7 +228,9 @@ class DiscoveryQuality(unittest.TestCase):
   self.assertIn('href="guide-lessons-choice.html"',spark)
   self.assertIn("教室の無料掲載申請はこちら",spark)
   # No fictional providers or unauthorized bookings created by fallback links.
-  self.assertIn("掲載許可をいただいたシッター事業者から順次公開",care)
+  self.assertIn("正式掲載と編集部の参考情報は区別して表示しています",care)
+  self.assertIn("未承認の参考紹介を区別しています",src("index.html"))
+  self.assertNotIn("掲載許可をいただいたシッター事業者から順次公開しています",src("index.html"))
   self.assertIn("掲載を許諾いただいた教室を順次公開",spark)
 
  def test_requested_layout_form_and_https_regressions(self):

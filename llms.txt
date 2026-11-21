@@ -1,5 +1,5 @@
 # MATE CARE — 子育て家庭向けシッター情報
-> MATE CAREは、ベビーシッター・訪問保育を探す家庭向けの情報サイトです。利用条件や資格、サービス内容は各事業者の公式情報で確認してください。
+> MATE CAREは、ベビーシッター・訪問保育を探す家庭向けの情報サイトです。事業者本人の権限確認を経た正式掲載と、MATE編集部による未承認・未提携の参考紹介を区別しています。予約・料金・安全性・利用条件は各事業者の公式情報で確認してください。
 
 ## 公式情報
 - [MATE CARE](https://care.kosodatemate.jp/): シッター・訪問保育を探す
@@ -8,6 +8,7 @@
 - [利用ガイド](https://care.kosodatemate.jp/guides.html): 子育て・外出に関するガイド
 - [シッターの選び方](https://care.kosodatemate.jp/guide-sitter-choice.html): 比較の基本事項
 - [ベビーシッターと一時預かりの違い](https://care.kosodatemate.jp/guide-sitter-vs-daycare.html): 利用場所、対象年齢、料金、予約条件の比較
+- [東京でベビーシッターを選ぶ](https://care.kosodatemate.jp/guide-tokyo-babysitter-choice.html): 訪問エリア・月齢・安全・料金を比較する確認項目。
 - [ベビーシッターは何時間から？料金総額の確認](https://care.kosodatemate.jp/guide-sitter-hourly-cost.html): 最低利用時間・交通費・延長・キャンセル料金の比較
 - [斎藤幸輔（Kosuke Saito）・MATE運営者プロフィール](https://care.kosodatemate.jp/operator.html): NextEdu代表、CARE・SPARK・PLAYの運営者情報とお問い合わせ先
 - [プライバシーポリシー](https://care.kosodatemate.jp/privacy.html)
@@ -24,4 +25,3 @@
 
 ## 利用上の注意
 検索結果に掲載される参考紹介は、事業者がMATE掲載を承認したことを意味しません。参考紹介と正式掲載は区別されます。事業者情報・料金・予約の可否は変更されることがあります。掲載申請は掲載決定や資格の保証を意味しません。
-- [東京でベビーシッターを選ぶ](https://care.kosodatemate.jp/guide-tokyo-babysitter-choice.html): 訪問エリア・月齢・安全・料金を比較する確認項目。
