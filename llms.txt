@@ -9,7 +9,7 @@
 - [シッターの選び方](https://care.kosodatemate.jp/guide-sitter-choice.html): 比較の基本事項
 - [ベビーシッターと一時預かりの違い](https://care.kosodatemate.jp/guide-sitter-vs-daycare.html): 利用場所、対象年齢、料金、予約条件の比較
 - [東京でベビーシッターを選ぶ](https://care.kosodatemate.jp/guide-tokyo-babysitter-choice.html): 訪問エリア・月齢・安全・料金を比較する確認項目。
-- [ベビーシッターは何時間から？料金総額の確認](https://care.kosodatemate.jp/guide-sitter-hourly-cost.html): 最低利用時間・交通費・延長・キャンセル料金の比較
+- [ベビーシッター料金と簡易計算ツール](https://care.kosodatemate.jp/guide-sitter-hourly-cost.html): 最低利用時間・交通費・割増の確認方法と、入力値を送信しない概算総額の計算
 - [斎藤幸輔（Kosuke Saito）・MATE運営者プロフィール](https://care.kosodatemate.jp/operator.html): NextEdu代表、CARE・SPARK・PLAYの運営者情報とお問い合わせ先
 - [プライバシーポリシー](https://care.kosodatemate.jp/privacy.html)
 - [サイトマップ](https://care.kosodatemate.jp/sitemap.xml)
