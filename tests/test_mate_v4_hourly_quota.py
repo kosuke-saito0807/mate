@@ -30,6 +30,16 @@ class HourlyQuotaTests(unittest.TestCase):
         self.assertLess(self.hourly.index("report.optouts=mateV4OptoutInbox()"),
                         self.hourly.index("report.outreach=mateV4SendOutreach()"))
 
+    def test_operational_heartbeat_exposes_non_pii_eligibility_reasons(self):
+        heartbeat = self.code.split("function mateV4ProductionHeartbeat_(report){", 1)[1].split(
+            "function mateAutoOpsV4Cycle(){", 1)[0]
+        self.assertIn("const backlog=diagnoseMateV4Backlog()", heartbeat)
+        self.assertIn("JSON.stringify(backlog.counts)", heartbeat)
+        self.assertIn("sheet.getRange(1,12)", heartbeat)
+        self.assertIn("sheet.getRange(2,12)", heartbeat)
+        self.assertNotIn("宛先メール", heartbeat)
+        self.assertNotIn("GmailApp.sendEmail(", heartbeat)
+
     def test_js_syntax(self):
         if not shutil.which("node"):
             self.skipTest("Node.js unavailable")
