@@ -22,7 +22,7 @@ function runCycle(phase,failOptout=false){
  };
  const steps=[
  'mateV4SeedExistingCRM','mateV4SeedSectorDirectories','mateV4DiscoverLicensedPublicCsvSources',
- 'mateV4DiscoverGeneralWebProspects','mateV4CollectLeads',
+ 'mateV4DiscoverGeneralWebProspects','mateV4SeedEditorialProspects','mateV4CollectLeads',
  'mateV4DiscoverFreeOsmCandidates','mateV4PromoteFreeWebCandidates',
  'mateV4OptoutInbox','mateV4HardBounceQuarantine','mateV4ReconcileSentReservations',
  'mateV4AuditOfficialContacts','mateV4PrepareReviewDrafts','mateV4SyncReferralLedger',
@@ -59,6 +59,9 @@ test('each phase includes only its expensive discovery job',()=>{
  assert.equal(x.invoked.includes('mateV4DiscoverLicensedPublicCsvSources'),true);
  assert.equal(x.invoked.includes('mateV4DiscoverGeneralWebProspects'),false);
  assert.equal(y.invoked.includes('mateV4CollectLeads'),true);
+ assert.equal(y.invoked.includes('mateV4SeedEditorialProspects'),true);
+ assert.equal(x.invoked.includes('mateV4SeedEditorialProspects'),false);
+ assert.equal(z.invoked.includes('mateV4SeedEditorialProspects'),false);
  assert.equal(z.invoked.includes('mateV4DiscoverFreeOsmCandidates'),true);
  assert.equal(z.invoked.includes('mateV4PromoteFreeWebCandidates'),true);
 });
