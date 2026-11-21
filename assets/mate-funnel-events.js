@@ -10,7 +10,7 @@
     return target && target.nodeType === 1 ? target : target && target.parentElement;
   }
   function searchArea(element) {
-    return element.closest('#find, #discover, .directory-search, .directory-filters');
+    return element.closest('#find, #discover, .directory-search, .directory-filters') ||\n      (element.matches('#filter, #directory-filter') ? element : null);
   }
   document.addEventListener('click', function (event) {
     var element = asElement(event.target);
