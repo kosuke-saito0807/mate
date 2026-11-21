@@ -1,42 +1,53 @@
-/* MATE privacy-minimizing engagement events.
- * Reports only service and action category. Never send search terms, user IDs,
- * provider URLs, contact data, or input values to analytics.
- * Requires GA4 gtag from the site's existing consent/configuration.
- */
+/* MATE engagement analytics: aggregate action types only, never user inputs or URLs. */
 (function () {
   'use strict';
   var service = location.hostname.indexOf('spark.') === 0 ? 'SPARK' : 'CARE';
-  function emit(name, parameters) {
+  function emit(name, values) {
     if (typeof window.gtag !== 'function') return;
-    window.gtag('event', name, Object.assign({ service: service }, parameters || {}));
+    window.gtag('event', name, Object.assign({ service: service }, values || {}));
   }
-  function node(value) {
-    return value && value.nodeType === 1 ? value : value && value.parentElement;
+  function asElement(target) {
+    return target && target.nodeType === 1 ? target : target && target.parentElement;
+  }
+  function searchArea(element) {
+    return element.closest('#find, #discover, .directory-search, .directory-filters') ||\n      (element.matches('#filter, #directory-filter') ? element : null);
   }
   document.addEventListener('click', function (event) {
-    var element = node(event.target);
+    var element = asElement(event.target);
     if (!element || typeof element.closest !== 'function') return;
     var link = element.closest('a[href]');
     if (link) {
-      var target;
-      try { target = new URL(link.href, location.href); } catch (_) { return; }
-      if ((target.protocol === 'https:' || target.protocol === 'http:') &&
-          target.hostname !== location.hostname &&
-          !/(^|\.)kosodatemate\.jp$/.test(target.hostname)) {
-        emit('mate_provider_outbound_click', { link_type: 'external_provider_or_source' });
-      }
-      if (link.getAttribute('href') === '#find' || link.getAttribute('href') === '#discover') {
+      var href = link.getAttribute('href') || '';
+      if (href === '#find' || href === '#discover') {
         emit('mate_search_entry_click', { entry_type: 'jump_to_search' });
       }
+      // Only count provider-card outbound actions, never social/legal/footer links.
+      var card = link.closest('#results .result, #cards .card, .provider');
+      if (card) {
+        var target;
+        try { target = new URL(link.href, location.href); } catch (_) { return; }
+        if ((target.protocol === 'http:' || target.protocol === 'https:') &&
+            target.hostname !== location.hostname &&
+            !/(^|\.)kosodatemate\.jp$/.test(target.hostname)) {
+          emit('mate_provider_outbound_click', { link_type: 'provider_card' });
+        }
+      }
     }
-    var searchSection = element.closest('#find, #discover');
-    if (searchSection && element.closest('button')) {
-      emit('mate_search_control_click', { entry_type: 'search_area_button' });
+    if (searchArea(element) && element.closest('button')) {
+      emit('mate_search_control_click', { entry_type: 'search_button' });
+    }
+  }, { passive: true });
+  document.addEventListener('change', function (event) {
+    var input = asElement(event.target);
+    if (!input || !searchArea(input)) return;
+    if (input.matches('input, select')) {
+      // Deliberately omit the input's ID, name, selected option and typed text.
+      emit('mate_search_filter_change', { control_type: input.matches('select') ? 'select' : 'input' });
     }
   }, { passive: true });
   document.addEventListener('submit', function (event) {
-    var form = node(event.target);
-    if (form && form.closest && form.closest('#find, #discover')) {
+    var form = asElement(event.target);
+    if (form && searchArea(form)) {
       emit('mate_search_submit', { entry_type: 'search_form' });
     }
   }, { passive: true });
