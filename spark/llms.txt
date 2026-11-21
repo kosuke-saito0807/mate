@@ -6,6 +6,7 @@
 - [子どもの習い事・教室の公式情報一覧](https://spark.kosodatemate.jp/school-directory.html): プログラミング、英語、音楽、アート、スポーツなど、公式サイトで確認した独立の事業者未承認参考情報をジャンル・地域ごとに探す
 - [教室の無料掲載申請](https://spark.kosodatemate.jp/partners.html): 事業者が直接申請、内容と権限を確認してから掲載判断
 - [習い事の選び方](https://spark.kosodatemate.jp/guide-lessons-choice.html): 選ぶときの確認ポイント
+- [小学生のプログラミング教室の選び方](https://spark.kosodatemate.jp/guide-programming-class-choice.html): Scratch・ロボット・ゲーム制作を体験時の観点から比較
 - [体験レッスンの確認事項](https://spark.kosodatemate.jp/guide-lesson-trial-review.html)
 - [年齢に合う習い事](https://spark.kosodatemate.jp/guide-lesson-age-fit.html)
 - [2歳の習い事は必要？](https://spark.kosodatemate.jp/guide-lessons-age-two.html): 初めての体験で確認したいこと、料金と親子の負担

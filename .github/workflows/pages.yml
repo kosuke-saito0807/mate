@@ -42,6 +42,7 @@ jobs:
           python3 -m unittest discover -s tests -p "test_mate_owner_self_service.py" -v
           python3 -m unittest discover -s tests -p 'test_family_consultation.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_seo.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_nonbrand_guides.py' -v
           python3 -m unittest discover -s tests -p 'test_public_fact_guide.py' -v
           python3 -m unittest discover -s tests -p 'test_care_editorial_directory.py' -v
           python3 -m unittest discover -s tests -p 'test_operator_discoverability.py' -v
