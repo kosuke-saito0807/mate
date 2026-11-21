@@ -28,6 +28,26 @@ class ListingFormFunnelTests(unittest.TestCase):
             for path in ("assets/mate-listing-form-events.js", "spark/assets/mate-listing-form-events.js"):
                 subprocess.run(["node", "--check", str(ROOT / path)], check=True, capture_output=True, text=True)
 
+    def test_listing_previews_are_grounded_and_measured_separately(self):
+        cases = (
+            ("contact.html", 'href="sitter-directory.html"'),
+            ("spark/partners.html", 'href="school-directory.html"'),
+            ("play-listing.html", 'href="https://play.kosodatemate.jp/"'),
+        )
+        for path, destination in cases:
+            with self.subTest(page=path):
+                html = (ROOT / path).read_text(encoding="utf-8")
+                self.assertIn('data-mate-listing-preview="true"', html)
+                self.assertIn(destination, html)
+                self.assertIn("掲載イメージ", html)
+        for tracker in ("assets/mate-listing-form-events.js",
+                        "spark/assets/mate-listing-form-events.js"):
+            source = (ROOT / tracker).read_text(encoding="utf-8")
+            self.assertIn("mate_listing_preview_click", source)
+            self.assertIn("target.closest('a[data-mate-listing-preview=", source)
+            self.assertNotIn("mate_listing_form_success", source)
+            self.assertNotIn("event.target.value", source)
+
     def test_email_consult_click_has_separate_handler(self):
         content = (ROOT / "business.html").read_text(encoding="utf-8")
         self.assertIn("target.closest('a[data-business-contact]')", content)
