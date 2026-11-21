@@ -9,9 +9,9 @@ const HEADERS=['候補ID','取得日時','サービス','事業者名','公式UR
   '業務用メール','窓口URL','確認元URL','メール用途・営業可の根拠','根拠確認日時',
   '重複キー','営業拒否','状態','最終確認結果','備考'];
 const care=[
-  {id:'editorial-a',name:'Aベビーシッター',url:'https://a-sitter.co.jp/',
+  {id:'editorial-aa',name:'Aベビーシッター',url:'https://a-sitter.co.jp/',
     region:'東京都',editorial:true,approved:false},
-  {id:'editorial-b',name:'Bシッター',url:'https://b-sitter.co.jp/',
+  {id:'editorial-bb',name:'Bシッター',url:'https://b-sitter.co.jp/',
     region:'東京都・神奈川県',editorial:true,approved:false},
   {id:'editorial-dup',name:'既存事業者',url:'https://existing.co.jp/new',
     region:'千葉県',editorial:true,approved:false},
