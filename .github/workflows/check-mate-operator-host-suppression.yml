@@ -1,0 +1,28 @@
+name: Validate operator-wide prospect and resend suppression (no send)
+
+on:
+  pull_request:
+    paths:
+      - "scripts/mate_auto_ops_v4.gs"
+      - "scripts/ci/test-operator-host-suppression.mjs"
+      - "scripts/ci/test-editorial-prospects.mjs"
+      - ".github/workflows/mate-gas-sync.yml"
+      - ".github/workflows/check-mate-operator-host-suppression.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify no new email or same-company repeated pitch
+        run: |
+          node --check < scripts/mate_auto_ops_v4.gs
+          node --test scripts/ci/test-editorial-prospects.mjs scripts/ci/test-operator-host-suppression.mjs scripts/ci/mate-mail-throughput.test.mjs scripts/ci/mate-gas-sliced-cycle.test.mjs

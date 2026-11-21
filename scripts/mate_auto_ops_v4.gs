@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-editorial-prospect-source-import'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-operator-host-outreach-suppression'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -285,6 +285,8 @@ function mateV4SeedEditorialProspects(){
   if(props.getProperty('MATE_EDITORIAL_PROSPECT_IMPORT')==='OFF')return 'OFF';
   const book=mateV4Book_(),dest=mateV4Tab_(book,MATE_V4.leads);
   const existing=mateV4Rows_(dest);
+  const pitchedHosts=mateV4PreviouslyPitchedHosts_(
+    mateV4Rows_(mateV4Tab_(book,MATE_V4.sent)));
   const seenHosts=new Set(existing.map(x=>
     x['サービス']+'|'+mateV4Host_(x['公式URL'])).filter(x=>!x.endsWith('|')));
   const compact=name=>String(name||'').normalize('NFKC').toLowerCase()
@@ -298,6 +300,7 @@ function mateV4SeedEditorialProspects(){
   ];
   const maxAppend=50,rows=[],byService={CARE:0,SPARK:0};
   let inspected=0,duplicateHost=0,duplicateName=0,rejected=0,fetchFailures=0;
+  let previouslyContactedHost=0;
   for(const source of sources){
     let records;
     try{
@@ -331,6 +334,9 @@ function mateV4SeedEditorialProspects(){
         mateV4OwnerBlocked_({'事業者名':name,'公式URL':url})){
         rejected++;continue;
       }
+      // The company may have been contacted from a different MATE service
+      // or a different prospect ID. Exclude all such already-pitched hosts.
+      if(pitchedHosts.has(host)){previouslyContactedHost++;continue}
       const hostKey=source.service+'|'+host,nameKey=source.service+'|'+compact(name);
       if(seenHosts.has(hostKey)){duplicateHost++;continue}
       if(seenNames.has(nameKey)){duplicateName++;continue}
@@ -351,7 +357,8 @@ function mateV4SeedEditorialProspects(){
   // Do not claim insertion until the single append succeeds.
   const appended=mateV4BatchAppend_(dest,rows);
   return {inspected,appended,duplicateHost,duplicateName,rejected,
-    fetchFailures,byService,sendApproved:0,source:'MATE_UNAPPROVED_EDITORIAL'};
+    fetchFailures,previouslyContactedHost,byService,sendApproved:0,
+    source:'MATE_UNAPPROVED_EDITORIAL'};
 }
 
 /** Business fit is a rank hint only; never implies solicitation consent. */
@@ -368,6 +375,29 @@ function mateV4FitScore_(x){
  * was sent manually (outside the V4 ledger). On history-read failure, do
  * NOT send. Gmail threads may also contain replies, so check actual sender.
  */
+/**
+ * A sent log reserves the ENTIRE first-party business host across all MATE
+ * services. Matching email alone misses aliases (support@ vs. info@) and
+ * separately generated reference IDs. Conservative: an ambiguous reservation
+ * is treated as already contacted, never retried automatically.
+ *
+ * Use only the evidence URL that the sender persisted BEFORE its send call.
+ * External listing/media URLs are not ownership evidence and must not be used
+ * as generic organization identifiers in new prospect discovery.
+ */
+function mateV4PreviouslyPitchedHosts_(logs){
+  const hosts=new Set();
+  for(const log of logs||[]){
+    const url=String(log['根拠URL']||'').trim();
+    const host=mateV4Host_(url);
+    if(!host)continue;
+    // A public directory or generic third-party platform may host unrelated
+    // operators. Do not suppress every business using that platform.
+    if(/(?:^|\.)(?:kosodatemate\.jp|google\.com|facebook\.com|instagram\.com|youtube\.com|x\.com|tabelog\.com|overturemaps\.org|prtimes\.jp)$/.test(host))continue;
+    hosts.add(host);
+  }
+  return hosts;
+}
 function mateV4HistoricCampaignRecipients_(){
   // Gmail does not offer a scalable full-history search on every hourly run.
   // Legacy (pre-V4) messages live in a fixed cutover window; the append-only
@@ -1041,13 +1071,16 @@ function mateV4AuditOfficialContacts(){
   const sentLogs=mateV4Rows_(mateV4Tab_(b,MATE_V4.sent));
   const sentEmails=new Set(sentLogs.map(x=>mateV4Email_(x['宛先メール'])).filter(Boolean));
   const sentKeys=new Set(sentLogs.map(x=>x['候補キー']).filter(Boolean));
+  const pitchedHosts=mateV4PreviouslyPitchedHosts_(sentLogs);
   const eligibleServices=['CARE','SPARK','PLAY'];
   // Prioritize businesses that have never been attempted. Distribute audit
   // effort across services so a large SPARK backlog cannot starve CARE/PLAY.
   // Treat any send reservation (including ambiguous failures) as attempted.
   const auditPriority=x=>{
     const email=mateV4Email_(x['業務用メール']);
-    const alreadyAttempted=sentKeys.has(x['重複キー'])||(email&&sentEmails.has(email));
+    const alreadyAttempted=sentKeys.has(x['重複キー'])||
+      (email&&sentEmails.has(email))||
+      pitchedHosts.has(mateV4Host_(x['公式URL']));
     if(alreadyAttempted)return 99;
     if(x['営業拒否']==='TRUE'||x['状態']==='配信禁止')return 99;
     if(x['状態']==='営業可能候補'&&
@@ -1547,6 +1580,7 @@ function mateV4SendOutreach(){
   const blocked=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts)).map(x=>x['メール'].toLowerCase()));
   const attempted=new Set(logs.map(x=>x['候補キー']).filter(Boolean));
   const allRecipients=new Set(logs.map(x=>x['宛先メール'].toLowerCase()).filter(Boolean));
+  const pitchedHosts=mateV4PreviouslyPitchedHosts_(logs);
   // Includes past manual MATE sales messages not recorded in V4.
   const manualHistory=mateV4HistoricCampaignRecipients_();
   if(phase==='BALANCED_15'){
@@ -1558,7 +1592,8 @@ function mateV4SendOutreach(){
       if(!['OPT_IN','SOLICITATIONS_WELCOME','PUBLIC_BUSINESS_EMAIL'].includes(x['メール用途・営業可の根拠']))continue;
       if(x['メール用途・営業可の根拠']==='PUBLIC_BUSINESS_EMAIL'&&
         (p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||!mateV4PublicMailOperatorReview_(x)))continue;
-      if(blocked.has(email)||attempted.has(key)||allRecipients.has(email)||manualHistory.has(email))continue;
+      if(blocked.has(email)||attempted.has(key)||allRecipients.has(email)||
+         manualHistory.has(email)||pitchedHosts.has(mateV4Host_(x['公式URL'])))continue;
       perServiceReady[service]++;
     }
     if(Object.keys(perServiceReady).some(service=>perServiceReady[service]<5)){
@@ -1582,7 +1617,9 @@ function mateV4SendOutreach(){
        (p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')!=='YES'||
         !mateV4PublicMailOperatorReview_(x)))continue;
     const email=mateV4Email_(x['業務用メール']);
-    const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||allRecipients.has(email)||manualHistory.has(email))continue;
+    const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||
+      allRecipients.has(email)||manualHistory.has(email)||
+      pitchedHosts.has(mateV4Host_(x['公式URL'])))continue;
     const service=x['サービス'];
     if(!['CARE','SPARK','PLAY'].includes(service)||serviceToday[service]>=perServiceCap)continue;
     const landing=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
@@ -1636,7 +1673,9 @@ function mateV4SendOutreach(){
     // Reserve before external send: ambiguous failures are held, never retried automatically.
     const targetRow=sheet.getLastRow()+1;
     mateV4Append_(sheet,[key,mateV4Jst_(),service,email,subject,'送信結果要確認',x['確認元URL'],x['メール用途・営業可の根拠'],'二重送信防止:実行前に予約']);
-    attempted.add(key);allRecipients.add(email);serviceToday[service]++;
+    attempted.add(key);allRecipients.add(email);
+    pitchedHosts.add(mateV4Host_(x['公式URL']));
+    serviceToday[service]++;
     try{
       // Monitoring BCC is intentionally disabled at the owner's request.
       GmailApp.sendEmail(email,subject,body,{name:sender,replyTo:MATE_V4.account});
