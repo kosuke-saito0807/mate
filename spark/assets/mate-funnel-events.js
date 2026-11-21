@@ -31,6 +31,11 @@
     var link = element.closest('a[href]');
     if (link) {
       var href = link.getAttribute('href') || '';
+      if (link.matches('a[data-mate-owner-claim]')) {
+        // Interest in becoming a verified partner, not an approved listing.
+        // Do not send the public reference ID, user identity or form fields.
+        emit('mate_owner_claim_entry_click', { entry_type: 'editorial_reference' });
+      }
       if (href === '#find' || href === '#discover') {
         emit('mate_search_entry_click', { entry_type: 'jump_to_search' });
       }
