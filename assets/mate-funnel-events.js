@@ -22,7 +22,7 @@
       try { target = new URL(link.href, location.href); } catch (_) { return; }
       if ((target.protocol === 'https:' || target.protocol === 'http:') &&
           target.hostname !== location.hostname &&
-          !/(^|\\.)kosodatemate\\.jp$/.test(target.hostname)) {
+          !/(^|\.)kosodatemate\.jp$/.test(target.hostname)) {
         emit('mate_provider_outbound_click', { link_type: 'external_provider_or_source' });
       }
       if (link.getAttribute('href') === '#find' || link.getAttribute('href') === '#discover') {
