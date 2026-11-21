@@ -15,6 +15,15 @@
     if (typeof window.gtag !== 'function') return;
     window.gtag('event', name, { service: service, funnel: 'listing_application' });
   }
+  document.addEventListener('click', function (event) {
+    var target = event.target && (event.target.nodeType === 1 ? event.target : event.target.parentElement);
+    if (!target || typeof target.closest !== 'function') return;
+    if (target.closest('a[data-mate-listing-preview="true"]')) {
+      // Count curiosity about listing presentation, not a successful application.
+      // No URL, provider identity, recipient token or form values are sent.
+      emit('mate_listing_preview_click');
+    }
+  }, { passive: true });
   form.addEventListener('focusin', function (event) {
     var el = event.target;
     if (started || !(el instanceof Element)) return;
