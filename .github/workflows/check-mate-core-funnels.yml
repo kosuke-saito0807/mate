@@ -1,0 +1,38 @@
+name: Validate MATE growth telemetry and outreach audit (no send)
+
+on:
+  pull_request:
+    paths:
+      - "assets/mate-funnel-events.js"
+      - "spark/assets/mate-funnel-events.js"
+      - "assets/provider-search.js"
+      - "spark/index.html"
+      - "scripts/mate_auto_ops_v4.gs"
+      - "scripts/ci/test-provider-outbound.mjs"
+      - "scripts/ci/test-official-contact-audit.mjs"
+      - "tests/test_mate_funnel_events.py"
+      - "tests/test_mate_v4_official_contact.py"
+      - ".github/workflows/check-mate-core-funnels.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate analytics and public contact audit in isolation
+        run: |
+          node --test scripts/ci/test-provider-outbound.mjs
+          node --test scripts/ci/test-official-contact-audit.mjs
+          python3 -m unittest discover -s tests -p 'test_mate_funnel_events.py' -v
+          python3 -m unittest discover -s tests -p 'test_mate_v4_official_contact.py' -v

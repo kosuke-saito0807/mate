@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-official-contact-audit-evidence'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-official-contact-link-normalization'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -870,7 +870,9 @@ function mateV4ContactLink_(html,baseUrl){
     else if(!/^[a-z]+:/i.test(href)){
       const stripped=baseUrl.replace(/[?#].*$/,'');
       const prefix=stripped.slice(0,stripped.lastIndexOf('/')+1);
-      url=prefix+href;
+      // Apps Script does not offer browser URL normalization; strip harmless
+      // leading ./ segments before fetching same-host public contact links.
+      url=prefix+href.replace(/^(?:\.\/)+/,'');
     }
     url=url.split('#')[0];
     if(!mateV4Https_(url)||!mateV4SameBusinessHost_(url,baseUrl)||
