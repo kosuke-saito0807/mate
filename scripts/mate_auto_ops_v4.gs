@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-hourly-gmail-quota-cooldown'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-listing-preview-backlog-evidence'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1486,6 +1486,9 @@ function mateV4SendOutreach(){
     // Aggregate analytics attribution, with no prospect identity in the URL.
     const link=landing+'?utm_source=mate_outreach&utm_medium=email&utm_campaign=free_listing_'+service.toLowerCase();
     const serviceSite=({CARE:'https://care.kosodatemate.jp/',SPARK:'https://spark.kosodatemate.jp/',PLAY:'https://play.kosodatemate.jp/'})[service];
+    const listingPreview=({CARE:'https://care.kosodatemate.jp/sitter-directory.html',
+      SPARK:'https://spark.kosodatemate.jp/school-directory.html',
+      PLAY:'https://play.kosodatemate.jp/'})[service];
     const serviceOverview=({CARE:'ベビーシッターや訪問保育の事業者をエリアやサービスの特徴から探せる情報サイトです。',SPARK:'子ども向け習い事・教室を探す保護者に、教室情報や特色を届ける情報サイトです。',PLAY:'親子で参加できる体験・ワークショップを探せる情報サイトです。'})[service];
     const subject='【MATE '+service+'】無料掲載のご案内｜'+x['事業者名'].slice(0,70);
     // Production copy follows the approved service-specific template. Never append
@@ -1504,6 +1507,8 @@ function mateV4SendOutreach(){
       '【サイト・掲載イメージ】',
       'MATE '+service+'：'+serviceSite,
       serviceOverview,
+      '掲載イメージ・検索画面：'+listingPreview,
+      '※閲覧用の参考紹介は事業者様の掲載承認・提携・推薦を意味しません。正式掲載は申請者様の権限と内容を別途確認します。',
       'サイト内の事業者カードには、名称・対応エリア・サービスの特徴・公式サイトへのリンク等を掲載する想定です。',
       '公開情報をもとにした参考紹介と、事業者様のご申請・確認を経た正式掲載は区別しています。',
       '',
@@ -1735,6 +1740,7 @@ function diagnoseMateV4Backlog(){
   const attemptedKeys=new Set(attempts.map(x=>x['候補キー']).filter(Boolean));
   const attemptedEmails=new Set(attempts.map(x=>mateV4Email_(x['宛先メール'])).filter(Boolean));
   const categories=['alreadyAttempted','expressRefusalOrOptout','invalidOrMissingEmail',
+    'pendingOfficialAudit','publicEmailReviewHold','refusalNotReviewed',
     'notReadyStatus','expiredEvidence','badSourceEvidence','publicEmailReview',
     'validWithoutGmailHistoryCheck'];
   const make=()=>Object.fromEntries(categories.map(k=>[k,0]));
@@ -1749,8 +1755,10 @@ function diagnoseMateV4Backlog(){
       mateV4OwnerBlocked_(x)||x['営業拒否']==='TRUE'||blocked.has(email)?
       'expressRefusalOrOptout':
       !email?'invalidOrMissingEmail':
-      x['状態']!=='営業可能候補'||x['営業拒否']!=='FALSE'?
-      'notReadyStatus':
+      x['状態']==='窓口確認待ち'?'pendingOfficialAudit':
+      x['状態']==='公式公開メール確認済・送信待機'?'publicEmailReviewHold':
+      x['営業拒否']!=='FALSE'?'refusalNotReviewed':
+      x['状態']!=='営業可能候補'?'notReadyStatus':
       !mateV4Fresh_(x['根拠確認日時'],14)?
       'expiredEvidence':
       !mateV4Https_(x['確認元URL'])||
@@ -1765,7 +1773,10 @@ function diagnoseMateV4Backlog(){
   return {total:leads.length,counts,notes:{
     alreadyAttempted:'includes ambiguous reservations; never auto-retry',
     validWithoutGmailHistoryCheck:'preliminary only, Gmail manual-send history and quota still apply',
-    notReadyStatus:'includes pending official-contact audits and explicit review holds'}};
+    pendingOfficialAudit:'pending first-party official contact verification',
+    publicEmailReviewHold:'published mailbox held for separate legal/evidence review',
+    refusalNotReviewed:'send refusal status not yet confirmed; never infer consent',
+    notReadyStatus:'other non-ready states; not an automatic permission to send'}};
 }
 function diagnoseMateV4Health(){
   const b=mateV4Book_(),p=PropertiesService.getScriptProperties();
@@ -2172,6 +2183,14 @@ function mateV4ProductionHeartbeat_(report){
     interest:interest&&interest.newInterests||0,
     externalApps:kpi&&kpi.actualExternalApplications||0,
     public:kpi&&kpi.actualExternalPublications||0};
+  // Operational bottleneck is often EVIDENCE, not the sending quota.
+  // Persist only per-service category counts, never business names/emails.
+  // These are diagnostic preliminary counts, NOT proof that a message was sent.
+  try{
+    const backlog=diagnoseMateV4Backlog();
+    sheet.getRange(1,12).setValue('営業適格性の内訳（送信可否の予備診断）');
+    sheet.getRange(2,12).setValue(JSON.stringify(backlog.counts));
+  }catch(e){console.log('BACKLOG_DIAGNOSTIC_FAILED '+String(e).slice(0,120))}
   sheet.getRange(2,1,1,11).setValues([[
     mateV4Jst_(),MATE_V4.version,leads.length,
     count.CARE,count.SPARK,count.PLAY,

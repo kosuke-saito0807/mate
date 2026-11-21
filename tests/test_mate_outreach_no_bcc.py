@@ -83,5 +83,30 @@ class OutreachNoBccTests(unittest.TestCase):
         self.assertNotIn("GmailApp.sendEmail(",seed)
 
 
+    def test_first_outreach_explains_public_listing_preview_and_approval_boundary(self):
+        send = SRC.split("function mateV4SendOutreach(){", 1)[1].split(
+            "function diagnoseMateV4Backlog(){", 1)[0]
+        self.assertIn("const listingPreview=", send)
+        for url in ("https://care.kosodatemate.jp/sitter-directory.html",
+                    "https://spark.kosodatemate.jp/school-directory.html",
+                    "https://play.kosodatemate.jp/"):
+            self.assertIn(url, send)
+        self.assertIn("'掲載イメージ・検索画面：'+listingPreview", send)
+        self.assertIn("掲載承認・提携・推薦を意味しません", send)
+        self.assertIn("申請者様の権限と内容を別途確認します", send)
+        for safeguard in ("attempted.add(key)", "blocked.has(email)",
+                          "manualHistory.has(email)", "MailApp.getRemainingDailyQuota()"):
+            self.assertIn(safeguard, send)
+
+    def test_backlog_diagnosis_separates_evidence_from_permission(self):
+        section = SRC.split("function diagnoseMateV4Backlog(){", 1)[1].split(
+            "function diagnoseMateV4Health(){", 1)[0]
+        for status in ("pendingOfficialAudit", "publicEmailReviewHold",
+                       "refusalNotReviewed", "validWithoutGmailHistoryCheck"):
+            self.assertIn(status, section)
+        self.assertIn("never infer consent", section)
+        self.assertNotIn("GmailApp.sendEmail(", section)
+
+
 if __name__ == "__main__":
     unittest.main()
