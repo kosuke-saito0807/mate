@@ -142,7 +142,7 @@ document.getElementById('results').addEventListener('click',event=>{
  if(!/^[A-Za-z0-9_-]{1,80}$/.test(id))return;
  let url;try{url=new URL(link.href,location.href)}catch{return}
  const external=(url.protocol==='https:'||url.protocol==='http:')&&
-  url.hostname!==location.hostname&&!/(^|\\.)kosodatemate\\.jp$/.test(url.hostname);
+  url.hostname!==location.hostname&&!/(^|\.)kosodatemate\.jp$/.test(url.hostname);
  if(external){
   gtag('event','provider_outbound',{service:'CARE',provider_id:id});
   gtag('event','mate_partner_click',{service:'CARE',partner_id:id});
