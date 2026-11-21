@@ -1,6 +1,8 @@
 """Safety regression checks for MATE's privacy-minimizing funnel telemetry."""
 from pathlib import Path
 import unittest
+import shutil
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -12,6 +14,13 @@ class FunnelEventTests(unittest.TestCase):
                 content = (ROOT / html).read_text(encoding="utf-8")
                 self.assertIn('src="assets/mate-funnel-events.js"', content)
                 self.assertTrue((ROOT / html).parent.joinpath("assets/mate-funnel-events.js").is_file())
+
+    def test_js_is_valid_in_node(self):
+        if not shutil.which('node'):
+            self.skipTest('Node.js is not installed')
+        for filename in ('assets/mate-funnel-events.js', 'spark/assets/mate-funnel-events.js'):
+            with self.subTest(filename=filename):
+                subprocess.run(['node', '--check', str(ROOT / filename)], check=True, capture_output=True, text=True)
 
     def test_event_names_and_privacy(self):
         files = [ROOT / "assets/mate-funnel-events.js", ROOT / "spark/assets/mate-funnel-events.js"]
