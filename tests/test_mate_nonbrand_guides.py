@@ -21,9 +21,9 @@ class NonbrandGuideTests(unittest.TestCase):
                 self.assertIn(f'<link rel="canonical" href="{url}">', source)
                 self.assertIn("<h1>", source)
                 self.assertIn("公式", source)
-                match = re.search(r'<script type="application/ld\\+json">(.*?)</script>', source, flags=re.S)
-                self.assertIsNotNone(match, "Article JSON-LD missing")
-                data = json.loads(match.group(1))
+                self.assertIn('<script type="application/ld+json">', source)
+                raw_json = source.split('<script type="application/ld+json">', 1)[1].split('</script>', 1)[0]
+                data = json.loads(raw_json)
                 self.assertEqual(data["@type"], "Article")
                 self.assertEqual(data["mainEntityOfPage"], url)
                 urls = [loc.text for loc in ET.parse(ROOT / sitemap).iter() if loc.tag.endswith("}loc")]
