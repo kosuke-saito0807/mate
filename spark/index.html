@@ -516,7 +516,7 @@ $('cards').addEventListener('click',e=>{
  if(outbound&&typeof window.gtag==='function'&&!demoMode){
   let target;try{target=new URL(outbound.href,location.href)}catch{}
   const external=target&&(target.protocol==='https:'||target.protocol==='http:')&&
-   target.hostname!==location.hostname&&!/(^|\\.)kosodatemate\\.jp$/.test(target.hostname);
+   target.hostname!==location.hostname&&!/(^|\.)kosodatemate\.jp$/.test(target.hostname);
   const card=outbound.closest('[data-school-id]');
   const id=String(card?.dataset.schoolId||'');
   if(external&&/^[A-Za-z0-9_-]{1,80}$/.test(id)){
