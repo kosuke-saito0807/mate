@@ -20,7 +20,7 @@ SITES = {
             "/contact.html": ['data-mate-direct-listing="true"', 'name="service" value="CARE"'],
             "/play-listing.html": ['data-mate-direct-listing="true"', 'name="service" value="PLAY"'],
             "/sitemap.xml": ["https://care.kosodatemate.jp/business.html", "https://care.kosodatemate.jp/sitter-directory.html"],
-            "/sitter-directory.html": ["事業者未承認の参考紹介", "application/ld+json", "id=\"editorial-marypoppins\""],
+            "/sitter-directory.html": ["事業者未承認の参考紹介", "application/ld+json", "id=\"editorial-marypoppins\"", "assets/mate-funnel-events.js"],
             "/": ["sitter-directory.html", "assets/provider-search.js", "assets/mate-funnel-events.js"],
             "/robots.txt": ["Sitemap:"],
             "/assets/mate-funnel-events.js": ["mate_provider_outbound_click", "mate_search_filter_change"],
