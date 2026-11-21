@@ -135,4 +135,19 @@ Promise.allSettled([
  if(approvedResult.status==='rejected'||editorialResult.status==='rejected')status.classList.add('show-error');else status.classList.remove('show-error');
 });
 
-document.getElementById('results').addEventListener('click',event=>{const link=event.target.closest('a[data-provider-id]');if(link&&window.gtag){const id=String(link.dataset.providerId||'');if(/^[A-Za-z0-9_-]{1,80}$/.test(id)){gtag('event','provider_outbound',{service:'CARE',provider_id:id});gtag('event','mate_partner_click',{service:'CARE',partner_id:id})}}});
+document.getElementById('results').addEventListener('click',event=>{
+ const link=event.target.closest('a[data-provider-id]');
+ if(!link||typeof window.gtag!=='function')return;
+ const id=String(link.dataset.providerId||'');
+ if(!/^[A-Za-z0-9_-]{1,80}$/.test(id))return;
+ let url;try{url=new URL(link.href,location.href)}catch{return}
+ const external=(url.protocol==='https:'||url.protocol==='http:')&&
+  url.hostname!==location.hostname&&!/(^|\\.)kosodatemate\\.jp$/.test(url.hostname);
+ if(external){
+  gtag('event','provider_outbound',{service:'CARE',provider_id:id});
+  gtag('event','mate_partner_click',{service:'CARE',partner_id:id});
+ }else if(url.origin===location.origin&&url.pathname.endsWith('/provider.html')){
+  // Internal detail navigation is engagement, not a referral sent to the owner.
+  gtag('event','mate_provider_detail_click',{service:'CARE',provider_id:id});
+ }
+});
