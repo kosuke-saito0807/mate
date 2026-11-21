@@ -13,6 +13,18 @@
     return element.closest('#find, #discover, .directory-search, .directory-filters') ||
       (element.matches('#filter, #directory-filter') ? element : null);
   }
+  function listingReference(card) {
+    // Business identifiers are public, bounded slugs; never emit input values or URLs.
+    if (card.getAttribute('data-mate-demo') === 'true') return null;
+    var id = card.getAttribute('data-school-id') || card.getAttribute('data-editorial-key') || '';
+    if (!id) {
+      var raw = card.getAttribute('id') || '';
+      id = raw.indexOf('listing-') === 0 ? raw.slice(8) : raw;
+    }
+    if (!/^[A-Za-z0-9_-]{2,80}$/.test(id)) return null;
+    return { listing_id: id,
+      listing_type: id.indexOf('editorial-') === 0 ? 'editorial_reference' : 'non_editorial' };
+  }
   document.addEventListener('click', function (event) {
     var element = asElement(event.target);
     if (!element || typeof element.closest !== 'function') return;
@@ -30,7 +42,10 @@
         if ((target.protocol === 'http:' || target.protocol === 'https:') &&
             target.hostname !== location.hostname &&
             !/(^|\.)kosodatemate\.jp$/.test(target.hostname)) {
-          emit('mate_provider_outbound_click', { link_type: 'provider_card' });
+          var ref = listingReference(card);
+          if (ref) emit('mate_provider_outbound_click', Object.assign({ link_type: 'provider_card' }, ref));
+          else if (card.getAttribute('data-mate-demo') !== 'true')
+            emit('mate_provider_outbound_click', { link_type: 'provider_card' });
         }
       }
     }
