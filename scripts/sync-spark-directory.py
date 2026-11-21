@@ -84,7 +84,7 @@ def build() -> int:
                 if src != official else ""
             )
             cards.append(
-                f'<article class="provider" id="{esc(entry["id"])}">'
+                f'<article class="provider" id="{esc(entry["id"])}" data-region="{esc(entry["region"])}">'
                 f'<h3>{esc(entry["name"])}</h3>'
                 f'<p class="meta">{esc(entry["region"])} ・ {esc(category)}</p>'
                 f'<p>{esc(entry["description"])}</p>'
