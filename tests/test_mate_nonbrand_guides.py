@@ -11,6 +11,8 @@ class NonbrandGuideTests(unittest.TestCase):
     CASES = (
         ("guide-sitter-vs-daycare.html", "sitemap.xml", "index.html", "https://care.kosodatemate.jp/guide-sitter-vs-daycare.html"),
         ("spark/guide-programming-class-choice.html", "spark/sitemap.xml", "spark/index.html", "https://spark.kosodatemate.jp/guide-programming-class-choice.html"),
+        ("guide-tokyo-babysitter-choice.html", "sitemap.xml", "index.html", "https://care.kosodatemate.jp/guide-tokyo-babysitter-choice.html"),
+        ("spark/guide-tokyo-kids-classes.html", "spark/sitemap.xml", "spark/index.html", "https://spark.kosodatemate.jp/guide-tokyo-kids-classes.html"),
     )
     def test_guides_have_indexable_source_and_real_navigation(self):
         hub = (ROOT / "guides.html").read_text(encoding="utf-8")
