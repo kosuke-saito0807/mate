@@ -90,6 +90,8 @@ def build() -> int:
                 f'<p>{esc(entry["description"])}</p>'
                 '<p class="source">編集部の参考情報（事業者未承認）</p>'
                 f'<a href="{official}" target="_blank" rel="noopener noreferrer">事業者の公式サイトで確認 ↗</a>{evidence}'
+                f'<p class="directory-owner-claim">この教室のご担当者様ですか？ '
+                f'<a data-mate-owner-claim="SPARK" href="partners.html#claim={esc(entry["id"])}">無料の正式掲載を申請する</a></p>'
                 '</article>'
             )
         groups.append(
