@@ -1,0 +1,45 @@
+name: Validate editorial owner-claim funnel (no submissions)
+
+on:
+  pull_request:
+    paths:
+      - "scripts/sync-care-directory.py"
+      - "scripts/sync-spark-directory.py"
+      - "sitter-directory.html"
+      - "spark/school-directory.html"
+      - "contact.html"
+      - "spark/partners.html"
+      - "assets/mate-reference-claim.js"
+      - "spark/assets/mate-reference-claim.js"
+      - "assets/mate-funnel-events.js"
+      - "spark/assets/mate-funnel-events.js"
+      - "scripts/ci/test-editorial-claim.mjs"
+      - "tests/test_mate_editorial_owner_claim.py"
+      - ".github/workflows/test-editorial-owner-claim.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Generate both public editorial directories
+        run: |
+          python3 scripts/sync-care-directory.py
+          python3 scripts/sync-spark-directory.py
+      - name: Validate owner claim inputs without calling any external service
+        run: |
+          node --check assets/mate-reference-claim.js
+          node --check spark/assets/mate-reference-claim.js
+          node --test scripts/ci/test-editorial-claim.mjs
+          python3 -m unittest discover -s tests -p "test_mate_editorial_owner_claim.py" -v
