@@ -1,0 +1,41 @@
+name: Validate region discovery (read only)
+
+on:
+  pull_request:
+    paths:
+      - "sitter-directory.html"
+      - "spark/school-directory.html"
+      - "scripts/sync-care-directory.py"
+      - "scripts/sync-spark-directory.py"
+      - "editorial-care.json"
+      - "spark/editorial-schools.json"
+      - "assets/mate-directory-region-filter.js"
+      - "spark/assets/mate-directory-region-filter.js"
+      - "guide-tokyo-babysitter-choice.html"
+      - "spark/guide-tokyo-kids-classes.html"
+      - "scripts/ci/test-directory-region-filter.mjs"
+      - "tests/test_mate_directory_region_filter.py"
+      - ".github/workflows/test-directory-region-filter.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check pure browser filtering and source parity without submitting data
+        run: |
+          node --check assets/mate-directory-region-filter.js
+          node --check spark/assets/mate-directory-region-filter.js
+          node --test scripts/ci/test-directory-region-filter.mjs
+          python3 -m unittest discover -s tests -p "test_mate_directory_region_filter.py" -v
