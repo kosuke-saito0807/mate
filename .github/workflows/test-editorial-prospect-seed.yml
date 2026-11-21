@@ -1,0 +1,32 @@
+name: Validate MATE editorial-to-prospect discovery (no send)
+
+on:
+  pull_request:
+    paths:
+      - "scripts/mate_auto_ops_v4.gs"
+      - "editorial-care.json"
+      - "spark/editorial-schools.json"
+      - "scripts/ci/test-editorial-prospects.mjs"
+      - "tests/test_mate_editorial_prospect_seed.py"
+      - ".github/workflows/test-editorial-prospect-seed.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify safe source-only import and no-contact semantics
+        run: |
+          node --test scripts/ci/test-editorial-prospects.mjs
+          python3 -m unittest discover -s tests -p "test_mate_editorial_prospect_seed.py" -v
