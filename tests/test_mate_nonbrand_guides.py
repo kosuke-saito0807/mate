@@ -53,7 +53,7 @@ class NonbrandGuideTests(unittest.TestCase):
                     self.assertEqual(row["region"], "東京都")
                     self.assertIs(row["editorial"], True)
                     self.assertIs(row["approved"], False)
-                self.assertIn("事業者による掲載承認", html) if page.startswith("guide-") else self.assertIn("事業者による掲載承認", html)
+                self.assertIn("事業者による掲載承認", html)
 
 if __name__ == "__main__":
     unittest.main()
