@@ -35,7 +35,7 @@ def main():
                 'alt="{name}の公式サイトトップページ" loading="lazy" decoding="async" onerror="this.hidden=true">'
                 .format(id=e(entry["id"]),name=e(entry["name"]))) if file.is_file() else ""
     cards = "\n".join(
-        ('<article class="provider" id="{id}"><a class="directory-thumb" href="{url}" target="_blank" rel="noopener noreferrer" aria-label="{name}の公式サイトを開く">'
+        ('<article class="provider" id="{id}" data-region="{region}"><a class="directory-thumb" href="{url}" target="_blank" rel="noopener noreferrer" aria-label="{name}の公式サイトを開く">'
         '{image}<span class="directory-thumb-title">{name}</span></a><h2>{name}</h2><p class="meta">{region} ・ {category}</p>'
         '<p>{description}</p><a href="{url}" target="_blank" rel="noopener noreferrer">公式サイトで詳細を見る ↗</a>'
         '<p class="directory-owner-claim">この事業者のご担当者様ですか？ '
