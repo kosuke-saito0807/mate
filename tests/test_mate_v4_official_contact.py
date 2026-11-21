@@ -35,11 +35,18 @@ class OfficialContactAuditTests(unittest.TestCase):
     def test_live_js_has_valid_syntax_and_contact_parser_works(self):
         if not shutil.which("node"):
             self.skipTest("Node.js unavailable")
-        for cmd in (["node", "--check", "scripts/mate_auto_ops_v4.gs"],
-                    ["node", "--test", "scripts/ci/test-official-contact-audit.mjs"]):
-            with self.subTest(command=" ".join(cmd)):
-                proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
-                self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        # Node does not recognize the Apps Script .gs extension when given
+        # as a file. --check on stdin performs the same syntax validation.
+        syntax = subprocess.run(
+            ["node", "--check"], input=CODE, cwd=ROOT,
+            capture_output=True, text=True
+        )
+        self.assertEqual(syntax.returncode, 0, syntax.stdout + syntax.stderr)
+        runtime = subprocess.run(
+            ["node", "--test", "scripts/ci/test-official-contact-audit.mjs"],
+            cwd=ROOT, capture_output=True, text=True
+        )
+        self.assertEqual(runtime.returncode, 0, runtime.stdout + runtime.stderr)
 
 
 if __name__ == "__main__":
