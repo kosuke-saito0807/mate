@@ -1,0 +1,28 @@
+name: PLAY staging publication safety
+on:
+  pull_request:
+    paths:
+      - 'scripts/build_play_staging.py'
+      - 'tests/test_play_staging.py'
+      - '.github/workflows/play-staging-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-play-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Unit tests - approvals and PII exclusions
+        run: python3 -m unittest discover -s tests -p test_play_staging.py -v
+      - name: Refuse test applications and produce empty staging feed
+        run: |
+          mkdir -p staging
+          printf '[{"申請ID":"MATE-WEB-test","サービス":"PLAY","審査状態":"差戻し"}]\n' > /tmp/mate-play-qa.json
+          python3 scripts/build_play_staging.py --input /tmp/mate-play-qa.json --output staging/play-approved.json
+          python3 -c "import json; assert json.load(open('staging/play-approved.json')) == []"
