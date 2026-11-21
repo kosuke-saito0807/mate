@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-official-contact-link-normalization'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-editorial-prospect-source-import'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -271,6 +271,89 @@ function mateV4SeedSectorDirectories(){
   }
   return {total,byService};
 }
+/**
+ * Turn our existing first-party, UNAPPROVED public reference list into
+ * discovery-only sales leads. Public directory inclusion is NOT permission
+ * to contact, approval of a listing or evidence of a business relationship.
+ *
+ * Sources are two literal HTTPS URLs controlled by MATE. No scraping outside
+ * them, no external form interaction, no email sending. Later official-site
+ * audits and the existing sender's legal/suppression gates remain mandatory.
+ */
+function mateV4SeedEditorialProspects(){
+  const props=PropertiesService.getScriptProperties();
+  if(props.getProperty('MATE_EDITORIAL_PROSPECT_IMPORT')==='OFF')return 'OFF';
+  const book=mateV4Book_(),dest=mateV4Tab_(book,MATE_V4.leads);
+  const existing=mateV4Rows_(dest);
+  const seenHosts=new Set(existing.map(x=>
+    x['サービス']+'|'+mateV4Host_(x['公式URL'])).filter(x=>!x.endsWith('|')));
+  const compact=name=>String(name||'').normalize('NFKC').toLowerCase()
+    .replace(/(?:特定非営利活動法人|認定NPO法人|NPO法人|株式会社|合同会社|有限会社|一般社団法人|社会福祉法人)/g,'')
+    .replace(/[\s　・。、．,.:：;；｜|()[\]（）【】]/g,'');
+  const seenNames=new Set(existing.map(x=>x['サービス']+'|'+compact(x['事業者名']))
+    .filter(x=>x.split('|')[1]));
+  const sources=[
+    {service:'CARE',url:'https://care.kosodatemate.jp/editorial-care.json'},
+    {service:'SPARK',url:'https://spark.kosodatemate.jp/editorial-schools.json'}
+  ];
+  const maxAppend=50,rows=[],byService={CARE:0,SPARK:0};
+  let inspected=0,duplicateHost=0,duplicateName=0,rejected=0,fetchFailures=0;
+  for(const source of sources){
+    let records;
+    try{
+      const response=UrlFetchApp.fetch(source.url,{
+        muteHttpExceptions:true,followRedirects:false,timeout:15000,
+        headers:{Accept:'application/json'}
+      });
+      if(response.getResponseCode()!==200)throw Error('SOURCE_HTTP_NOT_200');
+      const json=response.getContentText('UTF-8');
+      if(json.length>240000)throw Error('SOURCE_EXCEEDS_LIMIT');
+      records=JSON.parse(json);
+      if(!Array.isArray(records)||records.length>1000)throw Error('BAD_SOURCE_ARRAY');
+    }catch(err){
+      fetchFailures++;
+      console.log('EDITORIAL_PROSPECT_SOURCE_UNAVAILABLE '+source.service+' '+
+        String(err).slice(0,110));
+      continue;
+    }
+    for(const entry of records){
+      if(rows.length>=maxAppend)break;
+      inspected++;
+      // Import ONLY current, unapproved editorial content already published
+      // on MATE's first-party site; never infer the owner's authorization.
+      if(!entry||entry.editorial!==true||entry.approved!==false||
+        !/^editorial-[a-z0-9_-]{2,80}$/.test(String(entry.id||''))){rejected++;continue}
+      const name=String(entry.name||'').trim(),url=String(entry.url||'').trim();
+      const region=String(entry.region||'').trim(),host=mateV4Host_(url);
+      if(name.length<3||name.length>160||region.length>120||!host||
+        /(?:^|\.)kosodatemate\.jp$/.test(host)||
+        /(?:^|\.)(?:instagram\.com|facebook\.com|line\.me|youtube\.com|x\.com)$/.test(host)||
+        mateV4OwnerBlocked_({'事業者名':name,'公式URL':url})){
+        rejected++;continue;
+      }
+      const hostKey=source.service+'|'+host,nameKey=source.service+'|'+compact(name);
+      if(seenHosts.has(hostKey)){duplicateHost++;continue}
+      if(seenNames.has(nameKey)){duplicateName++;continue}
+      let key;
+      try{key=mateV4Key_(source.service,url,name)}catch(e){rejected++;continue}
+      // This is an UNVERIFIED discovery lead, never a send-ready status.
+      rows.push([
+        'EDITORIAL-'+key,mateV4Jst_(),source.service,name,url,region,
+        '',url,source.url,'UNVERIFIED','',key,'未確認','窓口確認待ち',
+        'MATE公開済み編集部参考紹介から発見。事業者未承認・非提携。'
+        +'業務用公式メール・営業拒否・現在の条件は未確認のため送信不可。',
+        'REFERENCE_ID='+String(entry.id).slice(0,100)
+      ]);
+      seenHosts.add(hostKey);seenNames.add(nameKey);byService[source.service]++;
+    }
+    if(rows.length>=maxAppend)break;
+  }
+  // Do not claim insertion until the single append succeeds.
+  const appended=mateV4BatchAppend_(dest,rows);
+  return {inspected,appended,duplicateHost,duplicateName,rejected,
+    fetchFailures,byService,sendApproved:0,source:'MATE_UNAPPROVED_EDITORIAL'};
+}
+
 /** Business fit is a rank hint only; never implies solicitation consent. */
 function mateV4FitScore_(x){
   const name=String(x['事業者名']||'').toLowerCase();
@@ -2214,6 +2297,12 @@ function mateV4ProductionHeartbeat_(report){
     sheet.getRange(1,13).setValue('今回の公式窓口監査結果（集計・個人情報なし）');
     sheet.getRange(2,13).setValue(JSON.stringify(
       report&&report.publicAudit&&report.publicAudit.outcomes||{}));
+    if(report&&report.editorialProspects!==undefined){
+      sheet.getRange(1,14).setValue('参考紹介から新規営業候補へ（送信未許可）');
+      const added=report.editorialProspects;
+      sheet.getRange(2,14).setValue(JSON.stringify(
+        added&&typeof added==='object'?added:{status:String(added||'NO_RESULT')}));
+    }
   }catch(e){console.log('BACKLOG_DIAGNOSTIC_FAILED '+String(e).slice(0,120))}
   sheet.getRange(2,1,1,11).setValues([[
     mateV4Jst_(),MATE_V4.version,leads.length,
@@ -2307,6 +2396,7 @@ function mateAutoOpsV4Cycle(){
       report.catalogDiscovery=safe('catalogDiscovery',mateV4DiscoverLicensedPublicCsvSources);
     }else if(phaseIndex===1){
       report.generalWebDiscovery=safe('generalWebDiscovery',mateV4DiscoverGeneralWebProspects);
+      report.editorialProspects=safe('editorialProspects',mateV4SeedEditorialProspects);
       report.collected=safe('collected',mateV4CollectLeads);
     }else{
       report.freeOsmDiscovery=safe('freeOsmDiscovery',mateV4DiscoverFreeOsmCandidates);
