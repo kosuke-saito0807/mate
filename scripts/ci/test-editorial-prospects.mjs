@@ -30,10 +30,17 @@ const spark=[
   {id:'editorial-unauth',name:'未確認の外部掲載',url:'https://other-lesson.co.jp',
     region:'全国',editorial:false,approved:false}
 ];
-function environment() {
+function environment({previouslyContacted=false}={}) {
   const rows=[HEADERS,
     ['CRM-abc','2026-11-20','CARE','既存事業者','https://existing.co.jp/','','','','','','','abc','FALSE','営業可能候補','','']
   ];
+  const sentRows=[['候補キー','送信処理日時','サービス','宛先メール','件名',
+    '状態','根拠URL','送信根拠','送信結果の備考']];
+  if(previouslyContacted)sentRows.push([
+    'OLD-SPARK-KEY','2026-11-20','SPARK','info@a-sitter.co.jp',
+    '【MATE SPARK】無料掲載','送信結果要確認',
+    'https://a-sitter.co.jp/contact/', 'PUBLIC_BUSINESS_EMAIL','要照合']);
+  const sentSheet={getDataRange(){return {getDisplayValues(){return sentRows.map(r=>[...r])}}}};
   const fetched=[];
   const sheet={
     getDataRange(){return {getDisplayValues(){return rows.map(r=>[...r])}}},
@@ -47,7 +54,9 @@ function environment() {
   };
   const context=vm.createContext({
     Session:{getEffectiveUser(){return {getEmail(){return 'kosodatemate@gmail.com'}}}},
-    SpreadsheetApp:{openById(){return {getSheetByName(){return sheet}}}},
+    SpreadsheetApp:{openById(){return {getSheetByName(name){
+      return name==='営業送信ログV4'?sentSheet:sheet;
+    }}}},
     PropertiesService:{getScriptProperties(){return {getProperty(){return null}}}},
     Utilities:{
       DigestAlgorithm:{SHA_256:'SHA_256'},
@@ -66,7 +75,7 @@ function environment() {
     console:{log(){}},
   });
   vm.runInContext(source,context,{timeout:2000});
-  return {context,rows,fetched};
+  return {context,rows,fetched,sentRows};
 }
 test('Editorial public references seed only unverified, deduplicated research leads',()=>{
   const e=environment();
@@ -112,4 +121,28 @@ test('No Gmail, approval, publish or billing calls are made in editorial import'
     'publishMate', 'authorizeListing','chargeCard','getRange(2,14)'])
     assert.ok(!fn.includes(unsafe),unsafe);
   assert.ok(fn.includes("source:'MATE_UNAPPROVED_EDITORIAL'"));
+});
+
+test('Sent reservation in a different service prevents re-import of same business domain',()=>{
+  const e=environment({previouslyContacted:true});
+  const r=e.context.mateV4SeedEditorialProspects();
+  assert.equal(r.appended,2);
+  assert.equal(r.byService.CARE,1);
+  assert.equal(r.byService.SPARK,1);
+  assert.equal(r.previouslyContactedHost,1);
+  assert.ok(!e.rows.some(row=>row[3]==='Aベビーシッター'));
+  assert.ok(e.rows.some(row=>row[3]==='Bシッター'));
+});
+test('Previously mailed host classification ignores public aggregator domains',()=>{
+  const e=environment();
+  const got=e.context.mateV4PreviouslyPitchedHosts_([
+    {'根拠URL':'https://www.ayasan.jp/ja','宛先メール':'support@ayasan.jp'},
+    {'根拠URL':'https://docs.google.com/spreadsheets/d/X','宛先メール':'info@somewhere.jp'},
+    {'根拠URL':'https://another-operator.co.jp/contact','宛先メール':'sales@another-operator.co.jp'},
+    {'根拠URL':'http://untrusted.example.com/','宛先メール':'bad@example.com'}
+  ]);
+  assert.equal(got.has('ayasan.jp'),true);
+  assert.equal(got.has('another-operator.co.jp'),true);
+  assert.equal(got.has('docs.google.com'),false);
+  assert.equal(got.has('untrusted.example.com'),false);
 });
