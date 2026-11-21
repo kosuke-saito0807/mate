@@ -47,6 +47,19 @@ class SearchTrustFunnelTests(unittest.TestCase):
         self.assertIn("送客件数は保証しません", html)
         self.assertNotIn("掲載実績多数", html)
 
+    def test_ai_information_guides_do_not_suggest_unauthorized_partnerships(self):
+        pairs = (
+            ("llms.txt", "guide-tokyo-babysitter-choice.html"),
+            ("spark/llms.txt", "guide-tokyo-kids-classes.html"),
+        )
+        for path, guide in pairs:
+            with self.subTest(path=path):
+                text = source(path)
+                self.assertIn("未承認・未提携", text)
+                self.assertIn("正式掲載", text)
+                self.assertIn(guide, text)
+                self.assertLess(text.index(guide), text.index("## 利用上の注意"))
+
     def test_safety_and_user_consent_unchanged(self):
         care = source("index.html")
         spark = source("spark/index.html")
