@@ -1002,6 +1002,9 @@ function mateV4AuditOfficialContacts(){
   const stopped=new Set(mateV4Rows_(mateV4Tab_(b,MATE_V4.optouts))
     .map(x=>x['メール'].toLowerCase()).filter(Boolean));
   let checked=0,eligible=0,discovered=0;
+  const outcomes={officialSiteUnavailable:0,solicitationRefusal:0,
+    noUniquePublishedRoleEmail:0,optoutSuppressed:0,
+    verifiedButReviewHeld:0,readyAfterReview:0,auditException:0};
   // Prioritize new company contact audits without exhausting GAS execution time.
   // The batch can be tuned in private Script Properties (3..16); audit steps
   // remain bounded and cannot bypass opt-out, official-evidence or legal gates.
@@ -1101,16 +1104,20 @@ function mateV4AuditOfficialContacts(){
       const evidence='AUTO_AUDIT '+today+' '+detail+
         (publicPage?' '+publicPage.url:'');
       tab.getRange(x._row,15).setValue(evidence.slice(0,520));
+      if(!valid.length)outcomes.officialSiteUnavailable++;
       if(refused){
+        outcomes.solicitationRefusal++;
         tab.getRange(x._row,13).setValue('TRUE');
         tab.getRange(x._row,14).setValue('配信禁止');
         continue;
       }
       if(!publicPage){
+        if(valid.length&&!refused)outcomes.noUniquePublishedRoleEmail++;
         if(x['状態']==='営業可能候補')tab.getRange(x._row,14).setValue('窓口確認待ち');
         continue;
       }
       if(stopped.has(email)){
+        outcomes.optoutSuppressed++;
         tab.getRange(x._row,13).setValue('TRUE');
         tab.getRange(x._row,14).setValue('配信禁止');
         continue;
@@ -1134,12 +1141,14 @@ function mateV4AuditOfficialContacts(){
         '最終確認結果':evidence.slice(0,520)};
       const accepted=autoException&&mateV4PublicMailOperatorReview_(audited);
       tab.getRange(x._row,14).setValue(accepted?'営業可能候補':'公式公開メール確認済・送信待機');
-      if(accepted)eligible++;
+      if(accepted){eligible++;outcomes.readyAfterReview++}
+      else outcomes.verifiedButReviewHeld++;
     }catch(err){
+      outcomes.auditException++;
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
   }
-  return {checked,eligible,discovered,batchSize,
+  return {checked,eligible,discovered,batchSize,outcomes,
     strategy:'UNCONTACTED_FIRST_ROUND_ROBIN_CARE_SPARK_PLAY'};
 }
 
@@ -2200,6 +2209,9 @@ function mateV4ProductionHeartbeat_(report){
     const backlog=diagnoseMateV4Backlog();
     sheet.getRange(1,12).setValue('営業適格性の内訳（送信可否の予備診断）');
     sheet.getRange(2,12).setValue(JSON.stringify(backlog.counts));
+    sheet.getRange(1,13).setValue('今回の公式窓口監査結果（集計・個人情報なし）');
+    sheet.getRange(2,13).setValue(JSON.stringify(
+      report&&report.publicAudit&&report.publicAudit.outcomes||{}));
   }catch(e){console.log('BACKLOG_DIAGNOSTIC_FAILED '+String(e).slice(0,120))}
   sheet.getRange(2,1,1,11).setValues([[
     mateV4Jst_(),MATE_V4.version,leads.length,
