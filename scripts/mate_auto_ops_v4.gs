@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-listing-preview-backlog-evidence'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-official-contact-audit-evidence'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -849,16 +849,20 @@ function mateV4ContactLink_(html,baseUrl){
   const host=mateV4Host_(baseUrl),root='https://'+host;
   if(!host)return '';
   const pattern=/\bhref\s*=\s*["']([^"']{1,500})["']/gi;
-  let m;
-  while((m=pattern.exec(String(html||'')))){
+  const text=String(html||''),found=new Set();
+  let m,best='',bestScore=-1;
+  // A public "corporate partnerships" contact is usually more relevant
+  // than the first generic consumer support link in the HTML header.
+  // Ranking changes WHICH SAME-HOST PAGE IS READ, never permission to email.
+  while((m=pattern.exec(text))){
     const href=m[1].replace(/&amp;/gi,'&');
-    // Some businesses label a link "お問い合わせ" but use an opaque
-    // path like /form/. This audit only reads first-party pages.
-    const following=String(html||'').slice(pattern.lastIndex,pattern.lastIndex+700);
-    const anchorText=following.split(/<\/a\s*>/i)[0]
+    const following=text.slice(pattern.lastIndex,pattern.lastIndex+700);
+    const label=following.split(/<\/a\s*>/i)[0]
       .replace(/<[^>]*>/g,' ').replace(/&nbsp;/gi,' ');
-    if(!/(?:contact|inquir|toiawase|otoiawase|form|お問い?合わ?せ|%e3%81%8a%e5%95%8f%e3%81%84)/i.test(href)&&
-       !/(?:お問い合わせ|お問合せ|お問い合せ|連絡先|法人窓口|Contact|Inquiry)/i.test(anchorText))continue;
+    const joint=href+' '+label;
+    const contact=/(?:contact|inquir|toiawase|otoiawase|form|お問い?合わ?せ|お問合せ|問合せ|連絡先|ご相談|窓口)/i;
+    const corporate=/(?:partner|partnership|business|b2b|法人|提携|協業|事業者|企業様|取引|媒体|営業窓口)/i;
+    if(!contact.test(joint)&&!corporate.test(joint))continue;
     if(/^(?:mailto:|javascript:|data:|\/\/)/i.test(href))continue;
     let url='';
     if(/^https:\/\//i.test(href))url=href;
@@ -868,9 +872,15 @@ function mateV4ContactLink_(html,baseUrl){
       const prefix=stripped.slice(0,stripped.lastIndexOf('/')+1);
       url=prefix+href;
     }
-    if(mateV4Https_(url)&&mateV4SameBusinessHost_(url,baseUrl)&&url!==baseUrl)return url;
+    url=url.split('#')[0];
+    if(!mateV4Https_(url)||!mateV4SameBusinessHost_(url,baseUrl)||
+       url===baseUrl||found.has(url))continue;
+    found.add(url);
+    const score=(corporate.test(href)?10:0)+(corporate.test(label)?7:0)+
+      (contact.test(href)?4:0)+(contact.test(label)?2:0);
+    if(score>bestScore){best=url;bestScore=score;}
   }
-  return '';
+  return best;
 }
 /** Find an official company/about page as a third audit source.
  * Some operators publish role addresses only on company-information pages.
