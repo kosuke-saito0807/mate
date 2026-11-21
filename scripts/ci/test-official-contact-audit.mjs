@@ -46,7 +46,7 @@ test('public contact parser does not infer sales permission or send email', () =
     script.slice(script.indexOf('function mateV4ContactLink_('),
       script.indexOf('/** Find an official company/about page'))));
   const email = context.mateV4PublishedEmails_(
-    '<a href="mailto:info@example.co.jp">公開会社窓口</a>');
+    '<a href="mailto:info@company-contact.jp">公開会社窓口</a>');
   assert.equal(email.length, 1);
-  assert.equal(email[0], 'info@example.co.jp');
+  assert.equal(email[0], 'info@company-contact.jp');
 });
