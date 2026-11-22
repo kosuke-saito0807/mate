@@ -116,6 +116,32 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
         result = load("/assets/mate-funnel-events.js")
         if result and "mate_provider_outbound_click" not in result[1]:
             failures.append("/assets/mate-funnel-events.js: missing expected event")
+    if service == "CARE":
+        # PLAY's owner application is hosted on CARE. This JSON must be shipped
+        # with the actual Pages artifact, not merely committed to the repo.
+        result = load("/editorial-play.json")
+        if result:
+            try:
+                entries = json.loads(result[1])
+                if not isinstance(entries, list) or not entries:
+                    failures.append("/editorial-play.json: expected non-empty reference list")
+                elif any(
+                    not isinstance(item, dict)
+                    or not isinstance(item.get("id"), str)
+                    or not item["id"].startswith("editorial-")
+                    or item.get("editorial") is not True
+                    or item.get("approved") is not False
+                    or not isinstance(item.get("name"), str)
+                    or not item["name"].strip()
+                    or not isinstance(item.get("url"), str)
+                    or not item["url"].startswith("https://")
+                    for item in entries
+                ):
+                    failures.append("/editorial-play.json: invalid/unapproved-reference contract")
+                elif len({item["id"] for item in entries}) != len(entries):
+                    failures.append("/editorial-play.json: duplicate IDs")
+            except (ValueError, TypeError):
+                failures.append("/editorial-play.json: malformed JSON")
     if service == "SPARK":
         result = load("/schools.json")
         if result and not result[1].lstrip().startswith(("{", "[")):
