@@ -8,9 +8,10 @@ const a=source.indexOf('function mateAutoOpsV4Cycle(){');
 const b=source.indexOf('function installMateAutoOpsV4(){',a);
 assert.ok(a>0&&b>a);
 const fnSource=source.slice(a,b);
-function runCycle(phase,failOptout=false){
- const props={'MATE_V4_WORK_PHASE':String(phase)},invoked=[],log=[];
- const sheet={getRange:()=>({setValue:()=>{}})};
+function runCycle(phase,failOptout=false,cooldown=false,failEditorial=false){
+ const props={'MATE_V4_WORK_PHASE':String(phase)},invoked=[],log=[],statuses=[];
+ if(cooldown)props.MATE_FAST_GMAIL_QUOTA_BLOCKED_JST='2026-11-15';
+ const sheet={getRange:(row,col)=>({setValue:v=>{if(row===2&&col===11)statuses.push(v)}})};
  const keys={
   LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>invoked.push('unlock')})},
   PropertiesService:{getScriptProperties:()=>({getProperty:k=>props[k]||'',
@@ -30,12 +31,13 @@ function runCycle(phase,failOptout=false){
  'mateV4CaptureListingIntent_','mateV4AcknowledgeListingInterests_'];
  for(const name of steps)keys[name]=()=>{invoked.push(name);
    if(failOptout&&name==='mateV4OptoutInbox')throw Error('optout processing failed');
+   if(failEditorial&&name==='mateV4SeedEditorialProspects')throw Error('editorial source failed');
    return 1;
  };
  keys.mateV4ProductionHeartbeat_=report=>({version:'TEST-SLICED',codeRunning:true});
  const fn=new Function(...Object.keys(keys),fnSource+'\nreturn mateAutoOpsV4Cycle;')(...Object.values(keys));
  let result,err;try{result=fn()}catch(e){err=e}
- return {result,err,invoked,props};
+ return {result,err,invoked,props,statuses};
 }
 test('three rotating phases each preserve send guards and report success',()=>{
  for(let phase=0;phase<3;phase++){
@@ -64,4 +66,24 @@ test('each phase includes only its expensive discovery job',()=>{
  assert.equal(z.invoked.includes('mateV4SeedEditorialProspects'),false);
  assert.equal(z.invoked.includes('mateV4DiscoverFreeOsmCandidates'),true);
  assert.equal(z.invoked.includes('mateV4PromoteFreeWebCandidates'),true);
+});
+
+test('Gmail cooldown keeps only bounded editorial discovery and sheet KPI refresh active',()=>{
+ const r=runCycle(1,false,true);
+ assert.equal(r.err,undefined);
+ assert.deepEqual(r.invoked,['mateV4SeedEditorialProspects','mateV4RefreshExternalListingKpi_','unlock']);
+ assert.equal(r.result.outreach,'NOT_ATTEMPTED');
+ assert.equal(r.result.sendOutcome,'NOT_ASSERTED');
+ assert.equal(r.result.editorialProspects,1);
+ assert.equal(r.result.externalListingKpi,1);
+ assert.equal(r.props.MATE_V4_WORK_PHASE,'1');
+ assert.equal(r.statuses.at(-1),'GMAIL_QUOTA_COOLDOWN_NO_GMAIL_CALLS_DISCOVERY_ONLY');
+});
+test('Cooldown discovery failure still refreshes KPI, holds every send and flags partial state',()=>{
+ const r=runCycle(0,false,true,true);
+ assert.equal(r.err,undefined);
+ assert.deepEqual(r.invoked,['mateV4SeedEditorialProspects','mateV4RefreshExternalListingKpi_','unlock']);
+ assert.equal(r.result.editorialProspects.status,'FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE');
+ assert.equal(r.result.outreach,'NOT_ATTEMPTED');
+ assert.equal(r.statuses.at(-1),'GMAIL_QUOTA_COOLDOWN_NO_GMAIL_CALLS_DISCOVERY_PARTIAL');
 });
