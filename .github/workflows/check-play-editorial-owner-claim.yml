@@ -1,0 +1,42 @@
+name: Validate PLAY editorial owner prefill (no submit)
+
+on:
+  pull_request:
+    paths:
+      - "editorial-play.json"
+      - "play-listing.html"
+      - "assets/mate-reference-claim.js"
+      - "scripts/ci/test-play-editorial-owner-claim.mjs"
+      - ".github/workflows/check-play-editorial-owner-claim.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check new first-party owner application helper and data
+        run: |
+          node --check assets/mate-reference-claim.js
+          node --test scripts/ci/test-play-editorial-owner-claim.mjs
+      - name: Verify HTML keeps separate owner consent and direct submission
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('play-listing.html').read_text()
+          assert 'data-mate-claim-notice' in html
+          assert 'assets/mate-reference-claim.js?v=20261122-play' in html
+          assert 'data-mate-direct-listing="true"' in html
+          assert 'name="listing_permission"' in html
+          assert 'name="listing_terms_agree"' in html
+          assert 'name="privacy_agree"' in html
+          assert 'assets/mate-direct-intake.js' in html
+          print('PLAY ownership, terms and privacy remain explicitly opted in')
+          PY
