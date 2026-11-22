@@ -1,5 +1,6 @@
 """Offline regression tests for the public 3-site indexability monitor."""
 import importlib.util
+import json
 from pathlib import Path
 import unittest
 
@@ -33,6 +34,7 @@ class IndexabilityTests(unittest.TestCase):
             "/": html(self.origin + "/"),
             "/sitter-directory.html": html(self.origin + "/sitter-directory.html"),
             "/assets/mate-funnel-events.js": "mate_provider_outbound_click",
+            "/editorial-play.json": json.dumps([{"id":"editorial-sample","name":"Sample","url":"https://example.org/","editorial":True,"approved":False}]),
         }
 
     def evaluate(self):
@@ -64,6 +66,25 @@ class IndexabilityTests(unittest.TestCase):
     def test_missing_sitemap_directory_fails(self):
         self.assets["/sitemap.xml"] = "<urlset><url><loc>" + self.origin + "/</loc></url></urlset>"
         self.assertTrue(any("sitter-directory" in e for e in self.evaluate()["errors"]))
+
+    def test_play_owner_claim_mirror_404_fails(self):
+        self.assets.pop("/editorial-play.json")
+        result = self.evaluate()
+        self.assertFalse(result["passed"])
+        self.assertTrue(any("editorial-play.json" in e for e in result["errors"]))
+
+    def test_play_owner_claim_mirror_rejects_approved_entry(self):
+        self.assets["/editorial-play.json"] = json.dumps([
+            {"id":"editorial-sample","name":"Sample","url":"https://example.org/",
+             "editorial":True,"approved":True}
+        ])
+        result = self.evaluate()
+        self.assertFalse(result["passed"])
+        self.assertTrue(any("unapproved-reference" in e for e in result["errors"]))
+
+    def test_play_owner_claim_mirror_rejects_bad_json(self):
+        self.assets["/editorial-play.json"] = "{"
+        self.assertTrue(any("malformed JSON" in e for e in self.evaluate()["errors"]))
 
     def test_only_production_origins_are_monitored(self):
         self.assertEqual(set(monitor.SITES), {"CARE", "SPARK", "PLAY"})
