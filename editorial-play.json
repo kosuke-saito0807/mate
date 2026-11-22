@@ -1,0 +1,922 @@
+[
+  {
+    "id": "editorial-muumuu",
+    "name": "こども料理造形学舎むーむー",
+    "url": "https://muumuu.jp/",
+    "region": "福岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-arihana",
+    "name": "AriHana Kyoto",
+    "url": "https://arihana-kyoto.com/",
+    "region": "京都府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sorai",
+    "name": "BahnFusion SORAI",
+    "url": "https://www.sorai.shonai.inc/",
+    "region": "山形県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mugenan",
+    "name": "備前焼 夢幻庵",
+    "url": "https://mugenan.co.jp/",
+    "region": "岡山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-casane",
+    "name": "陶芸工房かさね",
+    "url": "https://casanework.com/",
+    "region": "要確認",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-shirokane",
+    "name": "白金陶芸教室",
+    "url": "https://www.sirokanetougei.com/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yukobo",
+    "name": "陶芸教室ゆう工房（出張ワークショップ）",
+    "url": "https://shuttyo-yukobo.jp/",
+    "region": "大阪府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kouhakugama",
+    "name": "こうはく陶芸教室",
+    "url": "https://kouhakugama.com/子ども陶芸体験",
+    "region": "要確認",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tokaido-glass",
+    "name": "東海道GLASS",
+    "url": "https://tokaido.glass",
+    "region": "神奈川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-circolo",
+    "name": "工芸スタジオチルコロ",
+    "url": "https://ceramic-circolo.com/pottery/1day",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-fujino-art",
+    "name": "藤野芸術の家",
+    "url": "https://fujino-art.jp/workshop/",
+    "region": "神奈川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-osaka-craftpark",
+    "name": "大阪市立クラフトパーク",
+    "url": "https://osaka-craftpark.com/",
+    "region": "大阪府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hakone-crafthouse",
+    "name": "箱根クラフトハウス",
+    "url": "https://www.crafthouse-reserve.com/",
+    "region": "神奈川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kasama-crafthills",
+    "name": "笠間工芸の丘",
+    "url": "https://kasama-crafthills.com/",
+    "region": "茨城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sumida-kiriko",
+    "name": "すみだ江戸切子館",
+    "url": "https://edokiriko.net/taiken",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-fresco-glass",
+    "name": "ガラス工房fresco",
+    "url": "https://studio-fresco.com/school_taiken.html",
+    "region": "大阪府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-makers-pier-glass",
+    "name": "Maker's Pier 吹きガラス体験",
+    "url": "https://www.makerspier.com/activities/post-37.html",
+    "region": "愛知県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-glass-tomo",
+    "name": "吹きガラス工房 ぐらすたTOMO",
+    "url": "https://www.kurashiki-tabi.jp/rm_experience/rm-experience234/",
+    "region": "岡山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-chiyono",
+    "name": "陶芸・ガラス教室ちよの",
+    "url": "https://chiyono.net/",
+    "region": "愛知県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-futaba-workshop",
+    "name": "陶芸教室Futaba 出張ワークショップ",
+    "url": "https://www.fu-ta-ba.jp/workshop/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kyoto-handicraft",
+    "name": "京都ハンディクラフトセンター",
+    "url": "https://kyotohandicraftcenter.com",
+    "region": "京都府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kyoto-craftmuseum",
+    "name": "京都伝統産業ミュージアム",
+    "url": "https://kmtc.jp",
+    "region": "京都府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-shuroku",
+    "name": "観光交流センター秀緑 ものづくり体験工房",
+    "url": "https://shuroku.com/koubo",
+    "region": "茨城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yuukitousha",
+    "name": "信楽焼 遊器陶舎",
+    "url": "https://e-yakimono.jp",
+    "region": "滋賀県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ikutouen",
+    "name": "育陶園 やちむん道場",
+    "url": "https://ikutouen.com/yachimun-dojo",
+    "region": "沖縄県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-gunma-kodomo",
+    "name": "ぐんまこどもの国 ふれあい工房",
+    "url": "https://gunma-kodomonokuni.jp/workshop/",
+    "region": "群馬県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kyoto-kizawa",
+    "name": "京都紀澤",
+    "url": "https://kyoto-kizawa.com/enjoy",
+    "region": "京都府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hono-glass",
+    "name": "谷町ガラスHono工房",
+    "url": "https://tanimachi-glass.com",
+    "region": "大阪府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hinodewashi",
+    "name": "ひので和紙",
+    "url": "https://hinodewashi.tokyo",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-obara-washi",
+    "name": "小原和紙のふるさと",
+    "url": "https://washinofurusato.jp/taiken/",
+    "region": "愛知県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-awagami",
+    "name": "アワガミファクトリー",
+    "url": "https://awagami.or.jp/hall/papermaking",
+    "region": "徳島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-inoue-washi",
+    "name": "井上手漉き工房",
+    "url": "https://tosawashi-inoue.net",
+    "region": "高知県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tsukureta",
+    "name": "体験型シェア工房ツクレタ",
+    "url": "https://www.tsukureta.com/",
+    "region": "宮崎県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-giyaman",
+    "name": "ガラス工房ぎやまん",
+    "url": "https://e-giyaman.sakura.ne.jp/",
+    "region": "滋賀県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-otake-washi",
+    "name": "おおたけ手すき和紙の里",
+    "url": "https://otaketesukiwashi.com/kamisuki",
+    "region": "広島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-echizen-washi",
+    "name": "越前和紙の里",
+    "url": "https://www.echizenwashi.jp/",
+    "region": "福井県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-takumishuku",
+    "name": "駿府の工房 匠宿",
+    "url": "https://takumishuku.jp",
+    "region": "静岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sitiemon",
+    "name": "七右エ門窯",
+    "url": "https://sitiemon.com/pottery/",
+    "region": "山形県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-gokayama-washi",
+    "name": "五箇山和紙の里",
+    "url": "https://gokayama-washinosato.com/experience",
+    "region": "富山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hitoyoshi-craft",
+    "name": "人吉クラフトパーク石野公園",
+    "url": "https://h-craftpark.com",
+    "region": "熊本県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sapporo-artcraft",
+    "name": "札幌芸術の森 クラフト工房",
+    "url": "https://artpark.or.jp/shisetsu/craft-kobo/",
+    "region": "北海道",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sample-rm",
+    "name": "食品サンプルR&M",
+    "url": "https://r-and-m.jp/foodsample_experience",
+    "region": "大阪府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sample-kobo",
+    "name": "さんぷる工房",
+    "url": "https://samplekobo.com/experience/dantai",
+    "region": "岐阜県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sample-iwasaki",
+    "name": "サンプルビレッジ・いわさき",
+    "url": "https://iwasakimokei.com",
+    "region": "岐阜県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sample-cafe",
+    "name": "食品サンプル製作体験カフェ",
+    "url": "https://foodsamplecafe.com",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yamato-sample",
+    "name": "大和サンプル製作所",
+    "url": "https://www.yamato-sample.com/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-dakota-pottery",
+    "name": "dakota工房",
+    "url": "https://www.dakota-kobo.com/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-toyama-glass",
+    "name": "富山ガラス工房",
+    "url": "https://toyama-garasukobo.jp",
+    "region": "富山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kahaku",
+    "name": "国立科学博物館",
+    "url": "https://www.kahaku.go.jp/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-osaka-science",
+    "name": "大阪市立科学館",
+    "url": "https://sci-museum.jp/",
+    "region": "大阪府",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-miraikan",
+    "name": "日本科学未来館",
+    "url": "https://www.miraikan.jst.go.jp/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-jsf-museum",
+    "name": "科学技術館",
+    "url": "https://www.jsf.or.jp/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-angelland-fukui",
+    "name": "エンゼルランドふくい",
+    "url": "https://angelland.or.jp/",
+    "region": "福井県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sendai-science",
+    "name": "仙台市科学館",
+    "url": "https://www.kagakukan.sendai-c.ed.jp/",
+    "region": "宮城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kawasaki-science",
+    "name": "かわさき宙と緑の科学館",
+    "url": "https://www.nature-kawasaki.jp/",
+    "region": "神奈川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yunokuni-candle",
+    "name": "加賀伝統工芸村 ゆのくにの森",
+    "url": "https://yunokuninomori.jp/experience/mosaiccandle",
+    "region": "石川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-toyota-science",
+    "name": "とよた科学体験館",
+    "url": "https://toyota-kagakutaikenkan.jp/",
+    "region": "愛知県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kujira-nature",
+    "name": "くじらのもり自然学校",
+    "url": "https://kujiranomori.com/",
+    "region": "千葉県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ganso-sample",
+    "name": "元祖食品サンプル屋",
+    "url": "https://www.ganso-sample.com/experience/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kyuhaku-ajippa",
+    "name": "九州国立博物館 あじっぱ",
+    "url": "https://www.kyuhaku.jp/exhibition/exhibition_info04.html",
+    "region": "福岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-onoda-glass",
+    "name": "きららガラス未来館",
+    "url": "https://onodaglass.jp/",
+    "region": "山口県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-izumo-glass",
+    "name": "ガラス工房Izumo",
+    "url": "https://glass-studio-izumo.com/",
+    "region": "島根県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-karaki-wood",
+    "name": "唐木木工",
+    "url": "https://karakimokkou.com",
+    "region": "埼玉県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hanamaki-toy",
+    "name": "花巻おもちゃ美術館",
+    "url": "https://hanamaki-toymuseum.com",
+    "region": "岩手県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tokyo-toy",
+    "name": "東京おもちゃ美術館",
+    "url": "https://art-play.or.jp/ttm/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-saitama-toy",
+    "name": "埼玉おもちゃ美術館",
+    "url": "https://museum.socialimpact.ed.jp/",
+    "region": "埼玉県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ks-gardenlab",
+    "name": "K's Garden Lab",
+    "url": "https://ichikawa-gardenlab.com/feature/family/",
+    "region": "千葉県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mitake-en",
+    "name": "三岳園",
+    "url": "https://mitake-en.jp",
+    "region": "神奈川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-fruitsland",
+    "name": "フルーツランドきまがせ",
+    "url": "https://fruitsland.jp",
+    "region": "千葉県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-nouiku",
+    "name": "農いく！",
+    "url": "https://nouiku-tokyo.com/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-nagoya-science",
+    "name": "FUJIなごや科学館",
+    "url": "https://www.ncsm.city.nagoya.jp/",
+    "region": "愛知県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yaizu-toy",
+    "name": "焼津おもちゃ美術館",
+    "url": "https://yaizu-kodomokan.com/toymuseum/",
+    "region": "静岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-nagato-toy",
+    "name": "長門おもちゃ美術館",
+    "url": "https://www.nagato-toymuseum.com/",
+    "region": "山口県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-nakatown-toy",
+    "name": "那賀町山のおもちゃ美術館",
+    "url": "https://nakatown-toymuseum.com/",
+    "region": "徳島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-miharashien",
+    "name": "見晴し園",
+    "url": "https://miharashien.com/",
+    "region": "山梨県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-farm-yachiyo",
+    "name": "ファーム八千代",
+    "url": "https://farm-yachiyo.jp/strawberry_picking1/36da51ab-2dd6-4d41-9cad-bbc746f333a6",
+    "region": "茨城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tokushima-toy",
+    "name": "徳島木のおもちゃ美術館",
+    "url": "https://tokushima-toymuseum.com",
+    "region": "徳島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tohoku-washi",
+    "name": "東北工芸ことはじめ",
+    "url": "https://cotohajime.jp/",
+    "region": "宮城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tohoku-turbo",
+    "name": "東北ターボこども科学館",
+    "url": "https://kodomokagakukan.com",
+    "region": "岩手県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hadano-ito",
+    "name": "秦野いとう農園",
+    "url": "https://itofarm.schoolbus.jp/",
+    "region": "神奈川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sharebatake",
+    "name": "シェア畑",
+    "url": "https://www.sharebatake.com/",
+    "region": "全国",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yanbaru-toy",
+    "name": "やんばる森のおもちゃ美術館",
+    "url": "https://art-play.or.jp/ytm/",
+    "region": "沖縄県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mtfuji-toy",
+    "name": "富士山木のおもちゃ美術館",
+    "url": "https://mtfuji-toymuseum.jp/",
+    "region": "静岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hinohara-toy",
+    "name": "檜原 森のおもちゃ美術館",
+    "url": "https://www.hinohara-toymuseum.com/",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-fukuoka-toy",
+    "name": "福岡おもちゃ美術館",
+    "url": "https://art-play.or.jp/ftm/",
+    "region": "福岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-gifu-mokuyukan",
+    "name": "ぎふ木遊館",
+    "url": "https://mokuyukan.pref.gifu.lg.jp/",
+    "region": "岐阜県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-sahara-glass",
+    "name": "サハラガラスパーク",
+    "url": "https://sahara-gp.com/",
+    "region": "岩手県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hakone-dairy",
+    "name": "北海道箱根牧場",
+    "url": "https://hakonebokujo.com/taiken.html",
+    "region": "北海道",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-rindo-lake",
+    "name": "那須高原りんどう湖ファミリー牧場",
+    "url": "https://rindo.co.jp",
+    "region": "栃木県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-watanabe-dairy",
+    "name": "渡辺体験牧場",
+    "url": "https://www.wataiken.co.jp/",
+    "region": "北海道",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-murakami-dairy",
+    "name": "むらかみ牧場",
+    "url": "https://murakami-farm.com/",
+    "region": "北海道",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mother-farm",
+    "name": "マザー牧場",
+    "url": "https://motherfarm.co.jp/animal/event/detail.php?CN=210412",
+    "region": "千葉県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-asutamuland-science",
+    "name": "あすたむらんど徳島 子ども科学館",
+    "url": "https://asutamuland.jp/instits/science-museum/",
+    "region": "徳島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yawaragi-pottery",
+    "name": "出張有田焼絵付体験 やわらぎ",
+    "url": "https://www.yawara-gi.com/course/event/group-travel/",
+    "region": "佐賀県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tochigi-science",
+    "name": "栃木県子ども総合科学館",
+    "url": "https://t-csm.jp/",
+    "region": "栃木県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kagoshima-science",
+    "name": "鹿児島市立科学館",
+    "url": "https://www.k-kagaku.jp/",
+    "region": "鹿児島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hamamatsu-science",
+    "name": "浜松科学館 みらいーら",
+    "url": "https://mirai-ra.jp",
+    "region": "静岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-niigata-science",
+    "name": "新潟県立自然科学館",
+    "url": "https://www.sciencemuseum.jp/",
+    "region": "新潟県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tsukuba-expo",
+    "name": "つくばエキスポセンター",
+    "url": "https://www.expocenter.or.jp/",
+    "region": "茨城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kushiro-yugaku",
+    "name": "釧路市こども遊学館",
+    "url": "https://kodomoyugakukan.jp/",
+    "region": "北海道",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-fukui-dinosaur",
+    "name": "福井県立恐竜博物館",
+    "url": "https://www.dinosaur.pref.fukui.jp/",
+    "region": "福井県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kobe-science",
+    "name": "バンドー神戸青少年科学館",
+    "url": "https://www.kobe-kagakukan.jp/",
+    "region": "兵庫県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kumamoto-museum",
+    "name": "熊本博物館",
+    "url": "https://kumamoto-city-museum.jp/",
+    "region": "熊本県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-okayama-scipia",
+    "name": "人と科学の未来館サイピア",
+    "url": "https://www.sci-pia.pref.okayama.jp/",
+    "region": "岡山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-misawa-aviation",
+    "name": "青森県立三沢航空科学館",
+    "url": "https://kokukagaku.jp/",
+    "region": "青森県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-yamanashi-science",
+    "name": "山梨県立科学館",
+    "url": "https://www.kagakukan.pref.yamanashi.jp/",
+    "region": "山梨県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-toyama-science",
+    "name": "富山市科学博物館",
+    "url": "https://www.tsm.toyama.toyama.jp/",
+    "region": "富山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ibaraki-natural",
+    "name": "ミュージアムパーク 茨城県自然博物館",
+    "url": "https://www.nat.museum.ibk.ed.jp/",
+    "region": "茨城県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-mamanoie-sasebo",
+    "name": "ママの家（mamanoie）",
+    "url": "https://mamanoie.com/",
+    "region": "長崎県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-hanaka-event",
+    "name": "株式会社はなか",
+    "url": "https://hanaka.co.jp/",
+    "region": "静岡県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tsukasa-food-sample",
+    "name": "食品サンプル出張製作体験（司）",
+    "url": "https://www.tsukasa-sample.net/event",
+    "region": "関東・全国出張要相談",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-happy-mama-yyy",
+    "name": "Happy Mama YYy",
+    "url": "https://happy-mama-yyy.com/",
+    "region": "沖縄県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-gyugyutto-happy",
+    "name": "株式会社ぎゅぎゅっとハッピー",
+    "url": "https://gyugyuttohappy.com/",
+    "region": "東京都・全国出張",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-chatoy-workshop",
+    "name": "ChatoY（チャトイ）",
+    "url": "https://www.chatoy.net/view/page/event",
+    "region": "各地のイベント・出張開催",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-ennoshita-materials-2026",
+    "name": "こども素材センター／えんのした",
+    "url": "https://www.ennoshita.net/services",
+    "region": "東京都",
+    "editorial": true,
+    "approved": false
+  }
+]
