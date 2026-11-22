@@ -12,8 +12,9 @@
   if (!form || !notice) return;
   var serviceField = form.querySelector('input[name="service"]');
   var service = serviceField && serviceField.value;
-  if (service !== 'CARE' && service !== 'SPARK') return;
-  var source = service === 'CARE' ? 'editorial-care.json' : 'editorial-schools.json';
+  if (service !== 'CARE' && service !== 'SPARK' && service !== 'PLAY') return;
+  var source = service === 'CARE' ? 'editorial-care.json' :
+    service === 'SPARK' ? 'editorial-schools.json' : 'editorial-play.json';
   // Relative same-origin URL; do not contact the provider or an outside party.
   window.fetch(source, { cache: 'no-store', credentials: 'same-origin' })
     .then(function (response) {
