@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const root=new URL('../',import.meta.url);
+const root=new URL('../../',import.meta.url);
 const script=fs.readFileSync(new URL('assets/mate-reference-claim.js',root),'utf8');
 const records=JSON.parse(fs.readFileSync(new URL('editorial-play.json',root),'utf8'));
 function simulate({hash='#claim=editorial-muumuu',service='PLAY',preEdited=false,approved=false}={}){
