@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-21-operator-host-outreach-suppression'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-22-play-editorial-prospect-intake'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -296,9 +296,10 @@ function mateV4SeedEditorialProspects(){
     .filter(x=>x.split('|')[1]));
   const sources=[
     {service:'CARE',url:'https://care.kosodatemate.jp/editorial-care.json'},
-    {service:'SPARK',url:'https://spark.kosodatemate.jp/editorial-schools.json'}
+    {service:'SPARK',url:'https://spark.kosodatemate.jp/editorial-schools.json'},
+    {service:'PLAY',url:'https://play.kosodatemate.jp/data/editorial-experiences.json'}
   ];
-  const maxAppend=50,rows=[],byService={CARE:0,SPARK:0};
+  const maxAppend=50,rows=[],byService={CARE:0,SPARK:0,PLAY:0};
   let inspected=0,duplicateHost=0,duplicateName=0,rejected=0,fetchFailures=0;
   let previouslyContactedHost=0;
   for(const source of sources){

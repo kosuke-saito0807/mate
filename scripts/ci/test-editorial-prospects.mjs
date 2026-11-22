@@ -30,6 +30,16 @@ const spark=[
   {id:'editorial-unauth',name:'未確認の外部掲載',url:'https://other-lesson.co.jp',
     region:'全国',editorial:false,approved:false}
 ];
+const play=[
+  {id:'editorial-play-aa',name:'親子木工体験',url:'https://woodcraft.example.jp/',
+    region:'東京都',editorial:true,approved:false},
+  {id:'editorial-play-bb',name:'自然教室',url:'https://nature-class.example.jp/',
+    region:'神奈川県',editorial:true,approved:false},
+  {id:'editorial-play-dup',name:'親子木工教室',url:'https://woodcraft.example.jp/classes',
+    region:'東京都',editorial:true,approved:false},
+  {id:'editorial-play-confirmed',name:'正式申請済み体験',url:'https://approved.example.jp/',
+    region:'東京都',editorial:true,approved:true}
+];
 function environment({previouslyContacted=false}={}) {
   const rows=[HEADERS,
     ['CRM-abc','2026-11-20','CARE','既存事業者','https://existing.co.jp/','','','','','','','abc','FALSE','営業可能候補','','']
@@ -68,7 +78,8 @@ function environment({previouslyContacted=false}={}) {
       fetched.push({url,opts});
       const content=url==='https://care.kosodatemate.jp/editorial-care.json'?
         JSON.stringify(care):url==='https://spark.kosodatemate.jp/editorial-schools.json'?
-        JSON.stringify(spark):null;
+        JSON.stringify(spark):url==='https://play.kosodatemate.jp/data/editorial-experiences.json'?
+        JSON.stringify(play):null;
       assert.ok(content,'no untrusted remote fetch');
       return{getResponseCode(){return 200},getContentText(){return content}};
     }},
@@ -80,11 +91,12 @@ function environment({previouslyContacted=false}={}) {
 test('Editorial public references seed only unverified, deduplicated research leads',()=>{
   const e=environment();
   const result=e.context.mateV4SeedEditorialProspects();
-  assert.equal(result.appended,3);
+  assert.equal(result.appended,5);
+  assert.equal(result.byService.PLAY,2);
   assert.equal(result.byService.CARE,2);
   assert.equal(result.byService.SPARK,1);
   assert.equal(result.sendApproved,0);
-  assert.equal(result.duplicateHost,1);
+  assert.equal(result.duplicateHost,2);
   assert.equal(result.duplicateName,1);
   const added=e.rows.slice(2);
   for(const r of added){
@@ -99,9 +111,9 @@ test('Editorial public references seed only unverified, deduplicated research le
   assert.ok(added.some(r=>r[3]==='Bシッター' && r[5]==='東京都・神奈川県'));
   assert.ok(!added.some(r=>r[3]==='CodeCampKIDS'));
   assert.ok(!added.some(r=>r[3]==='承認済み'));
-  assert.equal(e.fetched.length,2);
+  assert.equal(e.fetched.length,3);
   for(const x of e.fetched){
-    assert.match(x.url,/^https:\/\/(?:care|spark)\.kosodatemate\.jp\/editorial-(?:care|schools)\.json$/);
+    assert.match(x.url,/^https:\/\/(?:(?:care|spark)\.kosodatemate\.jp\/editorial-(?:care|schools)\.json|play\.kosodatemate\.jp\/data\/editorial-experiences\.json)$/);
     assert.equal(x.opts.followRedirects,false);
   }
 });
@@ -110,7 +122,7 @@ test('Repeat import is idempotent; duplicate emails are never synthesized',()=>{
   const first=e.context.mateV4SeedEditorialProspects();
   const count=e.rows.length;
   const second=e.context.mateV4SeedEditorialProspects();
-  assert.equal(first.appended,3);
+  assert.equal(first.appended,5);
   assert.equal(second.appended,0);
   assert.equal(e.rows.length,count);
 });
@@ -126,7 +138,8 @@ test('No Gmail, approval, publish or billing calls are made in editorial import'
 test('Sent reservation in a different service prevents re-import of same business domain',()=>{
   const e=environment({previouslyContacted:true});
   const r=e.context.mateV4SeedEditorialProspects();
-  assert.equal(r.appended,2);
+  assert.equal(r.appended,4);
+  assert.equal(r.byService.PLAY,2);
   assert.equal(r.byService.CARE,1);
   assert.equal(r.byService.SPARK,1);
   assert.equal(r.previouslyContactedHost,1);

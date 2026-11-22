@@ -25,6 +25,7 @@ class EditorialProspectSeedTest(unittest.TestCase):
             "/** Business fit is a rank hint",1)[0]
         self.assertIn("https://care.kosodatemate.jp/editorial-care.json",fn)
         self.assertIn("https://spark.kosodatemate.jp/editorial-schools.json",fn)
+        self.assertIn("https://play.kosodatemate.jp/data/editorial-experiences.json",fn)
         self.assertIn("entry.editorial!==true||entry.approved!==false",fn)
         self.assertIn("'UNVERIFIED'",fn)
         self.assertIn("'未確認','窓口確認待ち'",fn)
