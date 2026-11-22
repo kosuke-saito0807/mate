@@ -27,8 +27,9 @@ function simulate({hash='#claim=editorial-muumuu',service='PLAY',preEdited=false
   vm.runInNewContext(script,{window,document,URL,console},{timeout:1000});
   return new Promise(resolve=>setImmediate(()=>resolve({company,site,notice,events,requests})));
 }
-test('PLAY public references contain 115 explicitly unapproved entries with safe identifiers',()=>{
-  assert.equal(records.length,115);
+test('PLAY public references grow without duplicates and stay explicitly unapproved',()=>{
+  assert.ok(records.length>=115);
+  assert.equal(new Set(records.map(r=>r.id)).size,records.length);
   for(const x of records){
     assert.match(x.id,/^editorial-[a-z0-9_-]{2,80}$/);
     assert.equal(x.editorial,true);
