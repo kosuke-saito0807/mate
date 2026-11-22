@@ -982,5 +982,93 @@
     "region": "大分県",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-odate-kogeisha",
+    "name": "大館工芸社 ハンディクラフトスタジオ",
+    "url": "https://magewappa.co.jp/pages/studio",
+    "region": "秋田県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-shibata-wappa",
+    "name": "柴田慶信商店 わっぱビルヂング",
+    "url": "https://wappa-building.com/shop/",
+    "region": "秋田県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-akita-furusatomura",
+    "name": "秋田ふるさと村",
+    "url": "https://akitafurusatomura.co.jp/",
+    "region": "秋田県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-aizu-bansho",
+    "name": "手作り体験ひろば 番匠",
+    "url": "https://akabekotaiken.com/",
+    "region": "福島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-aizu-bukeyashiki",
+    "name": "会津武家屋敷",
+    "url": "https://bukeyashiki.com/guide/experience",
+    "region": "福島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-inawashiro-world-glass",
+    "name": "猪苗代湖 世界のガラス館",
+    "url": "https://www.world-glassware.com/info.html",
+    "region": "福島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-koriyama-spacepark",
+    "name": "郡山市ふれあい科学館 スペースパーク",
+    "url": "https://space-park.jp/contents/",
+    "region": "福島県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-asahi-craft",
+    "name": "朝日村クラフト体験館",
+    "url": "https://www.vill.asahi.nagano.jp/official/soshikikarasagasu/sangyoshinkoka/shoko_kanko/1/1/422.html",
+    "region": "長野県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-azumino-asobikokoro",
+    "name": "ガラス体験 遊び心",
+    "url": "https://asobikokoro.com/",
+    "region": "長野県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-azumino-glass",
+    "name": "あづみ野ガラス工房",
+    "url": "https://azumino-glass.com/workshop.html",
+    "region": "長野県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-suwa-garasu",
+    "name": "SUWAガラスの里",
+    "url": "https://www.garasunosato.com/info/",
+    "region": "長野県",
+    "editorial": true,
+    "approved": false
   }
 ]
