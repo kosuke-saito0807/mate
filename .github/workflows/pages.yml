@@ -80,7 +80,10 @@ jobs:
         run: |
           mkdir -p _site
           cp *.html data.json robots.txt sitemap.xml llms.txt favicon.svg favicon.ico _site/
-          cp editorial-care.json _site/
+          # Both CARE and PLAY owner-claim hints read approved=false public data
+          # through a first-party URL. Missing PLAY JSON breaks safe prefill.
+          cp editorial-care.json editorial-play.json _site/
+          python3 -m json.tool editorial-play.json >/dev/null
           # IndexNow requires the generated verification key at the real host root.
           for keyfile in [0-9a-f]*.txt; do
             if [ -f "$keyfile" ]; then cp "$keyfile" _site/; fi
