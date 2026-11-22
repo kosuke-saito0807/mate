@@ -918,5 +918,69 @@
     "region": "東京都",
     "editorial": true,
     "approved": false
+  },
+  {
+    "id": "editorial-iga-kumihimo",
+    "name": "伊賀くみひもセンター 組匠の里",
+    "url": "https://www.kumihimo.or.jp/",
+    "region": "三重県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-doraneco-koubou",
+    "name": "土楽猫工房",
+    "url": "https://www.doraneco-koubou.com/",
+    "region": "奈良県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-kishu-uruwashi",
+    "name": "紀州漆器伝統産業会館 うるわし館",
+    "url": "https://www.kishusikki.com/03_kaikan.html",
+    "region": "和歌山県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-akagawara-pottery",
+    "name": "赤瓦十一号館 陶芸館",
+    "url": "https://akagawara.net/akagawara/11/",
+    "region": "鳥取県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-nakano-udon-kotohira",
+    "name": "中野うどん学校 琴平校",
+    "url": "https://www.nakanoya.net/nakanoudon/",
+    "region": "香川県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tobe-togeikan",
+    "name": "砥部焼陶芸館",
+    "url": "https://www.togeikan.com/trial_class.html",
+    "region": "愛媛県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-tobe-honosato",
+    "name": "砥部焼観光センター 炎の里",
+    "url": "https://tobeyaki.co.jp/experience",
+    "region": "愛媛県",
+    "editorial": true,
+    "approved": false
+  },
+  {
+    "id": "editorial-beppu-bamboo",
+    "name": "別府市竹細工伝統産業会館",
+    "url": "https://takezaikudensankaikan.jp/pages/25/",
+    "region": "大分県",
+    "editorial": true,
+    "approved": false
   }
 ]
