@@ -1,6 +1,6 @@
 {
   "editorial-akamon-mammy": {
-    "at": 1795183742,
+    "at": 1795310661,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://akamon-mammy.com/\", waiting until \"commit\"\n"
   },
   "editorial-combismile": {
@@ -8,7 +8,7 @@
     "reason": "Empty screenshot"
   },
   "editorial-josanshes": {
-    "at": 1795175807,
+    "at": 1795310661,
     "reason": "Empty screenshot"
   },
   "editorial-kidsline": {
@@ -19,12 +19,8 @@
     "at": 1794915995,
     "reason": "HTTP 403"
   },
-  "editorial-ouchi-wacca": {
-    "at": 1795183742,
-    "reason": "Empty screenshot"
-  },
   "editorial-parmo-sapporo": {
-    "at": 1795182053,
+    "at": 1795310661,
     "reason": "Empty screenshot"
   }
 }
