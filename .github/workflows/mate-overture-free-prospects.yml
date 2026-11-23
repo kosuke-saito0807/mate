@@ -5,12 +5,16 @@ on:
     paths:
       - scripts/collect_overture_growth.py
       - scripts/ci/test_collect_overture_growth.py
+      - scripts/enrich_overture_contacts.py
+      - scripts/ci/test_enrich_overture_contacts.py
       - .github/workflows/mate-overture-free-prospects.yml
   push:
     branches: [main]
     paths:
       - scripts/collect_overture_growth.py
       - scripts/ci/test_collect_overture_growth.py
+      - scripts/enrich_overture_contacts.py
+      - scripts/ci/test_enrich_overture_contacts.py
       - .github/workflows/mate-overture-free-prospects.yml
   workflow_dispatch:
   schedule:
@@ -34,7 +38,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify nationwide rotation, candidate safety and duplicate exclusions
-        run: python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+        run: |
+          python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+          python -m unittest discover -s scripts/ci -p test_enrich_overture_contacts.py -v
 
   find-leads:
     permissions:
@@ -56,7 +62,9 @@ jobs:
           python-version: '3.12'
 
       - name: Check local tests without network
-        run: python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+        run: |
+          python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+          python -m unittest discover -s scripts/ci -p test_enrich_overture_contacts.py -v
 
       - name: Install open-data extract tool
         run: python -m pip install --disable-pip-version-check overturemaps
@@ -64,17 +72,25 @@ jobs:
       - name: Download two bounded city tiles and update full and rolling review-only candidate feeds
         run: python scripts/collect_overture_growth.py
 
+      - name: Find official first-party contact pages for at most four unverified prospects (READ-ONLY)
+        run: python scripts/enrich_overture_contacts.py --limit 4
+
       - name: Check that CSV has no email addresses or send authorizations
         shell: bash
         run: |
           python - <<'PY'
           import csv
+          from urllib.parse import urlsplit
           for csv_path in ('data/mate_overture_discovery.csv', 'data/mate_overture_recent.csv'):
             with open(csv_path, encoding='utf-8') as handle:
               for row in csv.DictReader(handle):
-                  assert not row['email'] and not row['contact_url']
+                  assert not row['email']
                   assert row['mail_basis'] == 'UNVERIFIED'
                   assert row['source_url'] == 'https://docs.overturemaps.org/guides/places/'
+                  if row['contact_url']:
+                      source=urlsplit(row['website']); target=urlsplit(row['contact_url'])
+                      assert target.scheme == 'https' and source.hostname == target.hostname
+                      assert not target.query and not target.fragment and not target.username and not target.password
           PY
 
       - name: Persist only new open-data prospects
