@@ -22,6 +22,7 @@
 ## 関連サービス
 - [MATE CARE](https://care.kosodatemate.jp/): シッター・訪問保育
 - [MATE PLAY](https://play.kosodatemate.jp/): 親子体験
+- [MATE PLAY 全国の親子体験公式情報参考一覧](https://play.kosodatemate.jp/experiences): 単発の親子体験・ワークショップを地域・ジャンルから探せる事業者未承認参考紹介。対象年齢・料金・開催日は主催者公式サイトで確認
 
 ## 利用上の注意
 教室の募集状況、料金、体験参加条件は各教室の最新の公式情報で確認してください。掲載申請は自動承認ではありません。

@@ -31,6 +31,10 @@
     var link = element.closest('a[href]');
     if (link) {
       var href = link.getAttribute('href') || '';
+      // Aggregate cross-service discovery only; fixed destination, no URL or identity.
+      if (href === 'https://play.kosodatemate.jp/experiences') {
+        emit('mate_cross_service_click', { target_service: 'PLAY', destination_type: 'editorial_directory' });
+      }
       if (link.getAttribute('data-mate-owner-claim')) {
         // Interest in becoming a verified partner, not an approved listing.
         // Do not send the public reference ID, user identity or form fields.
