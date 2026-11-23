@@ -120,6 +120,10 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
                     failures.append("/experiences: owner-claim links missing")
                 if "公式情報を確認する" not in body:
                     failures.append("/experiences: original official-source links missing")
+                if 'data-mate-directory-event="official"' not in body or 'data-mate-directory-event="listing"' not in body:
+                    failures.append("/experiences: anonymous conversion event markers missing")
+                if '<script src="/play-directory-analytics.js" defer></script>' not in body:
+                    failures.append("/experiences: first-party anonymous event script not loaded")
     if service in ("CARE", "SPARK"):
         result = load("/assets/mate-funnel-events.js")
         if result and "mate_provider_outbound_click" not in result[1]:
@@ -176,6 +180,22 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
             )
             if not all(marker in script[1] for marker in required_script):
                 failures.append("/assets/mate-reference-claim.js: owner-claim prefill contract missing")
+    if service == "PLAY":
+        # Static HTML must use the existing same-origin GA4 bridge without sending
+        # provider IDs, URLs, query strings, referrers or visitor form values.
+        metrics = load("/play-directory-analytics.js")
+        if metrics:
+            markers = (
+                "MATE_PLAY_METRIC", "MATE_PLAY_ANALYTICS_READY",
+                "route: '/experiences'", "metric('page_view')",
+                "metric('play_outbound_click')", "metric('mate_listing_click')",
+                "referrer: '', campaign: '', partner_id: ''",
+            )
+            if any(marker not in metrics[1] for marker in markers):
+                failures.append("/play-directory-analytics.js: anonymous event contract missing")
+        bridge = load("/play-analytics-bridge.js")
+        if bridge and "'/experiences'" not in bridge[1]:
+            failures.append("/play-analytics-bridge.js: static directory route excluded")
     if service == "SPARK":
         result = load("/schools.json")
         if result and not result[1].lstrip().startswith(("{", "[")):
