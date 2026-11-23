@@ -9,6 +9,7 @@ on:
     types: [completed]
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -106,6 +107,27 @@ jobs:
         with:
           name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: "_site"
+      # GitHub's run-artifact listing can lag briefly after the upload action
+      # reports success. Deploy immediately after upload has failed with a
+      # spurious "Found 0 artifact(s)" even though the artifact exists.
+      - name: Wait for Pages artifact visibility (read-only)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          artifact="github-pages-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          for attempt in $(seq 1 12); do
+            names="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[].name' 2>/dev/null || true)"
+            if printf '%s\n' "$names" | grep -Fxq "$artifact"; then
+              echo "Pages artifact available: $artifact"
+              exit 0
+            fi
+            echo "Waiting for GitHub artifact metadata to be indexed ($attempt/12)"
+            sleep 5
+          done
+          echo "::error::Pages artifact unavailable after upload; deployment withheld" >&2
+          exit 1
       - id: deployment
         uses: actions/deploy-pages@v4
         with:
