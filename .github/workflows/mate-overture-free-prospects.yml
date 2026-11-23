@@ -62,7 +62,9 @@ jobs:
           python-version: '3.12'
 
       - name: Check local tests without network
-        run: python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+        run: |
+          python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+          python -m unittest discover -s scripts/ci -p test_enrich_overture_contacts.py -v
 
       - name: Install open-data extract tool
         run: python -m pip install --disable-pip-version-check overturemaps
@@ -82,7 +84,7 @@ jobs:
           for csv_path in ('data/mate_overture_discovery.csv', 'data/mate_overture_recent.csv'):
             with open(csv_path, encoding='utf-8') as handle:
               for row in csv.DictReader(handle):
-                  assert not row['email'] and not row['contact_url']
+                  assert not row['email']
                   assert row['mail_basis'] == 'UNVERIFIED'
                   assert row['source_url'] == 'https://docs.overturemaps.org/guides/places/'
                   if row['contact_url']:
