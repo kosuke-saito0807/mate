@@ -60,6 +60,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_mate_listing_form_events.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_live_release_contract.py' -v
           python3 -m unittest discover -s tests -p 'test_three_site_indexability.py' -v
+          python3 -m unittest discover -s tests -p 'test_pages_artifact_visibility.py' -v
           python3 -m unittest discover -s tests -p 'test_mate_social.py' -v
           python3 -m unittest discover -s tests -p 'test_play_public_link_cutover.py' -v
           python3 -m unittest discover -s tests -p 'test_discoverability_ux.py' -v
