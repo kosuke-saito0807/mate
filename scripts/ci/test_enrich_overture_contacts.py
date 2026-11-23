@@ -78,7 +78,7 @@ class ContactDiscoverySafety(unittest.TestCase):
             requests.append(path)
             if path == "/robots.txt":
                 return 404, "text/plain", b""
-            return 301, "text/html", b'<a href="/contact">お問い合わせ</a>'
+            return 301, "text/html", '<a href="/contact">お問い合わせ</a>'.encode("utf-8")
         with patch.object(MOD, "public_address", return_value="8.8.8.8"), \
              patch.object(MOD, "request_pinned", side_effect=fake_get):
             self.assertEqual(MOD.read_official_contact_url("https://studio.jp/"), "")
