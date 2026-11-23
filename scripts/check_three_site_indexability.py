@@ -18,7 +18,7 @@ from xml.etree import ElementTree as ET
 SITES = {
     "CARE": ("https://care.kosodatemate.jp", ("/", "/sitter-directory.html", "/play-listing.html")),
     "SPARK": ("https://spark.kosodatemate.jp", ("/", "/school-directory.html")),
-    "PLAY": ("https://play.kosodatemate.jp", ("/", "/partners", "/contact", "/operator/")),
+    "PLAY": ("https://play.kosodatemate.jp", ("/", "/partners", "/contact", "/operator/", "/experiences")),
 }
 UA = "MATE-Public-Indexability-Monitor/1.0"
 
@@ -112,6 +112,14 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
         if result:
             headers, body = result
             failures.extend(f"{path}: {error}" for error in html_metadata_errors(url, headers, body))
+            if service == "PLAY" and path == "/experiences":
+                # Real, indexable public HTML -- not a JavaScript-only SPA fallback.
+                if "未承認参考紹介" not in body or "<h3" not in body:
+                    failures.append("/experiences: reference listings missing from delivered HTML")
+                if "play-listing.html#claim=editorial-" not in body:
+                    failures.append("/experiences: owner-claim links missing")
+                if "公式情報を確認する" not in body:
+                    failures.append("/experiences: original official-source links missing")
     if service in ("CARE", "SPARK"):
         result = load("/assets/mate-funnel-events.js")
         if result and "mate_provider_outbound_click" not in result[1]:
