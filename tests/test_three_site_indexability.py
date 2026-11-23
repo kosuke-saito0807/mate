@@ -114,6 +114,39 @@ class IndexabilityTests(unittest.TestCase):
         self.assets["/assets/mate-reference-claim.js"] = "function noop() {}"
         self.assertTrue(any("prefill contract missing" in e for e in self.evaluate()["errors"]))
 
+    def test_play_crawlable_directory_and_claim_links(self):
+        origin = "https://play.kosodatemate.jp"
+        pages = monitor.SITES["PLAY"][1]
+        self.assertIn("/experiences", pages)
+        data = {
+            "/robots.txt": "User-agent: *\\nAllow: /\\nSitemap: " + origin + "/sitemap.xml\\n",
+            "/sitemap.xml": "<urlset>" + "".join(
+                "<url><loc>" + origin + p + "</loc></url>" for p in pages
+            ) + "</urlset>",
+        }
+        for p in pages:
+            data[p] = html(origin + p)
+        data["/experiences"] += (
+            "<section><p>未承認参考紹介</p><h3>編集部参考情報</h3>"
+            '<a href="https://example.org/">主催者の公式情報を確認する</a>'
+            '<a href="https://care.kosodatemate.jp/play-listing.html#claim=editorial-demo">'
+            "この情報から正式掲載を申請する</a></section>"
+        )
+        def reader(url):
+            path = url.removeprefix(origin)
+            if path not in data:
+                raise RuntimeError("404")
+            return {}, data[path]
+        self.assertTrue(monitor.inspect_site("PLAY", origin, pages, reader)["passed"])
+        del data["/experiences"]
+        self.assertTrue(any("experiences" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+        data["/experiences"] = html(origin + "/experiences") + (
+            "<h3>参考紹介</h3>未承認参考紹介・公式情報を確認する"
+        )
+        self.assertTrue(any("owner-claim" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+
     def test_only_production_origins_are_monitored(self):
         self.assertEqual(set(monitor.SITES), {"CARE", "SPARK", "PLAY"})
         self.assertTrue(all(origin.startswith("https://") and "test." not in origin
