@@ -195,7 +195,9 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
     with archive.open(encoding="utf-8-sig", newline="") as handle:
         rows = [{k: row.get(k, "") for k in FIELDS} for row in csv.DictReader(handle)]
     possible = [i for i, row in enumerate(rows)
-                if not row["contact_url"] and not row["email"] and row["name"]
+                if not row["contact_url"] and not row["email"]
+                and row["solicitation_prohibited"].strip().lower() not in ("true", "1", "yes")
+                and row["name"]
                 and row["service"] in ("CARE", "SPARK", "PLAY")
                 and next(safe_websites({"websites": [row["website"]]}), None)]
     if not possible or limit == 0:
