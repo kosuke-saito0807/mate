@@ -15,6 +15,7 @@ class SparkReferenceNavigation(unittest.TestCase):
             "spark/school-directory.html",
             "spark/guide-lesson-trial-review.html",
             "spark/guide-lessons-choice.html",
+            "spark/guide-lessons-age-two.html",
         ):
             with self.subTest(filename=filename):
                 page = (ROOT / filename).read_text(encoding="utf-8")
