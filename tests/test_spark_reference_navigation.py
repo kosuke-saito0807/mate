@@ -49,6 +49,18 @@ class SparkReferenceNavigation(unittest.TestCase):
         self.assertIn("事業者未承認参考紹介", manifest)
         self.assertIn("対象年齢", manifest)
 
+    def test_aggregate_cross_service_click_never_includes_user_data(self):
+        care = (ROOT / "assets/mate-funnel-events.js").read_text(encoding="utf-8")
+        spark = (ROOT / "spark/assets/mate-funnel-events.js").read_text(encoding="utf-8")
+        self.assertEqual(care, spark)
+        self.assertIn("mate_cross_service_click", care)
+        self.assertIn("href === 'https://play.kosodatemate.jp/experiences'", care)
+        self.assertIn("destination_type: 'editorial_directory'", care)
+        self.assertIn("target_service: 'PLAY'", care)
+        self.assertNotIn("emit('mate_cross_service_click', { href:", care)
+        self.assertNotIn("document.referrer", care)
+        self.assertNotIn("location.search", care)
+
     def test_other_domain_is_never_inserted_into_spark_sitemap(self):
         sitemap = (ROOT / "spark/sitemap.xml").read_text(encoding="utf-8")
         self.assertIn(SPARK, sitemap)
