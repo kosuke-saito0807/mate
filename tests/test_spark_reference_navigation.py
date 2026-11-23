@@ -33,7 +33,7 @@ class SparkReferenceNavigation(unittest.TestCase):
         self.assertIn("事業者が未承認", trial)
         self.assertIn("未承認の参考紹介", choice)
         for page in (trial, choice):
-            self.assertIn('href="school-directory.html"', page)
+            self.assertTrue('href="school-directory.html"' in page or 'href="https://spark.kosodatemate.jp/school-directory.html"' in page)
 
     def test_editorial_record_and_owner_application_are_still_separate(self):
         directory = (ROOT / "spark/school-directory.html").read_text(encoding="utf-8")
