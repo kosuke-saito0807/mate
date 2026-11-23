@@ -1,6 +1,11 @@
 name: MATE free Overture prospect discovery (no email)
 
 on:
+  pull_request:
+    paths:
+      - scripts/collect_overture_growth.py
+      - scripts/ci/test_collect_overture_growth.py
+      - .github/workflows/mate-overture-free-prospects.yml
   push:
     branches: [main]
     paths:
@@ -12,17 +17,31 @@ on:
     - cron: '21 0,3,6,9,12,15,18,21 * * *'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: mate-overture-growth
   cancel-in-progress: false
 
 jobs:
+  offline-tests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify nationwide rotation, candidate safety and duplicate exclusions
+        run: python -m unittest discover -s scripts/ci -p test_collect_overture_growth.py -v
+
   find-leads:
+    permissions:
+      contents: write
     # GitHub-hosted runner minutes may be billed for private repos.
     # Operate automatically only while this is a public repository.
-    if: github.event.repository.private == false
+    if: github.event_name != 'pull_request' && github.event.repository.private == false
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
