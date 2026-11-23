@@ -75,7 +75,7 @@ def same_origin_page(url: str) -> tuple[str, str]:
     parts = urlsplit(url)
     host = (parts.hostname or "").lower()
     if (parts.scheme != "https" or not approved_host(host) or parts.port not in (None, 443)
-            or parts.username or parts.password or not parts.path.startswith(("/", ""))):
+            or parts.username or parts.password or any(ch in (parts.path or "") for ch in "\r\n\t")):
         raise ValueError("non-public HTTPS website")
     if parts.query or parts.fragment:
         raise ValueError("untrusted query/fragment in source website")
@@ -209,9 +209,10 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
         checked += 1
         try:
             result = discover(row["website"])
-            if result and result.startswith("https://"):
-                source_host = (urlsplit(row["website"]).hostname or "").lower()
-                if (urlsplit(result).hostname or "").lower() != source_host:
+            if result:
+                source_host, _ = same_origin_page(row["website"])
+                target_host, target_path = same_origin_page(result)
+                if target_host != source_host or not CONTACT_PATH.search(unquote(target_path)):
                     continue
                 row["contact_url"] = result
                 row["checked_at"] = day.isoformat()
