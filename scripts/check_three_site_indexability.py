@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree as ET
 
 SITES = {
-    "CARE": ("https://care.kosodatemate.jp", ("/", "/sitter-directory.html")),
+    "CARE": ("https://care.kosodatemate.jp", ("/", "/sitter-directory.html", "/play-listing.html")),
     "SPARK": ("https://spark.kosodatemate.jp", ("/", "/school-directory.html")),
     "PLAY": ("https://play.kosodatemate.jp", ("/", "/partners", "/contact", "/operator/")),
 }
@@ -142,6 +142,32 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
                     failures.append("/editorial-play.json: duplicate IDs")
             except (ValueError, TypeError):
                 failures.append("/editorial-play.json: malformed JSON")
+    if service == "CARE":
+        # The owner-claim JSON can be healthy even when the actual PLAY form or
+        # client-side prefill script is missing from a Pages deployment.
+        form = load("/play-listing.html")
+        if form:
+            required = (
+                'data-mate-direct-listing="true"',
+                'data-mate-claim-notice',
+                'name="service" value="PLAY"',
+                'name="company"',
+                'name="website"',
+                'assets/mate-reference-claim.js',
+            )
+            for marker in required:
+                if marker not in form[1]:
+                    failures.append(f"/play-listing.html: missing owner-claim form marker {marker}")
+        script = load("/assets/mate-reference-claim.js")
+        if script:
+            required_script = (
+                "editorial-play.json",
+                "row.editorial === true",
+                "row.approved === false",
+                "window.fetch(",
+            )
+            if not all(marker in script[1] for marker in required_script):
+                failures.append("/assets/mate-reference-claim.js: owner-claim prefill contract missing")
     if service == "SPARK":
         result = load("/schools.json")
         if result and not result[1].lstrip().startswith(("{", "[")):

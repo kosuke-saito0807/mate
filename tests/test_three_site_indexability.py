@@ -24,16 +24,28 @@ def html(url, robots="index,follow"):
 class IndexabilityTests(unittest.TestCase):
     def setUp(self):
         self.origin = "https://care.kosodatemate.jp"
-        self.pages = ("/", "/sitter-directory.html")
+        self.pages = ("/", "/sitter-directory.html", "/play-listing.html")
         self.assets = {
             "/robots.txt": "User-agent: *\nAllow: /\nSitemap: " + self.origin + "/sitemap.xml\n",
             "/sitemap.xml": ("<?xml version='1.0'?><urlset>"
                              "<url><loc>" + self.origin + "/</loc></url>"
                              "<url><loc>" + self.origin + "/sitter-directory.html</loc></url>"
+                             "<url><loc>" + self.origin + "/play-listing.html</loc></url>"
                              "</urlset>"),
             "/": html(self.origin + "/"),
             "/sitter-directory.html": html(self.origin + "/sitter-directory.html"),
             "/assets/mate-funnel-events.js": "mate_provider_outbound_click",
+            "/play-listing.html": html(self.origin + "/play-listing.html") + (
+                '<form data-mate-direct-listing="true">'
+                '<input name="service" value="PLAY">'
+                '<input name="company"><input name="website"></form>'
+                '<p data-mate-claim-notice></p>'
+                '<script src="assets/mate-reference-claim.js"></script>'
+            ),
+            "/assets/mate-reference-claim.js": (
+                "window.fetch('editorial-play.json');"
+                "row.editorial === true && row.approved === false;"
+            ),
             "/editorial-play.json": json.dumps([{"id":"editorial-sample","name":"Sample","url":"https://example.org/","editorial":True,"approved":False}]),
         }
 
@@ -85,6 +97,22 @@ class IndexabilityTests(unittest.TestCase):
     def test_play_owner_claim_mirror_rejects_bad_json(self):
         self.assets["/editorial-play.json"] = "{"
         self.assertTrue(any("malformed JSON" in e for e in self.evaluate()["errors"]))
+
+    def test_missing_play_owner_claim_form_fails(self):
+        self.assets.pop("/play-listing.html")
+        self.assertTrue(any("play-listing.html" in e for e in self.evaluate()["errors"]))
+
+    def test_unwired_play_owner_claim_form_fails(self):
+        self.assets["/play-listing.html"] = html(self.origin + "/play-listing.html")
+        self.assertTrue(any("form marker" in e for e in self.evaluate()["errors"]))
+
+    def test_missing_play_claim_prefill_script_fails(self):
+        self.assets.pop("/assets/mate-reference-claim.js")
+        self.assertTrue(any("mate-reference-claim.js" in e for e in self.evaluate()["errors"]))
+
+    def test_broken_play_prefill_contract_fails(self):
+        self.assets["/assets/mate-reference-claim.js"] = "function noop() {}"
+        self.assertTrue(any("prefill contract missing" in e for e in self.evaluate()["errors"]))
 
     def test_only_production_origins_are_monitored(self):
         self.assertEqual(set(monitor.SITES), {"CARE", "SPARK", "PLAY"})

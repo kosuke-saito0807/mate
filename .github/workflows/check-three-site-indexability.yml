@@ -1,6 +1,11 @@
 name: Check MATE 3-site public indexability (read only)
 
 on:
+  pull_request:
+    paths:
+      - "scripts/check_three_site_indexability.py"
+      - "tests/test_three_site_indexability.py"
+      - ".github/workflows/check-three-site-indexability.yml"
   schedule:
     - cron: "23 2 * * *"
   workflow_dispatch:
@@ -24,6 +29,7 @@ jobs:
       - name: Test indexability monitor (offline)
         run: python3 -m unittest discover -s tests -p "test_three_site_indexability.py" -v
       - name: Inspect real CARE, SPARK and PLAY public HTTPS pages
+        if: github.event_name != 'pull_request'
         run: |
           mkdir -p artifacts
           python3 scripts/check_three_site_indexability.py > artifacts/three-site-indexability.json
