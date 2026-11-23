@@ -152,5 +152,29 @@ class ContactDiscoverySafety(unittest.TestCase):
             self.assertEqual(summary["contact_links_found"],0)
 
 
+    def test_opted_out_leads_are_not_contacted(self):
+        with tempfile.TemporaryDirectory() as folder:
+            archive=Path(folder)/"archive.csv"
+            rows=[
+                {**dict.fromkeys(FIELDS,""), "service":"PLAY", "name":"連絡拒否済み",
+                 "website":"https://optout.jp/", "solicitation_prohibited":"true"},
+                {**dict.fromkeys(FIELDS,""), "service":"SPARK", "name":"未確認候補",
+                 "website":"https://studio.jp/", "solicitation_prohibited":"false"},
+            ]
+            with archive.open("w",newline="",encoding="utf-8") as file:
+                writer=csv.DictWriter(file,fieldnames=FIELDS)
+                writer.writeheader()
+                writer.writerows(rows)
+            touched=[]
+            def discover(url):
+                touched.append(url)
+                return ""
+            result=MOD.enrich_archive(archive,Path(folder)/"recent.csv",
+                                      day=date(2026,11,23),batch=0,limit=2,
+                                      discover=discover)
+            self.assertEqual(result["checked"],1)
+            self.assertEqual(touched,["https://studio.jp/"])
+
+
 if __name__ == "__main__":
     unittest.main()
