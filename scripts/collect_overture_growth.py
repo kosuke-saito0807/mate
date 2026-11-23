@@ -32,6 +32,21 @@ CITIES = (
  ("新潟",37.916,139.036),("金沢",36.561,136.656),
  ("宇都宮",36.558,139.883),("高松",34.342,134.046),
  ("鹿児島",31.597,130.558),("那覇",26.213,127.680),
+ # Add prefectural capitals not represented above. Approximate city centres,
+ # used solely for bounded discovery tiles; not exact venue locations.
+ ("青森",40.824,140.740),("盛岡",39.703,141.153),
+ ("秋田",39.718,140.103),("山形",38.255,140.339),
+ ("福島",37.760,140.474),("水戸",36.366,140.471),
+ ("前橋",36.389,139.063),("甲府",35.664,138.568),
+ ("長野",36.648,138.195),("富山",36.696,137.214),
+ ("福井",36.064,136.220),("岐阜",35.423,136.761),
+ ("津",34.719,136.505),("大津",35.017,135.855),
+ ("奈良",34.685,135.805),("和歌山",34.226,135.167),
+ ("鳥取",35.501,134.238),("松江",35.468,133.050),
+ ("山口",34.186,131.471),("徳島",34.070,134.555),
+ ("松山",33.841,132.766),("高知",33.559,133.531),
+ ("佐賀",33.264,130.301),("長崎",32.750,129.878),
+ ("大分",33.239,131.612),("宮崎",31.912,131.423),
 )
 BLOCKED = ("facebook.com", "instagram.com", "google.com", "tabelog.com",
            "youtube.com", "x.com", "ameblo.jp", "note.com", "line.me",
@@ -146,8 +161,11 @@ def cell_clean(x):
 def city_tile(day, slot):
     tick = day.toordinal() - dt.date(2026, 1, 1).toordinal()
     i = (tick * 16 + slot) % (len(CITIES) * 25)
-    city, lat, lon = CITIES[i // 25]
-    tile = i % 25
+    # Interleave cities instead of scanning 25 adjacent tiles of the same
+    # city consecutively. A daily 16-tile cycle reaches distinct regions
+    # before moving to their next nearby tile, reducing repeated hosts.
+    city, lat, lon = CITIES[i % len(CITIES)]
+    tile = i // len(CITIES)
     lon += ((tile % 5) - 2) * 0.12
     lat += ((tile // 5) - 2) * 0.09
     return city + " " + str(tile + 1) + "/25", (
