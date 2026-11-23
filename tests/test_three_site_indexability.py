@@ -131,13 +131,34 @@ class IndexabilityTests(unittest.TestCase):
             '<a href="https://example.org/">主催者の公式情報を確認する</a>'
             '<a href="https://care.kosodatemate.jp/play-listing.html#claim=editorial-demo">'
             "この情報から正式掲載を申請する</a></section>"
+            '<a data-mate-directory-event="official" href="https://example.org/"></a>'
+            '<a data-mate-directory-event="listing" href="https://care.kosodatemate.jp/"></a>'
+            '<script src="/play-directory-analytics.js" defer></script>'
         )
+        data["/play-directory-analytics.js"] = (
+            "MATE_PLAY_METRIC MATE_PLAY_ANALYTICS_READY route: '/experiences' "
+            "metric('page_view') metric('play_outbound_click') metric('mate_listing_click') "
+            "referrer: '', campaign: '', partner_id: ''"
+        )
+        data["/play-analytics-bridge.js"] = "'/experiences'"
         def reader(url):
             path = url.removeprefix(origin)
             if path not in data:
                 raise RuntimeError("404")
             return {}, data[path]
         self.assertTrue(monitor.inspect_site("PLAY", origin, pages, reader)["passed"])
+        self.assertTrue(monitor.inspect_site("PLAY", origin, pages, reader)["passed"])
+        del data["/play-directory-analytics.js"]
+        self.assertTrue(any("play-directory-analytics.js" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+        data["/play-directory-analytics.js"] = "MATE_PLAY_METRIC"
+        self.assertTrue(any("event contract" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+        data["/play-directory-analytics.js"] = (
+            "MATE_PLAY_METRIC MATE_PLAY_ANALYTICS_READY route: '/experiences' "
+            "metric('page_view') metric('play_outbound_click') metric('mate_listing_click') "
+            "referrer: '', campaign: '', partner_id: ''"
+        )
         del data["/experiences"]
         self.assertTrue(any("experiences" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
