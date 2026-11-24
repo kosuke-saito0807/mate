@@ -39,6 +39,20 @@ class FamilyFormTests(unittest.TestCase):
   self.assertIn("セキュリティ認証の完了後に送信",s)
   self.assertIn("Cloudflare Turnstile",(ROOT/"consult-privacy.html").read_text(encoding="utf-8"))
   self.assertIn("MATE SPARK",(ROOT/"consult-privacy.html").read_text(encoding="utf-8"))
+ def test_baby_guide_consultation_prefills_only_a_safe_draft(self):
+  html=(ROOT/"consult.html").read_text(encoding="utf-8")
+  self.assertIn("if(svc==='PLAY'&&query.get('inquiry')==='baby-first')",html)
+  self.assertIn("form.elements.namedItem('inquiryType').value='体験・利用相談'",html)
+  self.assertIn("message.value.trim()",html)
+  self.assertIn("form.elements.namedItem('referral_interest').checked=false",html)
+  self.assertIn("お子さまの氏名・病歴・住所の詳細は不要",html)
+  self.assertNotIn("query.get('childName')",html)
+  self.assertNotIn("query.get('email')",html)
+  self.assertNotIn("form.submit()",html)
+  p=subprocess.run(["node","tests/test_play_baby_consult_prefill.cjs"],cwd=ROOT,
+                   stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+  self.assertEqual(p.returncode,0,p.stdout+"\\n"+p.stderr)
+  self.assertIn("PASS fixed guide consultation prefill",p.stdout)
  def test_front_door_links_and_current_play_application(self):
   self.assertIn('href="consult.html?service=CARE"', (ROOT/"index.html").read_text(encoding="utf-8"))
   self.assertIn('href="consult.html?service=PLAY"', (ROOT/"play-listing.html").read_text(encoding="utf-8"))
