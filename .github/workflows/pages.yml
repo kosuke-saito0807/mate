@@ -121,7 +121,13 @@ jobs:
           for attempt in $(seq 1 12); do
             names="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[].name' 2>/dev/null || true)"
             if printf '%s\n' "$names" | grep -Fxq "$artifact"; then
-              echo "Pages artifact available: $artifact"
+              echo "Pages artifact visible via REST: $artifact"
+              # GitHub Pages' deploy-pages action uses another artifact-metadata
+              # endpoint. It can still report "Found 0 artifact(s)" immediately
+              # after REST begins seeing the uploaded artifact. Give both
+              # services a bounded propagation window before deployment.
+              echo "Allowing 25 seconds for Pages deployment metadata to settle"
+              sleep 25
               exit 0
             fi
             echo "Waiting for GitHub artifact metadata to be indexed ($attempt/12)"
