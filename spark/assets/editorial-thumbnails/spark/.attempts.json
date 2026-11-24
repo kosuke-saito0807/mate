@@ -4,7 +4,7 @@
     "reason": "HTTP 429"
   },
   "editorial-akiba-programming": {
-    "at": 1795398594,
+    "at": 1795486748,
     "reason": "Empty screenshot"
   },
   "editorial-akky-kids-fukuoka": {
@@ -36,7 +36,7 @@
     "reason": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://kidsmirai.taisei.sh/\nCall log:\n  - navigating to \"https://kidsmirai.taisei.sh/\", waiti"
   },
   "editorial-palette-piano": {
-    "at": 1795398594,
+    "at": 1795486748,
     "reason": "Empty screenshot"
   },
   "editorial-proglab": {
@@ -56,11 +56,11 @@
     "reason": "HTTP 403"
   },
   "editorial-taijiku": {
-    "at": 1795398594,
+    "at": 1795486748,
     "reason": "Empty screenshot"
   },
   "editorial-up-edu-science": {
-    "at": 1795398594,
+    "at": 1795486748,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://up-edu.com/science-lab\", waiting until \"commit\"\n"
   }
 }
