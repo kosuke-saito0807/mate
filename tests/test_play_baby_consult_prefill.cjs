@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const html = fs.readFileSync('consult.html', 'utf8');
 const scriptMatch = html.match(/<script>\s*(\(\(\)=>\{[\s\S]*?\}\)\(\);)\s*<\/script>/);
-assert.ok(scriptMatch, 'consultation's inline application code exists');
+assert.ok(scriptMatch, 'consultation inline application code exists');
 const script = scriptMatch[1];
 
 function open(query) {
