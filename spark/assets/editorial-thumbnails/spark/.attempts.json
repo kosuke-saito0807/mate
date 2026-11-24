@@ -8,7 +8,7 @@
     "reason": "Empty screenshot"
   },
   "editorial-akky-kids-fukuoka": {
-    "at": 1795439193,
+    "at": 1795528522,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://www.miratobi.co-site.jp/\", waiting until \"commit\"\n"
   },
   "editorial-avex-dance": {
@@ -32,7 +32,7 @@
     "reason": "HTTP 403"
   },
   "editorial-kidsmirai-iizuka": {
-    "at": 1795439193,
+    "at": 1795528522,
     "reason": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://kidsmirai.taisei.sh/\nCall log:\n  - navigating to \"https://kidsmirai.taisei.sh/\", waiti"
   },
   "editorial-palette-piano": {
@@ -40,7 +40,7 @@
     "reason": "Empty screenshot"
   },
   "editorial-proglab": {
-    "at": 1794916103,
+    "at": 1795528522,
     "reason": "HTTP 403"
   },
   "editorial-proglab-foleohakata": {
@@ -48,7 +48,7 @@
     "reason": "HTTP 403"
   },
   "editorial-rokko-be": {
-    "at": 1794916103,
+    "at": 1795528522,
     "reason": "HTTP 403"
   },
   "editorial-star-programming": {

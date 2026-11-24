@@ -4,7 +4,7 @@
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://akamon-mammy.com/\", waiting until \"commit\"\n"
   },
   "editorial-combismile": {
-    "at": 1795439190,
+    "at": 1795528517,
     "reason": "Empty screenshot"
   },
   "editorial-josanshes": {
@@ -12,11 +12,11 @@
     "reason": "Empty screenshot"
   },
   "editorial-kidsline": {
-    "at": 1794915995,
+    "at": 1795528517,
     "reason": "HTTP 403"
   },
   "editorial-kidsna": {
-    "at": 1794915995,
+    "at": 1795528517,
     "reason": "HTTP 403"
   },
   "editorial-parmo-sapporo": {
