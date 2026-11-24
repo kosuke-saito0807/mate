@@ -12,7 +12,7 @@
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://www.miratobi.co-site.jp/\", waiting until \"commit\"\n"
   },
   "editorial-avex-dance": {
-    "at": 1794935061,
+    "at": 1795564595,
     "reason": "HTTP 403"
   },
   "editorial-biima-sports": {
