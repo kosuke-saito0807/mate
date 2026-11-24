@@ -9,6 +9,8 @@ on:
       - "index.html"
       - "guides.html"
       - "guide-weekend-family-event.html"
+      - "guide-family-outing.html"
+      - "guide-baby-outing-prep.html"
       - "llms.txt"
       - ".github/workflows/check-three-site-indexability.yml"
   schedule:
