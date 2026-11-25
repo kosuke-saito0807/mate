@@ -99,9 +99,16 @@ def classify(props):
     # Generic category often misses distinctly named child-facing classes.
     if re.search(r"ピアノ教室|音楽教室|英会話|ロボット教室|プログラミング教室|"
                  r"体操教室|水泳教室|バレエ教室|ダンススクール|そろばん教室|"
-                 r"子ども英語|こども英語", name):
+                 r"子ども英語|こども英語|書道教室|習字教室|絵画教室|"
+                 r"幼児教室|リトミック教室|科学教室|算数教室|"
+                 r"子ども料理教室|こども料理教室|スイミングスクール|"
+                 r"キッズダンス|キッズ体操|キッズ英語教室|"
+                 r"プログラミングスクール", name):
         return "SPARK"
-    if re.search(r"親子体験|工作体験|陶芸体験|農業体験|キッズワークショップ", name):
+    if re.search(r"親子体験|工作体験|陶芸体験|農業体験|キッズワークショップ|"
+                 r"親子ワークショップ|子ども向けワークショップ|"
+                 r"ガラス体験|絵付け体験|焼き物体験|収穫体験|"
+                 r"親子工作イベント", name):
         return "PLAY"
     if re.search(r"tutor|learning.center|language.school|dance.school|music.school|"
                  r"art.school|martial.art|sports.academy|swim.school|"

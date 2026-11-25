@@ -36,6 +36,30 @@ class ContactDiscoverySafety(unittest.TestCase):
         self.assertEqual(MOD.contact_link("https://studio.jp/",
                                          '<a href="/faq">Contact us</a>'), "")
 
+    def test_accessible_contact_link_labels_detect_without_crawling_more_pages(self):
+        cases = (
+            '<a href="/form/" aria-label="お問い合わせ"><svg aria-hidden="true"></svg></a>',
+            '<a href="/form/" title="お問い合わせフォーム"><i></i></a>',
+            '<a href="/form/"><img src="/contact.png" alt="お問い合わせ"></a>',
+            '<a href="/form/"><span>お問い合わせはこちら</span></a>',
+        )
+        for markup in cases:
+            with self.subTest(markup=markup):
+                self.assertEqual(MOD.contact_link("https://studio.jp/", markup),
+                                 "https://studio.jp/form/")
+
+    def test_accessible_contact_label_still_rejects_unsafe_urls(self):
+        for uri in ("https://other.jp/form/", "/form/?auth=secret",
+                    "/form/#session=secret", "/privacy", "mailto:boss@example.jp",
+                    "javascript:alert(1)", "http://studio.jp/form/"):
+            with self.subTest(uri=uri):
+                markup='<a href="'+uri+'" aria-label="お問い合わせ">連絡</a>'
+                self.assertEqual(MOD.contact_link("https://studio.jp/", markup), "")
+        # An accessible label alone never makes a generic page a contact form.
+        self.assertEqual(MOD.contact_link(
+            "https://studio.jp/",
+            '<a href="/blog/" aria-label="お問い合わせ">お知らせ</a>'), "")
+
     def test_hostname_port_and_userinfo_rejected(self):
         for host in ["localhost", "127.0.0.1", "10.0.0.3",
                      "169.254.169.254", "example.internal", "a..com",
