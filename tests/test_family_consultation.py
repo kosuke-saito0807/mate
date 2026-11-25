@@ -52,7 +52,7 @@ class FamilyFormTests(unittest.TestCase):
   p=subprocess.run(["node","tests/test_play_baby_consult_prefill.cjs"],cwd=ROOT,
                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
   self.assertEqual(p.returncode,0,p.stdout+"\\n"+p.stderr)
-  self.assertIn("PASS fixed CARE and PLAY guide consultation prefills",p.stdout)
+  self.assertIn("PASS fixed CARE, SPARK and PLAY guide consultation prefills",p.stdout)
  def test_care_infant_guide_safe_context_and_unchanged_consent(self):
   html=(ROOT/"consult.html").read_text(encoding="utf-8")
   guide=(ROOT/"guide-infant-babysitter-first-use.html").read_text(encoding="utf-8")
@@ -62,6 +62,16 @@ class FamilyFormTests(unittest.TestCase):
   self.assertIn("相談だけで予約や受け入れが確定することはありません",html)
   self.assertIn("form.elements.namedItem('referral_interest').checked=false",html)
   self.assertIn('name="privacy_agree" type="checkbox" value="同意する" required',html)
+  self.assertNotIn("query.get('childName')",html)
+  self.assertNotIn("query.get('medical')",html)
+  self.assertNotIn("form.submit()",html)
+ def test_spark_age_three_guide_safe_context(self):
+  html=(ROOT/"consult.html").read_text(encoding="utf-8")
+  guide=(ROOT/"spark/guide-lessons-age-three.html").read_text(encoding="utf-8")
+  self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=SPARK&amp;inquiry=age-three"',guide)
+  self.assertIn("if(svc==='SPARK'&&query.get('inquiry')==='age-three')",html)
+  self.assertIn("3歳の子どもの習い事・体験レッスンの選び方を相談したいです",html)
+  self.assertIn("相談だけで教室への申込や予約が確定することはありません",html)
   self.assertNotIn("query.get('childName')",html)
   self.assertNotIn("query.get('medical')",html)
   self.assertNotIn("form.submit()",html)
