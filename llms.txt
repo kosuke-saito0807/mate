@@ -7,6 +7,7 @@
 - [家庭向け相談](https://care.kosodatemate.jp/consult.html): CARE、SPARK、PLAYの相談窓口
 - [利用ガイド](https://care.kosodatemate.jp/guides.html): 子育て・外出に関するガイド
 - [シッターの選び方](https://care.kosodatemate.jp/guide-sitter-choice.html): 比較の基本事項
+- [0歳児のベビーシッター初回利用](https://care.kosodatemate.jp/guide-infant-babysitter-first-use.html): 対象月齢・乳児対応・睡眠やミルクの引き継ぎ・料金総額の確認。予約可否を保証しない独自ガイド
 - [ベビーシッターと一時預かりの違い](https://care.kosodatemate.jp/guide-sitter-vs-daycare.html): 利用場所、対象年齢、料金、予約条件の比較
 - [東京でベビーシッターを選ぶ](https://care.kosodatemate.jp/guide-tokyo-babysitter-choice.html): 訪問エリア・月齢・安全・料金を比較する確認項目。
 - [ベビーシッター料金と簡易計算ツール](https://care.kosodatemate.jp/guide-sitter-hourly-cost.html): 最低利用時間・交通費・割増の確認方法と、入力値を送信しない概算総額の計算
