@@ -9,6 +9,33 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 
 class SeoLaunchTests(unittest.TestCase):
+    def test_infant_sitter_guide_is_distinct_indexable_and_leads_to_real_services(self):
+        rel = "guide-infant-babysitter-first-use.html"
+        url = "https://care.kosodatemate.jp/" + rel
+        html = (ROOT / rel).read_text(encoding="utf-8")
+        self.assertIn('<meta name="robots" content="index,follow,max-image-preview:large">', html)
+        self.assertEqual(html.count('<link rel="canonical" href="' + url + '">'), 1)
+        self.assertIn("<h1>0歳児のベビーシッターは何か月から？", html)
+        self.assertIn('<meta name="description"', html)
+        match = re.search(r'<script type="application/ld\+json">([^<]+)</script>', html)
+        self.assertIsNotNone(match)
+        content = json.loads(match.group(1))
+        article = next(n for n in content["@graph"] if n["@type"] == "Article")
+        self.assertEqual(article["mainEntityOfPage"], url)
+        self.assertEqual(article["publisher"]["name"], "NextEdu")
+        for token in ("受け入れ月齢", "乳児対応", "ミルク", "睡眠", "保険", "最低利用時間", "緊急連絡"):
+            self.assertIn(token, html)
+        self.assertIn('href="sitter-directory.html"', html)
+        self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=CARE"', html)
+        self.assertIn("予約や空きの確約はできません", html)
+        self.assertIn("mate_guide_consult_click", html)
+        sitemap = ET.parse(ROOT / "sitemap.xml")
+        urls = [n.text for n in sitemap.iter() if n.tag.endswith("loc")]
+        self.assertEqual(urls.count(url), 1)
+        for source in ("index.html", "guides.html", "guide-sitter-first-visit.html", "guide-sitter-vs-daycare.html"):
+            self.assertIn(rel, (ROOT / source).read_text(encoding="utf-8"), source)
+        self.assertIn(url, (ROOT / "llms.txt").read_text(encoding="utf-8"))
+
     def test_two_year_old_lesson_guide_is_discoverable(self):
         url="https://spark.kosodatemate.jp/guide-lessons-age-two.html"
         page=(ROOT/"spark/guide-lessons-age-two.html").read_text(encoding="utf-8")
