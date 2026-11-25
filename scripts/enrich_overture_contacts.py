@@ -202,14 +202,30 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
         raise ValueError("out-of-bounds batch/limit")
     with archive.open(encoding="utf-8-sig", newline="") as handle:
         rows = [{k: row.get(k, "") for k in FIELDS} for row in csv.DictReader(handle)]
-    possible = [i for i, row in enumerate(rows)
-                if not row["contact_url"] and not row["email"]
+    def scan_due(row):
+        # A scan is not verified contact evidence. Never use checked_at as
+        # proof of email permission or suppress an unrelated valid review.
+        try:
+            last = dt.date.fromisoformat(row.get("contact_scanned_at", ""))
+        except ValueError:
+            return True
+        age = (day - last).days
+        return not (0 <= age < 30)
+
+    def eligible_unverified(row):
+        return (not row["contact_url"] and not row["email"]
                 and row["solicitation_prohibited"].strip().lower() not in ("true", "1", "yes")
-                and row["name"]
+                and bool(row["name"])
                 and row["service"] in ("CARE", "SPARK", "PLAY")
-                and next(safe_websites({"websites": [row["website"]]}), None)]
+                and bool(next(safe_websites({"websites": [row["website"]]}), None)))
+
+    possible = [i for i, row in enumerate(rows)
+                if eligible_unverified(row) and scan_due(row)]
+    skipped_recent = sum(1 for row in rows
+                         if eligible_unverified(row) and not scan_due(row))
     if not possible or limit == 0:
         return {"checked": 0, "contact_links_found": 0,
+                "skipped_recent_scans": skipped_recent,
                 "total_archive_rows": len(rows), "mail_send_authorized": 0}
     start = (((day - dt.date(2026, 1, 1)).days * 8 + batch) * limit) % len(possible)
     chosen = [possible[(start + i) % len(possible)] for i in range(min(limit, len(possible)))]
@@ -222,15 +238,17 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
             if result:
                 source_host, _ = same_origin_page(row["website"])
                 target_host, target_path = same_origin_page(result)
-                if target_host != source_host or not CONTACT_PATH.search(unquote(target_path)):
-                    continue
-                row["contact_url"] = result
-                row["checked_at"] = day.isoformat()
-                found += 1
+                if target_host == source_host and CONTACT_PATH.search(unquote(target_path)):
+                    row["contact_url"] = result
+                    row["checked_at"] = day.isoformat()
+                    found += 1
         except (OSError, ValueError, TimeoutError, ssl.SSLError, UnicodeError):
             # Individual malformed/unreachable websites do not stop other sites.
-            continue
-    if found:
+            pass
+        # An unsuccessful, blocked or invalid response is not legal verification.
+        # Remember only the scan date, then allow a bounded revisit in 30 days.
+        row["contact_scanned_at"] = day.isoformat()
+    if checked:
         archive.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="",
                                          dir=archive.parent, delete=False) as handle:
@@ -241,6 +259,9 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
         os.replace(tmp, archive)
         write_recent_csv(archive, recent)
     return {"checked": checked, "contact_links_found": found,
+            "scanned_without_link": checked - found,
+            "skipped_recent_scans": sum(1 for row in rows
+                                           if eligible_unverified(row) and not scan_due(row)),
             "total_archive_rows": len(rows), "mail_send_authorized": 0}
 
 

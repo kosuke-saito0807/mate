@@ -151,6 +151,9 @@ class ContactDiscoverySafety(unittest.TestCase):
             self.assertEqual(updated[0]["contact_url"], "https://piano.jp/contact/")
             self.assertEqual(updated[1]["contact_url"], "")
             self.assertEqual(updated[0]["checked_at"], "2026-11-23")
+            self.assertEqual(updated[0]["contact_scanned_at"], "2026-11-23")
+            self.assertEqual(updated[1]["contact_scanned_at"], "2026-11-23")
+            self.assertEqual(updated[1]["checked_at"], "")
             self.assertTrue(all(row["email"] == "" and row["mail_basis"] == "UNVERIFIED"
                                 for row in updated))
             with recent.open(encoding="utf-8", newline="") as file:
@@ -175,6 +178,60 @@ class ContactDiscoverySafety(unittest.TestCase):
                 limit=2, discover=lambda u: u+"contact?private_token=x")
             self.assertEqual(summary["contact_links_found"],0)
 
+
+    def test_no_contact_link_is_memoized_without_claiming_verification(self):
+        with tempfile.TemporaryDirectory() as folder:
+            archive, recent = Path(folder)/"archive.csv", Path(folder)/"recent.csv"
+            rows=[{**dict.fromkeys(FIELDS,""),"service":"SPARK",
+                   "name":"緑の音楽教室","website":"https://studio.jp/",
+                   "mail_basis":"UNVERIFIED","solicitation_prohibited":"false"}]
+            with archive.open("w",newline="",encoding="utf-8") as out:
+                writer=csv.DictWriter(out,fieldnames=FIELDS)
+                writer.writeheader();writer.writerows(rows)
+            calls=[]
+            def no_link(url):
+                calls.append(url)
+                return ""
+            day=date(2026,11,25)
+            first=MOD.enrich_archive(archive,recent,day=day,batch=0,
+                                     limit=1,discover=no_link)
+            self.assertEqual(first["checked"],1)
+            self.assertEqual(first["contact_links_found"],0)
+            with archive.open(encoding="utf-8",newline="") as inp:
+                stored=next(csv.DictReader(inp))
+            self.assertEqual(stored["contact_scanned_at"],"2026-11-25")
+            self.assertEqual(stored["checked_at"],"")
+            self.assertEqual(stored["mail_basis"],"UNVERIFIED")
+            self.assertEqual(stored["email"],"")
+            self.assertEqual(stored["contact_url"],"")
+            again=MOD.enrich_archive(archive,recent,day=day,batch=1,
+                                     limit=1,discover=no_link)
+            self.assertEqual(again["checked"],0)
+            self.assertEqual(again["skipped_recent_scans"],1)
+            self.assertEqual(calls,["https://studio.jp/"])
+            later=MOD.enrich_archive(archive,recent,day=date(2026,12,26),
+                                     batch=2,limit=1,discover=no_link)
+            self.assertEqual(later["checked"],1)
+            self.assertEqual(len(calls),2)
+
+    def test_unsafe_or_unreachable_link_still_gets_scan_cooldown(self):
+        with tempfile.TemporaryDirectory() as folder:
+            archive, recent = Path(folder)/"archive.csv", Path(folder)/"recent.csv"
+            rows=[{**dict.fromkeys(FIELDS,""),"service":"PLAY",
+                   "name":"海の親子工房","website":"https://craft.jp/",
+                   "mail_basis":"UNVERIFIED","solicitation_prohibited":"false"}]
+            with archive.open("w",newline="",encoding="utf-8") as out:
+                writer=csv.DictWriter(out,fieldnames=FIELDS)
+                writer.writeheader();writer.writerows(rows)
+            outcome=MOD.enrich_archive(archive,recent,day=date(2026,11,25),
+                                       batch=0,limit=1,
+                                       discover=lambda _: "https://evil.jp/contact/")
+            self.assertEqual(outcome["contact_links_found"],0)
+            with archive.open(encoding="utf-8",newline="") as inp:
+                stored=next(csv.DictReader(inp))
+            self.assertEqual(stored["contact_url"],"")
+            self.assertEqual(stored["contact_scanned_at"],"2026-11-25")
+            self.assertEqual(stored["checked_at"],"")
 
     def test_opted_out_leads_are_not_contacted(self):
         with tempfile.TemporaryDirectory() as folder:
