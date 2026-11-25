@@ -163,7 +163,7 @@ class IndexabilityTests(unittest.TestCase):
         self.assertTrue(any("experiences" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
         data["/experiences"] = html(origin + "/experiences") + (
-            "<h3>参考紹介</h3>未承認参考紹介・公式情報を確認する"
+            "<h3>参考紹介</h3>未承認参考紹介"
         )
         self.assertTrue(any("site-level provider application link missing" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
