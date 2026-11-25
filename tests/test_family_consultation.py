@@ -52,7 +52,7 @@ class FamilyFormTests(unittest.TestCase):
   p=subprocess.run(["node","tests/test_play_baby_consult_prefill.cjs"],cwd=ROOT,
                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
   self.assertEqual(p.returncode,0,p.stdout+"\\n"+p.stderr)
-  self.assertIn("PASS fixed guide consultation prefill",p.stdout)
+  self.assertIn("PASS fixed CARE and PLAY guide consultation prefills",p.stdout)
  def test_care_infant_guide_safe_context_and_unchanged_consent(self):
   html=(ROOT/"consult.html").read_text(encoding="utf-8")
   guide=(ROOT/"guide-infant-babysitter-first-use.html").read_text(encoding="utf-8")
