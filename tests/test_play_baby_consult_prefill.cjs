@@ -35,6 +35,20 @@ function open(query) {
   }, { timeout: 1000 });
   return { fields, lead: ids.get('lead').textContent, form };
 }
+// CARE infant guide: fixed draft only. URL visitor details are never prefilled.
+const care = open('?service=CARE&inquiry=infant-first&childName=SECRET_NAME&email=SECRET_EMAIL&medical=SECRET_MEDICAL');
+assert.equal(care.fields.get('service').value, 'CARE');
+assert.equal(care.fields.get('inquiryType').value, '体験・利用相談');
+assert.match(care.fields.get('message').value, /0歳児のベビーシッター利用/);
+assert.match(care.fields.get('message').value, /希望エリア（市区町村まで）/);
+assert.match(care.fields.get('message').value, /乳児対応・料金総額/);
+assert.match(care.lead, /予約や受け入れが確定することはありません/);
+assert.equal(care.fields.get('referral_interest').checked, false);
+for(const secret of ['SECRET_NAME','SECRET_EMAIL','SECRET_MEDICAL']) {
+  assert.ok(!care.fields.get('message').value.includes(secret));
+  assert.ok(!care.lead.includes(secret));
+}
+assert.equal(care.form.submitted, false);
 const baby = open('?service=PLAY&inquiry=baby-first&childName=SECRET_NAME&email=SECRET_EMAIL');
 assert.equal(baby.fields.get('service').value, 'PLAY');
 assert.equal(baby.fields.get('inquiryType').value, '体験・利用相談');
@@ -46,8 +60,9 @@ assert.ok(!baby.fields.get('message').value.includes('SECRET_NAME'));
 assert.ok(!baby.fields.get('message').value.includes('SECRET_EMAIL'));
 assert.equal(baby.form.submitted, false);
 for (const search of ['?service=CARE&inquiry=baby-first', '?service=SPARK&inquiry=baby-first',
-  '?service=PLAY&inquiry=other', '?service=PLAY']) {
+  '?service=PLAY&inquiry=infant-first', '?service=SPARK&inquiry=infant-first',
+  '?service=CARE&inquiry=other', '?service=CARE', '?service=PLAY&inquiry=other', '?service=PLAY']) {
   const notEligible = open(search);
   assert.equal(notEligible.fields.get('message').value, '');
 }
-console.log('PASS fixed guide consultation prefill, no visitor data or submission');
+console.log('PASS fixed CARE and PLAY guide consultation prefills, no visitor data or submission');

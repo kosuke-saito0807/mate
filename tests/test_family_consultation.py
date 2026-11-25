@@ -52,7 +52,19 @@ class FamilyFormTests(unittest.TestCase):
   p=subprocess.run(["node","tests/test_play_baby_consult_prefill.cjs"],cwd=ROOT,
                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
   self.assertEqual(p.returncode,0,p.stdout+"\\n"+p.stderr)
-  self.assertIn("PASS fixed guide consultation prefill",p.stdout)
+  self.assertIn("PASS fixed CARE and PLAY guide consultation prefills",p.stdout)
+ def test_care_infant_guide_safe_context_and_unchanged_consent(self):
+  html=(ROOT/"consult.html").read_text(encoding="utf-8")
+  guide=(ROOT/"guide-infant-babysitter-first-use.html").read_text(encoding="utf-8")
+  self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=CARE&amp;inquiry=infant-first"',guide)
+  self.assertIn("if(svc==='CARE'&&query.get('inquiry')==='infant-first')",html)
+  self.assertIn("0歳児のベビーシッター利用について、条件を整理したいです。",html)
+  self.assertIn("相談だけで予約や受け入れが確定することはありません",html)
+  self.assertIn("form.elements.namedItem('referral_interest').checked=false",html)
+  self.assertIn('name="privacy_agree" type="checkbox" value="同意する" required',html)
+  self.assertNotIn("query.get('childName')",html)
+  self.assertNotIn("query.get('medical')",html)
+  self.assertNotIn("form.submit()",html)
  def test_front_door_links_and_current_play_application(self):
   self.assertIn('href="consult.html?service=CARE"', (ROOT/"index.html").read_text(encoding="utf-8"))
   self.assertIn('href="consult.html?service=PLAY"', (ROOT/"play-listing.html").read_text(encoding="utf-8"))
