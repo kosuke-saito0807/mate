@@ -38,6 +38,51 @@ class TestOvertureGrowth(unittest.TestCase):
             self.assertEqual(MOD.update_csv(path,[rec,rec]),(1,1))
             self.assertEqual(MOD.update_csv(path,[rec]),(0,1))
 
+    def test_partial_tile_outage_keeps_success_and_does_not_retry(self):
+        calls=[]
+        sample=next(MOD.select_records(
+            {"features":[self.sample("music_school","https://hello-school.jp/")]},
+            "東京"))
+        def get(label,bbox):
+            calls.append((label,bbox))
+            if len(calls)==1:
+                raise TimeoutError("API unavailable / internal address must not leak")
+            return [sample]
+        result=MOD.collect_tiles(date(2026,11,25),batch=0,fetch_tile=get)
+        self.assertEqual(len(calls),2)
+        self.assertEqual(result["requested_tiles"],2)
+        self.assertEqual(result["successful_tiles"],1)
+        self.assertEqual(len(result["records"]),1)
+        self.assertEqual(len(result["failed_tiles"]),1)
+        self.assertEqual(result["failed_tiles"][0]["error_type"],"TimeoutError")
+        self.assertNotIn("internal address",str(result))
+        self.assertEqual(result["records"][0]["mail_basis"],"UNVERIFIED")
+        self.assertEqual(result["records"][0]["email"],"")
+
+    def test_both_tiles_failing_cannot_be_reported_as_success(self):
+        calls=[]
+        def fail(label,bbox):
+            calls.append(label)
+            raise OSError("no source response")
+        result=MOD.collect_tiles(date(2026,11,25),batch=2,fetch_tile=fail)
+        self.assertEqual(len(calls),2)
+        self.assertEqual(result["successful_tiles"],0)
+        self.assertEqual(result["records"],[])
+        self.assertEqual(len(result["failed_tiles"]),2)
+        self.assertEqual({x["error_type"] for x in result["failed_tiles"]},{"OSError"})
+        self.assertNotIn("no source response",str(result))
+
+    def test_all_tiles_success_report_expected_count(self):
+        calls=[]
+        def available(label,bbox):
+            calls.append(label)
+            return []
+        result=MOD.collect_tiles(date(2026,11,25),batch=7,fetch_tile=available)
+        self.assertEqual(len(calls),2)
+        self.assertEqual(result["successful_tiles"],2)
+        self.assertEqual(result["failed_tiles"],[])
+        self.assertEqual(result["records"],[])
+
     def test_rotation_is_bounded_and_changes_daily(self):
         a=MOD.city_tile(date(2026,11,15),0)
         b=MOD.city_tile(date(2026,11,16),0)
