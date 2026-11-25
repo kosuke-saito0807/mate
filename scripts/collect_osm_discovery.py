@@ -219,7 +219,11 @@ def main() -> None:
     result = collect_day(day)
     if result["blocked_by_provider"] or len(result["areas_failed"]) == 2:
         print(json.dumps({
-            "source": ATTRIBUTION, "status": "unavailable", **result,
+            "source": ATTRIBUTION, "status": "unavailable",
+            "areas_failed": result["areas_failed"],
+            "query_stats": result["query_stats"],
+            "fallback_used": result["fallback_used"],
+            "blocked_by_provider": result["blocked_by_provider"],
             "mail_send_authorized": 0, "extracted_emails": 0,
             "extracted_phones": 0,
         }, ensure_ascii=False))
