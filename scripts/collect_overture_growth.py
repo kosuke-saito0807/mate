@@ -17,8 +17,12 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 SOURCE_URL = "https://docs.overturemaps.org/guides/places/"
+# contact_scanned_at records an unsuccessful or successful first-party link
+# lookup, not verification, consent or permission to send. checked_at retains
+# its prior meaning for reviewed source/contacts and is NOT set by a failed scan.
 FIELDS = ("service", "name", "website", "region", "email", "contact_url",
-          "source_url", "mail_basis", "checked_at", "solicitation_prohibited")
+          "source_url", "mail_basis", "checked_at", "solicitation_prohibited",
+          "contact_scanned_at")
 CITIES = (
  ("東京",35.680,139.735),("横浜",35.462,139.628),
  ("大阪",34.685,135.500),("名古屋",35.172,136.907),
