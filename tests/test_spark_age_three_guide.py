@@ -19,7 +19,7 @@ class SparkAgeThreeGuideTests(unittest.TestCase):
         self.assertIn("<title>3歳から習い事を始める？", html)
         self.assertIn('<meta name="description"', html)
         self.assertIn("<h1>3歳から習い事を始める？", html)
-        match = re.search(r'<script type="application/ld\\+json">([^<]+)</script>', html)
+        match = re.search(r'<script type="application/ld\+json">([^<]+)</script>', html)
         self.assertIsNotNone(match)
         data = json.loads(match.group(1))
         article = next(entry for entry in data["@graph"] if entry["@type"] == "Article")
