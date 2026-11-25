@@ -26,7 +26,7 @@ class SeoLaunchTests(unittest.TestCase):
         for token in ("受け入れ月齢", "乳児対応", "ミルク", "睡眠", "保険", "最低利用時間", "緊急連絡"):
             self.assertIn(token, html)
         self.assertIn('href="sitter-directory.html"', html)
-        self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=CARE"', html)
+        self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=CARE&amp;inquiry=infant-first"', html)
         self.assertIn("予約や空きの確約はできません", html)
         self.assertIn("mate_guide_consult_click", html)
         sitemap = ET.parse(ROOT / "sitemap.xml")
