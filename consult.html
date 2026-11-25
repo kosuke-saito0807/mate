@@ -113,6 +113,14 @@ if(svc==='PLAY'&&query.get('inquiry')==='baby-first'){
  document.getElementById('lead').textContent='0歳の赤ちゃんと初めて親子体験に参加する方向けの相談です。希望する地域や条件を、必要な範囲だけご記入ください。お子さまの氏名・病歴・住所の詳細は不要です。相談だけで予約や参加が確定することはありません。';
  form.elements.namedItem('referral_interest').checked=false;
 }
+// This fixed SPARK topic draft never imports visitor-supplied personal details.
+if(svc==='SPARK'&&query.get('inquiry')==='age-three'){
+ form.elements.namedItem('inquiryType').value='体験・利用相談';
+ const message=form.elements.namedItem('message');
+ if(!message.value.trim()) message.value='3歳の子どもの習い事・体験レッスンの選び方を相談したいです。\n希望エリア（市区町村まで）：\n興味のあるジャンル（運動・音楽・英語・工作など）：\n通える曜日・時間帯：\n体験時に確認したいこと（保護者同伴・費用・振替など）：';
+ document.getElementById('lead').textContent='3歳の習い事や体験レッスンについて、ジャンルや通いやすさを整理して相談できます。お子さまの氏名・病歴・住所の詳細は不要です。相談だけで教室への申込や予約が確定することはありません。';
+ form.elements.namedItem('referral_interest').checked=false;
+}
 if(svc==='SPARK'&&query.get('inquiry')==='trial-comparison'){
  const raw=query.get('schools')||'';
  const names=raw.split('／').map(v=>v.trim()).filter(v=>v&&v.length<=70&&!/[<>\r\n]/.test(v)).slice(0,5);
