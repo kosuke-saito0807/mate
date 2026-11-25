@@ -97,6 +97,15 @@ form.elements.namedItem('service').value=svc;
 const query=new URLSearchParams(location.search);
 // Only a fixed, public guide context may prefill a draft. Never read visitor
 // details from the URL, infer consent, or auto-submit consultation requests.
+// Fixed, non-sensitive context only: never read a child's name, address, age,
+ // health details or contact information from URL params. This is just a draft.
+if(svc==='CARE'&&query.get('inquiry')==='infant-first'){
+ form.elements.namedItem('inquiryType').value='体験・利用相談';
+ const message=form.elements.namedItem('message');
+ if(!message.value.trim()) message.value='0歳児のベビーシッター利用について、条件を整理したいです。\n希望エリア（市区町村まで）：\n希望する利用時間帯・時間数：\n確認したい内容（対象月齢・乳児対応・料金総額など）：';
+ document.getElementById('lead').textContent='0歳児のベビーシッターや預け先の選び方について相談できます。希望エリアや時間など、必要な条件だけをご記入ください。お子さまの氏名・病歴・住所の詳細は不要です。相談だけで予約や受け入れが確定することはありません。';
+ form.elements.namedItem('referral_interest').checked=false;
+}
 if(svc==='PLAY'&&query.get('inquiry')==='baby-first'){
  form.elements.namedItem('inquiryType').value='体験・利用相談';
  const message=form.elements.namedItem('message');
