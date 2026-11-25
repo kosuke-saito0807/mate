@@ -105,8 +105,10 @@ def select_candidates(payload: dict, region: str):
         name = tags.get("name:ja") or tags.get("name") or ""
         if not isinstance(name, str) or not 4 <= len(name) <= 130 or EXCLUDE.search(name):
             continue
-        if any(tags.get(k) in ("no", "closed", "disused", "abandoned")
-               for k in ("disused", "abandoned", "shop")):
+        if (any(str(tags.get(k, "")).lower() in ("yes", "true", "1")
+                for k in ("disused", "abandoned"))
+                or str(tags.get("shop", "")).lower() in ("closed", "disused", "abandoned")
+                or str(tags.get("access", "")).lower() == "no"):
             continue
         # OSM tags such as 'amenity=school' alone are not enough: reuse the
         # carefully scoped, child-oriented name/category rules from Overture.
