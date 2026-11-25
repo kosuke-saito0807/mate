@@ -166,6 +166,7 @@ def collect_day(day: dt.date, *, fetch=None) -> dict:
     records = []
     failures = []
     query_stats = []
+    blocked_by_provider = False
     for name, bounds in areas:
         try:
             data = fetch(bounds)
@@ -175,8 +176,13 @@ def collect_day(day: dt.date, *, fetch=None) -> dict:
                                 "eligible_candidates": len(accepted)})
         except (OSError, HTTPError, URLError, ValueError, TimeoutError) as exc:
             failures.append((name, bounds, exc))
+            if isinstance(exc, HTTPError) and exc.code in (403, 429):
+                # Respect an explicit provider refusal/rate limit immediately;
+                # do not query the second area or switch public instances.
+                blocked_by_provider = True
+                break
     fallback_used = False
-    if (len(failures) == len(areas)
+    if (not blocked_by_provider and len(failures) == len(areas)
             and all(retryable_source_failure(exc) for _, _, exc in failures)):
         # One attempt for the first failed area, never one per failed site.
         name, bounds, _ = failures[0]
@@ -200,6 +206,7 @@ def collect_day(day: dt.date, *, fetch=None) -> dict:
         } for name, _, exc in failures],
         "query_stats": query_stats,
         "fallback_used": fallback_used,
+        "blocked_by_provider": blocked_by_provider,
     }
 
 def main() -> None:
@@ -210,7 +217,7 @@ def main() -> None:
     args = parser.parse_args()
     day = dt.date.fromisoformat(args.day)
     result = collect_day(day)
-    if len(result["areas_failed"]) == 2:
+    if result["blocked_by_provider"] or len(result["areas_failed"]) == 2:
         print(json.dumps({
             "source": ATTRIBUTION, "status": "unavailable", **result,
             "mail_send_authorized": 0, "extracted_emails": 0,
