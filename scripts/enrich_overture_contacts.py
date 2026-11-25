@@ -212,17 +212,20 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
         age = (day - last).days
         return not (0 <= age < 30)
 
-    possible = [i for i, row in enumerate(rows)
-                if not row["contact_url"] and not row["email"]
+    def eligible_unverified(row):
+        return (not row["contact_url"] and not row["email"]
                 and row["solicitation_prohibited"].strip().lower() not in ("true", "1", "yes")
-                and row["name"]
+                and bool(row["name"])
                 and row["service"] in ("CARE", "SPARK", "PLAY")
-                and next(safe_websites({"websites": [row["website"]]}), None)
-                and scan_due(row)]
+                and bool(next(safe_websites({"websites": [row["website"]]}), None)))
+
+    possible = [i for i, row in enumerate(rows)
+                if eligible_unverified(row) and scan_due(row)]
+    skipped_recent = sum(1 for row in rows
+                         if eligible_unverified(row) and not scan_due(row))
     if not possible or limit == 0:
         return {"checked": 0, "contact_links_found": 0,
-                "skipped_recent_scans": sum(
-                    1 for row in rows if row.get("contact_scanned_at") and not scan_due(row)),
+                "skipped_recent_scans": skipped_recent,
                 "total_archive_rows": len(rows), "mail_send_authorized": 0}
     start = (((day - dt.date(2026, 1, 1)).days * 8 + batch) * limit) % len(possible)
     chosen = [possible[(start + i) % len(possible)] for i in range(min(limit, len(possible)))]
@@ -257,8 +260,8 @@ def enrich_archive(archive: Path, recent: Path, *, day: dt.date, batch: int,
         write_recent_csv(archive, recent)
     return {"checked": checked, "contact_links_found": found,
             "scanned_without_link": checked - found,
-            "skipped_recent_scans": sum(
-                1 for row in rows if row.get("contact_scanned_at") and not scan_due(row)),
+            "skipped_recent_scans": sum(1 for row in rows
+                                           if eligible_unverified(row) and not scan_due(row)),
             "total_archive_rows": len(rows), "mail_send_authorized": 0}
 
 
