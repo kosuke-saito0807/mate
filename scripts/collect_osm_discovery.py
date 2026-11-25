@@ -223,7 +223,7 @@ def main() -> None:
             "mail_send_authorized": 0, "extracted_emails": 0,
             "extracted_phones": 0,
         }, ensure_ascii=False))
-        raise RuntimeError("Both bounded OSM queries failed; no data persisted")
+        raise RuntimeError("OSM source inaccessible or rate-limited; no data persisted")
     added, count = update_csv(Path(args.output), result["records"], cap=30000)
     recent = write_recent_csv(Path(args.output), Path(args.recent))
     print(json.dumps({
