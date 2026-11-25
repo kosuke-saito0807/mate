@@ -95,6 +95,14 @@ const form=document.getElementById('consultForm'),status=document.getElementById
 form.elements.namedItem('service').value=svc;
 // Public business names only; never copy a child's name or direct contact details from URL.
 const query=new URLSearchParams(location.search);
+// Privacy-preserving funnel attribution: the ONLY published dimension is a
+// fixed allowlist of guide topics. Never send query strings, school names,
+// visitor text, contact details, or the draft message to analytics.
+const inquiry=query.get('inquiry');
+const guideTopic=svc==='CARE'&&inquiry==='infant-first'?'infant_sitter':
+ svc==='SPARK'&&inquiry==='age-three'?'age_three_lessons':
+ svc==='SPARK'&&inquiry==='trial-comparison'?'trial_comparison':
+ svc==='PLAY'&&inquiry==='baby-first'?'baby_experience':'unspecified';
 // Only a fixed, public guide context may prefill a draft. Never read visitor
 // details from the URL, infer consent, or auto-submit consultation requests.
 // Fixed, non-sensitive context only: never read a child's name, address, age,
@@ -137,7 +145,13 @@ const cfg=window.MATE_DIRECT_INTAKE||{};
 const ready=cfg.enabled===true&&typeof cfg.endpoint==='string'&&
  /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(cfg.endpoint)&&
  typeof cfg.siteKey==='string'&&/^[A-Za-z0-9_-]{12,160}$/.test(cfg.siteKey);
-if(!ready||!window.crypto||typeof window.crypto.randomUUID!=='function'){
+const intakeReady=ready&&!!window.crypto&&typeof window.crypto.randomUUID==='function';
+// A view is not a completed inquiry. Report readiness as a boolean to help
+// separate real form opportunities from outages without collecting PII.
+if(typeof window.gtag==='function')window.gtag('event','family_inquiry_form_view',{
+ service:svc,guide_topic:guideTopic,intake_ready:!!intakeReady
+});
+if(!intakeReady){
   status.hidden=false;
   status.textContent='現在、受付システムを準備しています。お問い合わせは kosodatemate@gmail.com へお願いします。';
   btn.disabled=true;
@@ -164,7 +178,9 @@ form.addEventListener('submit',e=>{
  btn.textContent='受付先を確認しています…';
  status.textContent='受付が完了した場合のみ、次の画面に受付番号が表示されます。';
  // Track only an attempt here; the authoritative success signal is the private GAS/Sheets receipt.
- if(window.gtag)window.gtag('event','family_inquiry_submit_attempt',{service:svc});
+ if(typeof window.gtag==='function')window.gtag('event','family_inquiry_submit_attempt',{
+  service:svc,guide_topic:guideTopic
+ });
  // Native POST navigation. Never use fetch()/CORS or show success before GAS writes and email sends.
 });
 const script=document.createElement('script');

@@ -8,6 +8,7 @@ assert.ok(scriptMatch, 'consultation inline application code exists');
 const script = scriptMatch[1];
 
 function open(query) {
+  const analytics = [];
   const fields = new Map(
     ['service', 'inquiryType', 'message', 'referral_interest', 'submission_id']
       .map(name => [name, { name, value: '', checked: false }])
@@ -31,9 +32,12 @@ function open(query) {
   };
   vm.runInNewContext(script, {
     document: dom, location: { search: query }, URLSearchParams,
-    window: { MATE_DIRECT_INTAKE: { enabled: false } },
+    window: {
+      MATE_DIRECT_INTAKE: { enabled: false },
+      gtag: (...args) => analytics.push(args),
+    },
   }, { timeout: 1000 });
-  return { fields, lead: ids.get('lead').textContent, form };
+  return { fields, lead: ids.get('lead').textContent, form, analytics };
 }
 // CARE infant guide: fixed draft only. URL visitor details are never prefilled.
 const care = open('?service=CARE&inquiry=infant-first&childName=SECRET_NAME&email=SECRET_EMAIL&medical=SECRET_MEDICAL');
@@ -76,4 +80,29 @@ for (const search of ['?service=CARE&inquiry=baby-first', '?service=SPARK&inquir
   const notEligible = open(search);
   assert.equal(notEligible.fields.get('message').value, '');
 }
+// Only allowlisted, non-sensitive topics appear in client-side analytics.
+for (const [caseResult,service,topic] of [
+  [care,'CARE','infant_sitter'],
+  [spark3,'SPARK','age_three_lessons'],
+  [baby,'PLAY','baby_experience'],
+]) {
+  assert.equal(caseResult.analytics.length,1);
+  assert.equal(caseResult.analytics[0][0],'event');
+  assert.equal(caseResult.analytics[0][1],'family_inquiry_form_view');
+  assert.equal(caseResult.analytics[0][2].service,service);
+  assert.equal(caseResult.analytics[0][2].guide_topic,topic);
+  assert.equal(caseResult.analytics[0][2].intake_ready,false);
+  const payload=JSON.stringify(caseResult.analytics);
+  assert.ok(!payload.includes('SECRET_'));
+  assert.ok(!payload.includes('email'));
+  assert.ok(!payload.includes('childName'));
+  assert.ok(!payload.includes('query'));
+  assert.ok(!payload.includes('message'));
+}
+const compare = open('?service=SPARK&inquiry=trial-comparison&schools=SECRET_STUDENT%EF%BC%8FSECRET_SCHOOL');
+assert.equal(compare.analytics[0][2].guide_topic,'trial_comparison');
+assert.ok(!JSON.stringify(compare.analytics).includes('SECRET_'));
+const generic = open('?service=CARE&inquiry=secret-health&message=SECRET_HEALTH');
+assert.equal(generic.analytics[0][2].guide_topic,'unspecified');
+assert.ok(!JSON.stringify(generic.analytics).includes('SECRET_HEALTH'));
 console.log('PASS fixed CARE, SPARK and PLAY guide consultation prefills, no visitor data or submission');

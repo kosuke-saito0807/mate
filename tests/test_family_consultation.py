@@ -75,6 +75,18 @@ class FamilyFormTests(unittest.TestCase):
   self.assertNotIn("query.get('childName')",html)
   self.assertNotIn("query.get('medical')",html)
   self.assertNotIn("form.submit()",html)
+ def test_consultation_funnel_analytics_is_non_sensitive_and_not_success(self):
+  html=(ROOT/"consult.html").read_text(encoding="utf-8")
+  self.assertIn("family_inquiry_form_view",html)
+  self.assertIn("family_inquiry_submit_attempt",html)
+  self.assertIn("guide_topic:guideTopic",html)
+  self.assertIn("intake_ready:!!intakeReady",html)
+  self.assertIn("const guideTopic=svc==='CARE'",html)
+  self.assertIn("'trial_comparison'",html)
+  self.assertIn("'unspecified'",html)
+  self.assertNotIn("guide_topic:inquiry",html)
+  self.assertNotIn("guide_topic:query.get",html)
+  self.assertIn("the authoritative success signal is the private GAS/Sheets receipt",html)
  def test_front_door_links_and_current_play_application(self):
   self.assertIn('href="consult.html?service=CARE"', (ROOT/"index.html").read_text(encoding="utf-8"))
   self.assertIn('href="consult.html?service=PLAY"', (ROOT/"play-listing.html").read_text(encoding="utf-8"))
