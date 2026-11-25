@@ -32,21 +32,35 @@ class OSMDiscoverySafety(unittest.TestCase):
         self.assertEqual({x[0].split(" OSM")[0] for x in choices},
                          {city for city, _, _ in MOD.CITIES})
         for label, bbox in choices:
-            self.assertLess(bbox[2] - bbox[0], 0.071)
-            self.assertLess(bbox[3] - bbox[1], 0.111)
+            self.assertLess(bbox[2] - bbox[0], 0.041)
+            self.assertLess(bbox[3] - bbox[1], 0.051)
             query = MOD.query_for_bbox(bbox)
-            self.assertIn("out tags 1500", query)
+            self.assertIn("out tags 800", query)
             self.assertIn('"website"', query)
             self.assertIn('"contact:website"', query)
+            self.assertIn('nwr["website"]["name"](', query)
+            self.assertIn('nwr["contact:website"]["name"](', query)
+            self.assertNotIn('~', query)
+            self.assertIn('[timeout:18]', query)
             self.assertNotIn('"email"', query)
             self.assertNotIn('"phone"', query)
-            self.assertLess(len(query), 1200)
+            self.assertLess(len(query), 500)
 
     def test_rejects_unbounded_searches(self):
         for bbox in [(0, 0, 90, 180), (35, 139, 35, 139),
-                     (34, 138, 34.2, 138.4), (35, 5, 36, 7)]:
+                     (34, 138, 34.05, 138.05), (35, 5, 36, 7)]:
             with self.assertRaises(ValueError):
                 MOD.query_for_bbox(bbox)
+
+    def test_slim_query_keeps_all_data_filters_server_side_and_business_filters_local(self):
+        query = MOD.query_for_bbox(MOD.tiles(date(2026, 11, 25))[0][1])
+        self.assertNotIn('"email"', query)
+        self.assertNotIn('"phone"', query)
+        self.assertNotIn('out body', query)
+        self.assertEqual(query.count("nwr["), 2)
+        self.assertLess(MOD.MAX_BYTES, 2_000_000)
+        self.assertLess(MOD.MAX_ELEMENTS, 1000)
+        self.assertEqual(MOD.urlopen.__module__, "urllib.request")
 
     def test_child_services_are_unverified_first_party_only(self):
         elements = [

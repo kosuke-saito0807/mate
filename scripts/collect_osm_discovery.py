@@ -25,14 +25,9 @@ ATTRIBUTION = "© OpenStreetMap contributors (ODbL)"
 LICENSE_URL = "https://www.openstreetmap.org/copyright"
 ENDPOINT = "https://overpass.private.coffee/api/interpreter"
 AGENT = "MATE-open-data-discovery/1.0 (+https://care.kosodatemate.jp/operator.html)"
-MAX_BYTES = 2_500_000
-MAX_ELEMENTS = 1500
+MAX_BYTES = 1_500_000
+MAX_ELEMENTS = 800
 # Two sites per day, one small rectangular area per site.
-NAME_RE = (
-    "子ども|こども|キッズ|幼児|親子|教室|スクール|体験|"
-    "ワークショップ|アトリエ|シッター|リトミック|水泳|"
-    "陶芸|ガラス|絵付け|書道|ピアノ|習字|科学|農業"
-)
 
 
 def tiles(day: dt.date) -> list[tuple[str, tuple[float, float, float, float]]]:
@@ -49,23 +44,24 @@ def tiles(day: dt.date) -> list[tuple[str, tuple[float, float, float, float]]]:
         name, lat, lon = CITIES[index]
         la, lo = lat + lat_delta, lon + lon_delta
         result.append((name + " OSM " + str(cycle + 1),
-                       (la - 0.035, lo - 0.055, la + 0.035, lo + 0.055)))
+                       (la - 0.020, lo - 0.025, la + 0.020, lo + 0.025)))
     return result
 
 
 def query_for_bbox(bbox: tuple[float, float, float, float]) -> str:
     south, west, north, east = bbox
     if not (20 < south < north < 47 and 120 < west < east < 154
-            and north - south <= 0.071 and east - west <= 0.111):
+            and north - south <= 0.041 and east - west <= 0.051):
         raise ValueError("Unbounded or invalid OSM query rectangle")
     b = ",".join(f"{v:.5f}" for v in (south, west, north, east))
-    # Only named places with a website, bounded geographically and by output.
-    # No OSM user history, changesets, contact emails or phone attributes.
+    # Overpass's Unicode name-regex scan was timing out in bounded city
+    # rectangles. The indexed existence selectors are lighter; apply the
+    # child-facing name/category check locally after downloading only tags.
+    # No OSM user history, changesets, contact emails or phone requests.
     return (
-        "[out:json][timeout:24][maxsize:18000000];("
-        'nwr["name"~"' + NAME_RE + '"]["website"](' + b + ');'
-        'nwr["name"~"' + NAME_RE + '"]["contact:website"](' + b + ');'
-        'nwr["craft"~"pottery|glassblower|ceramics"]["website"](' + b + ');'
+        "[out:json][timeout:18][maxsize:8000000];("
+        'nwr["website"]["name"](' + b + ');'
+        'nwr["contact:website"]["name"](' + b + ');'
         ');out tags ' + str(MAX_ELEMENTS) + ";"
     )
 
@@ -77,7 +73,7 @@ def download(bbox: tuple[float, float, float, float]) -> dict:
                  "Content-Type": "application/x-www-form-urlencoded"},
         method="POST",
     )
-    with urlopen(request, timeout=40) as response:
+    with urlopen(request, timeout=30) as response:
         if response.status != 200 or "json" not in response.headers.get("Content-Type", "").lower():
             raise ValueError("OSM service did not return JSON")
         raw = response.read(MAX_BYTES + 1)
