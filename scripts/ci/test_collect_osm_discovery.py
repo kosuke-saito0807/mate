@@ -87,12 +87,13 @@ class OSMDiscoverySafety(unittest.TestCase):
                 seen.append(endpoint)
                 raise HTTPError(endpoint, status, "refused", {}, None)
             result = MOD.collect_day(date(2026, 11, 25), fetch=fake_fetch)
-            self.assertEqual(len(seen), 2)
-            self.assertEqual(len(result["areas_failed"]), 2)
+            self.assertEqual(len(seen), 1)
+            self.assertEqual(len(result["areas_failed"]), 1)
             self.assertFalse(result["fallback_used"])
+            self.assertTrue(result["blocked_by_provider"])
             self.assertEqual(result["records"], [])
             self.assertEqual([z["http_status"] for z in result["areas_failed"]],
-                             [status, status])
+                             [status])
 
     def test_transient_fallback_failure_remains_explicit_and_bounded(self):
         seen = []
