@@ -122,8 +122,12 @@ def select_candidates(payload: dict, region: str):
         url = next(safe_websites({"websites": [site]}), None)
         if not url:
             continue
-        parsed = urlsplit(url)
-        if parsed.query or parsed.fragment or parsed.username or parsed.password or parsed.port not in (None, 443):
+        try:
+            parsed = urlsplit(url)
+            if (parsed.query or parsed.fragment or parsed.username or
+                    parsed.password or parsed.port not in (None, 443)):
+                continue
+        except ValueError:
             continue
         yield {
             "service": service, "name": name, "website": url, "region": region,
