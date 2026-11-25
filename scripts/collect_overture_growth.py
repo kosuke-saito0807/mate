@@ -224,6 +224,48 @@ def write_recent_csv(full_path, recent_path, limit=1200):
     return min(len(records), limit)
 
 
+
+def download_tile(label, bbox):
+    """One bounded public-data request. No retries or alternate endpoints."""
+    with tempfile.TemporaryDirectory() as work:
+        dst = os.path.join(work, "places.geojson")
+        cmd = ["overturemaps", "download", "--type=place",
+               "--bbox=" + ",".join(f"{v:.5f}" for v in bbox),
+               "-f", "geojson", "-o", dst]
+        subprocess.run(cmd, check=True, timeout=480, capture_output=True)
+        with open(dst, encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, dict) or not isinstance(data.get("features"), list):
+            raise ValueError("Overture tile is not a GeoJSON feature collection")
+        return list(select_records(data, label))
+
+
+def collect_tiles(day, batch, fetch_tile=None):
+    """Keep an independently successful tile when its peer has a source failure.
+
+    External providers can return a temporary failure on one geographic tile.
+    Never claim all tiles succeeded, retry an outage, or authorize sending.
+    Both tiles failing is a nonzero failure: do not mutate CSV archives.
+    """
+    if fetch_tile is None:
+        fetch_tile = download_tile
+    discovered = []
+    failures = []
+    successes = 0
+    for slot in range(batch * 2, batch * 2 + 2):
+        label, bbox = city_tile(day, slot)
+        try:
+            discovered.extend(fetch_tile(label, bbox))
+            successes += 1
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired,
+                OSError, UnicodeError, ValueError, TypeError, KeyError) as exc:
+            # Log only a geographic tile label and error type; never leak an
+            # upstream URL, request body, output or a prospective contact.
+            failures.append({"tile": label, "error_type": type(exc).__name__})
+    return {"records": discovered, "successful_tiles": successes,
+            "failed_tiles": failures, "requested_tiles": 2}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="data/mate_overture_discovery.csv")
@@ -234,26 +276,30 @@ def main():
     now = dt.datetime.now(dt.timezone.utc)
     day = dt.date.fromisoformat(args.day)
     batch = args.batch if args.batch is not None else min(7, now.hour // 3)
-    discovered = []
     # Sixteen distinct bounded tiles/day in eight serial batches, no API key.
-    for slot in range(batch * 2, batch * 2 + 2):
-        label, bbox = city_tile(day, slot)
-        with tempfile.TemporaryDirectory() as work:
-            dst = os.path.join(work, "places.geojson")
-            cmd = ["overturemaps", "download", "--type=place",
-                   "--bbox=" + ",".join(f"{v:.5f}" for v in bbox),
-                   "-f", "geojson", "-o", dst]
-            subprocess.run(cmd, check=True, timeout=480, capture_output=True)
-            with open(dst, encoding="utf-8") as f:
-                data = json.load(f)
-            discovered.extend(select_records(data, label))
-    added, total = update_csv(Path(args.output), discovered)
-    recent_count = write_recent_csv(Path(args.output),Path(args.recent_output))
-    print(json.dumps({"source": "Overture Places", "new_candidates": added,
+    result = collect_tiles(day, batch)
+    if result["successful_tiles"] == 0:
+        print(json.dumps({
+            "source": "Overture Places", "status": "source_unavailable",
+            "requested_tiles": 2, "successful_tiles": 0,
+            "failed_tiles": result["failed_tiles"], "new_candidates": 0,
+            "mail_send_authorized": 0, "archive_mutated": False,
+            "batch": batch
+        }, ensure_ascii=False))
+        raise SystemExit(1)
+    added, total = update_csv(Path(args.output), result["records"])
+    recent_count = write_recent_csv(Path(args.output), Path(args.recent_output))
+    print(json.dumps({"source": "Overture Places",
+                      "status": "partial" if result["failed_tiles"] else "success",
+                      "requested_tiles": 2,
+                      "successful_tiles": result["successful_tiles"],
+                      "failed_tiles": result["failed_tiles"],
+                      "new_candidates": added,
                       "total_candidates_in_feed": total,
                       "recent_feed_records": recent_count,
                       "mail_send_authorized": 0,
-                      "privacy": "no extracted emails or personal phones", "batch": batch}))
+                      "privacy": "no extracted emails or personal phones",
+                      "batch": batch}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
