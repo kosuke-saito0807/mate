@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
+from urllib.error import HTTPError
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +46,73 @@ class OSMDiscoverySafety(unittest.TestCase):
             self.assertNotIn('"email"', query)
             self.assertNotIn('"phone"', query)
             self.assertLess(len(query), 500)
+
+    def test_one_failed_area_does_not_trigger_extra_network_calls(self):
+        seen = []
+        def fake_fetch(bounds, endpoint=MOD.ENDPOINT):
+            seen.append((bounds, endpoint))
+            if len(seen) == 1:
+                raise TimeoutError("Primary temporarily unavailable")
+            return {"elements": [item("まちの書道教室", 1, "https://a.jp/")]}
+        result = MOD.collect_day(date(2026, 11, 25), fetch=fake_fetch)
+        self.assertEqual(len(seen), 2)
+        self.assertEqual(len(result["records"]), 1)
+        self.assertEqual(len(result["areas_failed"]), 1)
+        self.assertEqual(result["fallback_used"], False)
+        self.assertEqual(result["query_stats"][0]["eligible_candidates"], 1)
+
+    def test_both_transient_failures_allow_exactly_one_alternate_attempt(self):
+        seen = []
+        def fake_fetch(bounds, endpoint=MOD.ENDPOINT):
+            seen.append((bounds, endpoint))
+            if endpoint == MOD.ENDPOINT:
+                raise TimeoutError("no response")
+            return {"elements": [item("親子ガラス体験", 7, "https://workshop.jp/")]}
+        result = MOD.collect_day(date(2026, 11, 25), fetch=fake_fetch)
+        self.assertEqual(len(seen), 3)
+        self.assertEqual([endpoint for _, endpoint in seen], [
+            MOD.ENDPOINT, MOD.ENDPOINT, MOD.FALLBACK_ENDPOINT
+        ])
+        self.assertTrue(result["fallback_used"])
+        self.assertEqual(len(result["areas_failed"]), 1)
+        self.assertEqual(len(result["records"]), 1)
+        self.assertEqual(result["records"][0]["mail_basis"], "UNVERIFIED")
+        self.assertEqual(result["query_stats"][0]["eligible_candidates"], 1)
+        self.assertTrue(result["query_stats"][0]["fallback"])
+
+    def test_http_429_or_403_never_uses_new_instance_to_evade_limit(self):
+        for status in (403, 429):
+            seen = []
+            def fake_fetch(bounds, endpoint=MOD.ENDPOINT):
+                seen.append(endpoint)
+                raise HTTPError(endpoint, status, "refused", {}, None)
+            result = MOD.collect_day(date(2026, 11, 25), fetch=fake_fetch)
+            self.assertEqual(len(seen), 1)
+            self.assertEqual(len(result["areas_failed"]), 1)
+            self.assertFalse(result["fallback_used"])
+            self.assertTrue(result["blocked_by_provider"])
+            self.assertEqual(result["records"], [])
+            self.assertEqual([z["http_status"] for z in result["areas_failed"]],
+                             [status])
+
+    def test_transient_fallback_failure_remains_explicit_and_bounded(self):
+        seen = []
+        def fail_fetch(bounds, endpoint=MOD.ENDPOINT):
+            seen.append(endpoint)
+            raise TimeoutError("host unavailable")
+        result = MOD.collect_day(date(2026, 11, 25), fetch=fail_fetch)
+        self.assertEqual(len(seen), 3)
+        self.assertEqual(len(result["areas_failed"]), 2)
+        self.assertTrue(result["fallback_used"])
+        self.assertEqual(result["records"], [])
+        self.assertEqual(result["query_stats"], [])
+
+    def test_rejects_user_defined_overpass_endpoint(self):
+        bbox = MOD.tiles(date(2026, 11, 25))[0][1]
+        with self.assertRaises(ValueError):
+            MOD.download(bbox, endpoint="https://attacker.example.jp/steal")
+        self.assertEqual(MOD.FALLBACK_ENDPOINT,
+                         "https://overpass-api.de/api/interpreter")
 
     def test_rejects_unbounded_searches(self):
         for bbox in [(0, 0, 90, 180), (35, 139, 35, 139),

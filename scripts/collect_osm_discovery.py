@@ -24,6 +24,9 @@ from collect_overture_growth import (
 ATTRIBUTION = "© OpenStreetMap contributors (ODbL)"
 LICENSE_URL = "https://www.openstreetmap.org/copyright"
 ENDPOINT = "https://overpass.private.coffee/api/interpreter"
+# Documented public Overpass instance: use at most ONCE per daily job, only if
+# both primary areas time out or have transient 5xx errors; never evade 429.
+FALLBACK_ENDPOINT = "https://overpass-api.de/api/interpreter"
 AGENT = "MATE-open-data-discovery/1.0 (+https://care.kosodatemate.jp/operator.html)"
 MAX_BYTES = 1_500_000
 MAX_ELEMENTS = 800
@@ -66,14 +69,16 @@ def query_for_bbox(bbox: tuple[float, float, float, float]) -> str:
     )
 
 
-def download(bbox: tuple[float, float, float, float]) -> dict:
+def download(bbox: tuple[float, float, float, float], endpoint: str = ENDPOINT) -> dict:
+    if endpoint not in (ENDPOINT, FALLBACK_ENDPOINT):
+        raise ValueError('Unapproved OSM endpoint')
     request = Request(
-        ENDPOINT, data=urlencode({"data": query_for_bbox(bbox)}).encode("utf-8"),
+        endpoint, data=urlencode({"data": query_for_bbox(bbox)}).encode("utf-8"),
         headers={"User-Agent": AGENT, "Accept": "application/json",
                  "Content-Type": "application/x-www-form-urlencoded"},
         method="POST",
     )
-    with urlopen(request, timeout=30) as response:
+    with urlopen(request, timeout=25 if endpoint == FALLBACK_ENDPOINT else 30) as response:
         if response.status != 200 or "json" not in response.headers.get("Content-Type", "").lower():
             raise ValueError("OSM service did not return JSON")
         raw = response.read(MAX_BYTES + 1)
@@ -140,6 +145,70 @@ def select_candidates(payload: dict, region: str):
         }
 
 
+
+def retryable_source_failure(exc: Exception) -> bool:
+    """Never bypass a denied/rate-limited source by switching providers."""
+    if isinstance(exc, HTTPError):
+        return exc.code in (500, 502, 503, 504)
+    return isinstance(exc, (TimeoutError, URLError, OSError))
+
+
+def collect_day(day: dt.date, *, fetch=None) -> dict:
+    """At most 2 primary queries plus 1 fallback query TOTAL per day.
+
+    The alternate endpoint only runs if *both* primary locations fail with
+    transient/network errors. 429, 403 and other denials never trigger
+    failover. No exponential retry loop; no personal data in telemetry.
+    """
+    if fetch is None:
+        fetch = download
+    areas = tiles(day)
+    records = []
+    failures = []
+    query_stats = []
+    blocked_by_provider = False
+    for name, bounds in areas:
+        try:
+            data = fetch(bounds)
+            accepted = list(select_candidates(data, name))
+            records.extend(accepted)
+            query_stats.append({"area": name, "elements": len(data["elements"]),
+                                "eligible_candidates": len(accepted)})
+        except (OSError, HTTPError, URLError, ValueError, TimeoutError) as exc:
+            failures.append((name, bounds, exc))
+            if isinstance(exc, HTTPError) and exc.code in (403, 429):
+                # Respect an explicit provider refusal/rate limit immediately;
+                # do not query the second area or switch public instances.
+                blocked_by_provider = True
+                break
+    fallback_used = False
+    if (not blocked_by_provider and len(failures) == len(areas)
+            and all(retryable_source_failure(exc) for _, _, exc in failures)):
+        # One attempt for the first failed area, never one per failed site.
+        name, bounds, _ = failures[0]
+        fallback_used = True
+        try:
+            data = fetch(bounds, endpoint=FALLBACK_ENDPOINT)
+            accepted = list(select_candidates(data, name))
+            records.extend(accepted)
+            query_stats.append({"area": name, "elements": len(data["elements"]),
+                                "eligible_candidates": len(accepted), "fallback": True})
+            failures = failures[1:]
+        except (OSError, HTTPError, URLError, ValueError, TimeoutError) as exc:
+            failures[0] = (name, bounds, exc)
+    return {
+        "records": records,
+        "areas_failed": [{
+            "area": name, "error_type": type(exc).__name__,
+            # Expose HTTP codes only, never response body, URL parameters,
+            # user-provided names, or private error contents.
+            **({"http_status": exc.code} if isinstance(exc, HTTPError) else {})
+        } for name, _, exc in failures],
+        "query_stats": query_stats,
+        "fallback_used": fallback_used,
+        "blocked_by_provider": blocked_by_provider,
+    }
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--day", default=dt.datetime.now(dt.timezone.utc).date().isoformat())
@@ -147,24 +216,28 @@ def main() -> None:
     parser.add_argument("--recent", default="data/mate_osm_recent.csv")
     args = parser.parse_args()
     day = dt.date.fromisoformat(args.day)
-    new_records = []
-    failed = []
-    for name, bounds in tiles(day):
-        try:
-            payload = download(bounds)
-            new_records.extend(select_candidates(payload, name))
-        except (OSError, HTTPError, URLError, ValueError, TimeoutError) as exc:
-            failed.append({"area": name, "error_type": type(exc).__name__})
-    if len(failed) == 2:
-        raise RuntimeError("Both bounded OSM query areas failed (no data persisted)")
-    added, count = update_csv(Path(args.output), new_records, cap=30000)
+    result = collect_day(day)
+    if result["blocked_by_provider"] or len(result["areas_failed"]) == 2:
+        print(json.dumps({
+            "source": ATTRIBUTION, "status": "unavailable",
+            "areas_failed": result["areas_failed"],
+            "query_stats": result["query_stats"],
+            "fallback_used": result["fallback_used"],
+            "blocked_by_provider": result["blocked_by_provider"],
+            "mail_send_authorized": 0, "extracted_emails": 0,
+            "extracted_phones": 0,
+        }, ensure_ascii=False))
+        raise RuntimeError("OSM source inaccessible or rate-limited; no data persisted")
+    added, count = update_csv(Path(args.output), result["records"], cap=30000)
     recent = write_recent_csv(Path(args.output), Path(args.recent))
     print(json.dumps({
         "source": ATTRIBUTION, "license": LICENSE_URL,
         "new_candidates": added, "total_archive": count,
         "recent_feed": recent, "areas_requested": 2,
-        "areas_failed": failed, "mail_send_authorized": 0,
-        "not_verified_for_outreach": True,
+        "areas_failed": result["areas_failed"],
+        "query_stats": result["query_stats"],
+        "fallback_used": result["fallback_used"],
+        "mail_send_authorized": 0, "not_verified_for_outreach": True,
         "extracted_emails": 0, "extracted_phones": 0,
     }, ensure_ascii=False))
 
