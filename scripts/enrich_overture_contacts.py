@@ -154,7 +154,7 @@ def contact_link(base_url: str, html_text: str) -> str:
         candidate = urlsplit(urljoin(base_url, href))
         if (candidate.scheme != "https" or (candidate.hostname or "").lower() != host
                 or candidate.port not in (None, 443) or candidate.username
-                or candidate.password or candidate.query or not candidate.path):
+                or candidate.password or candidate.query or candidate.fragment or not candidate.path):
             continue
         decoded = unquote(candidate.path)
         if NO_DIRECT_CONTACT.search(decoded):
