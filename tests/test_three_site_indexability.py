@@ -136,7 +136,7 @@ class IndexabilityTests(unittest.TestCase):
             '<script src="/play-directory-analytics.js" defer></script>'
         )
         data["/play-directory-analytics.js"] = (
-            "MATE_PLAY_METRIC MATE_PLAY_ANALYTICS_READY route: '/experiences' "
+            "MATE_PLAY_METRIC MATE_PLAY_ANALYTICS_READY const route = known ? '/experiences' : ''; if (!route) return; event, route, "
             "metric('page_view') metric('play_outbound_click') metric('mate_listing_click') "
             "referrer: '', campaign: '', partner_id: ''"
         )
@@ -148,6 +148,14 @@ class IndexabilityTests(unittest.TestCase):
             return {}, data[path]
         self.assertTrue(monitor.inspect_site("PLAY", origin, pages, reader)["passed"])
         self.assertTrue(monitor.inspect_site("PLAY", origin, pages, reader)["passed"])
+        # Do not accept a route-unspecified payload, even if click events exist.
+        full_metric_script = data["/play-directory-analytics.js"]
+        data["/play-directory-analytics.js"] = full_metric_script.replace(
+            "if (!route) return;", ""
+        )
+        self.assertTrue(any("anonymous event contract missing" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+        data["/play-directory-analytics.js"] = full_metric_script
         del data["/play-directory-analytics.js"]
         self.assertTrue(any("play-directory-analytics.js" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
@@ -155,7 +163,7 @@ class IndexabilityTests(unittest.TestCase):
         self.assertTrue(any("event contract" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
         data["/play-directory-analytics.js"] = (
-            "MATE_PLAY_METRIC MATE_PLAY_ANALYTICS_READY route: '/experiences' "
+            "MATE_PLAY_METRIC MATE_PLAY_ANALYTICS_READY const route = known ? '/experiences' : ''; if (!route) return; event, route, "
             "metric('page_view') metric('play_outbound_click') metric('mate_listing_click') "
             "referrer: '', campaign: '', partner_id: ''"
         )
