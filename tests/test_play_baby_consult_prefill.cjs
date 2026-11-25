@@ -49,6 +49,16 @@ for(const secret of ['SECRET_NAME','SECRET_EMAIL','SECRET_MEDICAL']) {
   assert.ok(!care.lead.includes(secret));
 }
 assert.equal(care.form.submitted, false);
+const spark3 = open('?service=SPARK&inquiry=age-three&childName=SECRET_CHILD&email=SECRET_EMAIL');
+assert.equal(spark3.fields.get('service').value, 'SPARK');
+assert.equal(spark3.fields.get('inquiryType').value, '体験・利用相談');
+assert.match(spark3.fields.get('message').value, /3歳の子どもの習い事・体験レッスン/);
+assert.match(spark3.fields.get('message').value, /通える曜日・時間帯/);
+assert.match(spark3.lead, /教室への申込や予約が確定することはありません/);
+assert.equal(spark3.fields.get('referral_interest').checked, false);
+assert.ok(!spark3.fields.get('message').value.includes('SECRET_CHILD'));
+assert.ok(!spark3.fields.get('message').value.includes('SECRET_EMAIL'));
+assert.equal(spark3.form.submitted, false);
 const baby = open('?service=PLAY&inquiry=baby-first&childName=SECRET_NAME&email=SECRET_EMAIL');
 assert.equal(baby.fields.get('service').value, 'PLAY');
 assert.equal(baby.fields.get('inquiryType').value, '体験・利用相談');
@@ -61,8 +71,9 @@ assert.ok(!baby.fields.get('message').value.includes('SECRET_EMAIL'));
 assert.equal(baby.form.submitted, false);
 for (const search of ['?service=CARE&inquiry=baby-first', '?service=SPARK&inquiry=baby-first',
   '?service=PLAY&inquiry=infant-first', '?service=SPARK&inquiry=infant-first',
-  '?service=CARE&inquiry=other', '?service=CARE', '?service=PLAY&inquiry=other', '?service=PLAY']) {
+  '?service=CARE&inquiry=other', '?service=CARE', '?service=SPARK&inquiry=other',
+  '?service=PLAY&inquiry=age-three', '?service=CARE&inquiry=age-three', '?service=PLAY&inquiry=other', '?service=PLAY']) {
   const notEligible = open(search);
   assert.equal(notEligible.fields.get('message').value, '');
 }
-console.log('PASS fixed CARE and PLAY guide consultation prefills, no visitor data or submission');
+console.log('PASS fixed CARE, SPARK and PLAY guide consultation prefills, no visitor data or submission');
