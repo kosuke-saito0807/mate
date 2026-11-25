@@ -83,6 +83,35 @@ class TestOvertureGrowth(unittest.TestCase):
         self.assertEqual(len(sitter_records),1)
         self.assertEqual(sitter_records[0]["service"],"CARE")
 
+    def test_more_high_precision_japanese_classes_and_workshops_are_discovery_only(self):
+        sample_spark = (
+            "さくら書道教室", "あおぞら幼児教室", "みどりリトミック教室",
+            "ひまわり子ども料理教室", "花のスイミングスクール",
+            "おおぞらキッズダンス", "まちなか科学教室",
+        )
+        sample_play = (
+            "季節の親子ワークショップ", "星のガラス体験工房",
+            "出張絵付け体験工房", "秋の収穫体験農場",
+        )
+        for service, names in (("SPARK", sample_spark), ("PLAY", sample_play)):
+            for i, name in enumerate(names):
+                with self.subTest(service=service, name=name):
+                    feature = self.sample("retail", f"https://school{i}.jp/", name)
+                    got = list(MOD.select_records({"features": [feature]}, "大阪"))
+                    self.assertEqual(len(got), 1)
+                    self.assertEqual(got[0]["service"], service)
+                    self.assertEqual(got[0]["mail_basis"], "UNVERIFIED")
+                    self.assertEqual(got[0]["email"], "")
+                    self.assertEqual(got[0]["contact_url"], "")
+
+    def test_more_names_do_not_match_generic_shops_or_nurseries(self):
+        for name in ("さくら保育園", "書道用品の販売店",
+                     "ガラス器の販売店", "一般向けヨガスタジオ",
+                     "こども服専門店"):
+            with self.subTest(name=name):
+                f = self.sample("retail", "https://retailer.example.jp/", name)
+                self.assertEqual(list(MOD.select_records({"features": [f]}, "大阪")), [])
+
     def test_japanese_class_name_maps_to_spark(self):
         x=self.sample("school", "https://sample-piano.jp/", "こども音楽教室")
         got=list(MOD.select_records({"features":[x]}, "東京"))
