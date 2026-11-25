@@ -119,15 +119,19 @@ def select_candidates(payload: dict, region: str):
         site = tags.get("website") or tags.get("contact:website")
         if not isinstance(site, str):
             continue
-        url = next(safe_websites({"websites": [site]}), None)
-        if not url:
-            continue
+        # Inspect the ORIGINAL crowd-sourced URL before safe_websites() strips
+        # userinfo, query strings or fragment identifiers during normalization.
+        # OSM records can contain credentials/tracking identifiers.
         try:
-            parsed = urlsplit(url)
-            if (parsed.query or parsed.fragment or parsed.username or
-                    parsed.password or parsed.port not in (None, 443)):
+            original = urlsplit(site)
+            if (original.scheme != "https" or original.username or
+                    original.password or original.query or original.fragment or
+                    original.port not in (None, 443)):
                 continue
         except ValueError:
+            continue
+        url = next(safe_websites({"websites": [site]}), None)
+        if not url:
             continue
         yield {
             "service": service, "name": name, "website": url, "region": region,
