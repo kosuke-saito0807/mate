@@ -191,7 +191,11 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
         if metrics:
             markers = (
                 "MATE_PLAY_METRIC", "MATE_PLAY_ANALYTICS_READY",
-                "route: '/experiences'", "metric('page_view')",
+                # PLAY now uses one strictly allowlisted route variable for
+                # /experiences and /guide-baby-first-experience, not a fixed
+                # `route: '/experiences'` field in each event payload.
+                "'/experiences'", "if (!route) return;", "event, route,",
+                "metric('page_view')",
                 "metric('play_outbound_click')", "metric('mate_listing_click')",
                 "referrer: '', campaign: '', partner_id: ''",
             )
