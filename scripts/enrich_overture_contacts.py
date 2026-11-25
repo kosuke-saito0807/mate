@@ -114,12 +114,20 @@ class ContactAnchors(html.parser.HTMLParser):
         self.text: list[str] = []
 
     def handle_starttag(self, tag, attrs):
+        # Many small businesses put contact wording in an icon's alt text
+        # or an accessible link label instead of visible anchor text.
+        values = dict(attrs)
         if tag.lower() == "a" and self.href is None:
-            values = dict(attrs)
             href = values.get("href")
             if isinstance(href, str):
                 self.href = href
-                self.text = []
+                self.text = [value for value in (
+                    values.get("aria-label"), values.get("title"))
+                    if isinstance(value, str) and value.strip()]
+        elif tag.lower() == "img" and self.href is not None:
+            alt = values.get("alt")
+            if isinstance(alt, str) and alt.strip():
+                self.text.append(alt)
 
     def handle_data(self, data):
         if self.href is not None:
