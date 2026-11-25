@@ -32,7 +32,7 @@ class SparkAgeThreeGuideTests(unittest.TestCase):
         for item in ("親子分離", "振替", "年間費用", "初回体験", "公式サイト", "同伴", "講師との相性"):
             self.assertIn(item, html)
         self.assertIn('href="/#discover"', html)
-        self.assertIn("https://care.kosodatemate.jp/consult.html?service=SPARK", html)
+        self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=SPARK&amp;inquiry=age-three"', html)
         self.assertIn("相談は入会・予約の確定ではありません", html)
         self.assertIn("主催者が承認した掲載ではなく", html)
         self.assertNotIn("必ず効果があります", html)
