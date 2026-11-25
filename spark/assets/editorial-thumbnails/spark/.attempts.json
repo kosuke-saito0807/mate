@@ -4,7 +4,7 @@
     "reason": "HTTP 429"
   },
   "editorial-akiba-programming": {
-    "at": 1795486748,
+    "at": 1795596465,
     "reason": "Empty screenshot"
   },
   "editorial-akky-kids-fukuoka": {
@@ -16,11 +16,11 @@
     "reason": "HTTP 403"
   },
   "editorial-biima-sports": {
-    "at": 1794977223,
+    "at": 1795596465,
     "reason": "HTTP 403"
   },
   "editorial-cloudt": {
-    "at": 1794979611,
+    "at": 1795596465,
     "reason": "HTTP 403"
   },
   "editorial-fuji-sports": {
@@ -28,7 +28,7 @@
     "reason": "HTTP 403"
   },
   "editorial-itoman-junior": {
-    "at": 1794980273,
+    "at": 1795596465,
     "reason": "HTTP 403"
   },
   "editorial-kidsmirai-iizuka": {
@@ -36,7 +36,7 @@
     "reason": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://kidsmirai.taisei.sh/\nCall log:\n  - navigating to \"https://kidsmirai.taisei.sh/\", waiti"
   },
   "editorial-palette-piano": {
-    "at": 1795486748,
+    "at": 1795596465,
     "reason": "Empty screenshot"
   },
   "editorial-proglab": {
@@ -52,15 +52,15 @@
     "reason": "HTTP 403"
   },
   "editorial-star-programming": {
-    "at": 1794979276,
+    "at": 1795596465,
     "reason": "HTTP 403"
   },
   "editorial-taijiku": {
-    "at": 1795486748,
+    "at": 1795596465,
     "reason": "Empty screenshot"
   },
   "editorial-up-edu-science": {
-    "at": 1795486748,
+    "at": 1795596465,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://up-edu.com/science-lab\", waiting until \"commit\"\n"
   }
 }
