@@ -116,8 +116,12 @@ def inspect_site(service: str, origin: str, pages: tuple[str, ...], reader=fetch
                 # Real, indexable public HTML -- not a JavaScript-only SPA fallback.
                 if "未承認参考紹介" not in body or "<h3" not in body:
                     failures.append("/experiences: reference listings missing from delivered HTML")
-                if "play-listing.html#claim=editorial-" not in body:
-                    failures.append("/experiences: owner-claim links missing")
+                # Editorial references are NOT linked to a per-card owner claim form.
+                # Only a site-level provider application entrypoint is allowed.
+                if "play-listing.html#claim=editorial-" in body or "editorial_owner_claim" in body:
+                    failures.append("/experiences: obsolete per-reference owner-claim link present")
+                if "https://care.kosodatemate.jp/play-listing.html" not in body:
+                    failures.append("/experiences: site-level provider application link missing")
                 if "公式情報を確認する" not in body:
                     failures.append("/experiences: original official-source links missing")
                 if 'data-mate-directory-event="official"' not in body or 'data-mate-directory-event="listing"' not in body:

@@ -114,7 +114,7 @@ class IndexabilityTests(unittest.TestCase):
         self.assets["/assets/mate-reference-claim.js"] = "function noop() {}"
         self.assertTrue(any("prefill contract missing" in e for e in self.evaluate()["errors"]))
 
-    def test_play_crawlable_directory_and_claim_links(self):
+    def test_play_crawlable_directory_keeps_official_links_and_site_level_listing(self):
         origin = "https://play.kosodatemate.jp"
         pages = monitor.SITES["PLAY"][1]
         self.assertIn("/experiences", pages)
@@ -129,8 +129,8 @@ class IndexabilityTests(unittest.TestCase):
         data["/experiences"] += (
             "<section><p>未承認参考紹介</p><h3>編集部参考情報</h3>"
             '<a href="https://example.org/">主催者の公式情報を確認する</a>'
-            '<a href="https://care.kosodatemate.jp/play-listing.html#claim=editorial-demo">'
-            "この情報から正式掲載を申請する</a></section>"
+            '</section><a href="https://care.kosodatemate.jp/play-listing.html" '
+            'data-mate-directory-event="listing">事業者向け無料掲載申請</a>'
             '<a data-mate-directory-event="official" href="https://example.org/"></a>'
             '<a data-mate-directory-event="listing" href="https://care.kosodatemate.jp/"></a>'
             '<script src="/play-directory-analytics.js" defer></script>'
@@ -163,9 +163,21 @@ class IndexabilityTests(unittest.TestCase):
         self.assertTrue(any("experiences" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
         data["/experiences"] = html(origin + "/experiences") + (
-            "<h3>参考紹介</h3>未承認参考紹介・公式情報を確認する"
+            "<h3>参考紹介</h3>未承認参考紹介"
         )
-        self.assertTrue(any("owner-claim" in e for e in
+        self.assertTrue(any("site-level provider application link missing" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+        self.assertTrue(any("original official-source links missing" in e for e in
+                            monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
+        # A previously removed per-card claim link must never be reintroduced.
+        data["/experiences"] = html(origin + "/experiences") + (
+            "<section><p>未承認参考紹介</p><h3>参考紹介</h3>"
+            '<a href="https://example.org/" data-mate-directory-event="official">主催者の公式情報を確認する</a>'
+            '<a href="https://care.kosodatemate.jp/play-listing.html" data-mate-directory-event="listing">事業者向け無料掲載申請</a>'
+            '<a href="https://care.kosodatemate.jp/play-listing.html#claim=editorial-demo">古い申請導線</a>'
+            '<script src="/play-directory-analytics.js" defer></script></section>'
+        )
+        self.assertTrue(any("obsolete per-reference owner-claim link present" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
 
     def test_only_production_origins_are_monitored(self):
