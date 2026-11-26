@@ -19,7 +19,8 @@ class ListingFormFunnelTests(unittest.TestCase):
         care = (ROOT / "assets/mate-listing-form-events.js").read_text(encoding="utf-8")
         spark = (ROOT / "spark/assets/mate-listing-form-events.js").read_text(encoding="utf-8")
         self.assertEqual(care, spark)
-        for name in ("mate_listing_form_start", "mate_listing_validation_block", "mate_listing_submit_attempt"):
+        for name in ("mate_listing_form_jump", "mate_listing_email_intent",
+                     "mate_listing_form_start", "mate_listing_validation_block", "mate_listing_submit_attempt"):
             self.assertIn(name, care)
         for forbidden in ("formData", "FormData(", "email:", "phone:", "search_term:", "field.value", "event.target.value"):
             self.assertNotIn(forbidden, care)
