@@ -36,6 +36,20 @@ class SeoLaunchTests(unittest.TestCase):
             self.assertIn(rel, (ROOT / source).read_text(encoding="utf-8"), source)
         self.assertIn(url, (ROOT / "llms.txt").read_text(encoding="utf-8"))
 
+    def test_care_infant_guide_connects_to_play_baby_experience_without_booking_claims(self):
+        play_url = "https://play.kosodatemate.jp/guide-baby-first-experience"
+        care = (ROOT / "guide-infant-babysitter-first-use.html").read_text(encoding="utf-8")
+        hub = (ROOT / "guides.html").read_text(encoding="utf-8")
+        self.assertEqual(care.count('href="' + play_url + '"'), 1)
+        self.assertEqual(hub.count('href="' + play_url + '"'), 1)
+        for page in (care, hub):
+            self.assertIn("対象月齢", page)
+            self.assertIn("主催者の公式", page)
+        self.assertIn("シッターに赤ちゃんを預けることと、親子で体験に参加することは別", care)
+        self.assertIn("相談だけで予約や参加が成立することはありません", care)
+        self.assertNotIn("play-listing.html#claim=editorial-", care)
+        self.assertNotIn("editorial_owner_claim", hub)
+
     def test_two_year_old_lesson_guide_is_discoverable(self):
         url="https://spark.kosodatemate.jp/guide-lessons-age-two.html"
         page=(ROOT/"spark/guide-lessons-age-two.html").read_text(encoding="utf-8")
