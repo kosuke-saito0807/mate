@@ -48,6 +48,13 @@ class CareEditorialDirectoryTests(unittest.TestCase):
         self.assertEqual(len(item_list["itemListElement"]), len(self.providers))
         self.assertEqual([x["position"] for x in item_list["itemListElement"]], list(range(1, len(self.providers)+1)))
 
+    def test_directory_connects_infant_parents_to_guides_and_safe_consultation(self):
+        self.assertIn('href="guide-infant-babysitter-first-use.html"', self.directory)
+        self.assertIn('href="guide-sitter-hourly-cost.html"', self.directory)
+        self.assertIn('href="consult.html?service=CARE&amp;inquiry=infant-first"', self.directory)
+        self.assertIn("相談だけで予約や利用が確定することはありません", self.directory)
+        self.assertIn("各公式サイト", self.directory)
+
     def test_findable_from_home_and_ai_guide(self):
         self.assertIn('href="sitter-directory.html"', self.index)
         self.assertIn("sitter-directory.html", self.llms)
