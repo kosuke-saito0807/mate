@@ -4,7 +4,7 @@
     "reason": "HTTP 429"
   },
   "editorial-akiba-programming": {
-    "at": 1795596465,
+    "at": 1795712588,
     "reason": "Empty screenshot"
   },
   "editorial-akky-kids-fukuoka": {
@@ -24,8 +24,8 @@
     "reason": "HTTP 403"
   },
   "editorial-fuji-sports": {
-    "at": 1795080200,
-    "reason": "HTTP 403"
+    "at": 1795712588,
+    "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://fujisportsclub.com/\", waiting until \"commit\"\n"
   },
   "editorial-itoman-junior": {
     "at": 1795596465,
@@ -36,7 +36,7 @@
     "reason": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://kidsmirai.taisei.sh/\nCall log:\n  - navigating to \"https://kidsmirai.taisei.sh/\", waiti"
   },
   "editorial-palette-piano": {
-    "at": 1795596465,
+    "at": 1795712588,
     "reason": "Empty screenshot"
   },
   "editorial-proglab": {
@@ -56,11 +56,11 @@
     "reason": "HTTP 403"
   },
   "editorial-taijiku": {
-    "at": 1795596465,
+    "at": 1795712588,
     "reason": "Empty screenshot"
   },
   "editorial-up-edu-science": {
-    "at": 1795596465,
+    "at": 1795712588,
     "reason": "Page.goto: Timeout 14500ms exceeded.\nCall log:\n  - navigating to \"https://up-edu.com/science-lab\", waiting until \"commit\"\n"
   }
 }
