@@ -10,6 +10,7 @@
 - [東京都で子どもの習い事を探す](https://spark.kosodatemate.jp/guide-tokyo-kids-classes.html): 年齢・体験・年間費用・通学条件の比較。
 - [体験レッスンの確認事項](https://spark.kosodatemate.jp/guide-lesson-trial-review.html)
 - [年齢に合う習い事](https://spark.kosodatemate.jp/guide-lesson-age-fit.html)
+- [1歳の習い事は早い？親子教室の選び方](https://spark.kosodatemate.jp/guide-lessons-age-one.html): リトミック・親子体操・絵本遊びの比較と体験・安全・料金チェック
 - [2歳の習い事は必要？](https://spark.kosodatemate.jp/guide-lessons-age-two.html): 初めての体験で確認したいこと、料金と親子の負担
 - [習い事の年間総費用と簡易計算ツール](https://spark.kosodatemate.jp/guide-lesson-total-cost.html): 月謝・入会金・教材・イベント費の比較と、入力値を送信しない予算計算
 - [家庭向け相談](https://care.kosodatemate.jp/consult.html?service=SPARK)
