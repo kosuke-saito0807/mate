@@ -14,6 +14,32 @@ assert.ok(mailStart>=0&&mailEnd>mailStart);
 const emailCode=src.slice(mailStart,mailEnd);
 const mail=new Function(emailCode+'\nreturn mateV4Email_;')();
 const interested=new Function(src.slice(start,end)+'\nreturn mateV4GenuineListingInterest_;')();
+const timeStart=src.indexOf('function mateV4ParseJstSendAt_(value){');
+const timeEnd=src.indexOf('function mateV4CaptureListingIntent_(){',timeStart);
+assert.ok(timeStart>=0&&timeEnd>timeStart);
+const parseJst=new Function(src.slice(timeStart,timeEnd)+'\nreturn mateV4ParseJstSendAt_;')();
+
+test('actual 1-digit hour from the sent log is recognized in JST',()=>{
+ const sent=parseJst('2026-11-24 8:44:40');
+ assert.equal(Number.isFinite(sent),true);
+ assert.equal(new Date(sent).toISOString(),'2026-11-23T23:44:40.000Z');
+ assert.equal(parseJst('2026-11-24 08:44:40'),sent);
+ assert.equal(parseJst('2026-11-24T8:44:40'),sent);
+ // The real-world reply arrived after the archived outreach, so it qualifies.
+ assert.ok(new Date('2026-11-25T03:59:26.000Z').getTime()>sent);
+ assert.match(src.slice(timeEnd,timeEnd+1800),
+              /const sent=mateV4ParseJstSendAt_\(x\['送信処理日時'\]\)/);
+});
+
+test('date guard rejects malformed, impossible or timezone-changing send dates',()=>{
+ for(const invalid of [
+   '', '2026-11-24', '2026-02-30 8:44:40', '2026-11-31 8:44:40',
+   '2026-13-24 8:44:40', '2026-11-24 24:44:40',
+   '2026-11-24 8:60:40', '2026-11-24 8:44:60',
+   '2026-11-24 8:44:40Z', '11/24/2026 8:44:40',
+ ])assert.equal(Number.isFinite(parseJst(invalid)),false,invalid);
+ assert.equal(new Date(parseJst('2026-11-24 18:00')).toISOString(),'2026-11-24T09:00:00.000Z');
+});
 
 test('quoted MATE campaign must not be mistaken for an interested reply',()=>{
  const raw='承知しました。\n\nOn Sun, Nov 15, 2026 at 11:00 AM MATE wrote:\n> 掲載希望と返信してください\n> 配信停止とご返信ください';
