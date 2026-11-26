@@ -2203,6 +2203,25 @@ function mateV4GenuineListingInterest_(body){
   return /掲載希望|掲載したい|掲載を希望|掲載について(?:相談|質問)|掲載に興味|登録したい|掲載をご相談|掲載を(?:前向きに\s*)?検討(?:したい|して(?:おり|い)ます|しております|中です)|掲載について(?:前向きに\s*)?検討(?:したい|しています|しております)/i.test(own);
 }
 
+/** Parse the actual Sheets getDisplayValues() JST datetime, including 1-digit hours.
+ * Example: "2026-11-24 8:44:40" was incorrectly rejected by Date.parse(T8...).
+ * Malformed / non-existent local dates are rejected, never treated as now.
+ */
+function mateV4ParseJstSendAt_(value){
+  const m=String(value||'').trim().match(/^(20\d\d)-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if(!m)return NaN;
+  const y=Number(m[1]),month=Number(m[2]),day=Number(m[3]);
+  const hour=Number(m[4]),minute=Number(m[5]),second=Number(m[6]||0);
+  if(month<1||month>12||day<1||day>31||hour>23||minute>59||second>59)return NaN;
+  const jst=9*60*60*1000;
+  const ts=Date.UTC(y,month-1,day,hour,minute,second)-jst;
+  const roundtrip=new Date(ts+jst);
+  if(roundtrip.getUTCFullYear()!==y||roundtrip.getUTCMonth()+1!==month||
+      roundtrip.getUTCDate()!==day||roundtrip.getUTCHours()!==hour||
+      roundtrip.getUTCMinutes()!==minute||roundtrip.getUTCSeconds()!==second)return NaN;
+  return ts;
+}
+
 function mateV4CaptureListingIntent_(){
   const book=mateV4Book_();
   const sheet=mateV4Tab_(book,'MATE_掲載希望返信キュー_V1');
@@ -2213,7 +2232,7 @@ function mateV4CaptureListingIntent_(){
     if(!services.includes(x['サービス'])||
        !['送信済','返信あり','配信停止'].includes(x['状態']))continue;
     const email=mateV4Email_(x['宛先メール']);
-    const sent=Date.parse(String(x['送信処理日時']||'').replace(' ','T')+'+09:00');
+    const sent=mateV4ParseJstSendAt_(x['送信処理日時']);
     if(!email||!Number.isFinite(sent))continue;
     if(!recipients.has(email)||recipients.get(email).sent>sent)
       recipients.set(email,{service:x['サービス'],sent,
