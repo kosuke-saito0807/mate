@@ -20,7 +20,8 @@ SITES = {
         "/", "/sitter-directory.html", "/play-listing.html",
         "/guide-infant-babysitter-first-use.html")),
     "SPARK": ("https://spark.kosodatemate.jp", (
-        "/", "/school-directory.html", "/guide-lessons-age-three.html")),
+        "/", "/school-directory.html", "/guide-lessons-age-one.html",
+        "/guide-lessons-age-three.html")),
     "PLAY": ("https://play.kosodatemate.jp", (
         "/", "/partners", "/contact", "/operator/", "/experiences",
         "/guide-baby-first-experience")),
