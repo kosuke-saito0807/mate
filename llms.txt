@@ -22,6 +22,7 @@
 
 ## 関連サービス
 - [MATE SPARK](https://spark.kosodatemate.jp/): 子どもの習い事・教室
+- [3歳の習い事・体験レッスンの選び方](https://spark.kosodatemate.jp/guide-lessons-age-three.html): 親子分離、講師との相性、振替、年間費用と通いやすさを比較する独自ガイド。各教室の対象年齢・体験可否・料金は公式情報を確認。相談は予約・入会ではない
 - [MATE PLAY](https://play.kosodatemate.jp/): 親子向け体験・お出かけ
 - [全国の親子体験・公式情報参考一覧](https://play.kosodatemate.jp/experiences): 公開情報に基づく事業者未承認の参考紹介を地域・ジャンル別に探せる。予約・料金・対象年齢は各主催者の公式案内を確認
 - [0歳の赤ちゃんと初めての親子体験準備ガイド](https://play.kosodatemate.jp/guide-baby-first-experience): 対象月齢、ベビーカー、授乳・おむつ替え、料金とキャンセル条件を確認するための独自ガイド。審査承認済み掲載と未承認の参考紹介を区別。最新の参加条件は主催者公式サイトで確認
