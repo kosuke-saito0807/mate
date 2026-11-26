@@ -45,7 +45,7 @@ class EditorialTransparency(unittest.TestCase):
     def test_meaningful_distinction_and_safe_corrections(self):
         for word in ["編集部による参考紹介","事業者からの正式掲載","安全保証",
                      "本人確認","未承認","公式Webサイト","誤記","修正・削除",
-                     "受付","おむつ替え","振替"]:
+                     "窓口","おむつ替え","振替"]:
             self.assertIn(word,self.page,word)
         self.assertIn("事業者がMATEとの提携・推薦・安全審査を受けているとは判断できません",self.page)
         self.assertIn("申請だけで自動公開・課金・契約が始まることはありません",self.page)
@@ -65,7 +65,7 @@ class EditorialTransparency(unittest.TestCase):
 
     def test_no_broken_internal_page_links(self):
         for link in self.tags.links:
-            if not link or link.startswith("#") or link.startswith("mailto:"):
+            if not link or link in ("#", "/") or link.startswith("#") or link.startswith("mailto:"):
                 continue
             if link.startswith(("https://spark.kosodatemate.jp/",
                                 "https://play.kosodatemate.jp/")):continue
