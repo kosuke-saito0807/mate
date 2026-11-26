@@ -16,9 +16,14 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree as ET
 
 SITES = {
-    "CARE": ("https://care.kosodatemate.jp", ("/", "/sitter-directory.html", "/play-listing.html")),
-    "SPARK": ("https://spark.kosodatemate.jp", ("/", "/school-directory.html")),
-    "PLAY": ("https://play.kosodatemate.jp", ("/", "/partners", "/contact", "/operator/", "/experiences")),
+    "CARE": ("https://care.kosodatemate.jp", (
+        "/", "/sitter-directory.html", "/play-listing.html",
+        "/guide-infant-babysitter-first-use.html")),
+    "SPARK": ("https://spark.kosodatemate.jp", (
+        "/", "/school-directory.html", "/guide-lessons-age-three.html")),
+    "PLAY": ("https://play.kosodatemate.jp", (
+        "/", "/partners", "/contact", "/operator/", "/experiences",
+        "/guide-baby-first-experience")),
 }
 UA = "MATE-Public-Indexability-Monitor/1.0"
 
