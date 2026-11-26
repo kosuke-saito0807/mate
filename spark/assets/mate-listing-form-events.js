@@ -18,6 +18,14 @@
   document.addEventListener('click', function (event) {
     var target = event.target && (event.target.nodeType === 1 ? event.target : event.target.parentElement);
     if (!target || typeof target.closest !== 'function') return;
+    if (target.closest('a[data-mate-listing-entry="form"]')) {
+      // A jump to the form is intent only, never an application receipt.
+      emit('mate_listing_form_jump');
+    }
+    if (target.closest('a[data-mate-listing-entry="email"]')) {
+      // The mail client may not open, and an email may never be sent.
+      emit('mate_listing_email_intent');
+    }
     if (target.closest('a[data-mate-listing-preview="true"]')) {
       // Count curiosity about listing presentation, not a successful application.
       // No URL, provider identity, recipient token or form values are sent.
