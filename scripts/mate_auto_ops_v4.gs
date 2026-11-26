@@ -425,6 +425,29 @@ function mateV4HistoricCampaignRecipients_(){
   }
   return recipients;
 }
+/**
+ * An append-only send log cannot prove Gmail has no older sent campaign:
+ * historical messages can be missing from the sheet, even after the seven-day
+ * global scan expires. Check the exact intended recipient immediately before
+ * reserving a new outbound message. This check sends nothing.
+ * A Gmail read failure or truncated result stops outreach (fail closed).
+ */
+function mateV4RecipientHasPriorGmailCampaign_(email){
+  const target=mateV4Email_(email);
+  if(!target)throw Error('送信前Gmail重複照合: 宛先が無効');
+  const query='in:sent to:'+target+' "MATE" "無料掲載"';
+  const threads=GmailApp.search(query,0,20);
+  if(threads.length>=20)throw Error('送信前Gmail重複照合: 該当履歴が上限に到達 '+target);
+  for(const thread of threads)for(const msg of thread.getMessages()){
+    const subject=String(msg.getSubject()||'');
+    if(!/^【MATE (CARE|SPARK|PLAY)】無料掲載のご案内/.test(subject))continue;
+    if(!String(msg.getFrom()||'').toLowerCase().includes(MATE_V4.account))continue;
+    const list=String(msg.getTo()||'').toLowerCase()
+      .match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[];
+    if(list.some(x=>mateV4Email_(x)===target))return true;
+  }
+  return false;
+}
 /** Round-robin across service buckets, with category-fit ordering within each.
  * One campaign per recipient globally: never prioritize volume over relevance.
  */
@@ -1621,6 +1644,12 @@ function mateV4SendOutreach(){
     const key=x['重複キー'];if(!email||!key||attempted.has(key)||blocked.has(email)||
       allRecipients.has(email)||manualHistory.has(email)||
       pitchedHosts.has(mateV4Host_(x['公式URL'])))continue;
+    // Gmail is the final source of truth if a past send is missing from Sheets.
+    // No extra email is sent when an old campaign is found.
+    if(mateV4RecipientHasPriorGmailCampaign_(email)){
+      allRecipients.add(email);
+      continue;
+    }
     const service=x['サービス'];
     if(!['CARE','SPARK','PLAY'].includes(service)||serviceToday[service]>=perServiceCap)continue;
     const landing=service==='PLAY'?'https://care.kosodatemate.jp/play-listing.html':
