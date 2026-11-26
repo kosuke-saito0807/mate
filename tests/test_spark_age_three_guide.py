@@ -37,11 +37,19 @@ class SparkAgeThreeGuideTests(unittest.TestCase):
         self.assertIn("主催者が承認した掲載ではなく", html)
         self.assertNotIn("必ず効果があります", html)
 
-    def test_home_and_related_article_link_back_to_indexed_guide(self):
+    def test_home_and_related_article_link_to_public_guide(self):
         home = (ROOT / "spark/index.html").read_text(encoding="utf-8")
         two = (ROOT / "spark/guide-lessons-age-two.html").read_text(encoding="utf-8")
         self.assertIn('href="guide-lessons-age-three.html"', home)
         self.assertIn('href="guide-lessons-age-three.html"', two)
+        hub = (ROOT / "guides.html").read_text(encoding="utf-8")
+        llms = (ROOT / "llms.txt").read_text(encoding="utf-8")
+        self.assertEqual(hub.count('href="' + URL + '"'), 1)
+        self.assertIn("3歳の習い事を始める？", hub)
+        self.assertIn("年間費用", hub)
+        self.assertIn("各教室の公式条件", hub)
+        self.assertEqual(llms.count("](" + URL + ")"), 1)
+        self.assertIn("相談は予約・入会ではない", llms)
         self.assertIn('href="guide-lessons-age-two.html"', GUIDE.read_text(encoding="utf-8"))
         sitemap = ElementTree.parse(ROOT / "spark/sitemap.xml")
         locs = [v.text for v in sitemap.iter() if v.tag.endswith("loc")]
