@@ -29,7 +29,7 @@ const MATE_V4=Object.freeze({
   sources:'収集元設定V1',leads:'営業候補_自動収集',
   sent:'営業送信ログV4',optouts:'配信停止V1',
   inquiries:'問い合わせ管理',referrals:'送客実績V1',
-  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-22-quota-safe-editorial-discovery'
+  maxCSVBytes:600000,maxNewLeadsPerRun:200,version:'2026-11-26-hourly-deadline-safe-audit'
 });
 function mateV4Book_(){
   if(String(Session.getEffectiveUser().getEmail()||'').toLowerCase()!==MATE_V4.account)
@@ -1082,7 +1082,10 @@ function mateV4PublishedEmails_(html){
  * independently set MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED=YES in addition
  * to existing MATE_AUTO_SEND=ON and MATE_AUTO_SEND_LEGAL_REVIEWED=YES.
  */
-function mateV4AuditOfficialContacts(){
+function mateV4AuditOfficialContacts(deadlineAt){
+  // Default limits also apply when an operator invokes this function alone.
+  // A timed-out attempt must not modify a prospect's evidence or send state.
+  const deadline=Number.isFinite(deadlineAt)?deadlineAt:Date.now()+90000;
   const p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_PUBLIC_SITE_AUDIT')==='OFF')return 'OFF';
   const autoException=p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'&&
@@ -1146,16 +1149,18 @@ function mateV4AuditOfficialContacts(){
   let checked=0,eligible=0,discovered=0;
   const outcomes={officialSiteUnavailable:0,solicitationRefusal:0,
     noUniquePublishedRoleEmail:0,optoutSuppressed:0,
-    verifiedButReviewHeld:0,readyAfterReview:0,auditException:0};
-  // Prioritize new company contact audits without exhausting GAS execution time.
-  // The batch can be tuned in private Script Properties (3..16); audit steps
-  // remain bounded and cannot bypass opt-out, official-evidence or legal gates.
-  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||12);
+    verifiedButReviewHeld:0,readyAfterReview:0,auditException:0,
+    budgetDeferred:0};
+  // Cap this slow first-party network audit independently of the saved
+  // property. Previously 12 prospects x up to four HTTPS pages/redirects
+  // could exceed the six-minute Apps Script execution limit.
+  const requested=Number(p.getProperty('MATE_PUBLIC_AUDIT_BATCH')||3);
   const batchSize=Number.isFinite(requested)?
-    Math.min(16,Math.max(3,Math.floor(requested))):12;
+    Math.min(3,Math.max(1,Math.floor(requested))):3;
   const today=mateV4Jst_().slice(0,10);
   for(const x of leads){
-    if(checked>=batchSize)break;
+    // Leave room for a slow HTTPS fetch (and a final heartbeat).
+    if(checked>=batchSize||Date.now()>=deadline-35000)break;
     if(mateV4OwnerBlocked_(x)||!['窓口確認待ち','公式公開メール確認済・送信待機','営業可能候補'].includes(x['状態']))continue;
     // A previously verified address is not sendable when refusal remains
     // '未確認'. Recheck the first-party page, then resolve that status only
@@ -1205,6 +1210,9 @@ function mateV4AuditOfficialContacts(){
       // A temporary fetch failure on one page must not conceal a valid
       // company/contact page. Keep all lookups same-business HTTPS only.
       const fetchPage=url=>{
+        // Do not infer "no public role mailbox" from an incomplete crawl.
+        // The special defer is intentionally outside the network catch.
+        if(Date.now()>=deadline-35000)throw Error('MATE_AUDIT_BUDGET_DEFER');
         try{return {url,html:mateV4PublicHtml_(url)}}
         catch(e){return {url,html:''}}
       };
@@ -1286,6 +1294,11 @@ function mateV4AuditOfficialContacts(){
       if(accepted){eligible++;outcomes.readyAfterReview++}
       else outcomes.verifiedButReviewHeld++;
     }catch(err){
+      if(String(err).includes('MATE_AUDIT_BUDGET_DEFER')){
+        // No evidence/status writes have happened for this candidate.
+        // A later cycle may safely resume without falsely marking checked.
+        checked--;outcomes.budgetDeferred++;break;
+      }
       outcomes.auditException++;
       tab.getRange(x._row,15).setValue('AUTO_AUDIT '+today+' 取得失敗・送信保留');
     }
@@ -2375,7 +2388,8 @@ function mateV4ProductionHeartbeat_(report){
   };
   const stepFailures=Object.entries(report||{}).filter(([key,value])=>
     key!=='productionHeartbeat'&&value&&typeof value==='object'&&
-    value.status==='FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE').map(([key])=>key);
+    ['FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE','SKIPPED_EXECUTION_BUDGET']
+      .includes(value.status)).map(([key])=>key);
   const status=stepFailures.length?'CYCLE_PARTIAL: '+stepFailures.join(',').slice(0,140):
     report&&Object.keys(report).length?'CYCLE_COMPLETED':'EMPTY_CYCLE';
   const numericSend=Number(report&&report.outreach);
@@ -2420,6 +2434,11 @@ function mateV4ProductionHeartbeat_(report){
 
 function mateAutoOpsV4Cycle(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(15000))return 'SKIP_LOCK';
+  const cycleStartedAt=Date.now();
+  // Guard optional post-send work, leaving two minutes for a slow step and
+  // the final health report. Safety checks and the guarded sender never
+  // skip based on this time budget.
+  const optionalDeadline=cycleStartedAt+210000;
   // Persist runtime identity BEFORE any data source can fail. This is proof
   // of live execution, not proof of successful synchronization or outreach.
   try{
@@ -2468,9 +2487,18 @@ function mateAutoOpsV4Cycle(){
     props.setProperty('MATE_V4_WORK_PHASE',String((phaseIndex+1)%3));
     const gmailDependent=new Set(['listingIntent','listingAcknowledgements',
       'reviewDrafts','referrals','replies']);
+    const optionalSteps=new Set(['externalListingKpi','listingIntent',
+      'listingAcknowledgements','publicAudit','reviewDrafts','referrals',
+      'replies','crmSeeded','sectorSeeded','catalogDiscovery',
+      'generalWebDiscovery','editorialProspects','collected',
+      'freeOsmDiscovery','freeWebPromoted']);
     const safe=(name,fn)=>{
       if(gmailDependent.has(name)&&props.getProperty(gmailQuotaKey)===gmailQuotaDate)
         return {step:name,status:'SKIPPED_GMAIL_QUOTA_COOLDOWN'};
+      // Every optional call checks the deadline before starting new work.
+      // Public audit additionally checks it between HTTPS fetches.
+      if(optionalSteps.has(name)&&Date.now()>=optionalDeadline)
+        return {step:name,status:'SKIPPED_EXECUTION_BUDGET'};
       try{return fn()}catch(e){
         if(/Service invoked too many times for one day:\s*gmail/i.test(String(e)))
           props.setProperty(gmailQuotaKey,gmailQuotaDate);
@@ -2495,13 +2523,18 @@ function mateAutoOpsV4Cycle(){
     // This sender uses existing recipient verification, owner suppression,
     // deduplication, daily caps and Gmail quota gates unchanged.
     report.outreach=mateV4SendOutreach();
+    // A mid-cycle failure no longer looks like the sender was never reached.
+    // This is NOT proof that a reserved email was delivered.
+    try{mateV4Tab_(mateV4Book_(),'GAS本番稼働監視V4')
+      .getRange(2,11).setValue('SEND_STAGE_REACHED_NOT_DELIVERY_CONFIRMATION')}
+    catch(e){console.log('SEND_STAGE_HEARTBEAT_FAILED '+String(e).slice(0,120))}
 
     // Refresh quality and conversion work after the send attempt. Newly
     // verified leads are eligible for a later guarded cycle, not a shortcut.
     report.externalListingKpi=safe('externalListingKpi',mateV4RefreshExternalListingKpi_);
     report.listingIntent=safe('listingIntent',mateV4CaptureListingIntent_);
     report.listingAcknowledgements=safe('listingAcknowledgements',mateV4AcknowledgeListingInterests_);
-    report.publicAudit=safe('publicAudit',mateV4AuditOfficialContacts);
+    report.publicAudit=safe('publicAudit',()=>mateV4AuditOfficialContacts(optionalDeadline));
     report.reviewDrafts=safe('reviewDrafts',mateV4PrepareReviewDrafts);
     report.referrals=safe('referrals',mateV4SyncReferralLedger);
     report.replies=safe('replies',mateV4TrackReplies);
