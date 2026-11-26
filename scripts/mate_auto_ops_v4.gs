@@ -1082,10 +1082,11 @@ function mateV4PublishedEmails_(html){
  * independently set MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED=YES in addition
  * to existing MATE_AUTO_SEND=ON and MATE_AUTO_SEND_LEGAL_REVIEWED=YES.
  */
-function mateV4AuditOfficialContacts(deadlineAt){
-  // Default limits also apply when an operator invokes this function alone.
-  // A timed-out attempt must not modify a prospect's evidence or send state.
-  const deadline=Number.isFinite(deadlineAt)?deadlineAt:Date.now()+90000;
+function mateV4AuditOfficialContacts(){
+  // Preserve the stable no-argument GAS entry point used by offline safety
+  // tests. The hourly runner may pass an optional absolute deadline.
+  // A deferred audit must never modify evidence or send status.
+  const deadline=Number.isFinite(arguments[0])?arguments[0]:Date.now()+90000;
   const p=PropertiesService.getScriptProperties();
   if(p.getProperty('MATE_PUBLIC_SITE_AUDIT')==='OFF')return 'OFF';
   const autoException=p.getProperty('MATE_PUBLIC_EMAIL_EXCEPTION_REVIEWED')==='YES'&&
