@@ -450,7 +450,15 @@ async function main() {
       assert.equal(await p.locator('#trialForm').isHidden(),true,
         'Legacy direct trial POST form stays disabled regardless of flags');
       // The school-owner listing intake should appear on approved Firebase hosts.
-      await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'networkidle'});
+      // Simulated Firebase serves all site files locally, but external
+      // Turnstile/Google scripts may keep the network busy indefinitely.
+      // Wait for our actual form readiness, not for third-party network idle.
+      await p.goto('https://mate-spark.web.app/partners.html',{waitUntil:'domcontentloaded'});
+      await p.waitForFunction(()=>{
+        const f=document.querySelector('#partnerForm');
+        return f && !f.hidden && !!f.querySelector('.cf-turnstile') &&
+          /^https:\/\/script\.google\.com\/macros\/s\//.test(f.action);
+      });
       assert.equal(await p.locator('#partnerForm').isHidden(),false);
       assert.match(await p.locator('#partnerForm').getAttribute('action'),/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/);
       assert.equal(await p.locator('#partnerForm').getAttribute('data-mate-direct-listing'),'true');
