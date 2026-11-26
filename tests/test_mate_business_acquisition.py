@@ -39,6 +39,14 @@ class BusinessAcquisitionTests(unittest.TestCase):
         for service,link in TARGETS.items():
             self.assertIn('data-business-cta="'+service+'" href="'+link+'"',html)
         self.assertIn("mate_business_cta_click",html)
+        # Optional paid-plan interest is not an order, contract, or revenue.
+        self.assertIn('data-business-paid-interest="true"', html)
+        self.assertIn('mailto:kosodatemate@gmail.com?subject=MATE%20optional%20partner%20plan%20inquiry', html)
+        self.assertIn('mate_business_paid_interest_click', html)
+        self.assertIn("有料プランの提供内容・金額・開始日は現在未確定", html)
+        self.assertIn("無料掲載の審査・表示順位・受付可否には影響しません", html)
+        self.assertIn("申込み・契約・支払いは成立しません", html)
+        self.assertNotIn("gtag('event','purchase'",html)
         self.assertNotIn('mailto:kosuke.saito0807',html)
 
     def test_sitemap_and_internal_entrances(self):
