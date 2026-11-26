@@ -31,7 +31,11 @@ class OutreachNoBccTests(unittest.TestCase):
         audit = SRC.split("function mateV4AuditOfficialContacts(){",1)[1].split("function previewMateOutreachReadinessV4(){",1)[0]
         self.assertIn("const retryDays=/取得不可|取得失敗|確認できず/.test(note)?2:",audit)
         self.assertIn("MATE_PUBLIC_AUDIT_BATCH",audit)
-        self.assertIn("Math.min(16,Math.max(3,Math.floor(requested)))",audit)
+        # Slow official-site audits now have a time budget and a hard cap of
+        # three per hourly cycle, regardless of a stale Script Property.
+        self.assertIn("Math.min(3,Math.max(1,Math.floor(requested)))",audit)
+        self.assertIn("MATE_AUDIT_BUDGET_DEFER",audit)
+        self.assertIn("checked--;outcomes.budgetDeferred++;break",audit)
         self.assertIn("batchSize",audit)
         self.assertIn("if(x['状態']==='営業可能候補'&&x['営業拒否']==='未確認')return 1;",audit)
         self.assertIn("x['営業拒否']==='FALSE'&&mateV4PublicMailOperatorReview_(x)",audit)
