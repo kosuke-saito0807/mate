@@ -191,6 +191,7 @@ class IndexabilityTests(unittest.TestCase):
     def test_new_guides_are_checked_in_real_three_site_monitor(self):
         pages={service:routes for service, (_,routes) in monitor.SITES.items()}
         self.assertIn("/guide-infant-babysitter-first-use.html",pages["CARE"])
+        self.assertIn("/guide-lessons-age-one.html",pages["SPARK"])
         self.assertIn("/guide-lessons-age-three.html",pages["SPARK"])
         self.assertIn("/guide-baby-first-experience",pages["PLAY"])
         for service, (origin, routes) in monitor.SITES.items():
