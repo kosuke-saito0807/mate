@@ -321,6 +321,36 @@ assert.equal(prior.has('info@prior-example.org'),true,'prior manual sent mails e
 assert.equal(prior.size,1);
 context.GmailApp.search=query=>query.startsWith('in:sent')?Array(400).fill({getMessages:()=>[]}):[];
 assert.throws(()=>run("mateV4HistoricCampaignRecipients_()"),/上限/,'history paging overflow blocks sending');
+// A real-world repeat escaped the V4 sheet because Gmail history was >7 days
+// old. The exact-recipient check has no age cutoff and must run pre-send.
+let recipientHistoryQueries=[];
+context.GmailApp.search=(query)=>{
+ recipientHistoryQueries.push(query);
+ if(query.includes('to:info@missing-from-sheet.example.org'))return [{
+  getMessages:()=>[{
+   getSubject:()=> '【MATE CARE】無料掲載のご案内｜以前案内済みの事業者',
+   getFrom:()=> 'MATE運営事務局 <kosodatemate@gmail.com>',
+   getTo:()=> 'お問い合わせ窓口 <info@missing-from-sheet.example.org>'
+  }]
+ }];
+ return [];
+};
+assert.equal(run("mateV4RecipientHasPriorGmailCampaign_('info@missing-from-sheet.example.org')"),true,
+  'old sent Gmail campaign blocks a repeat even when absent from V4 sheet');
+assert.equal(run("mateV4RecipientHasPriorGmailCampaign_('info@new-example.org')"),false,
+  'a new exact recipient without campaign history remains eligible for other gates');
+assert.ok(recipientHistoryQueries.every(q=>q.startsWith('in:sent to:')),
+  'check must use an exact intended recipient and never broad mailbox scans');
+const outbound=source.slice(source.indexOf('function mateV4SendOutreach(){'),
+ source.indexOf('/**\n * Create INTERNAL review drafts'));
+assert.ok(outbound.includes('mateV4RecipientHasPriorGmailCampaign_(email)'));
+assert.ok(outbound.indexOf('mateV4RecipientHasPriorGmailCampaign_(email)')<
+  outbound.indexOf('// Reserve before external send'),
+  'Gmail check happens before any reservation or outbound message');
+context.GmailApp.search=()=>Array(20).fill({getMessages:()=>[]});
+assert.throws(()=>run("mateV4RecipientHasPriorGmailCampaign_('info@many-example.org')"),/上限/);
+context.GmailApp.search=()=>{throw Error('quota');};
+assert.throws(()=>run("mateV4RecipientHasPriorGmailCampaign_('info@unverified-example.org')"),/quota/);
 context.GmailApp.search=()=>[];
 
 sheet('SPARK営業候補',['ID','企業・教室名','都県・対象','公式・窓口URL'],[
