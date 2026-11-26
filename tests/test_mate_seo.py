@@ -179,6 +179,33 @@ class SeoLaunchTests(unittest.TestCase):
             self.assertIn("https://spark.kosodatemate.jp/partners.html", html)
             self.assertIn("https://care.kosodatemate.jp/play-listing.html", html)
 
+    def test_spark_owner_listing_hero_paths_and_anonymous_intent(self):
+        html=(ROOT/"spark/partners.html").read_text(encoding="utf-8")
+        js=(ROOT/"assets/mate-listing-form-events.js").read_text(encoding="utf-8")
+        from html.parser import HTMLParser
+        class Links(HTMLParser):
+            def __init__(self): super().__init__(); self.a=[]
+            def handle_starttag(self, tag, attrs):
+                if tag=="a": self.a.append(dict(attrs))
+        links=Links()
+        links.feed(html)
+        form_links=[a for a in links.a if a.get("data-mate-listing-entry")=="form"]
+        email_links=[a for a in links.a if a.get("data-mate-listing-entry")=="email"]
+        self.assertEqual(len(form_links),1)
+        self.assertEqual(form_links[0]["href"],"#apply")
+        self.assertEqual(len(email_links),1)
+        self.assertTrue(email_links[0]["href"].startswith("mailto:kosodatemate@gmail.com?subject=MATE%20SPARK"))
+        self.assertIn('id="apply"',html)
+        self.assertIn('id="partnerForm" data-mate-direct-listing="true"',html)
+        self.assertIn('写真や料金・曜日の詳細は任意です',html)
+        self.assertIn('相談メールだけで掲載・契約・課金は始まりません',html)
+        self.assertIn('mate_listing_form_jump',js)
+        self.assertIn('mate_listing_email_intent',js)
+        self.assertIn('mate_listing_submit_attempt',js)
+        self.assertIn('service: service, funnel: \'listing_application\'',js)
+        self.assertNotIn('formData',js)
+        self.assertNotIn('location.href',js)
+
     def test_shared_play_application_is_in_its_actual_host_sitemap(self):
         xml = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
         self.assertIn("<loc>https://care.kosodatemate.jp/play-listing.html</loc>", xml)
