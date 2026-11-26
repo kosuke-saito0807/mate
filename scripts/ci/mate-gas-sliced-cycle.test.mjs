@@ -8,11 +8,13 @@ const a=source.indexOf('function mateAutoOpsV4Cycle(){');
 const b=source.indexOf('function installMateAutoOpsV4(){',a);
 assert.ok(a>0&&b>a);
 const fnSource=source.slice(a,b);
-function runCycle(phase,failOptout=false,cooldown=false,failEditorial=false){
+function runCycle(phase,failOptout=false,cooldown=false,failEditorial=false,exhaustAfterSend=false){
  const props={'MATE_V4_WORK_PHASE':String(phase)},invoked=[],log=[],statuses=[];
+ let now=1000000;
  if(cooldown)props.MATE_FAST_GMAIL_QUOTA_BLOCKED_JST='2026-11-15';
  const sheet={getRange:(row,col)=>({setValue:v=>{if(row===2&&col===11)statuses.push(v)}})};
  const keys={
+  Date:{now:()=>now},
   LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>invoked.push('unlock')})},
   PropertiesService:{getScriptProperties:()=>({getProperty:k=>props[k]||'',
     setProperty:(k,v)=>{props[k]=v}})},
@@ -30,6 +32,7 @@ function runCycle(phase,failOptout=false,cooldown=false,failEditorial=false){
  'mateV4SendOutreach','mateV4TrackReplies','mateV4RefreshExternalListingKpi_',
  'mateV4CaptureListingIntent_','mateV4AcknowledgeListingInterests_'];
  for(const name of steps)keys[name]=()=>{invoked.push(name);
+   if(exhaustAfterSend&&name==='mateV4SendOutreach')now+=220000;
    if(failOptout&&name==='mateV4OptoutInbox')throw Error('optout processing failed');
    if(failEditorial&&name==='mateV4SeedEditorialProspects')throw Error('editorial source failed');
    return 1;
@@ -86,4 +89,20 @@ test('Cooldown discovery failure still refreshes KPI, holds every send and flags
  assert.equal(r.result.editorialProspects.status,'FAILED_NO_SIDE_EFFECT_ASSUMED_FALSE');
  assert.equal(r.result.outreach,'NOT_ATTEMPTED');
  assert.equal(r.statuses.at(-1),'GMAIL_QUOTA_COOLDOWN_NO_GMAIL_CALLS_DISCOVERY_PARTIAL');
+});
+
+test('optional deadline skips slow work without skipping opt-outs, bounce guard or sender',()=>{
+ const r=runCycle(1,false,false,false,true);
+ assert.equal(r.err,undefined);
+ for(const required of ['mateV4OptoutInbox','mateV4HardBounceQuarantine',
+                        'mateV4ReconcileSentReservations','mateV4SendOutreach'])
+   assert.equal(r.invoked.includes(required),true,required+' remains mandatory');
+ for(const optional of ['mateV4AuditOfficialContacts','mateV4SeedEditorialProspects',
+                        'mateV4RefreshExternalListingKpi_','mateV4CollectLeads'])
+   assert.equal(r.invoked.includes(optional),false,optional+' skipped by deadline');
+ assert.equal(r.result.publicAudit.status,'SKIPPED_EXECUTION_BUDGET');
+ assert.equal(r.result.editorialProspects.status,'SKIPPED_EXECUTION_BUDGET');
+ assert.equal(r.result.productionHeartbeat.codeRunning,true);
+ assert.ok(r.statuses.includes('SEND_STAGE_REACHED_NOT_DELIVERY_CONFIRMATION'));
+ assert.equal(r.invoked.at(-1),'unlock','script lock released after budget defer');
 });
