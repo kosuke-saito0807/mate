@@ -31,6 +31,15 @@ class SchoolDirectorySeoTests(unittest.TestCase):
         self.assertNotIn('事業者確認済み',html)
         self.assertNotIn('GMAIL_SENT:',html)
 
+    def test_age_specific_guides_and_consultation_visible_in_static_list(self):
+        html=PAGE.read_text(encoding="utf-8")
+        self.assertIn('href="guide-lessons-age-three.html"',html)
+        self.assertIn('href="guide-lessons-age-two.html"',html)
+        self.assertIn('href="guide-lesson-trial-review.html"',html)
+        self.assertIn('href="https://care.kosodatemate.jp/consult.html?service=SPARK&amp;inquiry=age-three"',html)
+        self.assertIn("相談だけで入会や予約は成立しません",html)
+        self.assertIn("必ず各教室の公式情報",html)
+
     def test_schema_and_links(self):
         html=PAGE.read_text(encoding="utf-8")
         block=re.search(r'<script type="application/ld\+json">(.*?)</script>',html,re.S)

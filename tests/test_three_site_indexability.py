@@ -188,6 +188,16 @@ class IndexabilityTests(unittest.TestCase):
         self.assertTrue(any("obsolete per-reference owner-claim link present" in e for e in
                             monitor.inspect_site("PLAY", origin, pages, reader)["errors"]))
 
+    def test_new_guides_are_checked_in_real_three_site_monitor(self):
+        pages={service:routes for service, (_,routes) in monitor.SITES.items()}
+        self.assertIn("/guide-infant-babysitter-first-use.html",pages["CARE"])
+        self.assertIn("/guide-lessons-age-three.html",pages["SPARK"])
+        self.assertIn("/guide-baby-first-experience",pages["PLAY"])
+        for service, (origin, routes) in monitor.SITES.items():
+            self.assertEqual(len(routes),len(set(routes)))
+            self.assertTrue(all(route.startswith("/") for route in routes))
+            self.assertTrue(origin.endswith(".kosodatemate.jp"))
+
     def test_only_production_origins_are_monitored(self):
         self.assertEqual(set(monitor.SITES), {"CARE", "SPARK", "PLAY"})
         self.assertTrue(all(origin.startswith("https://") and "test." not in origin
