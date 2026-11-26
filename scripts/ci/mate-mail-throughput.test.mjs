@@ -7,10 +7,13 @@ const audit=src.slice(src.indexOf('function mateV4AuditOfficialContacts(){'),
  src.indexOf('function previewMateOutreachReadinessV4(){'));
 const send=src.slice(src.indexOf('function mateV4SendOutreach(){'),
  src.indexOf('function mateV4PrepareReviewDrafts(){'));
-test('public first-party site audit defaults to twelve, capped at sixteen companies per cycle',()=>{
- assert.match(audit,/MATE_PUBLIC_AUDIT_BATCH'\)\|\|12/);
- assert.match(audit,/Math\.min\(16,Math\.max\(3,Math\.floor\(requested\)\)\):12/);
- assert.ok(audit.includes('if(checked>=batchSize)break'));
+test('public first-party site audit is capped at three and defers on the deadline',()=>{
+ assert.match(audit,/MATE_PUBLIC_AUDIT_BATCH'\)\|\|3/);
+ assert.match(audit,/Math\.min\(3,Math\.max\(1,Math\.floor\(requested\)\)\):3/);
+ assert.ok(audit.includes('if(checked>=batchSize||Date.now()>=deadline-35000)break'));
+ assert.ok(audit.includes("throw Error('MATE_AUDIT_BUDGET_DEFER')"));
+ assert.ok(audit.includes("outcomes.budgetDeferred++"));
+ assert.ok(audit.includes("checked--;outcomes.budgetDeferred++;break"));
  assert.ok(audit.includes('mateV4SalesRefusal_'));
  assert.ok(audit.includes('mateV4OwnerBlocked_'));
  assert.ok(audit.includes("mateV4SameBusinessHost_"));
