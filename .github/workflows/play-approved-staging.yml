@@ -1,0 +1,40 @@
+name: PLAY approved staging preview (never deploy)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/read_play_approved_staging.py'
+      - 'scripts/build_play_staging.py'
+      - 'tests/test_play_staging.py'
+      - '.github/workflows/play-approved-staging.yml'
+permissions:
+  contents: read
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python3 -m unittest discover -s tests -p test_play_staging.py -v
+  generate-preview:
+    # PRs do not receive credentials. A human must explicitly trigger this workflow.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install read-only Sheets dependencies
+        run: python3 -m pip install --disable-pip-version-check gspread google-auth
+      - name: Read only approved records into isolated staging JSON
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+        run: python3 scripts/read_play_approved_staging.py
+      - name: Verify JSON format and never publish to CMS
+        run: python3 -c "import json; data=json.load(open('staging/play-approved.json')); assert isinstance(data,list)"
+      # Deliberately do NOT upload artifacts, push commits, deploy Firebase or call production CMS.
+      # Existing sheet credentials may lack access; the run fails safely without changing the site.
