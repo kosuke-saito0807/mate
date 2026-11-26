@@ -2181,10 +2181,26 @@ function mateV4ReplyWithoutQuotedCampaign_(raw){
     if(/^>/.test(x)||/^[-_]{4,}\s*(?:original message|転送|引用)/i.test(x)||
        /^(?:On .{0,130}wrote:|差出人\s*[:：]|From\s*[:：]|送信元\s*[:：]|-----Original Message-----)/i.test(x)||
        /^\d{4}年\d{1,2}月\d{1,2}日.{0,120}(?:書きました|wrote)/i.test(x)||
-       /^-{5,}\s*$/.test(x))break;
+       /^-{5,}\s*$/.test(x)||
+       // Gmail's Japanese quote header can end with a colon instead of
+       // "wrote" or "書きました". Never scan our prior campaign as new reply.
+       /^\d{4}年\d{1,2}月\d{1,2}日(?:\([^)]{1,5}\))?\s+\d{1,2}:\d{2}.{0,160}[:：]\s*$/.test(x))break;
     newLines.push(line);
   }
   return newLines.join('\n').trim();
+}
+
+/**
+ * Explicit positive partner intent in the sender-authored reply only.
+ * This is NOT a contract, application, lead verification, or permission to
+ * publish. Both the discovery and acknowledgement paths must agree.
+ */
+function mateV4GenuineListingInterest_(body){
+  const own=String(body||'').slice(0,750).trim();
+  if(!own)return false;
+  if(/配信停止|メール不要|今後連絡不要|unsubscribe|\bstop\b|掲載不要|掲載しない|掲載は不要|掲載を希望しない|掲載は見送り|掲載を見送|掲載を断念|掲載は希望しません|掲載の意向はありません/i.test(own))
+    return false;
+  return /掲載希望|掲載したい|掲載を希望|掲載について(?:相談|質問)|掲載に興味|登録したい|掲載をご相談|掲載を(?:前向きに\s*)?検討(?:したい|して(?:おり|い)ます|しております|中です)|掲載について(?:前向きに\s*)?検討(?:したい|しています|しております)/i.test(own);
 }
 
 function mateV4CaptureListingIntent_(){
@@ -2224,8 +2240,7 @@ function mateV4CaptureListingIntent_(){
       // original campaign (which already contains "掲載希望" and "配信停止").
       const body=mateV4ReplyWithoutQuotedCampaign_(msg.getPlainBody()).slice(0,750).trim();
       if(!body)continue;
-      if(/配信停止|メール不要|今後連絡不要|unsubscribe|stop/i.test(body))continue;
-      if(!/掲載希望|掲載したい|掲載を希望|掲載について(?:相談|質問)|掲載に興味|登録したい|掲載をご相談/i.test(body))continue;
+      if(!mateV4GenuineListingInterest_(body))continue;
       const company=String(campaign.campaign||'').split('｜').slice(1).join('｜');
       mateV4Append_(sheet,[id,mateV4Jst_(),campaign.service,email,
         company,subject.slice(0,100),'要返信・申請案内',
@@ -2266,8 +2281,7 @@ function mateV4AcknowledgeListingInterests_(){
         held++;continue;
       }
       const own=mateV4ReplyWithoutQuotedCampaign_(msg.getPlainBody()).slice(0,750);
-      if(/配信停止|メール不要|今後連絡不要|unsubscribe|stop/i.test(own)||
-         !/掲載希望|掲載したい|掲載を希望|登録したい|掲載に興味/.test(own)){
+      if(!mateV4GenuineListingInterest_(own)){
         held++;continue;
       }
       if(MailApp.getRemainingDailyQuota()<1)break;
