@@ -18,6 +18,7 @@
 - [CARE・SPARK・PLAYの事業者向け無料掲載案内](https://care.kosodatemate.jp/business.html): どのサービスが掲載対象かを選び、直接申請へ進む
 
 - [全国のベビーシッター公式情報一覧](https://care.kosodatemate.jp/sitter-directory.html): 事業者未承認の参考紹介をHTMLで掲載。各事業者の公式サイトへリンクし、正式掲載・提携・推薦とは区別しています
+- [MATE編集部の掲載情報の確認・訂正方針](https://care.kosodatemate.jp/editorial-policy.html): CARE・SPARK・PLAYの公開情報を整理する手順、参考紹介と正式掲載の違い、問い合わせ・修正方法
 - [公開情報の修正・削除](https://care.kosodatemate.jp/public-guide.html#correction): 事業者向けの独立した受付案内
 
 ## 関連サービス
