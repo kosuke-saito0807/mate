@@ -4,11 +4,13 @@ on:
     paths:
       - 'scripts/mate_auto_ops_v4.gs'
       - 'tests/mate_auto_ops_v4_test.cjs'
+      - 'scripts/ci/mate-reply-parser-safety.test.mjs'
       - '.github/workflows/test-mate-auto-ops.yml'
   push:
     paths:
       - 'scripts/mate_auto_ops_v4.gs'
       - 'tests/mate_auto_ops_v4_test.cjs'
+      - 'scripts/ci/mate-reply-parser-safety.test.mjs'
       - '.github/workflows/test-mate-auto-ops.yml'
   workflow_dispatch:
 permissions:
@@ -28,3 +30,5 @@ jobs:
           node --check /tmp/mate-auto-ops-v4.js
       - name: Verify mail safety and consent-gated referral synchronization with mocks
         run: node tests/mate_auto_ops_v4_test.cjs
+      - name: Test real-world partner interest matching and quote/opt-out safety (NO SEND)
+        run: node --test scripts/ci/mate-reply-parser-safety.test.mjs
