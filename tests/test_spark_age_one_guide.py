@@ -43,7 +43,7 @@ class AgeOneGuideContract(unittest.TestCase):
         self.assertIn("index,follow", self.tags.meta.get("robots", ""))
         self.assertIn("1歳", self.tags.meta.get("description", ""))
         self.assertGreater(len(self.html), 6500)
-        match = re.search(r'<script type="application/ld\\+json">(.*?)</script>', self.html, re.S)
+        match = re.search(r'<script type="application/ld[+]json">(.*?)</script>', self.html, re.S)
         self.assertIsNotNone(match)
         graph = json.loads(match.group(1))["@graph"]
         self.assertEqual({item["@type"] for item in graph}, {"Article", "BreadcrumbList"})
