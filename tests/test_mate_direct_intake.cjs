@@ -293,3 +293,17 @@ test("All three reject 6 photos without storage, receipt or publication",()=>{
    assert.equal(e.sent.length,0);
  }
 });
+
+test("review-link follow-up is exact-ID, idempotent and operator-only",()=>{
+ assert.match(source,/function mateDirectQueueReviewLink_\(/);
+ assert.match(source,/function mateDirectSendResolvedReviewLinks\(/);
+ assert.match(source,/function setupMateDirectReviewLinkNotifications\(/);
+ assert.match(source,/everyMinutes\(15\)/);
+ assert.match(source,/getRange\(2,1,review\.getLastRow\(\)-1,31\)/);
+ assert.match(source,/matches\.length!==1/);
+ assert.match(source,/found\.receipt!==item\.receipt\|\|found\.service!==item\.service/);
+ assert.match(source,/MATE_REVIEW_LINK_ATTEMPTED_/);
+ assert.match(source,/to:MATE_DIRECT\.owner/);
+ assert.match(source,/mateDirectQueueReviewLink_\(aid,receipt,d\.service\)/);
+ assert.doesNotMatch(source,/to:d\.email,[\s\S]*審査行リンク確定/);
+});
