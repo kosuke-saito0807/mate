@@ -13,6 +13,16 @@ TARGETS={
     "PLAY":"https://care.kosodatemate.jp/play-listing.html",
 }
 class BusinessAcquisitionTests(unittest.TestCase):
+    def test_care_homepage_business_comparison_is_discoverable(self):
+        home = (ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertIn('href="business.html" data-mate-cta="business-overview"', home)
+        self.assertIn('data-mate-cta="listing" href="contact.html"', home)
+        self.assertIn("'mate_business_overview_click'", home)
+        self.assertIn("'mate_listing_click'", home)
+        self.assertIn("申請後、担当者の権限と掲載情報を確認してから公開", home)
+        # Info-page clicks are not applications, approvals, or paid conversions.
+        self.assertNotIn("gtag('event','purchase'", home)
+
     def test_hub_crawlable_and_trustworthy(self):
         html=(ROOT/"business.html").read_text(encoding="utf-8")
         self.assertIn('<link rel="canonical" href="'+HUB+'">',html)
