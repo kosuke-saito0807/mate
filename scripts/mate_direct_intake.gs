@@ -324,6 +324,85 @@ function mateDirectReviewLink_(book,apps,aid,sourceRow){
   return {url:base+sourceRow+':E'+sourceRow,pending:true,row:sourceRow};
   }catch(_reviewLookupError){return null;}
 }
+/**
+ * A just-submitted application can be visible in the intake tab before the
+ * asynchronous easy-review sync. This is only an operator notification queue:
+ * it cannot approve, publish, contact an applicant or alter review decisions.
+ * Run setupMateDirectReviewLinkNotifications() once in the intake GAS project
+ * after deployment to enable the recurring 15-minute correction notices.
+ */
+function mateDirectQueueReviewLink_(aid,receipt,service){
+  if(!/^MATE-WEB-[a-f0-9-]{36}$/.test(aid)||!/^\\d{10}$/.test(receipt))return;
+  if(['CARE','SPARK','PLAY'].indexOf(service)<0)return;
+  PropertiesService.getScriptProperties().setProperty(
+    'MATE_REVIEW_LINK_PENDING_'+aid,
+    JSON.stringify({receipt:receipt,service:service,created:Date.now()})
+  );
+}
+function setupMateDirectReviewLinkNotifications(){
+  mateDirectOwner_();
+  var handler='mateDirectSendResolvedReviewLinks';
+  var existing=ScriptApp.getProjectTriggers().filter(function(t){
+    return t.getHandlerFunction()===handler;
+  });
+  if(existing.length>1)throw Error('重複した審査リンク通知トリガーがあります');
+  if(!existing.length)ScriptApp.newTrigger(handler).timeBased().everyMinutes(15).create();
+  return '審査行リンクの確認を15分ごとに実行します。';
+}
+function mateDirectSendResolvedReviewLinks(){
+  mateDirectOwner_();
+  var lock=LockService.getScriptLock();
+  if(!lock.tryLock(1500))return;
+  try{
+    var props=PropertiesService.getScriptProperties();
+    var all=props.getProperties();
+    var keys=Object.keys(all).filter(function(k){
+      return k.indexOf('MATE_REVIEW_LINK_PENDING_')===0;
+    }).sort().slice(0,12);
+    if(!keys.length)return;
+    var book=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
+    var review=book.getSheetByName('掲載審査_かんたん承認');
+    if(!review||review.getLastRow()<2)return;
+    var values=review.getRange(2,1,review.getLastRow()-1,31).getDisplayValues();
+    var byId={};
+    values.forEach(function(row,i){
+      var aid=String(row[30]||'').trim();
+      if(!aid)return;
+      if(!byId[aid])byId[aid]=[];
+      byId[aid].push({row:i+2,receipt:String(row[2]||'').trim(),service:String(row[3]||'').trim()});
+    });
+    keys.forEach(function(key){
+      var item;
+      try{item=JSON.parse(all[key]);}catch(_){return;}
+      if(!item||!/^\\d{10}$/.test(String(item.receipt||'')))return;
+      if(Date.now()-Number(item.created)>30*86400000){props.deleteProperty(key);return;}
+      var aid=key.slice('MATE_REVIEW_LINK_PENDING_'.length);
+      var matches=byId[aid]||[];
+      if(matches.length!==1)return; // Fail closed on missing/duplicate review rows.
+      var found=matches[0];
+      if(found.receipt!==item.receipt||found.service!==item.service)return;
+      var url='https://docs.google.com/spreadsheets/d/'+MATE_DIRECT.sheetId+
+        '/edit#gid='+review.getSheetId()+'&range=A'+found.row+':E'+found.row;
+      // Reserve before MailApp: an uncertain provider send must not create repeats.
+      var attempted='MATE_REVIEW_LINK_ATTEMPTED_'+aid;
+      if(props.getProperty(attempted)){props.deleteProperty(key);return;}
+      props.setProperty(attempted,String(Date.now()));
+      try{
+        MailApp.sendEmail({
+          to:MATE_DIRECT.owner,
+          subject:'【MATE掲載申請｜審査行リンク確定】'+item.service+' '+item.receipt,
+          body:'受付番号：'+item.receipt+'\\nサービス：'+item.service+
+            '\\n\\nこの申請のかんたん承認行を直接開く（運営専用）：\\n'+url+
+            '\\n\\n承認・公開前に本人権限、掲載内容および写真許諾を確認してください。',
+          name:'MATE運営事務局'
+        });
+        props.deleteProperty(key);
+      }catch(_sendUncertain){
+        // Attempt marker intentionally remains to avoid an accidental duplicate.
+      }
+    });
+  }finally{lock.releaseLock();}
+}
 function mateDirectReceive_(d){
   mateDirectOwner_();
   var book=SpreadsheetApp.openById(MATE_DIRECT.sheetId);
@@ -421,6 +500,10 @@ function mateDirectReceive_(d){
         ].join("\n"),
         name:"MATE運営事務局"
       });
+      if(!reviewTarget||reviewTarget.pending){
+        // The review sync may run later; queue a single exact-row correction.
+        try{mateDirectQueueReviewLink_(aid,receipt,d.service);}catch(_queueUnavailable){}
+      }
     } catch(_noticeFailure) {} // Receipt is already persisted; no retry duplicates.
     try {
       apps.getRange(insertedRow,29,1,1).setValues([[
