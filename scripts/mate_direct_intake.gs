@@ -332,7 +332,7 @@ function mateDirectReviewLink_(book,apps,aid,sourceRow){
  * after deployment to enable the recurring 15-minute correction notices.
  */
 function mateDirectQueueReviewLink_(aid,receipt,service){
-  if(!/^MATE-WEB-[a-f0-9-]{36}$/.test(aid)||!/^\\d{10}$/.test(receipt))return;
+  if(!/^MATE-WEB-[a-f0-9-]{36}$/.test(aid)||!/^\d{10}$/.test(receipt))return;
   if(['CARE','SPARK','PLAY'].indexOf(service)<0)return;
   PropertiesService.getScriptProperties().setProperty(
     'MATE_REVIEW_LINK_PENDING_'+aid,
@@ -374,7 +374,7 @@ function mateDirectSendResolvedReviewLinks(){
     keys.forEach(function(key){
       var item;
       try{item=JSON.parse(all[key]);}catch(_){return;}
-      if(!item||!/^\\d{10}$/.test(String(item.receipt||'')))return;
+      if(!item||!/^\d{10}$/.test(String(item.receipt||'')))return;
       if(Date.now()-Number(item.created)>30*86400000){props.deleteProperty(key);return;}
       var aid=key.slice('MATE_REVIEW_LINK_PENDING_'.length);
       var matches=byId[aid]||[];
@@ -391,9 +391,9 @@ function mateDirectSendResolvedReviewLinks(){
         MailApp.sendEmail({
           to:MATE_DIRECT.owner,
           subject:'【MATE掲載申請｜審査行リンク確定】'+item.service+' '+item.receipt,
-          body:'受付番号：'+item.receipt+'\\nサービス：'+item.service+
-            '\\n\\nこの申請のかんたん承認行を直接開く（運営専用）：\\n'+url+
-            '\\n\\n承認・公開前に本人権限、掲載内容および写真許諾を確認してください。',
+          body:'受付番号：'+item.receipt+'\nサービス：'+item.service+
+            '\n\nこの申請のかんたん承認行を直接開く（運営専用）：\n'+url+
+            '\n\n承認・公開前に本人権限、掲載内容および写真許諾を確認してください。',
           name:'MATE運営事務局'
         });
         props.deleteProperty(key);
