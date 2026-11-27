@@ -29,7 +29,8 @@ class LaunchPreparationTests(unittest.TestCase):
         # Editorial family cards must not carry the operator application CTA.
         # Operators reach the dedicated intake via the navigation/partner area.
         self.assertNotIn('正式掲載を申請 ↗',search)
-        self.assertIn('href="contact.html">掲載相談フォームへ',care)
+        self.assertIn('data-mate-cta="listing" href="contact.html">無料掲載を申し込む',care)
+        self.assertIn('href="business.html" data-mate-cta="business-overview"',care)
         self.assertIn('provider-search.js?v=',care)
         self.assertIn('consult.html?service=SPARK',spark)
         self.assertIn('href="partners.html">教室の無料掲載申請はこちら',spark)
