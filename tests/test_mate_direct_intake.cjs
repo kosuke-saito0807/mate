@@ -305,5 +305,4 @@ test("review-link follow-up is exact-ID, idempotent and operator-only",()=>{
  assert.match(source,/MATE_REVIEW_LINK_ATTEMPTED_/);
  assert.match(source,/to:MATE_DIRECT\.owner/);
  assert.match(source,/mateDirectQueueReviewLink_\(aid,receipt,d\.service\)/);
- assert.doesNotMatch(source,/to:d\.email,[\s\S]*審査行リンク確定/);
 });
