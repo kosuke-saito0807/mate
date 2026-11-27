@@ -13,6 +13,16 @@ TARGETS={
     "PLAY":"https://care.kosodatemate.jp/play-listing.html",
 }
 class BusinessAcquisitionTests(unittest.TestCase):
+    def test_spark_homepage_business_comparison_and_guide_are_discoverable(self):
+        home=(ROOT/"spark/index.html").read_text(encoding="utf-8")
+        self.assertIn('data-mate-cta="business-overview" href="'+HUB+'"',home)
+        self.assertIn('data-mate-cta="listing" href="partners.html"',home)
+        self.assertIn("担当者の権限と掲載情報を確認し、承諾後に公開します",home)
+        self.assertIn("'mate_business_overview_click'",home)
+        self.assertIn("'mate_listing_click'",home)
+        self.assertIn('href="guide-lesson-total-cost.html">習い事の年間総費用の比べ方',home)
+        self.assertNotIn("gtag('event','purchase'",home)
+
     def test_care_homepage_business_comparison_is_discoverable(self):
         home = (ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn('href="business.html" data-mate-cta="business-overview"', home)
