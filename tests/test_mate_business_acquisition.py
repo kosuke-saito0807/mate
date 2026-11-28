@@ -69,6 +69,15 @@ class BusinessAcquisitionTests(unittest.TestCase):
         self.assertNotIn("gtag('event','purchase'",html)
         self.assertNotIn('mailto:kosuke.saito0807',html)
 
+    def test_direct_application_precedes_preview_and_optional_support_is_accessible(self):
+        html=(ROOT/"business.html").read_text(encoding="utf-8")
+        self.assertIn('href="#apply"',html)
+        self.assertIn('href="#optional-partner-title"',html)
+        self.assertLess(html.index('id="apply"'),html.index('aria-labelledby="listing-preview-title"'))
+        for service in TARGETS:
+            self.assertEqual(html.count('data-business-cta="'+service+'"'),1)
+        self.assertIn('申込み・契約・支払いは成立しません',html)
+
     def test_sitemap_and_internal_entrances(self):
         sitemap=(ROOT/"sitemap.xml").read_text(encoding="utf-8")
         root=ET.fromstring(sitemap)
